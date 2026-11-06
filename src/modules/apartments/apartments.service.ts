@@ -86,6 +86,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
     const where: Prisma.PropertyWhereInput = {
       status: ListingStatus.ACTIVE,
       city: q.city ? { equals: q.city, mode: 'insensitive' } : undefined,
+      location: q.location ? { equals: q.location, mode: 'insensitive' } : undefined,
       units: { some: { status: ListingStatus.ACTIVE, verification: RecordVerification.VERIFIED, maxGuests: q.guests ? { gte: q.guests } : undefined } },
     };
     const [rows, total] = await this.prisma.$transaction([
@@ -94,7 +95,8 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
         orderBy: { name: 'asc' },
         ...pageArgs(q),
         include: {
-          images: { where: { unitId: null }, orderBy: { sortOrder: 'asc' }, take: 1 },
+          // Property-level photo first; otherwise the first photo of any unit.
+          images: { orderBy: [{ unitId: { sort: 'asc', nulls: 'first' } }, { sortOrder: 'asc' }], take: 1 },
           units: { where: { status: ListingStatus.ACTIVE, verification: RecordVerification.VERIFIED }, select: { id: true, nightlyRateMinor: true, maxGuests: true, bedrooms: true } },
         },
       }),
@@ -110,7 +112,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       rows.map((p) => {
         const units = p.units.filter((u) => (!q.guests || u.maxGuests >= q.guests) && (!availableUnitIds || availableUnitIds.has(u.id)));
         return {
-          id: p.id, name: p.name, slug: p.slug, city: p.city, state: p.state, amenities: p.amenities,
+          id: p.id, name: p.name, slug: p.slug, location: p.location, city: p.city, state: p.state, amenities: p.amenities,
           image: p.images[0]?.url ?? null,
           unitCount: p.units.length,
           availableUnitCount: availableUnitIds ? units.length : null,

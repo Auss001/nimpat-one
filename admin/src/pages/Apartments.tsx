@@ -25,6 +25,7 @@ interface Property {
   slug: string;
   description: string | null;
   addressLine: string;
+  location: string | null;
   city: string;
   state: string;
   amenities: string[];
@@ -35,8 +36,12 @@ interface Property {
   images: { id: string; url: string; unitId: string | null }[];
 }
 
+const LOCATIONS = ['Mabushi', 'Wuye', 'Lagos', 'Port Harcourt'];
+const OTHER = 'Other';
+
 export function ApartmentsPage() {
   const [show, setShow] = useState<'live' | 'all'>('live');
+  const [location, setLocation] = useState('all');
   const props = useLoad(() => get<Property[]>('/admin/apartments/properties'));
   const [editProp, setEditProp] = useState<Property | 'new' | null>(null);
   const [editUnit, setEditUnit] = useState<{ property: Property; unit?: Unit } | null>(null);
@@ -44,6 +49,9 @@ export function ApartmentsPage() {
   const { run } = useAction();
 
   const visible = (props.data ?? []).filter((p) => show === 'all' || p.status === 'ACTIVE' || p.status === 'DRAFT');
+  const inGroup = (p: Property, group: string) => (p.location ?? OTHER) === group;
+  const extras = visible.map((p) => p.location ?? OTHER).filter((l) => !LOCATIONS.includes(l) && l !== OTHER).sort();
+  const groups = [...new Set([...LOCATIONS, ...extras, OTHER])].filter((g) => visible.some((p) => inGroup(p, g)));
 
   const saveRate = (u: Unit, kobo: number) =>
     run(async () => {
@@ -69,9 +77,15 @@ export function ApartmentsPage() {
           </>
         }
       />
+      <div className="toolbar">
+        <Tabs value={location} onChange={setLocation} options={[{ value: 'all', label: 'All locations' }, ...groups.map((g) => ({ value: g, label: `${g} (${visible.filter((p) => inGroup(p, g)).length})` }))]} />
+      </div>
       <Loading error={props.error} loading={props.loading && !props.data} />
+      {groups.filter((g) => location === 'all' || g === location).map((group) => (
+      <section key={group} style={{ marginBottom: 24 }}>
+      <h2 style={{ marginBottom: 12 }}>{group}</h2>
       <div className="grid">
-        {visible.map((p) => {
+        {visible.filter((p) => inGroup(p, group)).map((p) => {
           const cover = p.images.find((i) => !i.unitId) ?? p.images[0];
           return (
             <div className="card" key={p.id}>
@@ -122,6 +136,8 @@ export function ApartmentsPage() {
           );
         })}
       </div>
+      </section>
+      ))}
       {editProp && <PropertyForm property={editProp === 'new' ? undefined : editProp} onClose={() => setEditProp(null)} onSaved={() => { setEditProp(null); void props.reload(); }} />}
       {editUnit && <UnitForm {...editUnit} onClose={() => setEditUnit(null)} onSaved={() => { setEditUnit(null); void props.reload(); }} />}
       {blockUnit && <BlockForm unit={blockUnit} onClose={() => setBlockUnit(null)} />}
@@ -135,6 +151,7 @@ function PropertyForm({ property, onClose, onSaved }: { property?: Property; onC
     name: property?.name ?? '',
     description: property?.description ?? '',
     addressLine: property?.addressLine ?? '',
+    location: property?.location ?? '',
     city: property?.city ?? 'Abuja',
     state: property?.state ?? 'FCT',
     amenities: property?.amenities.join(', ') ?? '',
@@ -147,7 +164,7 @@ function PropertyForm({ property, onClose, onSaved }: { property?: Property; onC
 
   const save = () =>
     run(async () => {
-      const body = { ...f, amenities: f.amenities.split(',').map((a) => a.trim()).filter(Boolean), description: f.description || undefined };
+      const body = { ...f, amenities: f.amenities.split(',').map((a) => a.trim()).filter(Boolean), description: f.description || undefined, location: f.location.trim() || undefined };
       if (property) await patch(`/admin/apartments/properties/${property.id}`, body);
       else await post('/admin/apartments/properties', { ...body, slug: `${slugify(f.name)}-${Date.now().toString(36)}` });
     }, 'Property saved').then((ok) => ok && onSaved());
@@ -162,6 +179,10 @@ function PropertyForm({ property, onClose, onSaved }: { property?: Property; onC
       <div className="form-grid">
         <Field label="Property name" full><input value={f.name} onChange={set('name')} /></Field>
         <Field label="Address / area" full><input value={f.addressLine} onChange={set('addressLine')} /></Field>
+        <Field label="Location group" hint="Pick one, or type a new location" full>
+          <input list="property-locations" value={f.location} onChange={set('location')} placeholder="Mabushi" />
+          <datalist id="property-locations">{LOCATIONS.map((l) => <option key={l} value={l} />)}</datalist>
+        </Field>
         <Field label="City"><input value={f.city} onChange={set('city')} /></Field>
         <Field label="State"><input value={f.state} onChange={set('state')} /></Field>
         <Field label="Check-in time"><input value={f.checkInTime} onChange={set('checkInTime')} placeholder="14:00" /></Field>

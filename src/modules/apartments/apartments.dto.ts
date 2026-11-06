@@ -11,6 +11,7 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export class PropertyQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ example: 'Abuja' }) @IsOptional() @IsString() city?: string;
+  @ApiPropertyOptional({ example: 'Mabushi' }) @IsOptional() @IsString() location?: string;
   @ApiPropertyOptional({ example: '2026-12-20' }) @IsOptional() @Matches(DATE) checkIn?: string;
   @ApiPropertyOptional({ example: '2026-12-23' }) @IsOptional() @Matches(DATE) checkOut?: string;
   @ApiPropertyOptional({ example: 2 }) @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(30) guests?: number;
@@ -59,6 +60,7 @@ export class CreatePropertyDto {
   @ApiProperty() @Matches(SLUG) @Length(2, 120) slug: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(0, 5000) description?: string;
   @ApiProperty() @IsString() @Length(3, 200) addressLine: string;
+  @ApiPropertyOptional({ example: 'Mabushi', description: 'Location group, for example Mabushi, Wuye, Lagos or Port Harcourt' }) @IsOptional() @IsString() @Length(2, 80) location?: string;
   @ApiProperty({ example: 'Abuja' }) @IsString() @Length(2, 80) city: string;
   @ApiProperty({ example: 'FCT' }) @IsString() @Length(2, 40) state: string;
   @ApiPropertyOptional({ type: [String] }) @IsOptional() @IsArray() @ArrayMaxSize(50) @IsString({ each: true }) amenities?: string[];

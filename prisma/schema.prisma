@@ -1154,6 +1154,8 @@ model Property {
   slug         String        @unique
   description  String?
   addressLine  String        @map("address_line")
+  /// Grouping shown to staff and customers, for example Mabushi or Lagos.
+  location     String?
   city         String
   state        String
   amenities    String[]
@@ -1169,6 +1171,7 @@ model Property {
 
   @@index([divisionId, status])
   @@index([city])
+  @@index([location])
   @@map("properties")
 }
 

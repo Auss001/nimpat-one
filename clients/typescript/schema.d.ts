@@ -3088,6 +3088,11 @@ export interface components {
             slug: string;
             description?: string;
             addressLine: string;
+            /**
+             * @description Location group, for example Mabushi, Wuye, Lagos or Port Harcourt
+             * @example Mabushi
+             */
+            location?: string;
             /** @example Abuja */
             city: string;
             /** @example FCT */
@@ -3105,6 +3110,11 @@ export interface components {
             slug?: string;
             description?: string;
             addressLine?: string;
+            /**
+             * @description Location group, for example Mabushi, Wuye, Lagos or Port Harcourt
+             * @example Mabushi
+             */
+            location?: string;
             /** @example Abuja */
             city?: string;
             /** @example FCT */
@@ -5932,6 +5942,7 @@ export interface operations {
                 page?: components["schemas"]["Object"];
                 pageSize?: components["schemas"]["Object"];
                 city?: string;
+                location?: string;
                 checkIn?: string;
                 checkOut?: string;
                 guests?: number;

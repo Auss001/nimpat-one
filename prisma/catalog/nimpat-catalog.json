@@ -940,10 +940,11 @@
           "cautionDepositMinor": 5000000,
           "cleaningFeeMinor": 2000000,
           "images": [
+            "/media/images/mabushi/flat-3/living-room-tv.jpg",
+            "/media/images/mabushi/flat-3/dining-room.jpg",
             "/media/images/mabushi/flat-3/bedroom-tv-wall.jpg",
-            "/media/images/mabushi/flat-1/living-room-tv.jpg",
-            "/media/images/mabushi/flat-3/bedroom-detail.jpg",
-            "/media/images/sample-kitchen.png"
+            "/media/images/mabushi/flat-3/bedroom.jpg",
+            "/media/images/mabushi/flat-3/bedroom-detail.jpg"
           ]
         },
         {
@@ -957,10 +958,10 @@
           "cautionDepositMinor": 5000000,
           "cleaningFeeMinor": 2000000,
           "images": [
+            "/media/images/mabushi/flat-4/living-room-tv.jpg",
             "/media/images/mabushi/flat-4/lounge-seating.jpg",
             "/media/images/mabushi/flat-4/bedroom-ensuite.jpg",
-            "/media/images/mabushi/flat-4/estate-view.jpg",
-            "/media/images/sample-bathroom.png"
+            "/media/images/mabushi/flat-4/estate-view.jpg"
           ]
         }
       ]

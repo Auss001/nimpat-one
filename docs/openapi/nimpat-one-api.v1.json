@@ -4272,6 +4272,15 @@
             }
           },
           {
+            "name": "location",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Mabushi",
+              "type": "string"
+            }
+          },
+          {
             "name": "checkIn",
             "required": false,
             "in": "query",
@@ -8294,6 +8303,11 @@
           "addressLine": {
             "type": "string"
           },
+          "location": {
+            "type": "string",
+            "example": "Mabushi",
+            "description": "Location group, for example Mabushi, Wuye, Lagos or Port Harcourt"
+          },
           "city": {
             "type": "string",
             "example": "Abuja"
@@ -8348,6 +8362,11 @@
           },
           "addressLine": {
             "type": "string"
+          },
+          "location": {
+            "type": "string",
+            "example": "Mabushi",
+            "description": "Location group, for example Mabushi, Wuye, Lagos or Port Harcourt"
           },
           "city": {
             "type": "string",

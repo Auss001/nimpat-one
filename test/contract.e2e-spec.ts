@@ -110,12 +110,17 @@ describe('Customer API contract', () => {
     const tpl = await h.prisma.apartmentUnit.findFirstOrThrow({ where: { code: 'DEV-1' }, include: { property: true } });
     const { id, createdAt, updatedAt, code, property, ...rest } = tpl;
     const unit = await h.prisma.apartmentUnit.create({ data: { ...rest, code: `CT-${Date.now()}` } });
-    await h.prisma.property.update({ where: { id: tpl.propertyId }, data: { status: 'ACTIVE' } });
+    await h.prisma.property.update({ where: { id: tpl.propertyId }, data: { status: 'ACTIVE', location: 'Mabushi' } });
     await h.prisma.apartmentUnit.update({ where: { id: unit.id }, data: { status: 'ACTIVE' } });
     const base = 30 + Math.floor(Math.random() * 400);
     const day = (o: number) => new Date(Date.now() + (base + o) * 86_400_000).toISOString().slice(0, 10);
     const list = await call('apartments.properties', 'get', `/apartments/properties?checkIn=${day(0)}&checkOut=${day(2)}&guests=2`, { status: 200 });
     expect(list.data[0]).toEqual(expect.objectContaining({ id: expect.any(String), slug: expect.any(String), city: expect.any(String), unitCount: expect.any(Number) }));
+    const mabushi = await call('apartments.properties.location', 'get', '/apartments/properties?location=mabushi', { status: 200 });
+    expect(mabushi.data.map((p: { id: string }) => p.id)).toContain(tpl.propertyId);
+    expect(mabushi.data.find((p: { id: string }) => p.id === tpl.propertyId).location).toBe('Mabushi');
+    const lagos = await call('apartments.properties.otherLocation', 'get', '/apartments/properties?location=lagos', { status: 200 });
+    expect(lagos.data.map((p: { id: string }) => p.id)).not.toContain(tpl.propertyId);
     await call('apartments.property', 'get', `/apartments/properties/${property.slug}`, { status: 200 });
     await call('apartments.calendar', 'get', `/apartments/units/${unit.id}/calendar?from=${day(0)}&to=${day(30)}`, { status: 200 });
     const quote = await call('apartments.quote', 'get', `/apartments/units/${unit.id}/quote?checkIn=${day(0)}&checkOut=${day(2)}&guests=2`, { status: 200 });

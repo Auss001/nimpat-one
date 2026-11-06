@@ -1,0 +1,685 @@
+{
+ "source": "catalogue.xlsx supplied by Nimpat Group, 2026-11-06. Prices in naira. Images in draft-unverified are AI mockups, not verified photos.",
+ "items": [
+  {
+   "sku": "NMP-WTR-007",
+   "name": "Venida Dispenser Water 18.9L",
+   "brand": "Venida",
+   "category": "Venida Products (Flagship Brand)",
+   "packaging": "18.9L Dispenser Jar (Single)",
+   "priceNaira": 1400,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-007.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WTR-008",
+   "name": "Venida Table Water 75cl",
+   "brand": "Venida",
+   "category": "Venida Products (Flagship Brand)",
+   "packaging": "Pack of 12 (75cl Bottles)",
+   "priceNaira": 1800,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-008.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WTR-009",
+   "name": "Venida Table Water 50cl",
+   "brand": "Venida",
+   "category": "Venida Products (Flagship Brand)",
+   "packaging": "Pack of 20 (50cl Bottles)",
+   "priceNaira": 2800,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-009.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WTR-001",
+   "name": "Swan Natural Spring Water 50cl",
+   "brand": "Swan",
+   "category": "Other Drinking & Dispenser Water Products",
+   "packaging": "Pack of 12 (50cl)",
+   "priceNaira": 1700,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-001.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WTR-002",
+   "name": "Swan Natural Spring Water 75cl",
+   "brand": "Swan",
+   "category": "Other Drinking & Dispenser Water Products",
+   "packaging": "Pack of 12 (75cl)",
+   "priceNaira": 2050,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WTR-003",
+   "name": "Nestlé Pure Life Water 60cl",
+   "brand": "Nestlé",
+   "category": "Other Drinking & Dispenser Water Products",
+   "packaging": "Pack of 12 (60cl)",
+   "priceNaira": 3300,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-003.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WTR-004",
+   "name": "CWAY Drinking Water 75cl",
+   "brand": "CWAY",
+   "category": "Other Drinking & Dispenser Water Products",
+   "packaging": "Pack of 12 (75cl)",
+   "priceNaira": 1800,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-004.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WTR-005",
+   "name": "CWAY Drinking Water 50cl",
+   "brand": "CWAY",
+   "category": "Other Drinking & Dispenser Water Products",
+   "packaging": "Pack of 20 (50cl)",
+   "priceNaira": 2900,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-005.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WTR-006",
+   "name": "CWAY Dispenser Water 18.9L",
+   "brand": "CWAY",
+   "category": "Other Drinking & Dispenser Water Products",
+   "packaging": "18.9L Refill Jar",
+   "priceNaira": 1400,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-006.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-DRK-005",
+   "name": "Coca-Cola Original Taste 50cl",
+   "brand": "Coca-Cola",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "Pack of 12 (50cl PET)",
+   "priceNaira": 4600,
+   "image": "/media/images/products/draft-unverified/NMP-DRK-005.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-DRK-006",
+   "name": "Fanta Orange 50cl",
+   "brand": "Coca-Cola",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "Pack of 12 (50cl PET)",
+   "priceNaira": 4600,
+   "image": "/media/images/products/draft-unverified/NMP-DRK-006.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-DRK-007",
+   "name": "Sprite Lemon-Lime 50cl",
+   "brand": "Coca-Cola",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "Pack of 12 (50cl PET)",
+   "priceNaira": 4600,
+   "image": "/media/images/products/draft-unverified/NMP-DRK-007.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-DRK-001",
+   "name": "Five Alive Mango 78cl",
+   "brand": "Coca-Cola",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "Pack of 12 (78cl)",
+   "priceNaira": 5150,
+   "image": "/media/images/products/draft-unverified/NMP-DRK-001.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-DRK-002",
+   "name": "Five Alive Cocopine 78cl",
+   "brand": "Coca-Cola",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "Pack of 12 (78cl)",
+   "priceNaira": 6150,
+   "image": "/media/images/products/draft-unverified/NMP-DRK-002.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-003",
+   "name": "Declan Apple Juice",
+   "brand": "Declan",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "75cl Glass Bottle",
+   "priceNaira": 6600,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-003.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-DRK-003",
+   "name": "Predator Energy Drink (Can 40cl)",
+   "brand": "Predator",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "Pack of 12 Cans (40cl)",
+   "priceNaira": 4700,
+   "image": "/media/images/products/draft-unverified/NMP-DRK-003.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-DRK-004",
+   "name": "Monster Energy Drink 50cl",
+   "brand": "Monster",
+   "category": "Soft Drinks, Juices & Energy Drinks",
+   "packaging": "Pack of 12 Cans (50cl)",
+   "priceNaira": 21000,
+   "image": "/media/images/products/draft-unverified/NMP-DRK-004.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-001",
+   "name": "St Lauren Wine",
+   "brand": "St Lauren",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 3500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-002",
+   "name": "Chamdor Red Grape Sparkling",
+   "brand": "Chamdor",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 9500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-004",
+   "name": "Casa De Agor Wine",
+   "brand": "Casa De Agor",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 11700,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-012",
+   "name": "Sandeman Fine Ruby Porto",
+   "brand": "Sandeman",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 19500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-014",
+   "name": "Eva Gold Sparkling Juice",
+   "brand": "Eva",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 6600,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-015",
+   "name": "Capel Wine",
+   "brand": "Capel",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 5000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-016",
+   "name": "Casa Dorado Wine",
+   "brand": "Casa Dorado",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 4000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-017",
+   "name": "Vartely Pastoral Wine",
+   "brand": "Vartely",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 10500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-023",
+   "name": "Robertson Winery Natural Sweet",
+   "brand": "Robertson Winery",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 10000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-025",
+   "name": "Il Cacciatore Fine Wine",
+   "brand": "Il Cacciatore",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 19500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-026",
+   "name": "Four Cousins Sweet Red Wine",
+   "brand": "Four Cousins",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 8000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-026.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-027",
+   "name": "Cooper & Thief Bourbon Barrel Aged Red Blend",
+   "brand": "Cooper & Thief",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 41000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-029",
+   "name": "Sandeman Founders Reserve Porto",
+   "brand": "Sandeman",
+   "category": "Wines, Sparkling & Ports",
+   "packaging": "75cl Bottle",
+   "priceNaira": 23500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-019",
+   "name": "Dom Pérignon Vintage Champagne",
+   "brand": "Dom Pérignon",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle (Gift Box)",
+   "priceNaira": 468000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-020",
+   "name": "Louis Roederer Cristal Champagne",
+   "brand": "Louis Roederer",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle (Gold Box)",
+   "priceNaira": 525000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-042",
+   "name": "Laurent-Perrier La Cuvée Brut Champagne",
+   "brand": "Laurent-Perrier",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle",
+   "priceNaira": 160000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-042.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-043",
+   "name": "Moët & Chandon Rosé Impérial Champagne",
+   "brand": "Moët & Chandon",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle",
+   "priceNaira": 118000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-044",
+   "name": "Veuve Clicquot Rosé Champagne",
+   "brand": "Veuve Clicquot",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle",
+   "priceNaira": 260000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-044.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-045",
+   "name": "Louis Roederer Brut Premier Champagne",
+   "brand": "Louis Roederer",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle",
+   "priceNaira": 156000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-046",
+   "name": "Moët & Chandon Nectar Impérial Demi-Sec",
+   "brand": "Moët & Chandon",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle",
+   "priceNaira": 115000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-047",
+   "name": "Veuve Clicquot Rich Champagne",
+   "brand": "Veuve Clicquot",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle",
+   "priceNaira": 270000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-048",
+   "name": "Moët & Chandon Impérial Brut Champagne",
+   "brand": "Moët & Chandon",
+   "category": "Champagnes",
+   "packaging": "75cl Bottle",
+   "priceNaira": 120000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-048.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-018",
+   "name": "Don Julio 1942 Tequila",
+   "brand": "Don Julio",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Tall Bottle (Box)",
+   "priceNaira": 440000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-041",
+   "name": "Olmeca Silver Tequila",
+   "brand": "Olmeca",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 20500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-035",
+   "name": "Empereur Napoleon Brandy",
+   "brand": "Empereur",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 87000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-013",
+   "name": "Hennessy V.S.O.P Privilège Cognac",
+   "brand": "Hennessy",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Box)",
+   "priceNaira": 196000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-013.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-030",
+   "name": "Hennessy Very Special (V.S) Gold Edition",
+   "brand": "Hennessy",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 108000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-031",
+   "name": "Hennessy Very Special (V.S) Black Edition",
+   "brand": "Hennessy",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 108000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-033",
+   "name": "Hennessy X.O Extra Old Cognac",
+   "brand": "Hennessy",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Decanter/Box)",
+   "priceNaira": 350000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-022",
+   "name": "Martell V.S Fine Cognac",
+   "brand": "Martell",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 80000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-028",
+   "name": "Martell Blue Swift Cognac Spirit Drink",
+   "brand": "Martell",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 96000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-005",
+   "name": "Glenfiddich 15 Years Single Malt Scotch",
+   "brand": "Glenfiddich",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Tube/Box)",
+   "priceNaira": 87000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-006",
+   "name": "Glenfiddich 12 Years Single Malt Scotch",
+   "brand": "Glenfiddich",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Green Tube)",
+   "priceNaira": 58000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-006.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-007",
+   "name": "Glenfiddich 18 Years Single Malt Scotch",
+   "brand": "Glenfiddich",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Presentation Box)",
+   "priceNaira": 135000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-034",
+   "name": "Glenmorangie The Original Highland Malt",
+   "brand": "Glenmorangie",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Orange Box)",
+   "priceNaira": 92000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-036",
+   "name": "The Macallan 18 Years Sherry Oak (Black Box)",
+   "brand": "The Macallan",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Black Box)",
+   "priceNaira": 490000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-037",
+   "name": "The Macallan 18 Years Sherry Oak (Blue Box)",
+   "brand": "The Macallan",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Blue Box)",
+   "priceNaira": 470000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-038",
+   "name": "The Macallan 15 Years Double Cask",
+   "brand": "The Macallan",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Box)",
+   "priceNaira": 187000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-039",
+   "name": "The Macallan 12 Years Double Cask",
+   "brand": "The Macallan",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Box)",
+   "priceNaira": 84000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-021",
+   "name": "Johnnie Walker Blue Label Scotch Whisky",
+   "brand": "Johnnie Walker",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Silk-lined Box)",
+   "priceNaira": 430000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-040",
+   "name": "Johnnie Walker Gold Label Reserve",
+   "brand": "Johnnie Walker",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Gold Box)",
+   "priceNaira": 70000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-008",
+   "name": "Jameson Blackberry Irish Whiskey",
+   "brand": "Jameson",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 76000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-009",
+   "name": "Jameson Irish Whiskey (Original)",
+   "brand": "Jameson",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 44000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-009.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-024",
+   "name": "Jack Daniel's Old No. 7 Tennessee Whiskey",
+   "brand": "Jack Daniel's",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "Small Bottle / 75cl",
+   "priceNaira": 9000,
+   "image": "/media/images/products/draft-unverified/NMP-WIN-024.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  },
+  {
+   "sku": "NMP-WIN-010",
+   "name": "Tenjaku Pure Japanese Whisky",
+   "brand": "Tenjaku",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle (Box)",
+   "priceNaira": 19500,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-011",
+   "name": "The Observatory 20 Years Single Grain Scotch",
+   "brand": "The Observatory",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 86000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WIN-032",
+   "name": "The Glen Silvers Blended Scotch Whisky",
+   "brand": "The Glen Silvers",
+   "category": "Spirits, Whiskies, Cognacs & Tequilas",
+   "packaging": "75cl Bottle",
+   "priceNaira": 29000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-SUP-001",
+   "name": "Executive Ultra-Bright A4 Copy Paper (Box of 5 Reams)",
+   "brand": "Executive",
+   "category": "Retail & General Supplies",
+   "packaging": "Box of 5 Reams (2,500 Sheets)",
+   "priceNaira": 32000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-SUP-002",
+   "name": "Heavy-Duty Safety Helmets & Hi-Vis Vests (Bundle of 10)",
+   "brand": "Heavy-Duty",
+   "category": "Retail & General Supplies",
+   "packaging": "Pack of 10 Sets",
+   "priceNaira": 65000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-SUP-003",
+   "name": "Eco-Max Commercial Disinfectant (20L Drum)",
+   "brand": "Eco-Max",
+   "category": "Retail & General Supplies",
+   "packaging": "20L Industrial Drum",
+   "priceNaira": 28000,
+   "image": null,
+   "imageStatus": "Pending accurate photo"
+  },
+  {
+   "sku": "NMP-WTR-SACHET",
+   "name": "Venida Sachet Water",
+   "brand": "Venida",
+   "category": "Venida Products (Flagship Brand)",
+   "packaging": "Bag of 50cl sachets",
+   "priceNaira": 300,
+   "image": "/media/images/products/draft-unverified/NMP-WTR-SACHET.webp",
+   "imageStatus": "AI mockup — verify branding and pack size before publishing"
+  }
+ ]
+}
