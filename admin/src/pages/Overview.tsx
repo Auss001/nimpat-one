@@ -20,7 +20,7 @@ interface Counts {
   toPrepare: number;
   awaitingVerification: number;
   unconfirmed: number;
-  sampleZones: boolean;
+  zones: number;
 }
 
 async function loadCounts(): Promise<Counts> {
@@ -56,7 +56,7 @@ async function loadCounts(): Promise<Counts> {
     toPrepare: accepted.meta.total,
     awaitingVerification: awaiting.meta.total,
     unconfirmed,
-    sampleZones: zones.some((z) => z.isActive && z.verification === 'DEV_SAMPLE'),
+    zones: zones.filter((z) => z.isActive).length,
   };
 }
 
@@ -102,7 +102,7 @@ function AtAGlance({ r }: { r: Report }) {
     <>
       <div className="section-head">
         <h2>{group ? 'Everything Nimpat has' : 'Your divisions at a glance'}</h2>
-        <span className="muted small">Test samples and switched-off items are left out</span>
+        <span className="muted small">Switched-off items are left out</span>
       </div>
       <div className="kpis">
         <div className="card kpi"><span>Items on record</span><strong>{holdings}</strong></div>
@@ -307,7 +307,7 @@ export function OverviewPage() {
             <Link to="/orders"><span className="circle"><Wallet size={19} /></span><div><strong>{c.toPrepare} to prepare</strong><span>Orders</span></div></Link>
             <Link to="/payments"><span className="circle c1"><ShieldCheck size={19} /></span><div><strong>{c.awaitingVerification} awaiting</strong><span>Finance verification</span></div></Link>
             <Link to="/data-check"><span className="circle c2"><ClipboardCheck size={19} /></span><div><strong>{c.unconfirmed} unconfirmed</strong><span>Catalogue records</span></div></Link>
-            <Link to="/delivery"><span className="circle"><Truck size={19} /></span><div><strong>{c.sampleZones ? 'Sample zones' : 'Zones set'}</strong><span>Delivery areas and fees</span></div></Link>
+            <Link to="/delivery"><span className="circle"><Truck size={19} /></span><div><strong>{c.zones ? `${c.zones} zones set` : 'No zones yet'}</strong><span>Delivery areas and fees</span></div></Link>
           </div>
         </>
       )}

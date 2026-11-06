@@ -1,21 +1,7 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { PrescriptionStatus, ProductAvailability, ProductStatus } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
-import {
-  ArrayMaxSize,
-  IsArray,
-  IsBoolean,
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUUID,
-  Length,
-  Matches,
-  Max,
-  Min,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, IsUUID, Length, Matches, Max, Min, ValidateNested, ArrayMinSize, IsIn } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination.dto';
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -117,4 +103,13 @@ export class PharmacyReviewDto {
   @ApiProperty({ description: 'The pharmacist has checked the details and photo against the real product' }) @IsBoolean() approved: boolean;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(0, 5000) description?: string;
   @ApiPropertyOptional({ description: 'Current availability has been verified, so it may be bought' }) @IsOptional() @IsBoolean() purchaseEnabled?: boolean;
+}
+
+export const BULK_ACTIONS = ['PUBLISH', 'UNPUBLISH', 'ARCHIVE', 'RESTORE', 'ALLOW_PURCHASE', 'BLOCK_PURCHASE', 'MARK_IN_STOCK', 'MARK_OUT_OF_STOCK', 'USE_LIVE_COUNT', 'PHARMACY_APPROVE'] as const;
+export type BulkAction = (typeof BULK_ACTIONS)[number];
+
+export class BulkProductsDto {
+  @ApiProperty({ type: [String] }) @IsArray() @ArrayMinSize(1) @ArrayMaxSize(1000) @IsUUID('all', { each: true }) ids: string[];
+  @ApiProperty({ enum: BULK_ACTIONS, description: 'PUBLISH confirms the products and puts them on sale, so customers can see them' }) @IsIn(BULK_ACTIONS as unknown as string[]) action: BulkAction;
+  @ApiPropertyOptional({ enum: PrescriptionStatus, description: 'Required for PHARMACY_APPROVE' }) @IsOptional() @IsEnum(PrescriptionStatus) prescriptionStatus?: PrescriptionStatus;
 }

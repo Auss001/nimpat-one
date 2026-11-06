@@ -7,6 +7,7 @@ import {
   AdminProductQueryDto,
   CreateCategoryDto,
   CreateProductDto,
+  BulkProductsDto,
   ImageInputDto,
   PharmacyReviewDto,
   ProductQueryDto,
@@ -91,6 +92,14 @@ export class AdminCatalogController {
   @ApiOperation({ summary: 'Add a variant (size / pack) with its price in kobo' })
   addVariant(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: VariantInputDto) {
     return this.catalog.addVariant(user, id, dto);
+  }
+
+  @Post('products/bulk')
+  @HttpCode(200)
+  @RequirePermissions(P.catalogManage)
+  @ApiOperation({ summary: 'One action on many products. Each is checked on its own, and any skipped are reported back' })
+  bulk(@CurrentUser() user: AuthUser, @Body() dto: BulkProductsDto) {
+    return this.catalog.bulk(user, dto);
   }
 
   @Post('products/:id/pharmacy-review')

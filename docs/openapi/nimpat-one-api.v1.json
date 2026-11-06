@@ -541,6 +541,39 @@
         ]
       }
     },
+    "/api/v1/me": {
+      "delete": {
+        "operationId": "Users_deleteAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete my account. Personal details are erased; financial records stay, with no name attached",
+        "tags": [
+          "Account"
+        ]
+      }
+    },
     "/api/v1/me/profile": {
       "patch": {
         "operationId": "Users_updateProfile",
@@ -1407,6 +1440,36 @@
           }
         ],
         "summary": "Add a variant (size / pack) with its price in kobo",
+        "tags": [
+          "Admin · Catalogue"
+        ]
+      }
+    },
+    "/api/v1/admin/catalog/products/bulk": {
+      "post": {
+        "operationId": "AdminCatalog_bulk",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkProductsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Requires one of: catalog:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "One action on many products. Each is checked on its own, and any skipped are reported back",
         "tags": [
           "Admin · Catalogue"
         ]
@@ -7453,6 +7516,18 @@
           "newPassword"
         ]
       },
+      "DeleteAccountDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "The account password, to confirm it is really the owner"
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
       "UpdateProfileDto": {
         "type": "object",
         "properties": {
@@ -7848,6 +7923,47 @@
             "type": "boolean"
           }
         }
+      },
+      "BulkProductsDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "PUBLISH",
+              "UNPUBLISH",
+              "ARCHIVE",
+              "RESTORE",
+              "ALLOW_PURCHASE",
+              "BLOCK_PURCHASE",
+              "MARK_IN_STOCK",
+              "MARK_OUT_OF_STOCK",
+              "USE_LIVE_COUNT",
+              "PHARMACY_APPROVE"
+            ],
+            "description": "PUBLISH confirms the products and puts them on sale, so customers can see them"
+          },
+          "prescriptionStatus": {
+            "type": "string",
+            "enum": [
+              "NOT_REVIEWED",
+              "NOT_REQUIRED",
+              "REQUIRED",
+              "RESTRICTED"
+            ],
+            "description": "Required for PHARMACY_APPROVE"
+          }
+        },
+        "required": [
+          "ids",
+          "action"
+        ]
       },
       "PharmacyReviewDto": {
         "type": "object",

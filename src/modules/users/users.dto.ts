@@ -1,15 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  IsBoolean,
-  IsDateString,
-  IsLatitude,
-  IsLongitude,
-  IsOptional,
-  IsString,
-  Length,
-  Matches,
-} from 'class-validator';
+import { IsBoolean, IsDateString, IsLatitude, IsLongitude, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { NG_PHONE } from '../auth/dto/auth.dto';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
@@ -42,3 +33,7 @@ export class CreateAddressDto {
 }
 
 export class UpdateAddressDto extends PartialType(CreateAddressDto) {}
+
+export class DeleteAccountDto {
+  @ApiProperty({ description: 'The account password, to confirm it is really the owner' }) @IsString() @Length(1, 200) password: string;
+}

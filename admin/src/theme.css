@@ -347,3 +347,9 @@ textarea { min-height: 80px; resize: vertical; }
   .runway::before { display: none; }
   .wall { grid-template-rows: repeat(3, 118px); }
 }
+
+/* ---------------------------------------------------------------- bulk actions */
+.row-check { width: 17px; height: 17px; accent-color: var(--brand); cursor: pointer; vertical-align: middle; }
+.bulk-bar { position: sticky; top: 8px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; margin-bottom: 12px; border-radius: var(--radius-sm); background: var(--text); color: #fff; box-shadow: var(--shadow); }
+.bulk-bar strong { margin-right: 6px; }
+.bulk-bar .btn.link { background: none; color: #fff; text-decoration: underline; border: 0; }

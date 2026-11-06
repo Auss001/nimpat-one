@@ -22,6 +22,7 @@ Updated 2026-11-06. Everything runs locally. Nothing is deployed, and DNS has no
 | Staff and manager access, overview homepage | End-to-end tests. Invite, set password, manager sign-in, limited menu, charts and hover were clicked through in the dashboard on the test database. Editing prices as a manager is covered by tests only |
 | Photo tools | End-to-end tests. Upload, make main, remove, bulk upload and error messages were clicked through in the dashboard on the test database |
 | Stock import, pharmacy approval, unpublished prices, service bookings | End-to-end tests. The pharmacy list, pharmacist review, stock, cars and bookings screens were clicked through on the test database with the full catalogue loaded |
+| Bulk product actions, account deletion | End-to-end tests. Select all, show to customers and the pharmacy refusal were clicked through on the test database |
 | Docker image | Built from the current code and started on the test database: database, bundled photos, photo upload and resizing on Linux, overview, non-root user. The test suites run outside Docker, not inside the image |
 
 ## Test results
@@ -29,7 +30,7 @@ Updated 2026-11-06. Everything runs locally. Nothing is deployed, and DNS has no
 | Suite | Result |
 |---|---|
 | Unit | 12 passed |
-| End-to-end (8 files) | 114 passed; 8 skipped (real Paystack, needs a key) |
+| End-to-end (9 files) | 124 passed; 8 skipped (real Paystack, needs a key) |
 | Paystack script, dry run on mock | 8 passed |
 | Live route check | 174 operations, 0 failures |
 
@@ -65,6 +66,13 @@ The first commit is on `main`. **No remote, so nothing has been pushed.** Secret
 9. **Payment rows can change status at database level.** Only events, audit entries and deletions are locked by triggers.
 10. **Reversing a payment doesn't undo a confirmed order or booking.** Staff get a notification and must decide.
 11. **Dependency overrides:** `npm audit --omit=dev` reports 0 vulnerabilities, using package overrides for `multer` and `deepmerge-ts`. Remove them when NestJS and Prisma ship the fixes in the versions used here. Development tools were not audited.
+
+## Before the mobile apps can use the API
+
+- The API runs only on this computer. The apps need a public HTTPS address, so hosting on Google Cloud comes first.
+- Paystack is in test mode, and emails and SMS only print to the server console.
+- There are no push notifications yet.
+- App stores restrict alcohol and medicines, so check their rules for these categories before submitting.
 
 ## Pharmacy limits
 

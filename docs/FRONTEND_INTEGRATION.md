@@ -220,3 +220,7 @@ Set the app's API base URL to `http://localhost:4000`. In development, verificat
 - Pharmacy products use the division `pharmacy-laboratory`, and appear only after pharmacist approval and company confirmation. Show medical information for general reference only, without diagnosis or dosage advice.
 - List pharmacy and laboratory services with `GET /services?division=pharmacy-laboratory`, and book with `POST /services/bookings`. Put what the customer asked for in `details`, such as `{ "requestedTest": "..." }`. Staff then confirm the time and price.
 - Spa bookings use `GET /spa/treatments`, `GET /spa/treatments/:id/slots` and `POST /spa/appointments`. They need at least one active therapist and confirmed treatments.
+
+## Account deletion
+
+Apple and Google require apps with sign-up to let people delete their account from inside the app. Call `DELETE /me` with `{ "password": "..." }`. Personal details are erased and sign-in stops. A `409` means an order or booking is still open, so show its message.

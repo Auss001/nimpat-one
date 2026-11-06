@@ -61,3 +61,21 @@ Source: `Nimpat_App_Stock_Catalogue.xlsx` and `records updated 1.2.xlsx`, kept i
 Condition, mileage, colour and photos were not supplied for any car.
 
 **Images:** 8 AI mockups from the partial set were attached. Their labels need checking: Casa Dorado's image reads "Casa Dorada", and St Lauren's reads "Non-Alcoholic Sparkling Wine", which the catalogue does not state.
+
+## Test data removed, 7 November 2026
+
+All development samples and three test customer accounts were deleted from the local database. A backup from just before is in `backups/`. `dev.admin@nimpat.test` remains as the only sign-in until a real administrator is created.
+
+## Product images attached, 7 November 2026
+
+36 images were cut from the supplied sheet, so every drink, water and wine product now has one. Only 3 retail products still have none. These are AI mockups, and these labels need correcting:
+
+| SKU | Product | What the picture shows |
+|---|---|---|
+| NMP-WIN-038 | The Macallan 15 Years Double Cask | Box reads 12, bottle reads 18 |
+| NMP-WIN-036 | The Macallan 18 Years Sherry Oak (Black Box) | Box reads 12 |
+| NMP-WIN-008 | Jameson Blackberry Irish Whiskey | Label is garbled and does not read Jameson |
+| NMP-WIN-025 | Il Cacciatore Fine Wine | Label is misspelt |
+| NMP-WIN-032 | The Glen Silvers Blended Scotch Whisky | Label is garbled |
+| NMP-WIN-011 | The Observatory 20 Years Single Grain Scotch | Label is garbled |
+| NMP-WIN-041 | Olmeca Silver Tequila | Label is misspelt |

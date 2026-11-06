@@ -72,6 +72,9 @@ export function ProductsPage({ division, title }: { division: string; title: str
   const [photosFor, setPhotosFor] = useState<string | null>(null);
   const [bulk, setBulk] = useState(false);
   const [reviewing, setReviewing] = useState<Product | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkReview, setBulkReview] = useState(false);
+  const [bulkResult, setBulkResult] = useState<BulkResult | null>(null);
   const { can } = useAccess();
   const canApprove = can({ any: ['pharmacy:approve'], division });
   const { run } = useAction();
@@ -94,6 +97,29 @@ export function ProductsPage({ division, title }: { division: string; title: str
       )
       .sort((a, b) => (order.get(a.category?.id ?? '') ?? 99) - (order.get(b.category?.id ?? '') ?? 99) || a.name.localeCompare(b.name));
   }, [products.data, categories.data, q, category]);
+
+  // Selection follows the list on screen, so a filter or new tab starts clean.
+  useEffect(() => setSelected(new Set()), [division, tab, q, category]);
+  const allOn = rows.length > 0 && rows.every((p) => selected.has(p.id));
+  const toggle = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const toggleAll = () => setSelected(allOn ? new Set() : new Set(rows.map((p) => p.id)));
+
+  const runBulk = (action: string, prescriptionStatus?: Prescription) =>
+    run(async () => {
+      const ids = [...selected];
+      const result: BulkResult = { updated: 0, skipped: [] };
+      for (let i = 0; i < ids.length; i += 500) {
+        const r = await post<BulkResult>('/admin/catalog/products/bulk', { ids: ids.slice(i, i + 500), action, prescriptionStatus });
+        result.updated += r.updated;
+        result.skipped.push(...r.skipped);
+      }
+      setBulkResult(result);
+      setSelected(new Set());
+      await products.reload();
+    });
+  const confirmBulk = (message: string, action: string, label: string) => ask(message, () => void runBulk(action), label);
+  const count = selected.size;
+  const items = `${count} product${count === 1 ? '' : 's'}`;
 
   const savePrice = (v: Variant, kobo: number) =>
     run(async () => {
@@ -127,12 +153,30 @@ export function ProductsPage({ division, title }: { division: string; title: str
         </select>
         <span className="muted small">{rows.length} products</span>
       </div>
+      {count > 0 && (
+        <div className="bulk-bar" role="region" aria-label="Actions for selected products">
+          <strong>{count} selected</strong>
+          <button className="btn sm primary" onClick={() => confirmBulk(`Show ${items} to customers? Each will be confirmed and put on sale. They can only be bought once they also have a price and stock.`, 'PUBLISH', 'Show to customers')}>Show to customers</button>
+          <button className="btn sm" onClick={() => void runBulk('UNPUBLISH')}>Hide from customers</button>
+          <button className="btn sm" onClick={() => void runBulk('ALLOW_PURCHASE')}>Allow purchase</button>
+          <button className="btn sm" onClick={() => void runBulk('BLOCK_PURCHASE')}>Block purchase</button>
+          <button className="btn sm" onClick={() => void runBulk('MARK_IN_STOCK')}>Mark in stock</button>
+          <button className="btn sm" onClick={() => void runBulk('MARK_OUT_OF_STOCK')}>Mark out of stock</button>
+          <button className="btn sm" onClick={() => void runBulk('USE_LIVE_COUNT')}>Use live count</button>
+          {canApprove && <button className="btn sm" onClick={() => setBulkReview(true)}>Pharmacist approve</button>}
+          {tab === 'ARCHIVED'
+            ? <button className="btn sm" onClick={() => void runBulk('RESTORE')}>Restore</button>
+            : <button className="btn sm danger" onClick={() => confirmBulk(`Remove ${items} from sale? You can restore them from the Archived tab.`, 'ARCHIVE', 'Remove from sale')}>Remove from sale</button>}
+          <button className="btn sm link" onClick={() => setSelected(new Set())}>Clear</button>
+        </div>
+      )}
       <Loading error={products.error} loading={products.loading && !products.data} />
       {products.data && (
         <div className="card table-wrap">
           <table>
             <thead>
               <tr>
+                <th style={{ width: 34 }}><input type="checkbox" className="row-check" aria-label="Select all products shown" title="Select all" checked={allOn} onChange={toggleAll} /></th>
                 <th style={{ width: 52 }}></th>
                 <th>Product</th>
                 <th>Size / pack</th>
@@ -143,12 +187,13 @@ export function ProductsPage({ division, title }: { division: string; title: str
               </tr>
             </thead>
             <tbody>
-              {rows.length === 0 && <tr><td colSpan={7} className="empty">No products here.</td></tr>}
+              {rows.length === 0 && <tr><td colSpan={8} className="empty">No products here.</td></tr>}
               {rows.map((p) =>
                 (p.variants.length ? p.variants : [null]).map((v, i) => (
                   <tr key={`${p.id}-${v?.id ?? 'none'}`}>
                     {i === 0 && (
                       <>
+                        <td rowSpan={Math.max(1, p.variants.length)}><input type="checkbox" className="row-check" aria-label={`Select ${p.name}`} checked={selected.has(p.id)} onChange={() => toggle(p.id)} /></td>
                         <td rowSpan={Math.max(1, p.variants.length)}>
                           <button className="thumb-btn" title="Manage photos" aria-label={`Manage photos of ${p.name}`} onClick={() => setPhotosFor(p.id)}>
                             {p.images[0] ? <img className="thumb" src={p.images[0].url} alt="" /> : <div className="thumb thumb-pending">Image pending</div>}
@@ -191,6 +236,8 @@ export function ProductsPage({ division, title }: { division: string; title: str
         </div>
       )}
       {dialog}
+      {bulkReview && <BulkPharmacyReview count={count} onClose={() => setBulkReview(false)} onApprove={(status) => { setBulkReview(false); void runBulk('PHARMACY_APPROVE', status); }} />}
+      {bulkResult && <BulkResultDialog result={bulkResult} onClose={() => setBulkResult(null)} />}
       {reviewing && <PharmacyReview product={reviewing} onClose={() => setReviewing(null)} onSaved={() => { setReviewing(null); void products.reload(); }} />}
       {photosFor && <PhotoManager owner="product" id={photosFor} onClose={() => setPhotosFor(null)} onChanged={() => void products.reload()} />}
       {bulk && <BulkPhotoUpload onClose={() => setBulk(false)} onChanged={() => void products.reload()} />}
@@ -207,6 +254,48 @@ export function ProductsPage({ division, title }: { division: string; title: str
         />
       )}
     </>
+  );
+}
+
+interface BulkResult {
+  updated: number;
+  skipped: { id: string; name: string; reason: string }[];
+}
+
+/** Says plainly what happened, including anything that could not be changed. */
+function BulkResultDialog({ result, onClose }: { result: BulkResult; onClose: () => void }) {
+  return (
+    <Modal title="Done" onClose={onClose} footer={<button className="btn primary" onClick={onClose}>Close</button>}>
+      <p style={{ marginTop: 0 }}><strong>{result.updated}</strong> product{result.updated === 1 ? '' : 's'} updated.</p>
+      {result.skipped.length > 0 && (
+        <>
+          <p><strong>{result.skipped.length}</strong> could not be changed:</p>
+          <ul className="small" style={{ maxHeight: 260, overflow: 'auto', paddingLeft: 18 }}>
+            {result.skipped.map((s) => <li key={s.id}><strong>{s.name}</strong>: {s.reason}</li>)}
+          </ul>
+        </>
+      )}
+    </Modal>
+  );
+}
+
+/** Approving many at once suits simple groups. The same legal check applies to every item. */
+function BulkPharmacyReview({ count, onClose, onApprove }: { count: number; onClose: () => void; onApprove: (status: Prescription) => void }) {
+  const [status, setStatus] = useState<Prescription>('NOT_REVIEWED');
+  const [checked, setChecked] = useState(false);
+  return (
+    <Modal title={`Approve ${count} product${count === 1 ? '' : 's'}`} onClose={onClose} footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" disabled={status === 'NOT_REVIEWED' || !checked} onClick={() => onApprove(status)}>Approve all</button></>}>
+      <div className="form-grid">
+        <Field label="Prescription status for all of them" hint="Use this only when it is the same for every selected product" full>
+          <select value={status} onChange={(e) => setStatus(e.target.value as Prescription)}>
+            {(Object.keys(PRESCRIPTION) as Prescription[]).map((k) => <option key={k} value={k}>{PRESCRIPTION[k]}</option>)}
+          </select>
+        </Field>
+        <Field label="Your check" full>
+          <label className="check"><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} /> I have checked the name, description and photo of every selected product against the actual product</label>
+        </Field>
+      </div>
+    </Modal>
   );
 }
 

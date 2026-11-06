@@ -327,6 +327,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete my account. Personal details are erased; financial records stay, with no name attached */
+        delete: operations["Users_deleteAccount"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/profile": {
         parameters: {
             query?: never;
@@ -647,6 +664,23 @@ export interface paths {
         put?: never;
         /** Add a variant (size / pack) with its price in kobo */
         post: operations["AdminCatalog_addVariant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/products/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** One action on many products. Each is checked on its own, and any skipped are reported back */
+        post: operations["AdminCatalog_bulk"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2769,6 +2803,10 @@ export interface components {
             currentPassword: string;
             newPassword: string;
         };
+        DeleteAccountDto: {
+            /** @description The account password, to confirm it is really the owner */
+            password: string;
+        };
         UpdateProfileDto: {
             firstName?: string;
             lastName?: string;
@@ -2911,6 +2949,19 @@ export interface components {
             /** @enum {string|null} */
             listedAvailability?: "IN_STOCK" | "OUT_OF_STOCK" | null;
             purchaseEnabled?: boolean;
+        };
+        BulkProductsDto: {
+            ids: string[];
+            /**
+             * @description PUBLISH confirms the products and puts them on sale, so customers can see them
+             * @enum {string}
+             */
+            action: "PUBLISH" | "UNPUBLISH" | "ARCHIVE" | "RESTORE" | "ALLOW_PURCHASE" | "BLOCK_PURCHASE" | "MARK_IN_STOCK" | "MARK_OUT_OF_STOCK" | "USE_LIVE_COUNT" | "PHARMACY_APPROVE";
+            /**
+             * @description Required for PHARMACY_APPROVE
+             * @enum {string}
+             */
+            prescriptionStatus?: "NOT_REVIEWED" | "NOT_REQUIRED" | "REQUIRED" | "RESTRICTED";
         };
         PharmacyReviewDto: {
             /** @enum {string} */
@@ -4034,6 +4085,34 @@ export interface operations {
             };
         };
     };
+    Users_deleteAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     Users_updateProfile: {
         parameters: {
             query?: never;
@@ -4553,6 +4632,28 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["VariantInputDto"];
+            };
+        };
+        responses: {
+            /** @description Requires one of: catalog:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminCatalog_bulk: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkProductsDto"];
             };
         };
         responses: {

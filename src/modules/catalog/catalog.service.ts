@@ -9,6 +9,7 @@ import { DivisionsService } from '../divisions/divisions.service';
 import { InventoryService } from '../inventory/inventory.service';
 import {
   AdminProductQueryDto,
+  BulkProductsDto,
   CreateCategoryDto,
   CreateProductDto,
   ImageInputDto,
@@ -226,6 +227,73 @@ export class CatalogService {
     });
     await this.audit.record({ actorId: user.id, action: dto.approved ? 'pharmacy.approve' : 'pharmacy.withdraw', entityType: 'product', entityId: id, divisionId: existing.divisionId, changes: { ...dto } });
     return this.adminGetProduct(user, id);
+  }
+
+  /**
+   * One action on many products. Each is checked on its own, so one that cannot
+   * change is reported back and does not stop the others.
+   */
+  async bulk(user: AuthUser, dto: BulkProductsDto) {
+    const ids = [...new Set(dto.ids)];
+    const products = await this.prisma.product.findMany({ where: { id: { in: ids } }, include: { variants: { where: { isActive: true }, select: { id: true } } } });
+    if (dto.action === 'PHARMACY_APPROVE' && (!dto.prescriptionStatus || dto.prescriptionStatus === PrescriptionStatus.NOT_REVIEWED)) {
+      throw new BadRequestException('Choose the prescription status before approving');
+    }
+    let updated = 0;
+    const skipped: { id: string; name: string; reason: string }[] = [];
+    for (const p of products) {
+      const skip = (reason: string) => skipped.push({ id: p.id, name: p.name, reason });
+      if (!user.can(P.catalogManage, p.divisionId)) { skip('You do not manage this division'); continue; }
+      const isPharmacy = p.prescriptionStatus !== null;
+      const isPharmacist = user.can(P.pharmacyApprove, p.divisionId);
+      let data: Prisma.ProductUncheckedUpdateInput;
+      switch (dto.action) {
+        case 'PUBLISH':
+          if (!user.can(P.recordsVerify, p.divisionId)) { skip('You cannot confirm records in this division'); continue; }
+          if (p.variants.length === 0) { skip('It has no active size'); continue; }
+          if (isPharmacy && !p.pharmacistApprovedAt) { skip('It needs pharmacist approval first'); continue; }
+          data = { status: ProductStatus.ACTIVE, verification: RecordVerification.VERIFIED, verifiedAt: new Date(), verifiedById: user.id };
+          break;
+        case 'UNPUBLISH':
+          if (!user.can(P.recordsVerify, p.divisionId)) { skip('You cannot confirm records in this division'); continue; }
+          data = { verification: RecordVerification.AWAITING_CONFIRMATION, verifiedAt: null, verifiedById: null };
+          break;
+        case 'ARCHIVE':
+          data = { status: ProductStatus.ARCHIVED };
+          break;
+        case 'RESTORE':
+          if (p.variants.length === 0) { skip('It has no active size'); continue; }
+          data = { status: ProductStatus.ACTIVE };
+          break;
+        case 'ALLOW_PURCHASE':
+          if (isPharmacy && !isPharmacist) { skip('Only a pharmacist can allow this to be bought'); continue; }
+          if (isPharmacy && !p.pharmacistApprovedAt) { skip('It needs pharmacist approval first'); continue; }
+          if (p.prescriptionStatus === PrescriptionStatus.REQUIRED || p.prescriptionStatus === PrescriptionStatus.RESTRICTED) { skip('Prescription medicines cannot be bought online'); continue; }
+          data = { purchaseEnabled: true };
+          break;
+        case 'BLOCK_PURCHASE':
+          data = { purchaseEnabled: false };
+          break;
+        case 'MARK_IN_STOCK':
+          data = { listedAvailability: ProductAvailability.IN_STOCK };
+          break;
+        case 'MARK_OUT_OF_STOCK':
+          data = { listedAvailability: ProductAvailability.OUT_OF_STOCK };
+          break;
+        case 'USE_LIVE_COUNT':
+          data = { listedAvailability: null };
+          break;
+        case 'PHARMACY_APPROVE':
+          if (!isPharmacy) { skip('It is not a pharmacy product'); continue; }
+          if (!isPharmacist) { skip('Only a pharmacist can approve this'); continue; }
+          data = { prescriptionStatus: dto.prescriptionStatus, pharmacistApprovedAt: new Date(), pharmacistApprovedById: user.id };
+          break;
+      }
+      await this.prisma.product.update({ where: { id: p.id }, data });
+      await this.audit.record({ actorId: user.id, action: `product.bulk.${dto.action.toLowerCase()}`, entityType: 'product', entityId: p.id, divisionId: p.divisionId, changes: { prescriptionStatus: dto.prescriptionStatus } });
+      updated++;
+    }
+    return { updated, skipped, notFound: ids.length - products.length };
   }
 
   async addVariant(user: AuthUser, productId: string, dto: VariantInputDto) {

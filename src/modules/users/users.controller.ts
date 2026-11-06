@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Authenticated, CurrentUser } from '../../common/decorators/auth.decorators';
 import { AuthUser } from '../access/auth-user';
-import { CreateAddressDto, UpdateAddressDto, UpdateProfileDto } from './users.dto';
+import { CreateAddressDto, DeleteAccountDto, UpdateAddressDto, UpdateProfileDto } from './users.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('Account')
@@ -10,6 +10,12 @@ import { UsersService } from './users.service';
 @Controller('me')
 export class UsersController {
   constructor(private readonly users: UsersService) {}
+
+  @Delete()
+  @ApiOperation({ summary: 'Delete my account. Personal details are erased; financial records stay, with no name attached' })
+  deleteAccount(@CurrentUser() user: AuthUser, @Body() dto: DeleteAccountDto) {
+    return this.users.deleteAccount(user, dto.password);
+  }
 
   @Patch('profile')
   @ApiOperation({ summary: 'Update my customer profile' })
