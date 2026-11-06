@@ -23,6 +23,7 @@ Updated 2026-11-06. Everything runs locally. Nothing is deployed, and DNS has no
 | Photo tools | End-to-end tests. Upload, make main, remove, bulk upload and error messages were clicked through in the dashboard on the test database |
 | Stock import, pharmacy approval, unpublished prices, service bookings | End-to-end tests. The pharmacy list, pharmacist review, stock, cars and bookings screens were clicked through on the test database with the full catalogue loaded |
 | Bulk product actions, account deletion | End-to-end tests. Select all, show to customers and the pharmacy refusal were clicked through on the test database |
+| Customer app (`app/`) | Typechecked and built. On the test database, at phone size: sign up, sign in, sign out, basket, checkout, address, order, bank transfer notice, apartment hold, spa booking, service request, car enquiry, bookings, and the refusal to delete an account with open bookings. Home and shop viewed at desktop size. Empty screens viewed on the real data. **Not yet done:** a Paystack test checkout, because no valid test key is set; receipt upload, email confirmation and password reset through the app; iOS and Android wrapping |
 | Docker image | Built from the current code and started on the test database: database, bundled photos, photo upload and resizing on Linux, overview, non-root user. The test suites run outside Docker, not inside the image |
 
 ## Test results

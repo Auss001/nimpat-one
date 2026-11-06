@@ -1,0 +1,10 @@
+{
+  "name": "Nimpat One",
+  "short_name": "Nimpat One",
+  "description": "Shop your essentials, find your next stay and book a little time for you.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f8f4",
+  "theme_color": "#0c3b28",
+  "icons": [{ "src": "/logo.webp", "sizes": "512x512", "type": "image/webp" }]
+}
