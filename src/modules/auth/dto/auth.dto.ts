@@ -1,0 +1,87 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsEmail, IsOptional, IsString, Length, Matches, MaxLength, MinLength } from 'class-validator';
+
+const lower = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim().toLowerCase() : value);
+const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
+
+/** 10–128 chars with at least one letter and one digit. */
+export const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{10,128}$/;
+export const PASSWORD_MESSAGE = 'Password must be 10–128 characters and include at least one letter and one number';
+
+/** Nigerian numbers in E.164 (+234...) */
+export const NG_PHONE = /^\+234[789][01]\d{8}$/;
+
+export class RegisterDto {
+  @ApiProperty({ example: 'ada@example.com' })
+  @Transform(lower) @IsEmail() @MaxLength(254)
+  email: string;
+
+  @ApiProperty({ minLength: 10, example: 'a-strong-passphrase-2026' })
+  @IsString() @Matches(PASSWORD_RULE, { message: PASSWORD_MESSAGE })
+  password: string;
+
+  @ApiProperty({ example: 'Ada' })
+  @Transform(trim) @IsString() @Length(1, 80)
+  firstName: string;
+
+  @ApiProperty({ example: 'Okafor' })
+  @Transform(trim) @IsString() @Length(1, 80)
+  lastName: string;
+
+  @ApiPropertyOptional({ example: '+2348031234567', description: 'Nigerian mobile number in E.164 format' })
+  @IsOptional() @Matches(NG_PHONE, { message: 'phone must be a Nigerian mobile number in +234 format' })
+  phone?: string;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional() @IsBoolean()
+  marketingOptIn?: boolean;
+}
+
+export class LoginDto {
+  @ApiProperty() @Transform(lower) @IsEmail()
+  email: string;
+
+  @ApiProperty() @IsString() @MinLength(1) @MaxLength(128)
+  password: string;
+}
+
+export class RefreshDto {
+  @ApiProperty({ description: 'Opaque refresh token returned by login/refresh' })
+  @IsString() @MinLength(20) @MaxLength(200)
+  refreshToken: string;
+}
+
+export class VerifyEmailDto {
+  @ApiProperty() @IsString() @MinLength(20) @MaxLength(200)
+  token: string;
+}
+
+export class EmailOnlyDto {
+  @ApiProperty() @Transform(lower) @IsEmail()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty() @IsString() @MinLength(20) @MaxLength(200)
+  token: string;
+
+  @ApiProperty() @IsString() @Matches(PASSWORD_RULE, { message: PASSWORD_MESSAGE })
+  newPassword: string;
+}
+
+export class ChangePasswordDto {
+  @ApiProperty() @IsString() @MaxLength(128)
+  currentPassword: string;
+
+  @ApiProperty() @IsString() @Matches(PASSWORD_RULE, { message: PASSWORD_MESSAGE })
+  newPassword: string;
+}
+
+export class TokenResponseDto {
+  @ApiProperty() accessToken: string;
+  @ApiProperty() accessTokenExpiresIn: number;
+  @ApiProperty() refreshToken: string;
+  @ApiProperty() refreshTokenExpiresAt: string;
+  @ApiProperty() tokenType: 'Bearer';
+}

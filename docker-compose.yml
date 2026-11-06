@@ -1,0 +1,38 @@
+# Local development stack: PostgreSQL + (optionally) the API container.
+#   docker compose up -d db            # database only, run the API with npm
+#   docker compose --profile api up    # database + API container
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: nimpat-one-db
+    environment:
+      POSTGRES_USER: nimpat
+      POSTGRES_PASSWORD: ${NIMPAT_DB_PASSWORD:?Set NIMPAT_DB_PASSWORD in .env}
+      POSTGRES_DB: nimpat_one
+    ports:
+      - "5432:5432"
+    volumes:
+      - nimpat_one_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nimpat -d nimpat_one"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    profiles: ["api"]
+    build: .
+    container_name: nimpat-one-api
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://nimpat:${NIMPAT_DB_PASSWORD}@db:5432/nimpat_one?schema=public
+      RUN_MIGRATIONS: "true"
+      PORT: "8080"
+    ports:
+      - "4000:8080"
+
+volumes:
+  nimpat_one_pg:

@@ -1,0 +1,1703 @@
+{
+  "divisions.list": {
+    "status": 200,
+    "response": [
+      {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines",
+        "kind": "PRIMARY",
+        "description": "Table water, soft drinks, juices and wines."
+      },
+      {
+        "id": "3d077fb2-4410-4d2b-949d-c4fb54ec6e04",
+        "code": "LUXURY_APARTMENTS",
+        "name": "Nimpat Luxury Apartments",
+        "slug": "luxury-apartments",
+        "kind": "PRIMARY",
+        "description": "Serviced luxury apartments."
+      }
+    ]
+  },
+  "divisions.alias": {
+    "status": 200,
+    "response": {
+      "id": "1860cef3-da99-4af7-be60-8f9790fb0eb4",
+      "code": "REAL_ESTATE_INTERIOR",
+      "name": "Nimpat Real Estate & Interior Design",
+      "slug": "real-estate-interior-design",
+      "kind": "PRIMARY",
+      "description": "Real estate and interior design."
+    }
+  },
+  "catalog.categories": {
+    "status": 200,
+    "response": [
+      {
+        "id": "312f4f70-b9b8-4971-a503-a58588f05d69",
+        "name": "[DEV SAMPLE] Water",
+        "slug": "dev-water",
+        "description": null,
+        "parentId": null,
+        "sortOrder": 0
+      },
+      {
+        "id": "245309ae-39f8-4181-bf34-124e77d34aec",
+        "name": "[DEV SAMPLE] Soft drinks",
+        "slug": "dev-soft-drinks",
+        "description": null,
+        "parentId": null,
+        "sortOrder": 1
+      }
+    ]
+  },
+  "catalog.products": {
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "id": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+          "divisionId": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+          "categoryId": "312f4f70-b9b8-4971-a503-a58588f05d69",
+          "name": "[DEV SAMPLE] Dispenser water",
+          "slug": "dev-sample-dispenser-water",
+          "description": "Development sample product for local API testing only. Not a real Nimpat product or price.",
+          "brand": null,
+          "status": "ACTIVE",
+          "isDeliverable": true,
+          "isAgeRestricted": false,
+          "verification": "VERIFIED",
+          "verifiedAt": null,
+          "verifiedById": null,
+          "createdAt": "2026-11-05T19:27:55.409Z",
+          "updatedAt": "2026-11-05T21:09:21.662Z",
+          "category": {
+            "id": "312f4f70-b9b8-4971-a503-a58588f05d69",
+            "name": "[DEV SAMPLE] Water",
+            "slug": "dev-water"
+          },
+          "division": {
+            "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+            "code": "WATER_DRINKS_WINES",
+            "name": "Nimpat Water, Drinks & Wines",
+            "slug": "water-drinks-wines"
+          },
+          "images": [],
+          "variants": [
+            {
+              "id": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+              "productId": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+              "sku": "DEV-WATER-JAR",
+              "name": "Sample jar",
+              "unitPriceMinor": 100000,
+              "compareAtPriceMinor": null,
+              "currency": "NGN",
+              "unitsPerPack": 1,
+              "weightGrams": null,
+              "minOrderQty": 1,
+              "maxOrderQty": null,
+              "isActive": true,
+              "sortOrder": 0,
+              "createdAt": "2026-11-05T19:27:55.417Z",
+              "updatedAt": "2026-11-05T19:27:55.417Z",
+              "availableQuantity": 500
+            }
+          ],
+          "priceFromMinor": 100000,
+          "inStock": true
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 1,
+        "totalPages": 1
+      }
+    }
+  },
+  "catalog.product": {
+    "status": 200,
+    "response": {
+      "id": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+      "divisionId": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+      "categoryId": "312f4f70-b9b8-4971-a503-a58588f05d69",
+      "name": "[DEV SAMPLE] Dispenser water",
+      "slug": "dev-sample-dispenser-water",
+      "description": "Development sample product for local API testing only. Not a real Nimpat product or price.",
+      "brand": null,
+      "status": "ACTIVE",
+      "isDeliverable": true,
+      "isAgeRestricted": false,
+      "verification": "VERIFIED",
+      "verifiedAt": null,
+      "verifiedById": null,
+      "createdAt": "2026-11-05T19:27:55.409Z",
+      "updatedAt": "2026-11-05T21:09:21.662Z",
+      "category": {
+        "id": "312f4f70-b9b8-4971-a503-a58588f05d69",
+        "name": "[DEV SAMPLE] Water",
+        "slug": "dev-water"
+      },
+      "division": {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "images": [],
+      "variants": [
+        {
+          "id": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+          "productId": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+          "sku": "DEV-WATER-JAR",
+          "name": "Sample jar",
+          "unitPriceMinor": 100000,
+          "compareAtPriceMinor": null,
+          "currency": "NGN",
+          "unitsPerPack": 1,
+          "weightGrams": null,
+          "minOrderQty": 1,
+          "maxOrderQty": null,
+          "isActive": true,
+          "sortOrder": 0,
+          "createdAt": "2026-11-05T19:27:55.417Z",
+          "updatedAt": "2026-11-05T19:27:55.417Z",
+          "availableQuantity": 500
+        }
+      ]
+    }
+  },
+  "catalog.availability": {
+    "status": 200,
+    "response": [
+      {
+        "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+        "sku": "DEV-WATER-JAR",
+        "availableQuantity": 500
+      }
+    ]
+  },
+  "auth.register": {
+    "request": {
+      "email": "contract.1793943873216@example.test",
+      "password": "<password>",
+      "firstName": "Ada",
+      "lastName": "Okafor",
+      "phone": "+2348043873216"
+    },
+    "status": 201,
+    "response": {
+      "user": {
+        "id": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+        "email": "contract.1793943873216@example.test",
+        "phone": "+2348043873216",
+        "type": "CUSTOMER",
+        "status": "ACTIVE",
+        "emailVerified": false,
+        "createdAt": "2026-11-06T05:44:33.739Z"
+      },
+      "accessToken": "<redacted>",
+      "accessTokenExpiresIn": "<redacted>",
+      "refreshToken": "<redacted>",
+      "refreshTokenExpiresAt": "<redacted>",
+      "tokenType": "<redacted>"
+    }
+  },
+  "auth.verifyEmail": {
+    "request": {
+      "token": "GRaWNS9tnvwLrpTl_-vhcWoHV0m34nVvo9346JOP5oQ"
+    },
+    "status": 200,
+    "response": {
+      "ok": true
+    }
+  },
+  "auth.login": {
+    "request": {
+      "email": "contract.1793943873216@example.test",
+      "password": "<password>"
+    },
+    "status": 200,
+    "response": {
+      "user": {
+        "id": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+        "email": "contract.1793943873216@example.test",
+        "phone": "+2348043873216",
+        "type": "CUSTOMER",
+        "status": "ACTIVE",
+        "emailVerified": true,
+        "createdAt": "2026-11-06T05:44:33.739Z"
+      },
+      "accessToken": "<redacted>",
+      "accessTokenExpiresIn": "<redacted>",
+      "refreshToken": "<redacted>",
+      "refreshTokenExpiresAt": "<redacted>",
+      "tokenType": "<redacted>"
+    }
+  },
+  "auth.refresh": {
+    "request": {
+      "refreshToken": "6_cciFqQWxVD2TrpUNA7isnsRdyuTyIz5VGS6cSGbS_bbP5V63H6TipeuuGNOB2R"
+    },
+    "status": 200,
+    "response": {
+      "accessToken": "<redacted>",
+      "accessTokenExpiresIn": "<redacted>",
+      "refreshToken": "<redacted>",
+      "refreshTokenExpiresAt": "<redacted>",
+      "tokenType": "<redacted>"
+    }
+  },
+  "auth.me": {
+    "status": 200,
+    "response": {
+      "id": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "email": "contract.1793943873216@example.test",
+      "phone": "+2348043873216",
+      "type": "CUSTOMER",
+      "status": "ACTIVE",
+      "emailVerified": true,
+      "createdAt": "2026-11-06T05:44:33.739Z",
+      "customerProfile": {
+        "id": "69713e30-7b17-4ee0-96fd-4fbf53666714",
+        "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+        "firstName": "Ada",
+        "lastName": "Okafor",
+        "dateOfBirth": null,
+        "marketingOptIn": false,
+        "createdAt": "2026-11-06T05:44:33.739Z",
+        "updatedAt": "2026-11-06T05:44:33.739Z"
+      },
+      "staffProfile": null,
+      "loyalty": {
+        "pointsBalance": 0,
+        "tier": "GREEN"
+      },
+      "roles": [
+        {
+          "code": "CUSTOMER",
+          "divisionId": null
+        }
+      ],
+      "permissions": {}
+    }
+  },
+  "account.profile": {
+    "request": {
+      "firstName": "Adaeze"
+    },
+    "status": 200,
+    "response": {
+      "id": "69713e30-7b17-4ee0-96fd-4fbf53666714",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "firstName": "Adaeze",
+      "lastName": "Okafor",
+      "dateOfBirth": null,
+      "marketingOptIn": false,
+      "createdAt": "2026-11-06T05:44:33.739Z",
+      "updatedAt": "2026-11-06T05:44:34.476Z"
+    }
+  },
+  "account.addAddress": {
+    "request": {
+      "label": "Home",
+      "recipientName": "Ada Okafor",
+      "phone": "+2348031234567",
+      "line1": "1 Test Close",
+      "city": "Wuye",
+      "state": "FCT"
+    },
+    "status": 201,
+    "response": {
+      "id": "1b640b61-a257-496b-916a-1913734adad6",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "label": "Home",
+      "recipientName": "Ada Okafor",
+      "phone": "+2348031234567",
+      "line1": "1 Test Close",
+      "line2": null,
+      "landmark": null,
+      "city": "Wuye",
+      "lga": null,
+      "state": "FCT",
+      "country": "NG",
+      "latitude": null,
+      "longitude": null,
+      "isDefault": true,
+      "deletedAt": null,
+      "createdAt": "2026-11-06T05:44:34.503Z",
+      "updatedAt": "2026-11-06T05:44:34.503Z"
+    }
+  },
+  "account.addresses": {
+    "status": 200,
+    "response": [
+      {
+        "id": "1b640b61-a257-496b-916a-1913734adad6",
+        "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+        "label": "Home",
+        "recipientName": "Ada Okafor",
+        "phone": "+2348031234567",
+        "line1": "1 Test Close",
+        "line2": null,
+        "landmark": null,
+        "city": "Wuye",
+        "lga": null,
+        "state": "FCT",
+        "country": "NG",
+        "latitude": null,
+        "longitude": null,
+        "isDefault": true,
+        "deletedAt": null,
+        "createdAt": "2026-11-06T05:44:34.503Z",
+        "updatedAt": "2026-11-06T05:44:34.503Z"
+      }
+    ]
+  },
+  "notifications.list": {
+    "status": 200,
+    "response": {
+      "data": [],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 0,
+        "totalPages": 1
+      },
+      "unreadCount": 0
+    }
+  },
+  "cart.add": {
+    "request": {
+      "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+      "quantity": 2
+    },
+    "status": 201,
+    "response": {
+      "cartId": "7c8d0156-f761-45e3-8f78-1761f97c07a8",
+      "division": {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "currency": "NGN",
+      "lines": [
+        {
+          "itemId": "376d5351-3ab0-45cb-8f36-10cff93711de",
+          "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+          "sku": "DEV-WATER-JAR",
+          "productId": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+          "productName": "[DEV SAMPLE] Dispenser water",
+          "productSlug": "dev-sample-dispenser-water",
+          "variantName": "Sample jar",
+          "image": null,
+          "isAgeRestricted": false,
+          "unitPriceMinor": 100000,
+          "quantity": 2,
+          "lineTotalMinor": 200000,
+          "availableQuantity": 500,
+          "issues": []
+        }
+      ],
+      "itemCount": 2,
+      "subtotalMinor": 200000,
+      "canCheckout": true
+    }
+  },
+  "cart.setQuantity": {
+    "request": {
+      "quantity": 3
+    },
+    "status": 200,
+    "response": {
+      "cartId": "7c8d0156-f761-45e3-8f78-1761f97c07a8",
+      "division": {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "currency": "NGN",
+      "lines": [
+        {
+          "itemId": "376d5351-3ab0-45cb-8f36-10cff93711de",
+          "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+          "sku": "DEV-WATER-JAR",
+          "productId": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+          "productName": "[DEV SAMPLE] Dispenser water",
+          "productSlug": "dev-sample-dispenser-water",
+          "variantName": "Sample jar",
+          "image": null,
+          "isAgeRestricted": false,
+          "unitPriceMinor": 100000,
+          "quantity": 3,
+          "lineTotalMinor": 300000,
+          "availableQuantity": 500,
+          "issues": []
+        }
+      ],
+      "itemCount": 3,
+      "subtotalMinor": 300000,
+      "canCheckout": true
+    }
+  },
+  "cart.view": {
+    "status": 200,
+    "response": {
+      "cartId": "7c8d0156-f761-45e3-8f78-1761f97c07a8",
+      "division": {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "currency": "NGN",
+      "lines": [
+        {
+          "itemId": "376d5351-3ab0-45cb-8f36-10cff93711de",
+          "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+          "sku": "DEV-WATER-JAR",
+          "productId": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+          "productName": "[DEV SAMPLE] Dispenser water",
+          "productSlug": "dev-sample-dispenser-water",
+          "variantName": "Sample jar",
+          "image": null,
+          "isAgeRestricted": false,
+          "unitPriceMinor": 100000,
+          "quantity": 3,
+          "lineTotalMinor": 300000,
+          "availableQuantity": 500,
+          "issues": []
+        }
+      ],
+      "itemCount": 3,
+      "subtotalMinor": 300000,
+      "canCheckout": true
+    }
+  },
+  "cart.quote": {
+    "status": 200,
+    "response": {
+      "cartId": "7c8d0156-f761-45e3-8f78-1761f97c07a8",
+      "division": {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "currency": "NGN",
+      "lines": [
+        {
+          "itemId": "376d5351-3ab0-45cb-8f36-10cff93711de",
+          "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+          "sku": "DEV-WATER-JAR",
+          "productId": "3ca0af9c-307c-4747-a86a-aeb3cc635f76",
+          "productName": "[DEV SAMPLE] Dispenser water",
+          "productSlug": "dev-sample-dispenser-water",
+          "variantName": "Sample jar",
+          "image": null,
+          "isAgeRestricted": false,
+          "unitPriceMinor": 100000,
+          "quantity": 3,
+          "lineTotalMinor": 300000,
+          "availableQuantity": 500,
+          "issues": []
+        }
+      ],
+      "itemCount": 3,
+      "subtotalMinor": 300000,
+      "canCheckout": true,
+      "fulfilmentType": "DELIVERY",
+      "delivery": {
+        "zoneId": "0b144f23-9593-4621-ace0-f3b9e9bf7c7c",
+        "zoneName": "[DEV SAMPLE] Abuja central",
+        "feeMinor": 150000,
+        "standardFeeMinor": 150000,
+        "freeAboveMinor": 2000000,
+        "estimatedHours": 24
+      },
+      "deliveryFeeMinor": 150000,
+      "discountMinor": 0,
+      "totalMinor": 450000
+    }
+  },
+  "orders.checkoutOptions": {
+    "status": 200,
+    "response": {
+      "division": "water-drinks-wines",
+      "fulfilmentType": "DELIVERY",
+      "orderValueMinor": 450000,
+      "options": [
+        {
+          "option": "PAYSTACK",
+          "available": true
+        },
+        {
+          "option": "BANK_TRANSFER",
+          "available": true
+        }
+      ]
+    }
+  },
+  "payments.methods": {
+    "status": 200,
+    "response": {
+      "division": {
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "purpose": "ORDER",
+      "paystack": true,
+      "bankTransfer": true,
+      "payOnDelivery": true,
+      "payOnDeliveryLimits": {
+        "minOrderMinor": null,
+        "maxOrderMinor": 10000000
+      },
+      "payAtLocation": false,
+      "locations": [],
+      "deposit": {
+        "type": "NONE",
+        "percentBps": null,
+        "fixedMinor": null
+      },
+      "confirmationRule": "FULL_PAYMENT",
+      "bankTransferWindowHours": 24
+    }
+  },
+  "orders.create": {
+    "request": {
+      "division": "water-drinks-wines",
+      "fulfilmentType": "DELIVERY",
+      "addressId": "1b640b61-a257-496b-916a-1913734adad6",
+      "paymentOption": "PAYSTACK",
+      "expectedTotalMinor": 450000
+    },
+    "status": 201,
+    "response": {
+      "id": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+      "orderNumber": "WDW-261106-X4TMRV",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "divisionId": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+      "status": "PENDING",
+      "paymentOption": "PAYSTACK",
+      "paymentStatus": "UNPAID",
+      "amountPaidMinor": 0,
+      "depositRequiredMinor": 0,
+      "fulfilmentType": "DELIVERY",
+      "currency": "NGN",
+      "subtotalMinor": 300000,
+      "deliveryFeeMinor": 150000,
+      "discountMinor": 0,
+      "totalMinor": 450000,
+      "addressId": "1b640b61-a257-496b-916a-1913734adad6",
+      "deliveryAddress": {
+        "lga": null,
+        "city": "Wuye",
+        "line1": "1 Test Close",
+        "line2": null,
+        "phone": "+2348031234567",
+        "state": "FCT",
+        "country": "NG",
+        "landmark": null,
+        "latitude": null,
+        "longitude": null,
+        "recipientName": "Ada Okafor"
+      },
+      "stockLocationId": "cd71204b-a4d1-40e0-8140-bc464b30985b",
+      "customerNote": null,
+      "idempotencyKey": null,
+      "expiresAt": "2026-11-06T06:14:34.830Z",
+      "paidAt": null,
+      "cancelledAt": null,
+      "createdAt": "2026-11-06T05:44:34.835Z",
+      "updatedAt": "2026-11-06T05:44:34.835Z",
+      "items": [
+        {
+          "id": "e30b119e-4e99-457a-b5f5-6b876069fea1",
+          "orderId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+          "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+          "productName": "[DEV SAMPLE] Dispenser water",
+          "variantName": "Sample jar",
+          "sku": "DEV-WATER-JAR",
+          "unitPriceMinor": 100000,
+          "quantity": 3,
+          "lineTotalMinor": 300000
+        }
+      ],
+      "delivery": {
+        "id": "68f3374b-1a71-49ec-8fda-eb0ea3e6eaa7",
+        "status": "PENDING",
+        "trackingCode": "TRK-TYXPFJTJ",
+        "scheduledFor": null,
+        "dispatchedAt": null,
+        "deliveredAt": null,
+        "feeMinor": 150000
+      },
+      "statusHistory": [
+        {
+          "fromStatus": null,
+          "toStatus": "PENDING",
+          "note": "Order placed (paystack)",
+          "createdAt": "2026-11-06T05:44:34.835Z"
+        }
+      ],
+      "payments": [],
+      "division": {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "outstandingMinor": 450000
+    }
+  },
+  "payments.options": {
+    "status": 200,
+    "response": {
+      "purpose": "ORDER",
+      "payableId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+      "label": "WDW-261106-X4TMRV",
+      "currency": "NGN",
+      "totalDueMinor": 450000,
+      "depositRequiredMinor": 0,
+      "paidMinor": 0,
+      "awaitingVerificationMinor": 0,
+      "outstandingMinor": 450000,
+      "depositOutstandingMinor": 0,
+      "paymentStatus": "UNPAID",
+      "confirmationRule": "FULL_PAYMENT",
+      "payBy": "2026-11-06T06:14:34.830Z",
+      "methods": {
+        "paystack": {
+          "available": true,
+          "channels": [
+            "card",
+            "bank_transfer"
+          ],
+          "note": "Paystack checkout (test mode)"
+        },
+        "bankTransfer": {
+          "available": true,
+          "windowHours": 24,
+          "note": "Account details are shown after you choose this option"
+        },
+        "payOnDelivery": {
+          "available": true,
+          "note": "Chosen at checkout; staff collect on delivery"
+        },
+        "payAtLocation": {
+          "available": false,
+          "locations": []
+        }
+      }
+    }
+  },
+  "payments.initialize": {
+    "request": {
+      "purpose": "ORDER",
+      "payableId": "338aa625-2e4f-4bb2-9558-bbde43c15e49"
+    },
+    "status": 201,
+    "response": {
+      "paymentId": "eb938475-8f1d-439e-86aa-db68da3231bb",
+      "reference": "NP1-WDW-261106-T9PNT1K7ZR",
+      "status": "PENDING",
+      "amountMinor": 450000,
+      "currency": "NGN",
+      "authorizationUrl": "https://checkout.paystack.test/NP1-WDW-261106-T9PNT1K7ZR",
+      "accessCode": "ac_1793943872930",
+      "publicKey": "pk_test_e2e_mock",
+      "reused": false
+    }
+  },
+  "payments.verify": {
+    "status": 200,
+    "response": {
+      "id": "eb938475-8f1d-439e-86aa-db68da3231bb",
+      "reference": "NP1-WDW-261106-T9PNT1K7ZR",
+      "purpose": "ORDER",
+      "method": "PAYSTACK",
+      "collectionPoint": "ONLINE",
+      "status": "SUCCESS",
+      "reconciliationStatus": "COLLECTION_VERIFIED",
+      "refundStatus": "NONE",
+      "amountMinor": 450000,
+      "claimedAmountMinor": null,
+      "refundedMinor": 0,
+      "currency": "NGN",
+      "channel": "card",
+      "receiptNumber": null,
+      "paidAt": "2026-11-06T05:44:35.099Z",
+      "collectedAt": null,
+      "rejectionReason": null,
+      "createdAt": "2026-11-06T05:44:35.035Z",
+      "orderId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+      "reservationId": null,
+      "serviceBookingId": null,
+      "spaAppointmentId": null,
+      "vehicleInquiryId": null,
+      "logisticsRequestId": null,
+      "quotationId": null
+    }
+  },
+  "payments.summary": {
+    "status": 200,
+    "response": {
+      "purpose": "ORDER",
+      "payableId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+      "label": "WDW-261106-X4TMRV",
+      "acceptsPayments": true,
+      "payBy": null,
+      "currency": "NGN",
+      "totalDueMinor": 450000,
+      "depositRequiredMinor": 0,
+      "paidMinor": 450000,
+      "overpaidMinor": 0,
+      "refundedMinor": 0,
+      "awaitingVerificationMinor": 0,
+      "outstandingMinor": 0,
+      "depositOutstandingMinor": 0,
+      "depositSatisfied": true,
+      "fullyPaid": true,
+      "paymentStatus": "PAID",
+      "payments": [
+        {
+          "id": "eb938475-8f1d-439e-86aa-db68da3231bb",
+          "reference": "NP1-WDW-261106-T9PNT1K7ZR",
+          "purpose": "ORDER",
+          "method": "PAYSTACK",
+          "collectionPoint": "ONLINE",
+          "status": "SUCCESS",
+          "reconciliationStatus": "COLLECTION_VERIFIED",
+          "refundStatus": "NONE",
+          "amountMinor": 450000,
+          "claimedAmountMinor": null,
+          "refundedMinor": 0,
+          "currency": "NGN",
+          "channel": "card",
+          "receiptNumber": null,
+          "paidAt": "2026-11-06T05:44:35.099Z",
+          "collectedAt": null,
+          "rejectionReason": null,
+          "createdAt": "2026-11-06T05:44:35.035Z",
+          "orderId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+          "reservationId": null,
+          "serviceBookingId": null,
+          "spaAppointmentId": null,
+          "vehicleInquiryId": null,
+          "logisticsRequestId": null,
+          "quotationId": null
+        }
+      ]
+    }
+  },
+  "payments.mine": {
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "id": "eb938475-8f1d-439e-86aa-db68da3231bb",
+          "reference": "NP1-WDW-261106-T9PNT1K7ZR",
+          "purpose": "ORDER",
+          "method": "PAYSTACK",
+          "collectionPoint": "ONLINE",
+          "status": "SUCCESS",
+          "reconciliationStatus": "COLLECTION_VERIFIED",
+          "refundStatus": "NONE",
+          "amountMinor": 450000,
+          "claimedAmountMinor": null,
+          "refundedMinor": 0,
+          "currency": "NGN",
+          "channel": "card",
+          "receiptNumber": null,
+          "paidAt": "2026-11-06T05:44:35.099Z",
+          "collectedAt": null,
+          "rejectionReason": null,
+          "createdAt": "2026-11-06T05:44:35.035Z",
+          "orderId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+          "reservationId": null,
+          "serviceBookingId": null,
+          "spaAppointmentId": null,
+          "vehicleInquiryId": null,
+          "logisticsRequestId": null,
+          "quotationId": null
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 1,
+        "totalPages": 1
+      }
+    }
+  },
+  "orders.detail": {
+    "status": 200,
+    "response": {
+      "id": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+      "orderNumber": "WDW-261106-X4TMRV",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "divisionId": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+      "status": "ACCEPTED",
+      "paymentOption": "PAYSTACK",
+      "paymentStatus": "PAID",
+      "amountPaidMinor": 450000,
+      "depositRequiredMinor": 0,
+      "fulfilmentType": "DELIVERY",
+      "currency": "NGN",
+      "subtotalMinor": 300000,
+      "deliveryFeeMinor": 150000,
+      "discountMinor": 0,
+      "totalMinor": 450000,
+      "addressId": "1b640b61-a257-496b-916a-1913734adad6",
+      "deliveryAddress": {
+        "lga": null,
+        "city": "Wuye",
+        "line1": "1 Test Close",
+        "line2": null,
+        "phone": "+2348031234567",
+        "state": "FCT",
+        "country": "NG",
+        "landmark": null,
+        "latitude": null,
+        "longitude": null,
+        "recipientName": "Ada Okafor"
+      },
+      "stockLocationId": "cd71204b-a4d1-40e0-8140-bc464b30985b",
+      "customerNote": null,
+      "idempotencyKey": null,
+      "expiresAt": "2026-11-06T06:14:34.830Z",
+      "paidAt": "2026-11-06T05:44:35.161Z",
+      "cancelledAt": null,
+      "createdAt": "2026-11-06T05:44:34.835Z",
+      "updatedAt": "2026-11-06T05:44:35.164Z",
+      "items": [
+        {
+          "id": "e30b119e-4e99-457a-b5f5-6b876069fea1",
+          "orderId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+          "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+          "productName": "[DEV SAMPLE] Dispenser water",
+          "variantName": "Sample jar",
+          "sku": "DEV-WATER-JAR",
+          "unitPriceMinor": 100000,
+          "quantity": 3,
+          "lineTotalMinor": 300000
+        }
+      ],
+      "delivery": {
+        "id": "68f3374b-1a71-49ec-8fda-eb0ea3e6eaa7",
+        "status": "PENDING",
+        "trackingCode": "TRK-TYXPFJTJ",
+        "scheduledFor": null,
+        "dispatchedAt": null,
+        "deliveredAt": null,
+        "feeMinor": 150000
+      },
+      "statusHistory": [
+        {
+          "fromStatus": null,
+          "toStatus": "PENDING",
+          "note": "Order placed (paystack)",
+          "createdAt": "2026-11-06T05:44:34.835Z"
+        },
+        {
+          "fromStatus": "PENDING",
+          "toStatus": "ACCEPTED",
+          "note": "Payment NP1-WDW-261106-T9PNT1K7ZR verified",
+          "createdAt": "2026-11-06T05:44:35.188Z"
+        }
+      ],
+      "payments": [
+        {
+          "id": "eb938475-8f1d-439e-86aa-db68da3231bb",
+          "reference": "NP1-WDW-261106-T9PNT1K7ZR",
+          "method": "PAYSTACK",
+          "collectionPoint": "ONLINE",
+          "status": "SUCCESS",
+          "reconciliationStatus": "COLLECTION_VERIFIED",
+          "amountMinor": 450000,
+          "paidAt": "2026-11-06T05:44:35.099Z",
+          "refundStatus": "NONE",
+          "receiptNumber": null
+        }
+      ],
+      "division": {
+        "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "code": "WATER_DRINKS_WINES",
+        "name": "Nimpat Water, Drinks & Wines",
+        "slug": "water-drinks-wines"
+      },
+      "outstandingMinor": 0
+    }
+  },
+  "orders.history": {
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "id": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+          "orderNumber": "WDW-261106-X4TMRV",
+          "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+          "divisionId": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+          "status": "ACCEPTED",
+          "paymentOption": "PAYSTACK",
+          "paymentStatus": "PAID",
+          "amountPaidMinor": 450000,
+          "depositRequiredMinor": 0,
+          "fulfilmentType": "DELIVERY",
+          "currency": "NGN",
+          "subtotalMinor": 300000,
+          "deliveryFeeMinor": 150000,
+          "discountMinor": 0,
+          "totalMinor": 450000,
+          "addressId": "1b640b61-a257-496b-916a-1913734adad6",
+          "deliveryAddress": {
+            "lga": null,
+            "city": "Wuye",
+            "line1": "1 Test Close",
+            "line2": null,
+            "phone": "+2348031234567",
+            "state": "FCT",
+            "country": "NG",
+            "landmark": null,
+            "latitude": null,
+            "longitude": null,
+            "recipientName": "Ada Okafor"
+          },
+          "stockLocationId": "cd71204b-a4d1-40e0-8140-bc464b30985b",
+          "customerNote": null,
+          "idempotencyKey": null,
+          "expiresAt": "2026-11-06T06:14:34.830Z",
+          "paidAt": "2026-11-06T05:44:35.161Z",
+          "cancelledAt": null,
+          "createdAt": "2026-11-06T05:44:34.835Z",
+          "updatedAt": "2026-11-06T05:44:35.164Z",
+          "items": [
+            {
+              "id": "e30b119e-4e99-457a-b5f5-6b876069fea1",
+              "orderId": "338aa625-2e4f-4bb2-9558-bbde43c15e49",
+              "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+              "productName": "[DEV SAMPLE] Dispenser water",
+              "variantName": "Sample jar",
+              "sku": "DEV-WATER-JAR",
+              "unitPriceMinor": 100000,
+              "quantity": 3,
+              "lineTotalMinor": 300000
+            }
+          ],
+          "division": {
+            "id": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+            "code": "WATER_DRINKS_WINES",
+            "name": "Nimpat Water, Drinks & Wines",
+            "slug": "water-drinks-wines"
+          },
+          "delivery": {
+            "status": "PENDING",
+            "trackingCode": "TRK-TYXPFJTJ"
+          },
+          "outstandingMinor": 0
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 1,
+        "totalPages": 1
+      }
+    }
+  },
+  "loyalty.me": {
+    "status": 200,
+    "response": {
+      "account": {
+        "pointsBalance": 45,
+        "lifetimeEarned": 45,
+        "tier": "GREEN"
+      },
+      "history": {
+        "data": [
+          {
+            "id": "535f9da6-e4fb-4118-a388-487349bb9b5e",
+            "accountId": "ceff9c9f-b427-475e-b94b-24f1fcea6488",
+            "type": "EARN",
+            "points": 45,
+            "balanceAfter": 45,
+            "divisionId": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+            "sourceType": "payment",
+            "sourceId": "eb938475-8f1d-439e-86aa-db68da3231bb",
+            "description": "Earned on payment NP1-WDW-261106-T9PNT1K7ZR",
+            "createdAt": "2026-11-06T05:44:35.254Z",
+            "division": {
+              "name": "Nimpat Water, Drinks & Wines",
+              "code": "WATER_DRINKS_WINES"
+            }
+          }
+        ],
+        "meta": {
+          "page": 1,
+          "pageSize": 20,
+          "total": 1,
+          "totalPages": 1
+        }
+      }
+    }
+  },
+  "loyalty.rules": {
+    "status": 200,
+    "response": [
+      {
+        "id": "33e757cd-6ae8-44a3-abe0-36212dd1e3c3",
+        "divisionId": "fe104bc0-d362-43ec-9dca-0dd163866aff",
+        "pointsPer100NgnX100": 100,
+        "isActive": true,
+        "createdAt": "2026-11-05T19:27:55.006Z",
+        "updatedAt": "2026-11-06T05:42:58.794Z",
+        "division": {
+          "code": "WATER_DRINKS_WINES",
+          "name": "Nimpat Water, Drinks & Wines",
+          "slug": "water-drinks-wines"
+        }
+      },
+      {
+        "id": "68fd2f97-0ded-4df1-b6d3-9c4ce611ed72",
+        "divisionId": "3d077fb2-4410-4d2b-949d-c4fb54ec6e04",
+        "pointsPer100NgnX100": 200,
+        "isActive": true,
+        "createdAt": "2026-11-05T19:27:55.011Z",
+        "updatedAt": "2026-11-06T05:42:58.804Z",
+        "division": {
+          "code": "LUXURY_APARTMENTS",
+          "name": "Nimpat Luxury Apartments",
+          "slug": "luxury-apartments"
+        }
+      }
+    ]
+  },
+  "apartments.properties": {
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "id": "62886bf3-58fb-4df1-a051-83006c9ddcff",
+          "name": "[DEV SAMPLE] Residence",
+          "slug": "dev-sample-residence",
+          "city": "Abuja",
+          "state": "FCT",
+          "amenities": [
+            "Wi-Fi",
+            "Power backup"
+          ],
+          "image": null,
+          "unitCount": 141,
+          "availableUnitCount": 141,
+          "nightlyFromMinor": 5000000
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 1,
+        "totalPages": 1
+      }
+    }
+  },
+  "apartments.property": {
+    "status": 200,
+    "response": {
+      "id": "62886bf3-58fb-4df1-a051-83006c9ddcff",
+      "divisionId": "3d077fb2-4410-4d2b-949d-c4fb54ec6e04",
+      "name": "[DEV SAMPLE] Residence",
+      "slug": "dev-sample-residence",
+      "description": "Development sample property for local API testing only.",
+      "addressLine": "Sample address (development only)",
+      "city": "Abuja",
+      "state": "FCT",
+      "amenities": [
+        "Wi-Fi",
+        "Power backup"
+      ],
+      "checkInTime": "14:00",
+      "checkOutTime": "12:00",
+      "status": "ACTIVE",
+      "createdAt": "2026-11-05T19:27:55.484Z",
+      "updatedAt": "2026-11-06T05:44:35.570Z",
+      "images": [],
+      "units": [
+        {
+          "id": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+          "propertyId": "62886bf3-58fb-4df1-a051-83006c9ddcff",
+          "code": "CT-1793943875562",
+          "name": "[DEV SAMPLE] One-bedroom unit",
+          "description": null,
+          "bedrooms": 1,
+          "bathrooms": 1,
+          "maxGuests": 2,
+          "nightlyRateMinor": 5000000,
+          "cautionDepositMinor": 2000000,
+          "cleaningFeeMinor": 1000000,
+          "minNights": 1,
+          "maxNights": 90,
+          "verification": "VERIFIED",
+          "verifiedAt": null,
+          "verifiedById": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-06T05:44:35.565Z",
+          "updatedAt": "2026-11-06T05:44:35.575Z",
+          "images": []
+        },
+        {
+          "id": "eb3aff08-ea86-4ed7-a7ec-c585adee980c",
+          "propertyId": "62886bf3-58fb-4df1-a051-83006c9ddcff",
+          "code": "E2E-1793907768188-825081",
+          "name": "[DEV SAMPLE] One-bedroom unit",
+          "description": null,
+          "bedrooms": 1,
+          "bathrooms": 1,
+          "maxGuests": 2,
+          "nightlyRateMinor": 5000000,
+          "cautionDepositMinor": 2000000,
+          "cleaningFeeMinor": 1000000,
+          "minNights": 1,
+          "maxNights": 90,
+          "verification": "VERIFIED",
+          "verifiedAt": null,
+          "verifiedById": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-05T19:42:48.189Z",
+          "updatedAt": "2026-11-05T21:09:21.670Z",
+          "images": []
+        }
+      ]
+    }
+  },
+  "apartments.calendar": {
+    "status": 200,
+    "response": {
+      "unitId": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+      "from": "2027-08-18",
+      "to": "2027-09-17",
+      "unavailable": []
+    }
+  },
+  "apartments.quote": {
+    "status": 200,
+    "response": {
+      "unitId": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+      "checkIn": "2027-08-18",
+      "checkOut": "2027-08-20",
+      "nights": 2,
+      "nightlyRateMinor": 5000000,
+      "accommodationMinor": 10000000,
+      "cleaningFeeMinor": 1000000,
+      "cautionDepositMinor": 2000000,
+      "totalMinor": 13000000,
+      "currency": "NGN",
+      "available": true
+    }
+  },
+  "apartments.reserve": {
+    "request": {
+      "unitId": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+      "checkIn": "2027-08-18",
+      "checkOut": "2027-08-20",
+      "guests": 2
+    },
+    "status": 201,
+    "response": {
+      "id": "1ef1f476-8eb2-430e-a0dd-4a1b3e7899ba",
+      "reservationNumber": "APT-261106-0NAGSW",
+      "unitId": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "checkIn": "2027-08-18T00:00:00.000Z",
+      "checkOut": "2027-08-20T00:00:00.000Z",
+      "nights": 2,
+      "guests": 2,
+      "status": "HOLD",
+      "paymentStatus": "UNPAID",
+      "amountPaidMinor": 0,
+      "depositRequiredMinor": 0,
+      "holdExpiresAt": "2026-11-06T05:59:35.685Z",
+      "nightlyRateMinor": 5000000,
+      "accommodationMinor": 10000000,
+      "cleaningFeeMinor": 1000000,
+      "cautionDepositMinor": 2000000,
+      "totalMinor": 13000000,
+      "currency": "NGN",
+      "guestNote": null,
+      "idempotencyKey": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "cancellationReason": null,
+      "createdAt": "2026-11-06T05:44:35.688Z",
+      "updatedAt": "2026-11-06T05:44:35.688Z",
+      "unit": {
+        "id": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+        "code": "CT-1793943875562",
+        "name": "[DEV SAMPLE] One-bedroom unit",
+        "property": {
+          "id": "62886bf3-58fb-4df1-a051-83006c9ddcff",
+          "name": "[DEV SAMPLE] Residence",
+          "slug": "dev-sample-residence",
+          "city": "Abuja",
+          "addressLine": "Sample address (development only)",
+          "checkInTime": "14:00",
+          "checkOutTime": "12:00"
+        }
+      },
+      "payments": []
+    }
+  },
+  "apartments.reservations": {
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "id": "1ef1f476-8eb2-430e-a0dd-4a1b3e7899ba",
+          "reservationNumber": "APT-261106-0NAGSW",
+          "unitId": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+          "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+          "checkIn": "2027-08-18T00:00:00.000Z",
+          "checkOut": "2027-08-20T00:00:00.000Z",
+          "nights": 2,
+          "guests": 2,
+          "status": "HOLD",
+          "paymentStatus": "UNPAID",
+          "amountPaidMinor": 0,
+          "depositRequiredMinor": 0,
+          "holdExpiresAt": "2026-11-06T05:59:35.685Z",
+          "nightlyRateMinor": 5000000,
+          "accommodationMinor": 10000000,
+          "cleaningFeeMinor": 1000000,
+          "cautionDepositMinor": 2000000,
+          "totalMinor": 13000000,
+          "currency": "NGN",
+          "guestNote": null,
+          "idempotencyKey": null,
+          "confirmedAt": null,
+          "cancelledAt": null,
+          "cancellationReason": null,
+          "createdAt": "2026-11-06T05:44:35.688Z",
+          "updatedAt": "2026-11-06T05:44:35.688Z",
+          "unit": {
+            "id": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+            "code": "CT-1793943875562",
+            "name": "[DEV SAMPLE] One-bedroom unit",
+            "property": {
+              "id": "62886bf3-58fb-4df1-a051-83006c9ddcff",
+              "name": "[DEV SAMPLE] Residence",
+              "slug": "dev-sample-residence",
+              "city": "Abuja",
+              "addressLine": "Sample address (development only)",
+              "checkInTime": "14:00",
+              "checkOutTime": "12:00"
+            }
+          }
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 1,
+        "totalPages": 1
+      }
+    }
+  },
+  "apartments.cancel": {
+    "request": {},
+    "status": 200,
+    "response": {
+      "id": "1ef1f476-8eb2-430e-a0dd-4a1b3e7899ba",
+      "reservationNumber": "APT-261106-0NAGSW",
+      "unitId": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "checkIn": "2027-08-18T00:00:00.000Z",
+      "checkOut": "2027-08-20T00:00:00.000Z",
+      "nights": 2,
+      "guests": 2,
+      "status": "CANCELLED",
+      "paymentStatus": "UNPAID",
+      "amountPaidMinor": 0,
+      "depositRequiredMinor": 0,
+      "holdExpiresAt": "2026-11-06T05:59:35.685Z",
+      "nightlyRateMinor": 5000000,
+      "accommodationMinor": 10000000,
+      "cleaningFeeMinor": 1000000,
+      "cautionDepositMinor": 2000000,
+      "totalMinor": 13000000,
+      "currency": "NGN",
+      "guestNote": null,
+      "idempotencyKey": null,
+      "confirmedAt": null,
+      "cancelledAt": "2026-11-06T05:44:35.759Z",
+      "cancellationReason": "Cancelled by guest",
+      "createdAt": "2026-11-06T05:44:35.688Z",
+      "updatedAt": "2026-11-06T05:44:35.761Z",
+      "unit": {
+        "id": "4400b65c-a49b-40ea-aeaa-45f109fba97e",
+        "code": "CT-1793943875562",
+        "name": "[DEV SAMPLE] One-bedroom unit",
+        "property": {
+          "id": "62886bf3-58fb-4df1-a051-83006c9ddcff",
+          "name": "[DEV SAMPLE] Residence",
+          "slug": "dev-sample-residence",
+          "city": "Abuja",
+          "addressLine": "Sample address (development only)",
+          "checkInTime": "14:00",
+          "checkOutTime": "12:00"
+        }
+      },
+      "payments": []
+    }
+  },
+  "vehicles.list": {
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "id": "d9c3db0c-e335-4c41-bd72-a85de1967e19",
+          "divisionId": "dd5a85e7-6a37-4a9e-9098-62604e2e251f",
+          "slug": "dev-sample-suv",
+          "make": "DevSample",
+          "model": "SUV",
+          "year": 2024,
+          "trim": null,
+          "condition": "BRAND_NEW",
+          "bodyType": null,
+          "transmission": null,
+          "fuelType": null,
+          "colour": null,
+          "mileageKm": null,
+          "priceMinor": 5000000000,
+          "depositMinor": 50000000,
+          "customsCleared": false,
+          "verification": "VERIFIED",
+          "verifiedAt": null,
+          "verifiedById": null,
+          "specs": null,
+          "description": "Development sample listing only.",
+          "status": "AVAILABLE",
+          "createdAt": "2026-11-05T19:27:55.522Z",
+          "updatedAt": "2026-11-05T21:09:21.675Z",
+          "images": []
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 5,
+        "total": 1,
+        "totalPages": 1
+      }
+    }
+  },
+  "vehicles.detail": {
+    "status": 200,
+    "response": {
+      "id": "d9c3db0c-e335-4c41-bd72-a85de1967e19",
+      "divisionId": "dd5a85e7-6a37-4a9e-9098-62604e2e251f",
+      "slug": "dev-sample-suv",
+      "make": "DevSample",
+      "model": "SUV",
+      "year": 2024,
+      "trim": null,
+      "condition": "BRAND_NEW",
+      "bodyType": null,
+      "transmission": null,
+      "fuelType": null,
+      "colour": null,
+      "mileageKm": null,
+      "priceMinor": 5000000000,
+      "depositMinor": 50000000,
+      "customsCleared": false,
+      "verification": "VERIFIED",
+      "verifiedAt": null,
+      "verifiedById": null,
+      "specs": null,
+      "description": "Development sample listing only.",
+      "status": "AVAILABLE",
+      "createdAt": "2026-11-05T19:27:55.522Z",
+      "updatedAt": "2026-11-05T21:09:21.675Z",
+      "images": [],
+      "vinLast6": null
+    }
+  },
+  "vehicles.inquire": {
+    "request": {
+      "type": "TEST_DRIVE",
+      "contactName": "Ada Okafor",
+      "contactEmail": "contract.1793943873216@example.test",
+      "contactPhone": "+2348031234567",
+      "message": "Saturday morning?"
+    },
+    "status": 201,
+    "response": {
+      "id": "db4eed98-ceca-4898-910f-5cc9474fa127",
+      "vehicleId": "d9c3db0c-e335-4c41-bd72-a85de1967e19",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "type": "TEST_DRIVE",
+      "status": "NEW",
+      "paymentStatus": "UNPAID",
+      "amountPaidMinor": 0,
+      "depositRequiredMinor": 0,
+      "contactName": "Ada Okafor",
+      "contactEmail": "contract.1793943873216@example.test",
+      "contactPhone": "+2348031234567",
+      "message": "Saturday morning?",
+      "preferredDate": null,
+      "assignedToId": null,
+      "createdAt": "2026-11-06T05:44:35.854Z",
+      "updatedAt": "2026-11-06T05:44:35.854Z"
+    }
+  },
+  "vehicles.inquiries": {
+    "status": 200,
+    "response": [
+      {
+        "id": "db4eed98-ceca-4898-910f-5cc9474fa127",
+        "vehicleId": "d9c3db0c-e335-4c41-bd72-a85de1967e19",
+        "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+        "type": "TEST_DRIVE",
+        "status": "NEW",
+        "paymentStatus": "UNPAID",
+        "amountPaidMinor": 0,
+        "depositRequiredMinor": 0,
+        "contactName": "Ada Okafor",
+        "contactEmail": "contract.1793943873216@example.test",
+        "contactPhone": "+2348031234567",
+        "message": "Saturday morning?",
+        "preferredDate": null,
+        "assignedToId": null,
+        "createdAt": "2026-11-06T05:44:35.854Z",
+        "updatedAt": "2026-11-06T05:44:35.854Z",
+        "vehicle": {
+          "id": "d9c3db0c-e335-4c41-bd72-a85de1967e19",
+          "slug": "dev-sample-suv",
+          "make": "DevSample",
+          "model": "SUV",
+          "year": 2024,
+          "depositMinor": 50000000,
+          "status": "AVAILABLE"
+        }
+      }
+    ]
+  },
+  "spa.treatments": {
+    "status": 200,
+    "response": [
+      {
+        "id": "a3498e0b-231d-4741-a4f0-5e262bd0d696",
+        "divisionId": "1b0ca44b-2051-4a7d-9422-f51217a1d395",
+        "name": "[DEV SAMPLE] Massage",
+        "slug": "dev-sample-massage",
+        "description": null,
+        "category": "Massage",
+        "durationMinutes": 60,
+        "priceMinor": 2500000,
+        "depositMinor": 500000,
+        "verification": "VERIFIED",
+        "verifiedAt": null,
+        "verifiedById": null,
+        "isActive": true,
+        "createdAt": "2026-11-05T19:27:55.505Z",
+        "updatedAt": "2026-11-05T21:09:21.680Z"
+      },
+      {
+        "id": "254c3592-479a-43d8-aaac-8750e4d8d9ba",
+        "divisionId": "1b0ca44b-2051-4a7d-9422-f51217a1d395",
+        "name": "E2E Facial",
+        "slug": "e2e-facial-1793906962474",
+        "description": null,
+        "category": null,
+        "durationMinutes": 45,
+        "priceMinor": 1000000,
+        "depositMinor": 0,
+        "verification": "VERIFIED",
+        "verifiedAt": null,
+        "verifiedById": null,
+        "isActive": true,
+        "createdAt": "2026-11-05T19:29:22.479Z",
+        "updatedAt": "2026-11-05T21:09:21.680Z"
+      }
+    ]
+  },
+  "spa.treatment": {
+    "status": 200,
+    "response": {
+      "id": "a3498e0b-231d-4741-a4f0-5e262bd0d696",
+      "divisionId": "1b0ca44b-2051-4a7d-9422-f51217a1d395",
+      "name": "[DEV SAMPLE] Massage",
+      "slug": "dev-sample-massage",
+      "description": null,
+      "category": "Massage",
+      "durationMinutes": 60,
+      "priceMinor": 2500000,
+      "depositMinor": 500000,
+      "verification": "VERIFIED",
+      "verifiedAt": null,
+      "verifiedById": null,
+      "isActive": true,
+      "createdAt": "2026-11-05T19:27:55.505Z",
+      "updatedAt": "2026-11-05T21:09:21.680Z",
+      "practitioners": [
+        {
+          "id": "9583b6ce-936c-4eff-9fd3-7fe74e6b11b4",
+          "displayName": "[DEV SAMPLE] Therapist",
+          "bio": null
+        },
+        {
+          "id": "66d515cf-7b47-4abf-96f4-0ab1f4c46989",
+          "displayName": "Test therapist 1793913178497",
+          "bio": null
+        }
+      ]
+    }
+  },
+  "spa.slots": {
+    "status": 200,
+    "response": {
+      "treatmentId": "a3498e0b-231d-4741-a4f0-5e262bd0d696",
+      "date": "2028-03-11",
+      "timezone": "Africa/Lagos",
+      "durationMinutes": 60,
+      "slots": [
+        {
+          "startsAt": "2028-03-11T08:00:00.000Z",
+          "endsAt": "2028-03-11T09:00:00.000Z",
+          "practitionerIds": [
+            "f3b8911b-bee1-4457-b08b-99fc6ab0db1e",
+            "fa9ae0c8-0e69-475f-b2c3-3c2e552fbab1"
+          ]
+        },
+        {
+          "startsAt": "2028-03-11T08:30:00.000Z",
+          "endsAt": "2028-03-11T09:30:00.000Z",
+          "practitionerIds": [
+            "f3b8911b-bee1-4457-b08b-99fc6ab0db1e",
+            "fa9ae0c8-0e69-475f-b2c3-3c2e552fbab1"
+          ]
+        }
+      ]
+    }
+  },
+  "spa.book": {
+    "request": {
+      "treatmentId": "a3498e0b-231d-4741-a4f0-5e262bd0d696",
+      "startsAt": "2028-03-11T08:00:00.000Z"
+    },
+    "status": 201,
+    "response": {
+      "id": "05e92b0a-e4be-4c2f-822d-30f552d5a2f2",
+      "appointmentNumber": "SPA-261106-J8H5CW",
+      "treatmentId": "a3498e0b-231d-4741-a4f0-5e262bd0d696",
+      "practitionerId": "f3b8911b-bee1-4457-b08b-99fc6ab0db1e",
+      "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+      "startsAt": "2028-03-11T08:00:00.000Z",
+      "endsAt": "2028-03-11T09:00:00.000Z",
+      "status": "PENDING",
+      "paymentStatus": "UNPAID",
+      "amountPaidMinor": 0,
+      "depositRequiredMinor": 500000,
+      "priceMinor": 2500000,
+      "depositMinor": 500000,
+      "customerNote": null,
+      "createdAt": "2026-11-06T05:44:36.515Z",
+      "updatedAt": "2026-11-06T05:44:36.515Z",
+      "payBy": "2026-11-06T06:04:36.515Z"
+    }
+  },
+  "spa.appointments": {
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "id": "05e92b0a-e4be-4c2f-822d-30f552d5a2f2",
+          "appointmentNumber": "SPA-261106-J8H5CW",
+          "treatmentId": "a3498e0b-231d-4741-a4f0-5e262bd0d696",
+          "practitionerId": "f3b8911b-bee1-4457-b08b-99fc6ab0db1e",
+          "userId": "3a7cd311-da08-488c-bc2b-c03d5927e003",
+          "startsAt": "2028-03-11T08:00:00.000Z",
+          "endsAt": "2028-03-11T09:00:00.000Z",
+          "status": "PENDING",
+          "paymentStatus": "UNPAID",
+          "amountPaidMinor": 0,
+          "depositRequiredMinor": 500000,
+          "priceMinor": 2500000,
+          "depositMinor": 500000,
+          "customerNote": null,
+          "createdAt": "2026-11-06T05:44:36.515Z",
+          "updatedAt": "2026-11-06T05:44:36.515Z",
+          "treatment": {
+            "name": "[DEV SAMPLE] Massage"
+          },
+          "practitioner": {
+            "displayName": "Contract therapist 1793926751788"
+          }
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "pageSize": 20,
+        "total": 1,
+        "totalPages": 1
+      }
+    }
+  },
+  "error.401": {
+    "status": 401,
+    "response": {
+      "message": "Authentication required",
+      "error": "Unauthorized",
+      "statusCode": 401,
+      "requestId": "4df6e321-9acf-421a-bc79-19c81302cb6f"
+    }
+  },
+  "error.400": {
+    "request": {
+      "email": "bad"
+    },
+    "status": 400,
+    "response": {
+      "message": [
+        "email must be an email",
+        "Password must be 10–128 characters and include at least one letter and one number"
+      ],
+      "error": "Bad Request",
+      "statusCode": 400,
+      "requestId": "a5420550-e695-464e-b7df-df063a4eeee1"
+    }
+  },
+  "error.403": {
+    "status": 403,
+    "response": {
+      "message": "Staff access only",
+      "error": "Forbidden",
+      "statusCode": 403,
+      "requestId": "c435ffee-7acc-4265-81f5-54a1b0e1943f"
+    }
+  },
+  "error.404": {
+    "status": 404,
+    "response": {
+      "message": "Product not found",
+      "error": "Not Found",
+      "statusCode": 404,
+      "requestId": "7422b706-9ad8-4ca2-98c2-bd8dae1b8bea"
+    }
+  },
+  "error.409": {
+    "request": {
+      "variantId": "749b60bf-4d4e-4387-82a7-64ea3c21000f",
+      "quantity": 1000
+    },
+    "status": 409,
+    "response": {
+      "message": "Only 497 available",
+      "error": "Conflict",
+      "statusCode": 409,
+      "requestId": "debf887a-aa5d-4f9f-8b0c-75fd13d0a864"
+    }
+  }
+}

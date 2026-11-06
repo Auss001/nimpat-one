@@ -1,0 +1,1811 @@
+{
+  "source": "Nimpat One catalogue supplied by Nimpat Group (2026-11-05). Prices in kobo.",
+  "drinks": [
+    {
+      "sku": "NMP-WTR-001",
+      "name": "Swan Natural Spring Water 50cl",
+      "slug": "swan-natural-spring-water-50cl",
+      "brand": "Swan",
+      "category": "table-water",
+      "description": "Swan Natural Spring Water 50cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-2.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (50cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 170000
+    },
+    {
+      "sku": "NMP-WTR-002",
+      "name": "Swan Natural Spring Water 75cl",
+      "slug": "swan-natural-spring-water-75cl",
+      "brand": "Swan",
+      "category": "table-water",
+      "description": "Swan Natural Spring Water 75cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-2.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (75cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 205000
+    },
+    {
+      "sku": "NMP-WTR-003",
+      "name": "Nestlé Pure Life Water 60cl",
+      "slug": "nestle-pure-life-water-60cl",
+      "brand": "Nestle",
+      "category": "table-water",
+      "description": "Nestlé Pure Life Water 60cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-3.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (60cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 330000
+    },
+    {
+      "sku": "NMP-WTR-004",
+      "name": "CWAY Drinking Water 75cl",
+      "slug": "cway-drinking-water-75cl",
+      "brand": "CWAY",
+      "category": "table-water",
+      "description": "CWAY Drinking Water 75cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-1.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (75cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 180000
+    },
+    {
+      "sku": "NMP-WTR-005",
+      "name": "CWAY Drinking Water 50cl",
+      "slug": "cway-drinking-water-50cl",
+      "brand": "CWAY",
+      "category": "table-water",
+      "description": "CWAY Drinking Water 50cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-1.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 20 (50cl)",
+      "unitsPerPack": 20,
+      "priceMinor": 290000
+    },
+    {
+      "sku": "NMP-WTR-006",
+      "name": "CWAY Dispenser Water 18.9L",
+      "slug": "cway-dispenser-water-18-9l",
+      "brand": "CWAY",
+      "category": "dispenser-water",
+      "description": "CWAY Dispenser Water 18.9L — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-1.jpg",
+      "isAgeRestricted": false,
+      "variantName": "18.9L Dispenser Jar",
+      "unitsPerPack": 1,
+      "priceMinor": 140000
+    },
+    {
+      "sku": "NMP-WTR-007",
+      "name": "Venida Dispenser Water 18.9L",
+      "slug": "venida-dispenser-water-18-9l",
+      "brand": "Venida",
+      "category": "dispenser-water",
+      "description": "Venida Dispenser Water 18.9L — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-0.jpg",
+      "isAgeRestricted": false,
+      "variantName": "18.9L Dispenser Jar",
+      "unitsPerPack": 1,
+      "priceMinor": 140000
+    },
+    {
+      "sku": "NMP-WTR-008",
+      "name": "Venida Table Water 75cl",
+      "slug": "venida-table-water-75cl",
+      "brand": "Venida",
+      "category": "table-water",
+      "description": "Venida Table Water 75cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-0.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (75cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 180000
+    },
+    {
+      "sku": "NMP-WTR-009",
+      "name": "Venida Table Water 50cl",
+      "slug": "venida-table-water-50cl",
+      "brand": "Venida",
+      "category": "table-water",
+      "description": "Venida Table Water 50cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-0.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 20 (50cl)",
+      "unitsPerPack": 20,
+      "priceMinor": 280000
+    },
+    {
+      "sku": "NMP-WIN-001",
+      "name": "St Lauren Wine",
+      "slug": "st-lauren-wine",
+      "brand": "St Lauren",
+      "category": "wines-and-ports",
+      "description": "St Lauren Wine — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 350000
+    },
+    {
+      "sku": "NMP-WIN-002",
+      "name": "Chamdor Red Grape Sparkling",
+      "slug": "chamdor-red-grape-sparkling",
+      "brand": "Chamdor",
+      "category": "wines-and-ports",
+      "description": "Chamdor Red Grape Sparkling — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 950000
+    },
+    {
+      "sku": "NMP-WIN-003",
+      "name": "Declan Apple Juice",
+      "slug": "declan-apple-juice",
+      "brand": "Declan",
+      "category": "juices-and-soft-drinks",
+      "description": "Declan Apple Juice — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": false,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 660000
+    },
+    {
+      "sku": "NMP-WIN-004",
+      "name": "Casa De Agor Wine",
+      "slug": "casa-de-agor-wine",
+      "brand": "Casa De Agor",
+      "category": "wines-and-ports",
+      "description": "Casa De Agor Wine — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 1170000
+    },
+    {
+      "sku": "NMP-WIN-005",
+      "name": "Glenfiddich 15 Years Single Malt Scotch",
+      "slug": "glenfiddich-15-years-single-malt-scotch",
+      "brand": "Glenfiddich",
+      "category": "spirits-and-liqueurs",
+      "description": "Glenfiddich 15 Years Single Malt Scotch — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 8700000
+    },
+    {
+      "sku": "NMP-WIN-006",
+      "name": "Glenfiddich 12 Years Single Malt Scotch",
+      "slug": "glenfiddich-12-years-single-malt-scotch",
+      "brand": "Glenfiddich",
+      "category": "spirits-and-liqueurs",
+      "description": "Glenfiddich 12 Years Single Malt Scotch — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 5800000
+    },
+    {
+      "sku": "NMP-WIN-007",
+      "name": "Glenfiddich 18 Years Single Malt Scotch",
+      "slug": "glenfiddich-18-years-single-malt-scotch",
+      "brand": "Glenfiddich",
+      "category": "spirits-and-liqueurs",
+      "description": "Glenfiddich 18 Years Single Malt Scotch — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 13500000
+    },
+    {
+      "sku": "NMP-WIN-008",
+      "name": "Jameson Blackberry Irish Whiskey",
+      "slug": "jameson-blackberry-irish-whiskey",
+      "brand": "Jameson",
+      "category": "spirits-and-liqueurs",
+      "description": "Jameson Blackberry Irish Whiskey — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 7600000
+    },
+    {
+      "sku": "NMP-WIN-009",
+      "name": "Jameson Irish Whiskey",
+      "slug": "jameson-irish-whiskey",
+      "brand": "Jameson",
+      "category": "spirits-and-liqueurs",
+      "description": "Jameson Irish Whiskey — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 4400000
+    },
+    {
+      "sku": "NMP-WIN-010",
+      "name": "Tenjaku Pure Japanese Whisky",
+      "slug": "tenjaku-pure-japanese-whisky",
+      "brand": "Tenjaku",
+      "category": "spirits-and-liqueurs",
+      "description": "Tenjaku Pure Japanese Whisky — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 1950000
+    },
+    {
+      "sku": "NMP-WIN-011",
+      "name": "The Observatory 20 Years Single Grain Scotch",
+      "slug": "the-observatory-20-years-single-grain-scotch",
+      "brand": "The Observatory",
+      "category": "spirits-and-liqueurs",
+      "description": "The Observatory 20 Years Single Grain Scotch — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 8600000
+    },
+    {
+      "sku": "NMP-WIN-012",
+      "name": "Sandeman Fine Ruby Porto",
+      "slug": "sandeman-fine-ruby-porto",
+      "brand": "Sandeman",
+      "category": "wines-and-ports",
+      "description": "Sandeman Fine Ruby Porto — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 1950000
+    },
+    {
+      "sku": "NMP-WIN-013",
+      "name": "Hennessy V.S.O.P Privilège Cognac",
+      "slug": "hennessy-v-s-o-p-privilege-cognac",
+      "brand": "Hennessy",
+      "category": "spirits-and-liqueurs",
+      "description": "Hennessy V.S.O.P Privilège Cognac — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 19600000
+    },
+    {
+      "sku": "NMP-WIN-014",
+      "name": "Eva Gold Sparkling Juice",
+      "slug": "eva-gold-sparkling-juice",
+      "brand": "Eva",
+      "category": "wines-and-ports",
+      "description": "Eva Gold Sparkling Juice — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 660000
+    },
+    {
+      "sku": "NMP-WIN-015",
+      "name": "Capel Wine",
+      "slug": "capel-wine",
+      "brand": "Capel",
+      "category": "wines-and-ports",
+      "description": "Capel Wine — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 500000
+    },
+    {
+      "sku": "NMP-WIN-016",
+      "name": "Casa Dorado Wine",
+      "slug": "casa-dorado-wine",
+      "brand": "Casa Dorado",
+      "category": "wines-and-ports",
+      "description": "Casa Dorado Wine — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 400000
+    },
+    {
+      "sku": "NMP-WIN-017",
+      "name": "Vartely Pastoral Wine",
+      "slug": "vartely-pastoral-wine",
+      "brand": "Vartely",
+      "category": "wines-and-ports",
+      "description": "Vartely Pastoral Wine — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 1050000
+    },
+    {
+      "sku": "NMP-WIN-018",
+      "name": "Don Julio 1942 Tequila",
+      "slug": "don-julio-1942-tequila",
+      "brand": "Don Julio",
+      "category": "spirits-and-liqueurs",
+      "description": "Don Julio 1942 Tequila — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 44000000
+    },
+    {
+      "sku": "NMP-WIN-019",
+      "name": "Dom Pérignon Vintage Champagne",
+      "slug": "dom-perignon-vintage-champagne",
+      "brand": "Dom Pérignon",
+      "category": "champagnes",
+      "description": "Dom Pérignon Vintage Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 46800000
+    },
+    {
+      "sku": "NMP-WIN-020",
+      "name": "Louis Roederer Cristal Champagne",
+      "slug": "louis-roederer-cristal-champagne",
+      "brand": "Louis Roederer",
+      "category": "champagnes",
+      "description": "Louis Roederer Cristal Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 52500000
+    },
+    {
+      "sku": "NMP-WIN-021",
+      "name": "Johnnie Walker Blue Label Scotch Whisky",
+      "slug": "johnnie-walker-blue-label-scotch-whisky",
+      "brand": "Johnnie Walker",
+      "category": "spirits-and-liqueurs",
+      "description": "Johnnie Walker Blue Label Scotch Whisky — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 43000000
+    },
+    {
+      "sku": "NMP-WIN-022",
+      "name": "Martell V.S Fine Cognac",
+      "slug": "martell-v-s-fine-cognac",
+      "brand": "Martell",
+      "category": "spirits-and-liqueurs",
+      "description": "Martell V.S Fine Cognac — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 8000000
+    },
+    {
+      "sku": "NMP-WIN-023",
+      "name": "Robertson Winery Natural Sweet",
+      "slug": "robertson-winery-natural-sweet",
+      "brand": "Robertson Winery",
+      "category": "wines-and-ports",
+      "description": "Robertson Winery Natural Sweet — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 1000000
+    },
+    {
+      "sku": "NMP-WIN-024",
+      "name": "Jack Daniel's Old No. 7 Tennessee Whiskey (Small)",
+      "slug": "jack-daniel-s-old-no-7-tennessee-whiskey-small",
+      "brand": "Jack Daniel's",
+      "category": "spirits-and-liqueurs",
+      "description": "Jack Daniel's Old No. 7 Tennessee Whiskey (Small) — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 900000
+    },
+    {
+      "sku": "NMP-WIN-025",
+      "name": "Il Cacciatore Fine Wine",
+      "slug": "il-cacciatore-fine-wine",
+      "brand": "Il Cacciatore",
+      "category": "wines-and-ports",
+      "description": "Il Cacciatore Fine Wine — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 1950000
+    },
+    {
+      "sku": "NMP-WIN-026",
+      "name": "Four Cousins Sweet Red Wine",
+      "slug": "four-cousins-sweet-red-wine",
+      "brand": "Four Cousins",
+      "category": "wines-and-ports",
+      "description": "Four Cousins Sweet Red Wine — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 800000
+    },
+    {
+      "sku": "NMP-WIN-027",
+      "name": "Cooper & Thief Bourbon Barrel Aged Red Blend",
+      "slug": "cooper-and-thief-bourbon-barrel-aged-red-blend",
+      "brand": "Cooper & Thief",
+      "category": "wines-and-ports",
+      "description": "Cooper & Thief Bourbon Barrel Aged Red Blend — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 4100000
+    },
+    {
+      "sku": "NMP-WIN-028",
+      "name": "Martell Blue Swift Cognac Spirit Drink",
+      "slug": "martell-blue-swift-cognac-spirit-drink",
+      "brand": "Martell",
+      "category": "spirits-and-liqueurs",
+      "description": "Martell Blue Swift Cognac Spirit Drink — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 9600000
+    },
+    {
+      "sku": "NMP-WIN-029",
+      "name": "Sandeman Founders Reserve Porto",
+      "slug": "sandeman-founders-reserve-porto",
+      "brand": "Sandeman",
+      "category": "wines-and-ports",
+      "description": "Sandeman Founders Reserve Porto — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 2350000
+    },
+    {
+      "sku": "NMP-WIN-030",
+      "name": "Hennessy Very Special (V.S) Gold Edition",
+      "slug": "hennessy-very-special-v-s-gold-edition",
+      "brand": "Hennessy",
+      "category": "spirits-and-liqueurs",
+      "description": "Hennessy Very Special (V.S) Gold Edition — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 10800000
+    },
+    {
+      "sku": "NMP-WIN-031",
+      "name": "Hennessy Very Special (V.S) Black Edition",
+      "slug": "hennessy-very-special-v-s-black-edition",
+      "brand": "Hennessy",
+      "category": "spirits-and-liqueurs",
+      "description": "Hennessy Very Special (V.S) Black Edition — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 10800000
+    },
+    {
+      "sku": "NMP-WIN-032",
+      "name": "The Glen Silvers Blended Scotch Whisky",
+      "slug": "the-glen-silvers-blended-scotch-whisky",
+      "brand": "The Glen Silvers",
+      "category": "spirits-and-liqueurs",
+      "description": "The Glen Silvers Blended Scotch Whisky — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 2900000
+    },
+    {
+      "sku": "NMP-WIN-033",
+      "name": "Hennessy X.O Extra Old Cognac",
+      "slug": "hennessy-x-o-extra-old-cognac",
+      "brand": "Hennessy",
+      "category": "spirits-and-liqueurs",
+      "description": "Hennessy X.O Extra Old Cognac — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 35000000
+    },
+    {
+      "sku": "NMP-WIN-034",
+      "name": "Glenmorangie The Original Highland Single Malt",
+      "slug": "glenmorangie-the-original-highland-single-malt",
+      "brand": "Glenmorangie",
+      "category": "spirits-and-liqueurs",
+      "description": "Glenmorangie The Original Highland Single Malt — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 9200000
+    },
+    {
+      "sku": "NMP-WIN-035",
+      "name": "Empereur Napoleon Brandy",
+      "slug": "empereur-napoleon-brandy",
+      "brand": "Empereur",
+      "category": "spirits-and-liqueurs",
+      "description": "Empereur Napoleon Brandy — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 8700000
+    },
+    {
+      "sku": "NMP-WIN-036",
+      "name": "The Macallan 18 Years Sherry Oak (Black Box)",
+      "slug": "the-macallan-18-years-sherry-oak-black-box",
+      "brand": "The Macallan",
+      "category": "spirits-and-liqueurs",
+      "description": "The Macallan 18 Years Sherry Oak (Black Box) — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 49000000
+    },
+    {
+      "sku": "NMP-WIN-037",
+      "name": "The Macallan 18 Years Sherry Oak (Blue Box)",
+      "slug": "the-macallan-18-years-sherry-oak-blue-box",
+      "brand": "The Macallan",
+      "category": "spirits-and-liqueurs",
+      "description": "The Macallan 18 Years Sherry Oak (Blue Box) — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 47000000
+    },
+    {
+      "sku": "NMP-WIN-038",
+      "name": "The Macallan 15 Years Double Cask",
+      "slug": "the-macallan-15-years-double-cask",
+      "brand": "The Macallan",
+      "category": "spirits-and-liqueurs",
+      "description": "The Macallan 15 Years Double Cask — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 18700000
+    },
+    {
+      "sku": "NMP-WIN-039",
+      "name": "The Macallan 12 Years Double Cask",
+      "slug": "the-macallan-12-years-double-cask",
+      "brand": "The Macallan",
+      "category": "spirits-and-liqueurs",
+      "description": "The Macallan 12 Years Double Cask — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 8400000
+    },
+    {
+      "sku": "NMP-WIN-040",
+      "name": "Johnnie Walker Gold Label Reserve",
+      "slug": "johnnie-walker-gold-label-reserve",
+      "brand": "Johnnie Walker",
+      "category": "spirits-and-liqueurs",
+      "description": "Johnnie Walker Gold Label Reserve — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 7000000
+    },
+    {
+      "sku": "NMP-WIN-041",
+      "name": "Olmeca Silver Tequila",
+      "slug": "olmeca-silver-tequila",
+      "brand": "Olmeca",
+      "category": "spirits-and-liqueurs",
+      "description": "Olmeca Silver Tequila — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-5.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 2050000
+    },
+    {
+      "sku": "NMP-WIN-042",
+      "name": "Laurent-Perrier La Cuvée Brut Champagne",
+      "slug": "laurent-perrier-la-cuvee-brut-champagne",
+      "brand": "Laurent-Perrier",
+      "category": "champagnes",
+      "description": "Laurent-Perrier La Cuvée Brut Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 16000000
+    },
+    {
+      "sku": "NMP-WIN-043",
+      "name": "Moët & Chandon Rosé Impérial Champagne",
+      "slug": "moet-and-chandon-rose-imperial-champagne",
+      "brand": "Moët & Chandon",
+      "category": "champagnes",
+      "description": "Moët & Chandon Rosé Impérial Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 11800000
+    },
+    {
+      "sku": "NMP-WIN-044",
+      "name": "Veuve Clicquot Rosé Champagne",
+      "slug": "veuve-clicquot-rose-champagne",
+      "brand": "Veuve Clicquot",
+      "category": "champagnes",
+      "description": "Veuve Clicquot Rosé Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 26000000
+    },
+    {
+      "sku": "NMP-WIN-045",
+      "name": "Louis Roederer Brut Premier Champagne",
+      "slug": "louis-roederer-brut-premier-champagne",
+      "brand": "Louis Roederer",
+      "category": "champagnes",
+      "description": "Louis Roederer Brut Premier Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 15600000
+    },
+    {
+      "sku": "NMP-WIN-046",
+      "name": "Moët & Chandon Nectar Impérial Demi-Sec",
+      "slug": "moet-and-chandon-nectar-imperial-demi-sec",
+      "brand": "Moët & Chandon",
+      "category": "champagnes",
+      "description": "Moët & Chandon Nectar Impérial Demi-Sec — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 11500000
+    },
+    {
+      "sku": "NMP-WIN-047",
+      "name": "Veuve Clicquot Rich Champagne",
+      "slug": "veuve-clicquot-rich-champagne",
+      "brand": "Veuve Clicquot",
+      "category": "champagnes",
+      "description": "Veuve Clicquot Rich Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 27000000
+    },
+    {
+      "sku": "NMP-WIN-048",
+      "name": "Moët & Chandon Impérial Brut Champagne",
+      "slug": "moet-and-chandon-imperial-brut-champagne",
+      "brand": "Moët & Chandon",
+      "category": "champagnes",
+      "description": "Moët & Chandon Impérial Brut Champagne — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-4.jpg",
+      "isAgeRestricted": true,
+      "variantName": "75cl Bottle",
+      "unitsPerPack": 1,
+      "priceMinor": 12000000
+    },
+    {
+      "sku": "NMP-DRK-001",
+      "name": "Five Alive Mango 78cl",
+      "slug": "five-alive-mango-78cl",
+      "brand": "Coca-Cola",
+      "category": "juices-and-soft-drinks",
+      "description": "Five Alive Mango 78cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (78cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 515000
+    },
+    {
+      "sku": "NMP-DRK-002",
+      "name": "Five Alive Cocopine 78cl",
+      "slug": "five-alive-cocopine-78cl",
+      "brand": "Coca-Cola",
+      "category": "juices-and-soft-drinks",
+      "description": "Five Alive Cocopine 78cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (78cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 615000
+    },
+    {
+      "sku": "NMP-DRK-003",
+      "name": "Predator Energy Drink (Can 40cl)",
+      "slug": "predator-energy-drink-can-40cl",
+      "brand": "Predator",
+      "category": "energy-drinks",
+      "description": "Predator Energy Drink (Can 40cl) — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-6.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 Cans",
+      "unitsPerPack": 12,
+      "priceMinor": 470000
+    },
+    {
+      "sku": "NMP-DRK-004",
+      "name": "Monster Energy Drink 50cl",
+      "slug": "monster-energy-drink-50cl",
+      "brand": "Monster",
+      "category": "energy-drinks",
+      "description": "Monster Energy Drink 50cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-6.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 Cans",
+      "unitsPerPack": 12,
+      "priceMinor": 2100000
+    },
+    {
+      "sku": "NMP-DRK-005",
+      "name": "Coca-Cola Original Taste 50cl",
+      "slug": "coca-cola-original-taste-50cl",
+      "brand": "Coca-Cola",
+      "category": "juices-and-soft-drinks",
+      "description": "Coca-Cola Original Taste 50cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (50cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 460000
+    },
+    {
+      "sku": "NMP-DRK-006",
+      "name": "Fanta Orange 50cl",
+      "slug": "fanta-orange-50cl",
+      "brand": "Coca-Cola",
+      "category": "juices-and-soft-drinks",
+      "description": "Fanta Orange 50cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (50cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 460000
+    },
+    {
+      "sku": "NMP-DRK-007",
+      "name": "Sprite Lemon-Lime 50cl",
+      "slug": "sprite-lemon-lime-50cl",
+      "brand": "Coca-Cola",
+      "category": "juices-and-soft-drinks",
+      "description": "Sprite Lemon-Lime 50cl — official genuine stock, stored under temperature control and delivered fast across Abuja, Lagos and nationwide.",
+      "image": "/media/assets/drinks-stock-7.jpg",
+      "isAgeRestricted": false,
+      "variantName": "Pack of 12 (50cl)",
+      "unitsPerPack": 12,
+      "priceMinor": 460000
+    }
+  ],
+  "retail": [
+    {
+      "sku": "NMP-SUP-001",
+      "name": "Executive Ultra-Bright A4 Copy Paper (Box of 5 Reams)",
+      "slug": "executive-ultra-bright-a4-copy-paper-box-of-5-reams",
+      "category": "office-supplies",
+      "description": "80gsm high-opacity laser paper for high-volume corporate and government documentation.",
+      "image": null,
+      "variantName": "Box of 5 Reams (2,500 Sheets)",
+      "priceMinor": 3200000,
+      "minOrderQty": 3
+    },
+    {
+      "sku": "NMP-SUP-002",
+      "name": "Heavy-Duty Industrial Safety Helmets & Hi-Vis Vests (Bundle of 10)",
+      "slug": "heavy-duty-industrial-safety-helmets-and-hi-vis-vests-bundle-of-10",
+      "category": "safety-gear",
+      "description": "ANSI Z89.1 certified construction protective headgear with reflective safety jackets.",
+      "image": null,
+      "variantName": "Pack of 10 Sets",
+      "priceMinor": 6500000,
+      "minOrderQty": 1
+    },
+    {
+      "sku": "NMP-SUP-003",
+      "name": "Eco-Max Multi-Surface Commercial Disinfectant (20L Drum)",
+      "slug": "eco-max-multi-surface-commercial-disinfectant-20l-drum",
+      "category": "cleaning-chemicals",
+      "description": "Hospital-grade surface sanitizing concentrate for plazas, hotels, and corporate offices.",
+      "image": null,
+      "variantName": "20L Industrial Drum",
+      "priceMinor": 2800000,
+      "minOrderQty": 2
+    }
+  ],
+  "apartments": [
+    {
+      "key": "prop-mabushi-residence",
+      "name": "Mabushi Residence",
+      "slug": "mabushi-residence",
+      "addressLine": "Mabushi, Abuja",
+      "city": "Abuja",
+      "state": "FCT",
+      "amenities": [
+        "24/7 Power with Inverter Backup",
+        "Superfast Fiber Wi-Fi",
+        "Armed Security & CCTV",
+        "Climate Control AC Throughout",
+        "Private Balcony",
+        "Dedicated Covered Parking",
+        "Standby Generator Power",
+        "Illuminated Luxury Wine Lounge",
+        "High-Speed Wi-Fi",
+        "24/7 Estate Security",
+        "Walk-in Dressing Suite",
+        "Fitted Kitchen & Pantry",
+        "24/7 Gated Security",
+        "Air Conditioning Throughout"
+      ],
+      "description": "Four serviced three-bedroom flats in Mabushi, Abuja.",
+      "units": [
+        {
+          "code": "Flat 1",
+          "name": "Mabushi Executive Suite",
+          "description": "Executive 3-bedroom serviced residence in serene Mabushi, Abuja. Features wall-mounted smart entertainment, premium sofa seating by panoramic windows, private balcony, and 24/7 dedicated power with solar inverter backup.",
+          "bedrooms": 3,
+          "bathrooms": 3.5,
+          "maxGuests": 6,
+          "nightlyRateMinor": 22000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/mabushi/flat-1/living-room-tv.jpg",
+            "/media/images/mabushi/flat-1/sofa-window.jpg",
+            "/media/images/mabushi/flat-1/bedroom.jpg",
+            "/media/images/mabushi/flat-1/balcony.jpg"
+          ]
+        },
+        {
+          "code": "Flat 2",
+          "name": "Mabushi Presidential Residence",
+          "description": "Ultra-luxurious 3-bedroom residence highlighted by an illuminated custom wine display lounge, executive plush seating, walk-in dressing area, and round-the-clock standby generator power.",
+          "bedrooms": 3,
+          "bathrooms": 3.5,
+          "maxGuests": 6,
+          "nightlyRateMinor": 22000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/mabushi/flat-2/wine-display-lounge.jpg",
+            "/media/images/mabushi/flat-2/living-room-tv.jpg",
+            "/media/images/mabushi/flat-2/bedroom.jpg",
+            "/media/images/mabushi/flat-2/dressing-area.jpg"
+          ]
+        },
+        {
+          "code": "Flat 3",
+          "name": "Mabushi Luxury Suite 3",
+          "description": "Executive 3-bedroom serviced flat with spacious open parlour, smart TV wall, fitted chef kitchen and dining, and standby generator power.",
+          "bedrooms": 3,
+          "bathrooms": 3.5,
+          "maxGuests": 6,
+          "nightlyRateMinor": 22000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/mabushi/flat-3/bedroom-tv-wall.jpg",
+            "/media/images/mabushi/flat-1/living-room-tv.jpg",
+            "/media/images/mabushi/flat-3/bedroom-detail.jpg",
+            "/media/images/sample-kitchen.png"
+          ]
+        },
+        {
+          "code": "Flat 4",
+          "name": "Mabushi Horizon Suite 4",
+          "description": "Contemporary 3-bedroom luxury flat featuring designer ambient lighting, plush lounge and dining suite, standby generator power, and high-speed Wi-Fi.",
+          "bedrooms": 3,
+          "bathrooms": 3.5,
+          "maxGuests": 6,
+          "nightlyRateMinor": 22000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/mabushi/flat-4/lounge-seating.jpg",
+            "/media/images/mabushi/flat-4/bedroom-ensuite.jpg",
+            "/media/images/mabushi/flat-4/estate-view.jpg",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "prop-wuye-f3",
+      "name": "Wuye F3 Executive Duplex",
+      "slug": "wuye-f3",
+      "addressLine": "Wuye, Abuja",
+      "city": "Abuja",
+      "state": "FCT",
+      "amenities": [
+        "24/7 Uninterrupted Power",
+        "High-Speed Wi-Fi",
+        "Double-Volume Duplex",
+        "Private Gated Compound"
+      ],
+      "description": "Prime Wuye F3 residential address. 4 spacious en-suite bedrooms, double-volume duplex architectural layout, chef kitchen & pantry, dedicated compound parking, 24/7 power & estate security.",
+      "units": [
+        {
+          "code": "Duplex F3",
+          "name": "Wuye F3 Executive Duplex",
+          "description": "Prime Wuye F3 residential address. 4 spacious en-suite bedrooms, double-volume duplex architectural layout, chef kitchen & pantry, dedicated compound parking, 24/7 power & estate security.",
+          "bedrooms": 4,
+          "bathrooms": 4.5,
+          "maxGuests": 8,
+          "nightlyRateMinor": 30000000,
+          "cautionDepositMinor": 8000000,
+          "cleaningFeeMinor": 3000000,
+          "images": [
+            "/media/images/sample-living.png",
+            "/media/images/sample-bedroom.png",
+            "/media/images/sample-kitchen.png",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "prop-aj-turner",
+      "name": "AJ Turner Estate Duplex",
+      "slug": "aj-turner",
+      "addressLine": "Wuye, Abuja",
+      "city": "Abuja",
+      "state": "FCT",
+      "amenities": [
+        "Standby Generator Power",
+        "Fiber Wi-Fi",
+        "Perimeter Estate Security"
+      ],
+      "description": "Gated AJ Turner Estate duplex in Wuye. Configured with 3 sellable executive bedrooms (₦80,000/room or full-villa rate), spacious parlour & dining, Wi-Fi, and standby power.",
+      "units": [
+        {
+          "code": "Villa 1",
+          "name": "AJ Turner Estate Duplex",
+          "description": "Gated AJ Turner Estate duplex in Wuye. Configured with 3 sellable executive bedrooms (₦80,000/room or full-villa rate), spacious parlour & dining, Wi-Fi, and standby power.",
+          "bedrooms": 4,
+          "bathrooms": 4.5,
+          "maxGuests": 8,
+          "nightlyRateMinor": 24000000,
+          "cautionDepositMinor": 6000000,
+          "cleaningFeeMinor": 2500000,
+          "images": [
+            "/media/images/sample-living-navy.png",
+            "/media/images/sample-bedroom.png",
+            "/media/images/sample-kitchen.png",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "prop-queens-landing",
+      "name": "Queens Landing Estate Residence",
+      "slug": "queens-landing",
+      "addressLine": "Wuye, Abuja",
+      "city": "Abuja",
+      "state": "FCT",
+      "amenities": [
+        "24/7 Estate Power",
+        "High-Speed Wi-Fi",
+        "Private Sunset Balcony"
+      ],
+      "description": "Queens Landing Estate, Wuye address. 3 en-suite luxury bedrooms, contemporary architectural layout, floor-to-ceiling windows, private balcony, and 24/7 estate power.",
+      "units": [
+        {
+          "code": "Residence 1",
+          "name": "Queens Landing Estate Residence",
+          "description": "Queens Landing Estate, Wuye address. 3 en-suite luxury bedrooms, contemporary architectural layout, floor-to-ceiling windows, private balcony, and 24/7 estate power.",
+          "bedrooms": 3,
+          "bathrooms": 3.5,
+          "maxGuests": 6,
+          "nightlyRateMinor": 22000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/opulent-living-room.png",
+            "/media/images/sample-bedroom.png",
+            "/media/images/sample-kitchen.png",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "prop-lekki-phase1",
+      "name": "Lekki Luxury Executive Suite",
+      "slug": "lekki-phase1",
+      "addressLine": "Lekki Phase 1, Lagos",
+      "city": "Lagos",
+      "state": "Lagos",
+      "amenities": [
+        "24/7 Dual-Source Power",
+        "High-Speed Fiber Wi-Fi",
+        "Armed Security & CCTV"
+      ],
+      "description": "Prime Lekki Phase 1, Lagos address. 2 en-suite luxury bedrooms, airy modern designer living space, high-speed fiber Wi-Fi, 24/7 power & private security.",
+      "units": [
+        {
+          "code": "Lagos 1",
+          "name": "Lekki Luxury Executive Suite",
+          "description": "Prime Lekki Phase 1, Lagos address. 2 en-suite luxury bedrooms, airy modern designer living space, high-speed fiber Wi-Fi, 24/7 power & private security.",
+          "bedrooms": 2,
+          "bathrooms": 2.5,
+          "maxGuests": 4,
+          "nightlyRateMinor": 18000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/lagos-1.jpg",
+            "/media/images/sample-bedroom.png",
+            "/media/images/sample-kitchen.png",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "prop-ikoyi-waterfront",
+      "name": "Ikoyi Waterfront Penthouse",
+      "slug": "ikoyi-waterfront",
+      "addressLine": "Ikoyi, Lagos",
+      "city": "Lagos",
+      "state": "Lagos",
+      "amenities": [
+        "24/7 Uninterrupted Power",
+        "Panoramic Waterfront View",
+        "High-Speed Wi-Fi"
+      ],
+      "description": "Prestigious Ikoyi, Lagos address. Panoramic waterfront & city views, private terrace lounge, designer kitchenette, and 24/7 dedicated electricity & security.",
+      "units": [
+        {
+          "code": "Lagos 2",
+          "name": "Ikoyi Waterfront Penthouse",
+          "description": "Prestigious Ikoyi, Lagos address. Panoramic waterfront & city views, private terrace lounge, designer kitchenette, and 24/7 dedicated electricity & security.",
+          "bedrooms": 1,
+          "bathrooms": 1.5,
+          "maxGuests": 2,
+          "nightlyRateMinor": 10000000,
+          "cautionDepositMinor": 4000000,
+          "cleaningFeeMinor": 1500000,
+          "images": [
+            "/media/images/lagos-2.jpg",
+            "/media/images/sample-bedroom.png",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "prop-ph-old-gra",
+      "name": "Old GRA Executive Suite",
+      "slug": "ph-old-gra",
+      "addressLine": "Old GRA, Port Harcourt",
+      "city": "Port Harcourt",
+      "state": "Rivers",
+      "amenities": [
+        "24/7 Dedicated Power",
+        "High-Speed Wi-Fi",
+        "24/7 Armed Security"
+      ],
+      "description": "Prime Old GRA, Port Harcourt enclave. 3 spacious en-suite bedrooms, warm oak & marble living room, fitted kitchen & dining suite, 24/7 dedicated power & security.",
+      "units": [
+        {
+          "code": "PH 1",
+          "name": "Old GRA Executive Suite",
+          "description": "Prime Old GRA, Port Harcourt enclave. 3 spacious en-suite bedrooms, warm oak & marble living room, fitted kitchen & dining suite, 24/7 dedicated power & security.",
+          "bedrooms": 3,
+          "bathrooms": 3.5,
+          "maxGuests": 6,
+          "nightlyRateMinor": 22000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/ph-1.jpg",
+            "/media/images/sample-bedroom.png",
+            "/media/images/sample-kitchen.png",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "prop-ph-peter-odili",
+      "name": "Peter Odili Waterfront Suite",
+      "slug": "ph-peter-odili",
+      "addressLine": "Peter Odili, Port Harcourt",
+      "city": "Port Harcourt",
+      "state": "Rivers",
+      "amenities": [
+        "24/7 Uninterrupted Power",
+        "Fiber Optic Internet",
+        "Dedicated Parking Space"
+      ],
+      "description": "Peter Odili waterfront corridor, Port Harcourt. 3 king en-suite bedrooms, spacious open lounge with TV, dedicated parking & security, 24/7 uninterrupted power.",
+      "units": [
+        {
+          "code": "PH 2",
+          "name": "Peter Odili Waterfront Suite",
+          "description": "Peter Odili waterfront corridor, Port Harcourt. 3 king en-suite bedrooms, spacious open lounge with TV, dedicated parking & security, 24/7 uninterrupted power.",
+          "bedrooms": 3,
+          "bathrooms": 3.5,
+          "maxGuests": 6,
+          "nightlyRateMinor": 22000000,
+          "cautionDepositMinor": 5000000,
+          "cleaningFeeMinor": 2000000,
+          "images": [
+            "/media/images/ph-2.jpg",
+            "/media/images/sample-bedroom.png",
+            "/media/images/sample-kitchen.png",
+            "/media/images/sample-bathroom.png"
+          ]
+        }
+      ]
+    }
+  ],
+  "vehicles": [
+    {
+      "slug": "2024-mercedes-benz-g63-amg-v8-biturbo",
+      "make": "Mercedes-Benz",
+      "model": "G63 AMG V8 Biturbo",
+      "year": 2024,
+      "condition": "BRAND_NEW",
+      "transmission": "AUTOMATIC",
+      "fuelType": "PETROL",
+      "colour": "Obsidian Black Metallic",
+      "mileageKm": 1200,
+      "vin": "WDB9634991A883921",
+      "priceMinor": 38500000000,
+      "customsCleared": true,
+      "description": "Flagship 2024 Mercedes-AMG G63 in brand-new showroom condition. Full customs clearance documentation, night package, carbon fiber interior trim, and burmester 3D surround audio.",
+      "specs": {
+        "interior": "Bengal Red / Black Nappa Leather",
+        "features": [
+          "577 hp 4.0L V8",
+          "Customs Fully Paid",
+          "Burmester 3D Audio",
+          "Night Package II",
+          "360 Camera"
+        ],
+        "location": "Nimpat Auto Showroom, Abuja"
+      },
+      "images": [
+        "/media/assets/car-stand-0.jpg"
+      ]
+    },
+    {
+      "slug": "2023-toyota-land-cruiser-300-vxr-3-5l-twin-turbo",
+      "make": "Toyota",
+      "model": "Land Cruiser 300 VXR 3.5L Twin-Turbo",
+      "year": 2023,
+      "condition": "FOREIGN_USED",
+      "transmission": "AUTOMATIC",
+      "fuelType": "PETROL",
+      "colour": "Pearl White Luxury",
+      "mileageKm": 16500,
+      "vin": "JTM30094857201948",
+      "priceMinor": 19500000000,
+      "customsCleared": false,
+      "description": "Immaculate condition Land Cruiser 300 VXR with rear entertainment screens, coolbox, ventilated seats, and terrain management system.",
+      "specs": {
+        "interior": "Beige Premium Leather",
+        "features": [
+          "VXR Top Spec",
+          "Cool Box",
+          "Rear Entertainment",
+          "Multi-Terrain Select",
+          "Heads-Up Display"
+        ],
+        "location": "Nimpat Auto Showroom, Abuja"
+      },
+      "images": [
+        "/media/assets/car-stand-1.jpg",
+        "/media/assets/car-stand-2.jpg"
+      ]
+    }
+  ],
+  "spa": [
+    {
+      "slug": "swedish-massage",
+      "name": "Swedish Massage",
+      "category": "Massages",
+      "description": "Classic full-body relaxation massage utilizing organic aromatic oils to melt away tension, boost circulation, and calm the nervous system.",
+      "durationMinutes": 60,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "deep-tissue-massage",
+      "name": "Deep Tissue Massage",
+      "category": "Massages",
+      "description": "Targeted deep-pressure therapeutic bodywork designed to alleviate chronic muscle stiffness, knots, and postural fatigue.",
+      "durationMinutes": 75,
+      "priceMinor": 2500000
+    },
+    {
+      "slug": "hot-stone-massage",
+      "name": "Hot Stone Massage",
+      "category": "Massages",
+      "description": "Heated volcanic basalt stones gently gliding along energy pathways to deeply relax tight muscles, expand blood flow, and induce profound peace.",
+      "durationMinutes": 75,
+      "priceMinor": 3000000
+    },
+    {
+      "slug": "red-light-therapy",
+      "name": "Red Light Therapy Massage",
+      "category": "Massages",
+      "description": "Advanced medical-grade cellular photobiomodulation paired with restorative massage to stimulate collagen, repair tissue, and relieve inflammation.",
+      "durationMinutes": 60,
+      "priceMinor": 3500000
+    },
+    {
+      "slug": "classic-facial",
+      "name": "Classic Facial (No Extraction)",
+      "category": "Facials",
+      "description": "Gentle clarifying facial featuring botanical cleansing, enzyme exfoliation, balancing toner, and rich moisture infusion with zero downtime.",
+      "durationMinutes": 45,
+      "priceMinor": 1400000
+    },
+    {
+      "slug": "deep-cleansing-facial",
+      "name": "Deep Cleansing Facial",
+      "category": "Facials",
+      "description": "Intensive pore decongestion with warm ozone steam, careful comedone extraction, purifying clay mask, and antimicrobial high-frequency finish.",
+      "durationMinutes": 60,
+      "priceMinor": 1500000
+    },
+    {
+      "slug": "acne-facial",
+      "name": "Acne Facial",
+      "category": "Facials",
+      "description": "Specialized clarifying treatment combining salicylic acid exfoliation, targeted blemish extraction, and anti-inflammatory tea tree serum.",
+      "durationMinutes": 60,
+      "priceMinor": 1800000
+    },
+    {
+      "slug": "brightening-facial",
+      "name": "Brightening Facial",
+      "category": "Facials",
+      "description": "Radiance-boosting therapy with concentrated Vitamin C, fruit antioxidants, and illuminating sheet mask to fade hyperpigmentation.",
+      "durationMinutes": 60,
+      "priceMinor": 1500000
+    },
+    {
+      "slug": "acne-pro-facial",
+      "name": "Acne Pro Facial",
+      "category": "Facials",
+      "description": "Clinical grade anti-acne ritual with ultrasonic deep peeling, medical extractions, blue-light therapy, and barrier-repairing peptides.",
+      "durationMinutes": 75,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "classic-dermaplane",
+      "name": "Classic Dermaplane",
+      "category": "Facials",
+      "description": "Precision sterile scalpel exfoliation that sweeps away dull dead epidermal cells and vellus peach fuzz for glass-like smoothness.",
+      "durationMinutes": 45,
+      "priceMinor": 1800000
+    },
+    {
+      "slug": "deep-cleanse-dermaplane",
+      "name": "Deep Cleanse Dermaplane",
+      "category": "Facials",
+      "description": "Comprehensive dual-action protocol combining sterile dermaplaning with deep steam extraction, hyaluronic hydration, and soothing ice globes.",
+      "durationMinutes": 60,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "anti-ageing-facial",
+      "name": "Anti-Ageing Facial",
+      "category": "Facials",
+      "description": "Youth-restoring treatment packed with collagen-boosting bio-peptides, lifting micro-massage, and intensive cellular firming serums.",
+      "durationMinutes": 60,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "back-facial",
+      "name": "Back Facial",
+      "category": "Facials",
+      "description": "Thorough skincare treatment for the hard-to-reach back area: deep cleanse, exfoliation scrub, steam extractions, and purifying marine mask.",
+      "durationMinutes": 60,
+      "priceMinor": 2200000
+    },
+    {
+      "slug": "butt-facial",
+      "name": "Butt Facial",
+      "category": "Facials",
+      "description": "Smoothing glute skin therapy targeting ingrown hairs, folliculitis, texture, and dryness with targeted AHA exfoliation and firming lotion.",
+      "durationMinutes": 45,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "vajacial",
+      "name": "Vajacials",
+      "category": "Facials",
+      "description": "Delicate post-waxing skincare ritual treating the bikini zone with soothing steam, gentle ingrown removal, hydrating mask, and brightening serum.",
+      "durationMinutes": 45,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "pedicure",
+      "name": "Pedicure",
+      "category": "Hand, foot & nails",
+      "description": "Essential foot grooming including warm herbal foot bath, heel exfoliation, cuticle grooming, nail shaping, and relaxing foot massage.",
+      "durationMinutes": 45,
+      "priceMinor": 1200000
+    },
+    {
+      "slug": "pedicure-polish",
+      "name": "Pedicure with Polish",
+      "category": "Hand, foot & nails",
+      "description": "Complete restorative pedicure finished with your choice of premium salon long-wear nail lacquer and high-gloss topcoat.",
+      "durationMinutes": 60,
+      "priceMinor": 1500000
+    },
+    {
+      "slug": "jelly-pedicure",
+      "name": "Jelly Pedicure",
+      "category": "Hand, foot & nails",
+      "description": "Opulent sensory foot spa where water turns into a warm, fragrant therapeutic jelly to soothe tired aching feet and lock in intense moisture.",
+      "durationMinutes": 60,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "manicure",
+      "name": "Manicure",
+      "category": "Hand, foot & nails",
+      "description": "Essential hand and nail care: nail shaping, warm cuticle soak, cuticle trimming, nail buffing, and hand hydration massage.",
+      "durationMinutes": 30,
+      "priceMinor": 500000
+    },
+    {
+      "slug": "manicure-polish",
+      "name": "Manicure with Nail Polish",
+      "category": "Hand, foot & nails",
+      "description": "Classic grooming manicure completed with precision application of chip-resistant luxury nail enamel.",
+      "durationMinutes": 45,
+      "priceMinor": 800000
+    },
+    {
+      "slug": "poly-gel-short",
+      "name": "Poly Gel (Short)",
+      "category": "Hand, foot & nails",
+      "description": "Lightweight and ultra-durable hybrid acrylic-gel overlay for natural short nails without heavy odor or damage.",
+      "durationMinutes": 60,
+      "priceMinor": 1500000
+    },
+    {
+      "slug": "poly-gel-medium",
+      "name": "Poly Gel (Medium)",
+      "category": "Hand, foot & nails",
+      "description": "Medium-length poly gel enhancement sculpted for optimal natural balance, flexibility, and lasting strength.",
+      "durationMinutes": 75,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "poly-gel-long",
+      "name": "Poly Gel (Long)",
+      "category": "Hand, foot & nails",
+      "description": "Long elegant poly gel nail overlay with reinforced apex architecture for high impact and zero lifting.",
+      "durationMinutes": 90,
+      "priceMinor": 2500000
+    },
+    {
+      "slug": "poly-gel-extra-long",
+      "name": "Poly Gel (Extra Long)",
+      "category": "Hand, foot & nails",
+      "description": "Statement extra-long poly gel nails engineered with reinforced stress points and impeccable sleek shaping.",
+      "durationMinutes": 90,
+      "priceMinor": 3000000
+    },
+    {
+      "slug": "poly-gel-ext-short",
+      "name": "Poly Gel Extensions (Short)",
+      "category": "Hand, foot & nails",
+      "description": "Full extension set adding natural short length with sculpted dual forms or paper tips.",
+      "durationMinutes": 75,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "poly-gel-ext-medium",
+      "name": "Poly Gel Extensions (Medium)",
+      "category": "Hand, foot & nails",
+      "description": "Full sculpted extension set in medium length tailored with square, coffin, almond or stiletto tips.",
+      "durationMinutes": 90,
+      "priceMinor": 2500000
+    },
+    {
+      "slug": "poly-gel-ext-long",
+      "name": "Poly Gel Extensions (Long)",
+      "category": "Hand, foot & nails",
+      "description": "Long sculpted poly gel extensions with flawless cuticle taper and custom profile styling.",
+      "durationMinutes": 105,
+      "priceMinor": 3000000
+    },
+    {
+      "slug": "poly-gel-ext-extra-long",
+      "name": "Poly Gel Extensions (Extra Long)",
+      "category": "Hand, foot & nails",
+      "description": "Dramatic extra-long sculpted extensions with expert balancing, structure, and diamond shine finish.",
+      "durationMinutes": 120,
+      "priceMinor": 3500000
+    },
+    {
+      "slug": "biab-without-ext",
+      "name": "BIAB Without Extension",
+      "category": "Hand, foot & nails",
+      "description": "Builder in a Bottle strengthening treatment over natural nails to encourage healthy growth and prevent breakage.",
+      "durationMinutes": 60,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "biab-with-ext",
+      "name": "BIAB With Extension",
+      "category": "Hand, foot & nails",
+      "description": "BIAB builder gel sculpted over nail tips to deliver both added length and resilient, flexible strength.",
+      "durationMinutes": 75,
+      "priceMinor": 2500000
+    },
+    {
+      "slug": "biab-extra-long",
+      "name": "BIAB (Extra Long)",
+      "category": "Hand, foot & nails",
+      "description": "Extra-long builder gel overlay constructed with high structural stability and sleek refinement.",
+      "durationMinutes": 90,
+      "priceMinor": 3000000
+    },
+    {
+      "slug": "3d-design",
+      "name": "3D Nail Art Design (Extra)",
+      "category": "Hand, foot & nails",
+      "description": "Custom bespoke nail artistry featuring raised 3D elements, crystals, gems, metallic charms, and chrome art.",
+      "durationMinutes": 30,
+      "priceMinor": 500000
+    },
+    {
+      "slug": "stick-on-nails",
+      "name": "Stick-on Nails",
+      "category": "Hand, foot & nails",
+      "description": "Fast, glamorous full-cover nail enhancements applied with professional-grade salon adhesive.",
+      "durationMinutes": 45,
+      "priceMinor": 1500000
+    },
+    {
+      "slug": "gel-extensions",
+      "name": "Gel Extensions",
+      "category": "Hand, foot & nails",
+      "description": "Full set of soft-gel or hard-gel extensions cured under UV/LED light for lightweight, crystal-clear beauty.",
+      "durationMinutes": 75,
+      "priceMinor": 2500000
+    },
+    {
+      "slug": "gel-polish",
+      "name": "Gel Polish",
+      "category": "Hand, foot & nails",
+      "description": "Ultra-durable, zero-smudge gel polish application cured under LED lamp for up to 3 weeks of mirror shine.",
+      "durationMinutes": 30,
+      "priceMinor": 400000
+    },
+    {
+      "slug": "waxing-full-body",
+      "name": "Full Body Waxing",
+      "category": "Waxing",
+      "description": "Complete full-body hair removal from arms, legs, underarms, and body using gentle premium strip and hot waxes.",
+      "durationMinutes": 90,
+      "priceMinor": 4000000
+    },
+    {
+      "slug": "waxing-brazilian",
+      "name": "Brazilian / Hollywood Waxing",
+      "category": "Waxing",
+      "description": "Expert intimate waxing for complete smoothness, performed with low-temperature hypoallergenic hot wax.",
+      "durationMinutes": 45,
+      "priceMinor": 1500000
+    },
+    {
+      "slug": "waxing-manzillian",
+      "name": "Manzillian Waxing",
+      "category": "Waxing",
+      "description": "Specialized intimate male grooming waxing providing long-lasting cleanliness and silky smooth skin.",
+      "durationMinutes": 45,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "waxing-underarm",
+      "name": "Under Arm Waxing",
+      "category": "Waxing",
+      "description": "Quick, hygienic hair removal for underarms leaving skin silky smooth and free of dark stubble shadow.",
+      "durationMinutes": 20,
+      "priceMinor": 600000
+    },
+    {
+      "slug": "waxing-half-leg",
+      "name": "Half Leg Waxing",
+      "category": "Waxing",
+      "description": "Lower leg hair removal from knee to ankle with soothing post-wax tea tree calming lotion.",
+      "durationMinutes": 30,
+      "priceMinor": 1250000
+    },
+    {
+      "slug": "waxing-full-leg",
+      "name": "Full Leg Waxing",
+      "category": "Waxing",
+      "description": "Full leg hair removal from upper thigh to toes for effortless, satin-smooth confidence.",
+      "durationMinutes": 60,
+      "priceMinor": 3200000
+    },
+    {
+      "slug": "waxing-half-arm",
+      "name": "Half Arm Waxing",
+      "category": "Waxing",
+      "description": "Smooth forearm waxing from elbow to wrist leaving hands and arms neatly groomed.",
+      "durationMinutes": 25,
+      "priceMinor": 1000000
+    },
+    {
+      "slug": "waxing-full-arm",
+      "name": "Full Arm Waxing",
+      "category": "Waxing",
+      "description": "Complete arm hair removal from shoulders down to fingertips with soothing aloe vera finish.",
+      "durationMinutes": 45,
+      "priceMinor": 2500000
+    },
+    {
+      "slug": "waxing-upper-lip",
+      "name": "Upper Lip Waxing",
+      "category": "Waxing",
+      "description": "Gentle facial wax clearing fine upper lip fuzz with minimal redness.",
+      "durationMinutes": 15,
+      "priceMinor": 500000
+    },
+    {
+      "slug": "waxing-chin",
+      "name": "Chin Waxing",
+      "category": "Waxing",
+      "description": "Targeted hair removal around chin and jawline for a refined, flawless complexion.",
+      "durationMinutes": 15,
+      "priceMinor": 500000
+    },
+    {
+      "slug": "waxing-full-chest",
+      "name": "Full Chest Waxing",
+      "category": "Waxing",
+      "description": "Complete chest and abdomen hair removal leaving the torso cleanly defined and smooth.",
+      "durationMinutes": 45,
+      "priceMinor": 2500000
+    },
+    {
+      "slug": "waxing-back",
+      "name": "Back Waxing",
+      "category": "Waxing",
+      "description": "Thorough hair removal across the full upper and lower back with soothing anti-irritation oil.",
+      "durationMinutes": 45,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "waxing-full-body-vajacial",
+      "name": "Full Body Waxing + Vajacials",
+      "category": "Waxing",
+      "description": "The ultimate royal waxing experience: complete full-body hair removal followed by a luxurious soothing vajacial ritual.",
+      "durationMinutes": 120,
+      "priceMinor": 5500000
+    },
+    {
+      "slug": "teeth-whitening-1",
+      "name": "Teeth Whitening - One Session",
+      "category": "Dental care",
+      "description": "Professional non-peroxide dental grade LED laser whitening lifting common enamel stains by several shades in 45 minutes.",
+      "durationMinutes": 45,
+      "priceMinor": 1700000
+    },
+    {
+      "slug": "teeth-whitening-2",
+      "name": "Teeth Whitening - Two Sessions",
+      "category": "Dental care",
+      "description": "Intensive dual-session phototherapy whitening for dramatic, dazzling brilliant white results.",
+      "durationMinutes": 90,
+      "priceMinor": 3000000
+    },
+    {
+      "slug": "fashion-braces",
+      "name": "Fashion Braces",
+      "category": "Dental care",
+      "description": "Cosmetic fashion braces fitted professionally with your choice of vibrant colorful or sleek silver bracket bands.",
+      "durationMinutes": 60,
+      "priceMinor": 4000000
+    },
+    {
+      "slug": "scaling-polishing",
+      "name": "Scaling and Polishing",
+      "category": "Dental care",
+      "description": "Ultrasonic dental deep cleaning that clears stubborn plaque, calculus, and coffee/tea stains, followed by mint prophylactic polish.",
+      "durationMinutes": 45,
+      "priceMinor": 2000000
+    },
+    {
+      "slug": "tooth-gem",
+      "name": "Tooth Gem Application (from)",
+      "category": "Dental care",
+      "description": "Authentic Swarovski crystal or 18k gold dental jewel bonded safely to enamel with professional dental composite.",
+      "durationMinutes": 30,
+      "priceMinor": 500000
+    },
+    {
+      "slug": "package-silver",
+      "name": "Economy / Silver Package",
+      "category": "Spa packages",
+      "description": "Deep Cleanse Facial + Swedish Massage: The ideal introductory indulgence combining full pore purification with full body relaxation.",
+      "durationMinutes": 90,
+      "priceMinor": 3500000
+    },
+    {
+      "slug": "package-gold",
+      "name": "Gold Package",
+      "category": "Spa packages",
+      "description": "Brightening Facial + Deep Tissue Massage + Foot Bath: Radiant skin rejuvenation paired with restorative tension-melting muscle therapy.",
+      "durationMinutes": 120,
+      "priceMinor": 4000000
+    },
+    {
+      "slug": "package-diamond",
+      "name": "Diamond Package",
+      "category": "Spa packages",
+      "description": "Deep Cleanse Dermaplane + Deep Tissue Massage + Foot Bath + Manicure: Ultimate top-to-bottom pampering for true royalty.",
+      "durationMinutes": 150,
+      "priceMinor": 4500000
+    },
+    {
+      "slug": "package-couple",
+      "name": "Couple Luxury Package",
+      "category": "Spa packages",
+      "description": "Deep Cleanse Facial + Deep Tissue Massage + Foot Bath + Pedicure + Manicure: An unforgettable shared retreat for two in our luxury VIP suite.",
+      "durationMinutes": 150,
+      "priceMinor": 5000000
+    }
+  ],
+  "services": [
+    {
+      "division": "MEDIA_EVENTS_RENTALS",
+      "code": "MER-SONY-FX6-CINEMA-CAMERA-FULL-PRODUCTION-P",
+      "name": "Sony FX6 Cinema Camera Full Production Package (per day)",
+      "description": "Full-frame 4K cinema kit with GM f/2.8 zoom lenses, wireless video transmitter, matte box, and V-mount batteries. Includes: 4K 120p RAW, Dual Base ISO, Sony G-Master 24-70mm, Wireless Hollyland Monitor.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 12000000,
+      "depositMinor": 5000000,
+      "durationMinutes": 1440
+    },
+    {
+      "division": "MEDIA_EVENTS_RENTALS",
+      "code": "MER-CONCERT-GRADE-LINE-ARRAY-SOUND-SYSTEM-AN",
+      "name": "Concert Grade Line Array Sound System & Digital Mixer (per day)",
+      "description": "Dual 18-inch subwoofers, active line array tops, 32-channel digital Allen & Heath mixer, and wireless Shure mics. Includes: 20,000W Peak RMS, 32-Ch Digital Desk, 4x Wireless Shure Mics, Stage Monitors.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 35000000,
+      "depositMinor": 10000000,
+      "durationMinutes": 1440
+    },
+    {
+      "division": "MEDIA_EVENTS_RENTALS",
+      "code": "MER-INTELLIGENT-BEAM-MOVING-HEADS-AND-AMBIEN",
+      "name": "Intelligent Beam Moving Heads & Ambient LED Wash Lights (per day)",
+      "description": "Complete stage lighting rig with DMX controller, 8x beam moving heads, and 16x waterproof battery LED bars. Includes: 8x Beam 230W, 16x RGBW Wash Bars, Avolites Titan Console, Haze Machine.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 18000000,
+      "depositMinor": 6000000,
+      "durationMinutes": 1440
+    },
+    {
+      "division": "REAL_ESTATE_INTERIOR",
+      "code": "RED-5-BEDROOM-FULLY-AUTOMATED-DETACHED-LUXUR",
+      "name": "5-Bedroom Fully Automated Detached Luxury Duplex — Guzape Hills, Abuja",
+      "description": "For sale. Land size 850 m². Private Elevator, Infinity Swimming Pool, Smart Home Controls, Cinema Room, C of O Title.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 65000000000,
+      "depositMinor": null,
+      "durationMinutes": null
+    },
+    {
+      "division": "REAL_ESTATE_INTERIOR",
+      "code": "RED-4-FLOOR-COMMERCIAL-OFFICE-PLAZA-AND-RETA",
+      "name": "4-Floor Commercial Office Plaza & Retail Arcade — Wuye Commercial District, Abuja",
+      "description": "For sale. Land size 1400 m². 50-Car Basement Parking, Dual High-Speed Elevators, Full Solar Array Backup, Federal C of O.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 140000000000,
+      "depositMinor": null,
+      "durationMinutes": null
+    },
+    {
+      "division": "ENTERTAINMENT",
+      "code": "ENT-THE-VAULT-NIGHTLIFE-AND-CLUB-EXPERIENCE",
+      "name": "The Vault Nightlife & Club Experience",
+      "description": "Exclusive VIP booth reservations, curated resident DJs & bottle service. Wuye District, Abuja. Executive VIP Booth (Up to 8 Guests). Includes: VIP Table Reservation, Dedicated Hostess, Premium Champagne Bucket, Priority Valet Parking.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 15000000,
+      "depositMinor": null,
+      "durationMinutes": null
+    },
+    {
+      "division": "ENTERTAINMENT",
+      "code": "ENT-THE-OASIS-HEATED-POOL-AND-CABANA-DAY-CLU",
+      "name": "The Oasis Heated Pool & Cabana Day Club",
+      "description": "Private sun cabanas, heated infinity pool, poolside mocktails & chilled vibes. Maitama, Abuja. Includes: All-Day Pool Access, Private Sun Lounger, Welcome Fresh Juice, Towel Service.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 2500000,
+      "depositMinor": null,
+      "durationMinutes": null
+    },
+    {
+      "division": "ENTERTAINMENT",
+      "code": "ENT-APEX-ARCADE-RACING-SIMULATOR-AND-PS5-PRO",
+      "name": "Apex Arcade, Racing Simulator & PS5 Pro Lounge",
+      "description": "Next-gen PlayStation 5 Pro pods, 4K OLED screens & force-feedback racing rigs. Crownet Plaza, Wuye, Abuja. Includes: Dual PS5 Pro Setups, Direct-Drive Steering Sim, 4K 120Hz Displays, High-Speed LAN.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 1000000,
+      "depositMinor": null,
+      "durationMinutes": null
+    },
+    {
+      "division": "ENTERTAINMENT",
+      "code": "ENT-NIMPAT-SOUNDS-AND-CULTURAL-GALA-CONCERT",
+      "name": "Nimpat Sounds & Cultural Gala Concert",
+      "description": "Live afrobeat performance, banquet dining & contemporary arts showcase. International Conference Pavilion, Abuja. Includes: Numbered Seat Allocation, Red Carpet Reception, Access to VIP Bar, Keepsake Program.",
+      "pricingType": "FIXED",
+      "basePriceMinor": 5000000,
+      "depositMinor": null,
+      "durationMinutes": null
+    }
+  ]
+}

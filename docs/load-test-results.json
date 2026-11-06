@@ -1,0 +1,67 @@
+{
+  "at": "2026-11-06T00:57:14.106Z",
+  "environment": "single API process + PostgreSQL in Docker, developer machine",
+  "results": [
+    {
+      "name": "Health (no database)",
+      "concurrency": 50,
+      "seconds": 15,
+      "requests": 88807,
+      "perSecond": 5920,
+      "p50ms": 7,
+      "p95ms": 16,
+      "p99ms": 24,
+      "serverErrors": 0,
+      "statuses": {
+        "200": 88807
+      }
+    },
+    {
+      "name": "Product catalogue list",
+      "concurrency": 50,
+      "seconds": 15,
+      "requests": 5660,
+      "perSecond": 377,
+      "p50ms": 128,
+      "p95ms": 168,
+      "p99ms": 192,
+      "serverErrors": 0,
+      "statuses": {
+        "200": 5660
+      }
+    },
+    {
+      "name": "Signed-in profile",
+      "concurrency": 50,
+      "seconds": 15,
+      "requests": 10811,
+      "perSecond": 721,
+      "p50ms": 68,
+      "p95ms": 90,
+      "p99ms": 107,
+      "serverErrors": 0,
+      "statuses": {
+        "200": 10811
+      }
+    },
+    {
+      "name": "Cart + checkout (writes, stock reservation)",
+      "concurrency": 16,
+      "seconds": 15,
+      "requests": 1266,
+      "perSecond": 84,
+      "p50ms": 167,
+      "p95ms": 344,
+      "p99ms": 500,
+      "serverErrors": 0,
+      "statuses": {
+        "201": 1266
+      }
+    }
+  ],
+  "stock": {
+    "onHand": 201033,
+    "reserved": 1301,
+    "consistent": true
+  }
+}

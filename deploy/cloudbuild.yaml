@@ -1,0 +1,63 @@
+# Google Cloud Build pipeline: build → push → migrate (Cloud Run Job) → deploy (Cloud Run service).
+#
+# One-time setup (see docs/DEPLOYMENT.md): Artifact Registry repo, Cloud SQL
+# instance, Secret Manager secrets, service account, and the migration job.
+#
+#   gcloud builds submit --config deploy/cloudbuild.yaml \
+#     --substitutions=_REGION=europe-west1,_ENV=staging
+substitutions:
+  _REGION: europe-west1
+  _ENV: staging
+  _REPO: nimpat-one
+  _SERVICE: nimpat-one-api
+  _CLOUDSQL_INSTANCE: ${PROJECT_ID}:europe-west1:nimpat-one-pg
+  _SERVICE_ACCOUNT: nimpat-one-api@${PROJECT_ID}.iam.gserviceaccount.com
+
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/api:${SHORT_SHA}', '.']
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/api:${SHORT_SHA}']
+
+  # Apply Prisma migrations with a Cloud Run Job before shifting traffic.
+  - id: migrate
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud run jobs deploy ${_SERVICE}-migrate-${_ENV} \
+          --region=${_REGION} \
+          --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/api:${SHORT_SHA} \
+          --service-account=${_SERVICE_ACCOUNT} \
+          --set-cloudsql-instances=${_CLOUDSQL_INSTANCE} \
+          --set-secrets=DATABASE_URL=nimpat-one-${_ENV}-database-url:latest \
+          --command=./node_modules/.bin/prisma --args=migrate,deploy \
+          --max-retries=0 --task-timeout=600s
+        gcloud run jobs execute ${_SERVICE}-migrate-${_ENV} --region=${_REGION} --wait
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud run deploy ${_SERVICE}-${_ENV} \
+          --region=${_REGION} \
+          --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/api:${SHORT_SHA} \
+          --service-account=${_SERVICE_ACCOUNT} \
+          --add-cloudsql-instances=${_CLOUDSQL_INSTANCE} \
+          --port=8080 --cpu=1 --memory=512Mi --concurrency=80 \
+          --min-instances=0 --max-instances=10 \
+          --allow-unauthenticated \
+          --set-env-vars=NODE_ENV=production,TRUST_PROXY=true,JOBS_INPROCESS=false,MAIL_TRANSPORT=console,APP_PUBLIC_URL=https://one.nimpatgroup.com,CORS_ORIGINS=https://one.nimpatgroup.com\,https://admin.nimpatgroup.com,PAYSTACK_CALLBACK_URL=https://one.nimpatgroup.com/payments/callback \
+          --set-secrets=DATABASE_URL=nimpat-one-${_ENV}-database-url:latest,JWT_ACCESS_SECRET=nimpat-one-${_ENV}-jwt-secret:latest,PAYSTACK_SECRET_KEY=nimpat-one-${_ENV}-paystack-secret:latest,PAYSTACK_PUBLIC_KEY=nimpat-one-${_ENV}-paystack-public:latest,JOBS_TOKEN=nimpat-one-${_ENV}-jobs-token:latest
+
+images:
+  - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/api:${SHORT_SHA}
+
+options:
+  logging: CLOUD_LOGGING_ONLY

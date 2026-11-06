@@ -1,0 +1,63 @@
+# ---------------------------------------------------------------------------
+# Nimpat One backend — files that must never be committed
+# ---------------------------------------------------------------------------
+
+# Dependencies & build output
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+admin/dist/
+
+# Secrets & credentials (only .env.example, which holds placeholders, is tracked)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.jks
+service-account*.json
+*credentials*.json
+*secret*.json
+gcloud-*.json
+.npmrc
+
+# Database dumps & backups (migration SQL is kept, see the negation below)
+*.sql
+!prisma/migrations/**/migration.sql
+*.dump
+*.backup
+*.bak
+*.sqlite
+*.db
+pgdata/
+
+# Customer uploads (proof-of-payment files are private financial records)
+uploads/
+storage/
+
+# Private business documents (keep them out of the code repository)
+*.docx
+*.doc
+*.xlsx
+*.xls
+*.pptx
+*.pdf
+private/
+
+# Generated files (re-create with `npm run openapi:export`)
+/openapi.json
+
+# Logs, OS and editor files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.claude/settings.local.json

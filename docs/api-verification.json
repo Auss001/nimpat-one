@@ -1,0 +1,1781 @@
+{
+  "base": "http://localhost:4000",
+  "at": "2026-11-06T01:03:35.471Z",
+  "health": {
+    "live": 200,
+    "ready": 200,
+    "database": "up"
+  },
+  "swagger": {
+    "ui": 200,
+    "spec": 200,
+    "title": "Nimpat One API",
+    "version": "1.0.0",
+    "openapi": "3.0.0"
+  },
+  "cors": {
+    "allowedOrigin": {
+      "status": 204,
+      "allowOrigin": "http://localhost:3000",
+      "allowHeaders": "Authorization,Content-Type,Idempotency-Key,X-Request-Id",
+      "credentials": "true"
+    },
+    "unknownOrigin": {
+      "status": 204,
+      "allowOrigin": null
+    }
+  },
+  "tokens": {
+    "customer": true,
+    "admin": true,
+    "adminLoginStatus": 200
+  },
+  "routes": {
+    "total": 174,
+    "public": 30,
+    "staff": 91,
+    "failures": []
+  },
+  "routeTable": [
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/audit-logs",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/notifications",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notifications/{id}/read",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notifications/read-all",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/divisions",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/divisions/{slug}",
+      "public": true,
+      "staff": false,
+      "anon": 404,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/register",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/refresh",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": -1,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout-all",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": -1,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/verify-email",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/resend-verification",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/forgot-password",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/reset-password",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/change-password",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/me/profile",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me/addresses",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/me/addresses",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/me/addresses/{id}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/me/addresses/{id}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/users",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/users/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/staff",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/users/{id}/roles",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/users/{id}/roles/{userRoleId}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/users/{id}/status",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/roles",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/departments",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/categories",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/products",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/products/{slug}",
+      "public": true,
+      "staff": false,
+      "anon": 404,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/availability",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/catalog/products",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/catalog/products",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/catalog/products/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/catalog/products/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/catalog/products/{id}/variants",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/catalog/variants/{variantId}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/catalog/products/{id}/images",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/catalog/images/{imageId}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/catalog/categories",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/catalog/categories/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/inventory",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/inventory/adjustments",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/inventory/levels/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/inventory/movements",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/inventory/locations",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/inventory/locations",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/delivery/zones",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/delivery/quote",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/delivery/zones",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/delivery/zones",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/delivery/zones/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/delivery/deliveries",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/delivery/deliveries/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/carts/{division}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/carts/{division}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/carts/{division}/quote",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/carts/items",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/carts/items/{variantId}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/carts/items/{variantId}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders/checkout-options",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders/{id}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders/{id}/cancel",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/orders",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/orders/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/orders/{id}/status",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/methods",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/options",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/summary",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments/initialize",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments/verify/{reference}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments/bank-transfer",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/bank-transfer/{reference}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments/bank-transfer/{reference}/notify",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payments/bank-transfer/{reference}/proofs",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/proofs/{proofId}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments/receipts/{reference}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payments",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/payments",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/reconcile",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/payments/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/verify",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/confirm-funds",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/reject",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/dispute",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/resolve-dispute",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/reverse",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/reconcile",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payments/{id}/refunds",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/collections",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/finance/outstanding",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/finance/collections-by-staff",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/payment-settings/bank-accounts",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payment-settings/bank-accounts",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/payment-settings/bank-accounts/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/payment-settings/service-locations",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/payment-settings/service-locations",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/payment-settings/service-locations/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/payment-settings/policies",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/payment-settings/policies/{division}/{purpose}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/loyalty/me",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/loyalty/rules",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/loyalty/admin/users/{userId}/adjustments",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/apartments/properties",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/apartments/properties/{slug}",
+      "public": true,
+      "staff": false,
+      "anon": 404,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/apartments/units/{unitId}/calendar",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/apartments/units/{unitId}/quote",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/apartments/reservations",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/apartments/reservations",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/apartments/reservations/{id}",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/apartments/reservations/{id}/cancel",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/apartments/properties",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/apartments/properties",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/apartments/properties/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/apartments/properties/{id}/units",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/apartments/units/{unitId}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/apartments/units/{unitId}/blackouts",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/apartments/reservations",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/apartments/reservations/{id}/status",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/vehicles",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/vehicles/inquiries/mine",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/vehicles/{slug}",
+      "public": true,
+      "staff": false,
+      "anon": 404,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/vehicles/{id}/inquiries",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/vehicles",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/vehicles",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/vehicles/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/vehicles/inquiries/all",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/vehicles/inquiries/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/services",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/services/bookings",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/services/bookings",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/services/bookings/{id}/cancel",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/services",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/services",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/services/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/services/bookings",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/services/bookings/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spa/treatments",
+      "public": true,
+      "staff": false,
+      "anon": 200,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spa/treatments/{slug}",
+      "public": true,
+      "staff": false,
+      "anon": 404,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spa/treatments/{id}/slots",
+      "public": true,
+      "staff": false,
+      "anon": 400,
+      "customer": 400,
+      "admin": 400,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/spa/appointments",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/spa/appointments",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/spa/appointments/{id}/cancel",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 404,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/spa/appointments",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/spa/appointments/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/spa/treatments",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/spa/treatments",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/spa/treatments/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/spa/practitioners",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/spa/practitioners",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/spa/practitioners/{id}",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/logistics/requests",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/logistics/requests",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/logistics/track/{trackingNumber}",
+      "public": true,
+      "staff": false,
+      "anon": 404,
+      "customer": 404,
+      "admin": 404,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/logistics/requests",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/logistics/requests/{id}/quote",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/logistics/requests/{id}/events",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/quotations",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/quotations",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 200,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/quotations/{id}/accept",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/quotations/{id}/reject",
+      "public": false,
+      "staff": false,
+      "anon": 401,
+      "customer": 400,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/quotations",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/quotations/{id}/send",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/reports/summary",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/reports/low-stock",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/records/audit",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": 200,
+      "ok": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/records/verification",
+      "public": false,
+      "staff": true,
+      "anon": 401,
+      "customer": 403,
+      "admin": -1,
+      "ok": true
+    }
+  ]
+}
