@@ -19,14 +19,15 @@ Updated 2026-11-06. Everything runs locally. Nothing is deployed, and DNS has no
 | Dashboard in your reference style | Viewed in the browser; production build succeeds |
 | Catalogue of 6 November and apartment locations | All 68 rows compared with the supplied file; end-to-end test of the location filter. The 25 product images are AI mockups, kept off sale until staff confirm each record. The dashboard's location tabs have not been viewed signed in |
 | Apartment condition and single-room booking | End-to-end tests, including simultaneous bookings. Dashboard screens typechecked and built, but not yet viewed signed in |
-| Docker image | Last built before the 6 November catalogue, location, condition and room changes, so it needs rebuilding. That build included the `multer` and `deepmerge-ts` overrides and was started and checked: database, photos, payment routes, writable upload folder, non-root user. The test suites run outside Docker, not inside the image |
+| Staff and manager access, overview homepage | End-to-end tests. Invite, set password, manager sign-in, limited menu, charts and hover were clicked through in the dashboard on the test database. Editing prices as a manager is covered by tests only |
+| Docker image | Last built before the 6 November catalogue, location, condition, room, staff and homepage changes, so it needs rebuilding. That build included the `multer` and `deepmerge-ts` overrides and was started and checked: database, photos, payment routes, writable upload folder, non-root user. The test suites run outside Docker, not inside the image |
 
 ## Test results
 
 | Suite | Result |
 |---|---|
 | Unit | 12 passed |
-| End-to-end (5 files) | 69 passed; 8 skipped (real Paystack, needs a key) |
+| End-to-end (6 files) | 81 passed; 8 skipped (real Paystack, needs a key) |
 | Paystack script, dry run on mock | 8 passed |
 | Live route check | 174 operations, 0 failures |
 
@@ -56,10 +57,11 @@ The first commit is on `main`. **No remote, so nothing has been pushed.** Secret
 3. **Dashboard tokens are in browser `localStorage`**, so a script injection could steal them. Consider secure cookies before production.
 4. **Proof uploads are on local disk** and not virus-scanned. File types are checked by content. Production needs a private bucket and scanning.
 5. **Rate limits are per server instance**, so they weaken as Cloud Run scales. Production needs a shared store.
-6. **A Super Administrator can edit a payment rule and bank account alone.** Changes are audited, but changing a receiving account should need a second approver.
-7. **Payment rows can change status at database level.** Only events, audit entries and deletions are locked by triggers.
-8. **Reversing a payment doesn't undo a confirmed order or booking.** Staff get a notification and must decide.
-9. **Dependency overrides:** `npm audit --omit=dev` reports 0 vulnerabilities, using package overrides for `multer` and `deepmerge-ts`. Remove them when NestJS and Prisma ship the fixes in the versions used here. Development tools were not audited.
+6. **Invitation links are shown in the dashboard while email is not connected.** Anyone who gets a link within 72 hours can set up that account, so share links privately. They stop being shown once a real mail provider is connected.
+7. **A Super Administrator can edit a payment rule and bank account alone.** Changes are audited, but changing a receiving account should need a second approver.
+8. **Payment rows can change status at database level.** Only events, audit entries and deletions are locked by triggers.
+9. **Reversing a payment doesn't undo a confirmed order or booking.** Staff get a notification and must decide.
+10. **Dependency overrides:** `npm audit --omit=dev` reports 0 vulnerabilities, using package overrides for `multer` and `deepmerge-ts`. Remove them when NestJS and Prisma ship the fixes in the versions used here. Development tools were not audited.
 
 ## Missing company data
 

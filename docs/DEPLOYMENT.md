@@ -109,3 +109,7 @@ Configure a Cloud Run startup probe on `/health/ready`.
 Map `api.nimpatgroup.com` (or the agreed host) with a Cloud Run domain mapping or
 a global external HTTPS load balancer. DNS for nimpatgroup.com is managed
 separately (GO54 / Hostinger); coordinate the record change with the owner.
+
+## Staff dashboard address
+
+Set `ADMIN_PUBLIC_URL` to the dashboard's public address, because staff invitation links are built from it. It defaults to `http://localhost:3001`, which only works on a local machine.

@@ -37,6 +37,9 @@ export class EnvironmentVariables {
   @IsUrl({ require_tld: false })
   APP_PUBLIC_URL = 'http://localhost:3000';
 
+  @IsUrl({ require_tld: false })
+  ADMIN_PUBLIC_URL = 'http://localhost:3001';
+
   @Transform(toBool) @IsBoolean()
   TRUST_PROXY = true;
 

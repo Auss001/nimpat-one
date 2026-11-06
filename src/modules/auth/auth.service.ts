@@ -236,15 +236,20 @@ export class AuthService {
   }
 
   /** Creates a staff invitation token (used by admin staff creation). */
-  async sendStaffInvite(userId: string, email: string) {
+  /**
+   * Emails a staff invitation. Returns the link only while no real mail provider
+   * is connected, so that an administrator can pass it on; otherwise returns null.
+   */
+  async sendStaffInvite(userId: string, email: string): Promise<string | null> {
     const token = await this.createToken(userId, TokenPurpose.PASSWORD_RESET, 72 * 3600_000);
-    const link = `${this.config.get('APP_PUBLIC_URL')}/reset-password?token=${token}`;
+    const link = `${this.config.get('ADMIN_PUBLIC_URL')}/reset-password?token=${token}`;
     await this.mail.send({
       to: email,
       subject: 'You have been invited to Nimpat One',
       text: `An account has been created for you. Set your password within 72 hours: ${link}`,
       devOnlyDetail: `invite link: ${link}`,
     });
+    return this.config.get('MAIL_TRANSPORT') === 'console' ? link : null;
   }
 
   // ---------------------------------------------------------------------------

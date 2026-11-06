@@ -20,8 +20,11 @@ export class AdminUsersService {
   ) {}
 
   async list(actor: AuthUser, q: UserQueryDto) {
+    // Managers see the staff of their own divisions; only group staff admins see everyone.
+    const staffScope = q.type === UserType.STAFF && !actor.hasAny(P.staffManage) ? actor.divisionFilter(P.rolesAssign) : undefined;
     const where: Prisma.UserWhereInput = {
       type: q.type,
+      roles: staffScope ? { some: { divisionId: { in: staffScope } } } : undefined,
       OR: q.q
         ? [
             { email: { contains: q.q, mode: 'insensitive' } },
@@ -40,7 +43,7 @@ export class AdminUsersService {
           id: true, email: true, phone: true, type: true, status: true, emailVerifiedAt: true, lastLoginAt: true, createdAt: true,
           customerProfile: { select: { firstName: true, lastName: true } },
           staffProfile: { select: { firstName: true, lastName: true, employeeNumber: true, jobTitle: true, departmentId: true } },
-          roles: { select: { id: true, divisionId: true, role: { select: { code: true } } } },
+          roles: { select: { id: true, divisionId: true, role: { select: { code: true, name: true } }, division: { select: { id: true, name: true, slug: true } } } },
         },
       }),
       this.prisma.user.count({ where }),
@@ -95,8 +98,24 @@ export class AdminUsersService {
       );
       return created;
     });
-    await this.auth.sendStaffInvite(user.id, user.email);
-    return this.get(user.id);
+    const inviteLink = await this.auth.sendStaffInvite(user.id, user.email);
+    return { ...(await this.get(user.id)), inviteLink };
+  }
+
+  /** Issues a new invitation for staff who have never signed in, for example when the link expired. */
+  async resendInvite(actor: AuthUser, userId: string) {
+    const target = await this.prisma.user.findUnique({ where: { id: userId }, include: { roles: { include: { role: true } } } });
+    if (!target || target.type !== UserType.STAFF) throw new NotFoundException('Staff member not found');
+    if (target.lastLoginAt) throw new BadRequestException('This person has already signed in, so they do not need an invitation');
+    let allowed = false;
+    for (const grant of target.roles) {
+      allowed = await this.assertCanGrant(actor, grant.role.code, grant.divisionId ?? undefined).then(() => true, () => false);
+      if (allowed) break;
+    }
+    if (!allowed) throw new ForbiddenException('You cannot invite this staff member');
+    const inviteLink = await this.auth.sendStaffInvite(target.id, target.email);
+    await this.audit.record({ actorId: actor.id, action: 'staff.invite', entityType: 'user', entityId: target.id });
+    return { inviteLink };
   }
 
   async assignRole(actor: AuthUser, userId: string, dto: AssignRoleDto) {

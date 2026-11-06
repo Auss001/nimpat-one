@@ -32,6 +32,13 @@ export class AdminUsersController {
     return this.service.createStaff(user, dto);
   }
 
+  @Post('users/:id/invite')
+  @RequirePermissions(P.staffManage, P.rolesAssign)
+  @ApiOperation({ summary: 'Send a new invitation to staff who have never signed in' })
+  invite(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
+    return this.service.resendInvite(user, id);
+  }
+
   @Post('users/:id/roles')
   @RequirePermissions(P.rolesAssign)
   @ApiOperation({ summary: 'Grant a role (optionally scoped to a division)' })

@@ -38,10 +38,14 @@ async function main() {
     await tx.apartmentUnit.updateMany({ where: { propertyId: { in: phIds } }, data: { status: ListingStatus.INACTIVE } });
     await tx.property.updateMany({ where: { id: { in: phIds } }, data: { status: ListingStatus.INACTIVE } });
 
-    // Wuye F3 duplex, in Cyrus Estate 2: ready.
+    // Block F3 duplex, in Cyrus Estate: ready.
     const f3 = await property(tx, 'wuye-f3');
-    await tx.property.update({ where: { id: f3.id }, data: { addressLine: 'Cyrus Estate 2, Wuye, Abuja' } });
+    await tx.property.update({ where: { id: f3.id }, data: { name: 'Cyrus Estate, Block F3', addressLine: 'Block F3, Cyrus Estate, Wuye, Abuja' } });
     await setUnit(f3.id, f3.units[0].code, UnitReadiness.READY, null);
+    await tx.apartmentUnit.update({
+      where: { id: f3.units[0].id },
+      data: { name: 'Cyrus Estate, Block F3 Duplex', description: f3.units[0].description?.replace('Prime Wuye F3 residential address.', 'Block F3, Cyrus Estate, Wuye.') },
+    });
 
     // AJ Turner: two 4-bedroom duplexes. One is ready, with 3 rooms sellable.
     const aj = await property(tx, 'aj-turner');
@@ -57,15 +61,13 @@ async function main() {
     }
     await addCopy(villa, 'Villa 2', 'AJ Turner Duplex 2', UnitReadiness.NOT_READY, 'In the neighbouring estate, under a minute away. Estate name and price needed.');
 
-    // Queens Landing: four 3-bedroom units, two of them about 90% ready.
+    // Queens Landing: two 3-bedroom units, both about 90% ready.
     const queens = await property(tx, 'queens-landing');
     const first = queens.units.find((u) => u.code === 'Residence 1');
     if (!first) throw new Error('Queens Landing Residence 1 not found');
     const q90 = '90% ready';
     await setUnit(queens.id, 'Residence 1', UnitReadiness.FINISHING, q90);
     await addCopy(first, 'Residence 2', 'Queens Landing Residence 2', UnitReadiness.FINISHING, `${q90}. Price and photos needed.`);
-    await addCopy(first, 'Residence 3', 'Queens Landing Residence 3', UnitReadiness.NOT_READY, 'Not ready. Price and photos needed.');
-    await addCopy(first, 'Residence 4', 'Queens Landing Residence 4', UnitReadiness.NOT_READY, 'Not ready. Price and photos needed.');
 
     // Mabushi: four 3-bedroom flats. Only Flat 1's listing mentions an inverter.
     const mabushi = await property(tx, 'mabushi');

@@ -830,6 +830,35 @@
         ]
       }
     },
+    "/api/v1/admin/users/{id}/invite": {
+      "post": {
+        "operationId": "AdminUsers_invite",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Requires one of: staff:manage, roles:assign"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send a new invitation to staff who have never signed in",
+        "tags": [
+          "Admin · Users & Roles"
+        ]
+      }
+    },
     "/api/v1/admin/users/{id}/roles": {
       "post": {
         "operationId": "AdminUsers_assign",
@@ -6916,6 +6945,26 @@
           }
         ],
         "summary": "Revenue, refunds, order and reservation summary (verified payments only)",
+        "tags": [
+          "Admin · Reports"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/overview": {
+      "get": {
+        "operationId": "Reports_overview",
+        "parameters": [],
+        "responses": {
+          "403": {
+            "description": "Requires one of: reports:read"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "What Nimpat has: holdings, apartments, stock, confirmed records and verified revenue",
         "tags": [
           "Admin · Reports"
         ]

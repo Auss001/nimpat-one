@@ -1,6 +1,6 @@
 import { BadRequestException, Controller, Get, Injectable, Module, Query } from '@nestjs/common';
 import { ApiOperation, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
+import { ListingStatus, Prisma, ProductStatus, RecordVerification, UnitReadiness, VehicleStatus } from '@prisma/client';
 import { IsDateString, IsOptional, IsString } from 'class-validator';
 import { CurrentUser, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -73,6 +73,85 @@ export class ReportsService {
     };
   }
 
+  /**
+   * What Nimpat has, for the dashboard homepage. Test samples and anything
+   * switched off are left out, and managers see only their own divisions.
+   */
+  async overview(user: AuthUser) {
+    const ids = user.divisionFilter(P.reportsRead);
+    const divisionId = ids ? { in: ids } : undefined;
+    const notSample = { not: RecordVerification.DEV_SAMPLE };
+    const to = new Date();
+    const from = new Date(to.getTime() - 30 * 86_400_000);
+
+    const productWhere: Prisma.ProductWhereInput = { divisionId, status: ProductStatus.ACTIVE, verification: notSample };
+    const unitWhere: Prisma.ApartmentUnitWhereInput = { status: { not: ListingStatus.INACTIVE }, verification: notSample, property: { divisionId, status: ListingStatus.ACTIVE } };
+    const spaWhere: Prisma.SpaTreatmentWhereInput = { divisionId, isActive: true, verification: notSample };
+    const vehicleWhere: Prisma.VehicleWhereInput = { divisionId, status: { in: [VehicleStatus.AVAILABLE, VehicleStatus.RESERVED] }, verification: notSample };
+    const serviceWhere: Prisma.ServiceOfferingWhereInput = { divisionId, isActive: true, verification: notSample };
+    const confirmed = { verification: RecordVerification.VERIFIED };
+
+    const [products, units, spa, vehicles, services, levels, revenue, confirmedCounts] = await Promise.all([
+      this.prisma.product.groupBy({ by: ['divisionId'], where: productWhere, _count: true }),
+      this.prisma.apartmentUnit.findMany({ where: unitWhere, select: { readiness: true, property: { select: { location: true } } } }),
+      this.prisma.spaTreatment.count({ where: spaWhere }),
+      this.prisma.vehicle.count({ where: vehicleWhere }),
+      this.prisma.serviceOffering.count({ where: serviceWhere }),
+      this.prisma.stockLevel.findMany({
+        where: { location: { divisionId, isActive: true }, variant: { isActive: true, product: productWhere } },
+        select: { quantityOnHand: true, quantityReserved: true, reorderLevel: true },
+      }),
+      this.prisma.payment.groupBy({ by: ['divisionId'], where: { status: 'SUCCESS', paidAt: { gte: from, lt: to }, divisionId }, _sum: { amountMinor: true, refundedMinor: true } }),
+      Promise.all([
+        this.prisma.product.count({ where: { ...productWhere, ...confirmed } }),
+        this.prisma.apartmentUnit.count({ where: { ...unitWhere, ...confirmed } }),
+        this.prisma.spaTreatment.count({ where: { ...spaWhere, ...confirmed } }),
+        this.prisma.vehicle.count({ where: { ...vehicleWhere, ...confirmed } }),
+        this.prisma.serviceOffering.count({ where: { ...serviceWhere, ...confirmed } }),
+      ]),
+    ]);
+
+    const divisions = await this.divisions.all();
+    const names = new Map(divisions.map((d) => [d.id, d.name.replace(/^Nimpat /, '')]));
+    const tally = <T extends string>(values: T[]) => {
+      const out: Record<string, number> = {};
+      for (const v of values) out[v] = (out[v] ?? 0) + 1;
+      return out;
+    };
+    const productTotal = products.reduce((n, p) => n + p._count, 0);
+    const available = (l: { quantityOnHand: number; quantityReserved: number }) => l.quantityOnHand - l.quantityReserved;
+    const condition = tally(units.map((u) => u.readiness));
+
+    return {
+      scope: ids ? 'divisions' : 'group',
+      period: { from: from.toISOString(), to: to.toISOString() },
+      holdings: [
+        ...products.map((p) => ({ label: names.get(p.divisionId) ?? 'Products', count: p._count })),
+        { label: 'Apartments', count: units.length },
+        { label: 'Spa treatments', count: spa },
+        { label: 'Vehicles', count: vehicles },
+        { label: 'Rentals and listings', count: services },
+      ].filter((h) => h.count > 0).sort((a, b) => b.count - a.count),
+      apartments: {
+        total: units.length,
+        ready: condition[UnitReadiness.READY] ?? 0,
+        byLocation: Object.entries(tally(units.map((u) => u.property.location ?? 'Other'))).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count),
+        byCondition: Object.values(UnitReadiness).map((code) => ({ code, count: condition[code] ?? 0 })).filter((c) => c.count > 0),
+      },
+      stock: {
+        total: levels.length,
+        inStock: levels.filter((l) => available(l) > l.reorderLevel).length,
+        low: levels.filter((l) => available(l) > 0 && available(l) <= l.reorderLevel).length,
+        out: levels.filter((l) => available(l) <= 0).length,
+      },
+      records: { confirmed: confirmedCounts.reduce((a, b) => a + b, 0), total: productTotal + units.length + spa + vehicles + services },
+      revenue: {
+        totalMinor: revenue.reduce((n, r) => n + (r._sum.amountMinor ?? 0n) - (r._sum.refundedMinor ?? 0n), 0n),
+        byDivision: revenue.map((r) => ({ label: names.get(r.divisionId) ?? 'Other', minor: (r._sum.amountMinor ?? 0n) - (r._sum.refundedMinor ?? 0n) })).filter((r) => r.minor > 0n).sort((a, b) => Number(b.minor - a.minor)),
+      },
+    };
+  }
+
   async lowStock(user: AuthUser) {
     const ids = user.divisionFilter(P.inventoryRead);
     const rows = await this.prisma.$queryRaw<{ sku: string; name: string; location: string; on_hand: number; reserved: number; reorder_level: number }[]>`
@@ -99,6 +178,13 @@ export class ReportsController {
   @ApiOperation({ summary: 'Revenue, refunds, order and reservation summary (verified payments only)' })
   summary(@CurrentUser() user: AuthUser, @Query() q: ReportQueryDto) {
     return this.reports.summary(user, q);
+  }
+
+  @Get('overview')
+  @RequirePermissions(P.reportsRead)
+  @ApiOperation({ summary: 'What Nimpat has: holdings, apartments, stock, confirmed records and verified revenue' })
+  overview(@CurrentUser() user: AuthUser) {
+    return this.reports.overview(user);
   }
 
   @Get('low-stock')

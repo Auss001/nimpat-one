@@ -1,10 +1,11 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
   Bell, Building2, CalendarCheck, Car, ClipboardCheck, Clapperboard, Droplets, Landmark, LayoutDashboard, LogOut,
-  Package, Search, Settings2, ShoppingBag, Sparkles, Truck, Wallet, type LucideIcon,
+  Package, Search, Settings2, ShoppingBag, Sparkles, Truck, Users, Wallet, type LucideIcon,
 } from 'lucide-react';
+import { AccessProvider, useAccess, type Check } from './access';
 import { get, getSession, logout } from './api';
 import { ToastProvider } from './components/ui';
 import { LoginPage } from './pages/Login';
@@ -21,6 +22,8 @@ import { DeliveryPage } from './pages/Delivery';
 import { PaymentsPage } from './pages/Payments';
 import { PaymentSettingsPage } from './pages/PaymentSettings';
 import { DataCheckPage } from './pages/DataCheck';
+import { SetPasswordPage } from './pages/SetPassword';
+import { StaffPage } from './pages/Staff';
 import './theme.css';
 
 function useSession() {
@@ -37,13 +40,33 @@ function useSession() {
   return session;
 }
 
-const NAV: { group: string; items: [string, string, LucideIcon][] }[] = [
+// The last item says who sees the page: a permission, optionally limited to one division.
+const NAV: { group: string; items: [string, string, LucideIcon, Check?][] }[] = [
   { group: '', items: [['/', 'Overview', LayoutDashboard]] },
-  { group: 'Products', items: [['/drinks', 'Water, Drinks & Wines', Droplets], ['/retail', 'Retail & Supplies', ShoppingBag], ['/stock', 'Stock', Package], ['/delivery', 'Delivery fees', Truck]] },
-  { group: 'Bookings & listings', items: [['/apartments', 'Apartments', Building2], ['/spa', 'Spa & Wellness', Sparkles], ['/vehicles', 'Automobiles', Car], ['/services', 'Rentals & property', Clapperboard]] },
-  { group: 'Customers', items: [['/orders', 'Orders', Landmark], ['/reservations', 'Reservations', CalendarCheck]] },
-  { group: 'Finance', items: [['/payments', 'Payments', Wallet], ['/payment-settings', 'Payment settings', Settings2]] },
-  { group: 'Data', items: [['/data-check', 'Data confirmation', ClipboardCheck]] },
+  { group: 'Products', items: [
+    ['/drinks', 'Water, Drinks & Wines', Droplets, { any: ['catalog:manage'], division: 'water-drinks-wines' }],
+    ['/retail', 'Retail & Supplies', ShoppingBag, { any: ['catalog:manage'], division: 'retail-general-supplies' }],
+    ['/stock', 'Stock', Package, { any: ['inventory:read', 'inventory:manage'], division: ['water-drinks-wines', 'retail-general-supplies'] }],
+    ['/delivery', 'Delivery fees', Truck, { any: ['deliveries:manage'], division: 'water-drinks-wines' }],
+  ] },
+  { group: 'Bookings & listings', items: [
+    ['/apartments', 'Apartments', Building2, { any: ['listings:manage'], division: 'luxury-apartments' }],
+    ['/spa', 'Spa & Wellness', Sparkles, { any: ['listings:manage'], division: 'spa-wellness' }],
+    ['/vehicles', 'Automobiles', Car, { any: ['listings:manage'], division: 'automobiles' }],
+    ['/services', 'Rentals & property', Clapperboard, { any: ['listings:manage'], division: ['automobiles', 'transport-logistics', 'retail-general-supplies', 'media-events-rentals', 'real-estate-interior-design', 'entertainment'] }],
+  ] },
+  { group: 'Customers', items: [
+    ['/orders', 'Orders', Landmark, { any: ['orders:read'], division: ['water-drinks-wines', 'retail-general-supplies'] }],
+    ['/reservations', 'Reservations', CalendarCheck, { any: ['bookings:read'], division: 'luxury-apartments' }],
+  ] },
+  { group: 'Finance', items: [
+    ['/payments', 'Payments', Wallet, { any: ['payments:read', 'payments:verify', 'payments:configure', 'collections:record'] }],
+    ['/payment-settings', 'Payment settings', Settings2, { any: ['payments:configure'] }],
+  ] },
+  { group: 'Team and data', items: [
+    ['/staff', 'Staff and managers', Users, { any: ['staff:manage', 'roles:assign'] }],
+    ['/data-check', 'Data confirmation', ClipboardCheck, { any: ['records:verify', 'reports:read'] }],
+  ] },
 ];
 
 /** Payments reported by customers or staff, waiting for finance. */
@@ -66,6 +89,8 @@ function Shell({ email }: { email: string }) {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   const pending = usePendingVerifications();
+  const { can } = useAccess();
+  const nav = NAV.map((g) => ({ ...g, items: g.items.filter(([, , , check]) => !check || can(check)) })).filter((g) => g.items.length);
   return (
     <div className="frame">
       <header className="topbar">
@@ -89,7 +114,7 @@ function Shell({ email }: { email: string }) {
       <div className="shell">
         <nav className="sidebar" aria-label="Main">
           <div className="nav-title">Manage</div>
-          {NAV.map((g) => (
+          {nav.map((g) => (
             <div key={g.group || 'top'}>
               {g.group && <div className="nav-group">{g.group}</div>}
               {g.items.map(([to, label, Icon]) => (
@@ -113,8 +138,11 @@ function Shell({ email }: { email: string }) {
 
 function App() {
   const session = useSession();
+  const { pathname } = useLocation();
+  if (pathname === '/reset-password') return <SetPasswordPage />;
   if (!session) return <LoginPage />;
   return (
+    <AccessProvider key={session.email}>
     <Routes>
       <Route element={<Shell email={session.email} />}>
         <Route index element={<OverviewPage />} />
@@ -130,10 +158,12 @@ function App() {
         <Route path="reservations" element={<ReservationsPage />} />
         <Route path="payments" element={<PaymentsPage />} />
         <Route path="payment-settings" element={<PaymentSettingsPage />} />
+        <Route path="staff" element={<StaffPage />} />
         <Route path="data-check" element={<DataCheckPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </AccessProvider>
   );
 }
 

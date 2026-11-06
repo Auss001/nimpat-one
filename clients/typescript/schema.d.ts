@@ -431,6 +431,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users/{id}/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a new invitation to staff who have never signed in */
+        post: operations["AdminUsers_invite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/users/{id}/roles": {
         parameters: {
             query?: never;
@@ -2563,6 +2580,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What Nimpat has: holdings, apartments, stock, confirmed records and verified revenue */
+        get: operations["Reports_overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/low-stock": {
         parameters: {
             query?: never;
@@ -4097,6 +4131,26 @@ export interface operations {
                 "application/json": components["schemas"]["CreateStaffDto"];
             };
         };
+        responses: {
+            /** @description Requires one of: staff:manage, roles:assign */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminUsers_invite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Requires one of: staff:manage, roles:assign */
             403: {
@@ -7436,6 +7490,24 @@ export interface operations {
                 to?: string;
                 division?: string;
             };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Requires one of: reports:read */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Reports_overview: {
+        parameters: {
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
