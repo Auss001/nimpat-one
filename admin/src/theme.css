@@ -283,3 +283,67 @@ textarea { min-height: 80px; resize: vertical; }
 .role-chip button:hover { background: var(--danger-soft); color: var(--danger); }
 .copy-row { display: flex; gap: 8px; }
 .copy-row input { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 12px; }
+
+/* ---------------------------------------------------------------- photos */
+.thumb-btn { border: 0; background: none; padding: 0; cursor: pointer; display: block; border-radius: 8px; }
+.thumb-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.photo-card { margin: 0; position: relative; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); display: flex; flex-direction: column; }
+.photo-card img { display: block; width: 100%; object-fit: cover; background: #fff; }
+.photo-card.product img { aspect-ratio: 1 / 1; }
+.photo-card.scene img { aspect-ratio: 3 / 2; }
+.photo-main { position: absolute; top: 8px; left: 8px; }
+.photo-card figcaption { padding: 8px; display: grid; gap: 6px; border-top: 1px solid var(--border); }
+.photo-card .row-actions { flex-wrap: wrap; justify-content: flex-start; }
+
+.thumb-pending { display: flex; align-items: center; justify-content: center; text-align: center; font-size: 8.5px; line-height: 1.1; color: var(--text-muted); background: var(--surface-2); border: 1px dashed var(--border-strong); padding: 2px; }
+
+/* ---------------------------------------------------------------- launch hero */
+.launch { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: 16px; margin-bottom: 22px; }
+.launch-panel { border-radius: var(--radius); padding: 26px 28px; color: #fff; background: radial-gradient(120% 90% at 100% 0%, #2c3a63 0%, rgba(44, 58, 99, 0) 60%), radial-gradient(90% 90% at 0% 100%, rgba(244, 99, 12, 0.34) 0%, rgba(244, 99, 12, 0) 62%), #101a33; display: flex; flex-direction: column; min-width: 0; }
+.launch-kicker { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; font-size: 13px; color: rgba(255, 255, 255, 0.72); margin-bottom: 14px; }
+.launch-kicker strong { color: #fff; font-weight: 600; }
+.launch-panel h1 { font-family: var(--font-display); font-size: clamp(38px, 4.3vw, 58px); line-height: 0.98; letter-spacing: 0.3px; text-transform: uppercase; margin: 0 0 10px; color: #fff; }
+.launch-panel p { color: rgba(255, 255, 255, 0.76); font-size: 15px; margin: 0 0 16px; max-width: 46ch; }
+.launch-panel .btn { align-self: flex-start; }
+.runway { list-style: none; padding: 18px 0 0; margin: auto 0 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; position: relative; }
+.runway::before { content: ''; position: absolute; left: 10%; right: 10%; top: 42px; height: 2px; background: rgba(255, 255, 255, 0.16); }
+.runway li { position: relative; min-width: 0; }
+.runway a { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; color: inherit; text-decoration: none; padding: 4px 2px; border-radius: 12px; }
+.runway a:hover { background: rgba(255, 255, 255, 0.07); }
+.runway a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.ring { position: relative; width: 48px; height: 48px; flex: none; border-radius: 50%; background: #101a33; }
+.ring svg { display: block; transform: rotate(-90deg); }
+.ring span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: #fff; }
+.runway .now .ring::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid var(--brand); animation: runway-pulse 2.2s ease-out infinite; }
+@keyframes runway-pulse { 0% { transform: scale(0.88); opacity: 0.9; } 100% { transform: scale(1.22); opacity: 0; } }
+.runway b { font-size: 12.5px; font-weight: 600; line-height: 1.2; }
+.runway small { font-size: 11px; color: rgba(255, 255, 255, 0.62); line-height: 1.2; }
+.wall { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(112px, 1fr)); gap: 10px; min-width: 0; }
+.wall-tile { position: relative; overflow: hidden; border-radius: 16px; color: #fff; text-decoration: none; display: flex; flex-direction: column; justify-content: flex-end; padding: 11px 13px; min-width: 0; background: #1c2747; isolation: isolate; }
+.wall-tile.tall { grid-row: span 2; }
+.wall-tile:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+.wall-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.4s ease, transform 7s ease-out; transform: scale(1.09); z-index: -2; }
+.wall-tile img.on { opacity: 1; transform: scale(1); }
+.wall-tile::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10, 16, 34, 0) 28%, rgba(10, 16, 34, 0.86) 100%); }
+.wall-tile:hover img.on { transform: scale(1.05); }
+.wall-tile strong { font-family: var(--font-display); font-size: 31px; line-height: 1; letter-spacing: 0.2px; }
+.wall-tile span { font-size: 12.5px; line-height: 1.25; }
+.wall-tile em { position: absolute; top: 9px; left: 10px; font-style: normal; font-size: 10.5px; font-weight: 600; background: rgba(255, 255, 255, 0.94); color: var(--text); border-radius: 999px; padding: 2px 8px; }
+.wall-tile.mint { background: linear-gradient(135deg, #0f6a57, #123f4e); }
+.wall-tile.mint::after { display: none; }
+.wall-tile.mint > svg { position: absolute; right: -8px; top: -8px; opacity: 0.2; z-index: -1; }
+.tile.no-photo { align-items: flex-start; }
+.tile-icon { display: flex; align-items: center; justify-content: center; width: 100%; height: 96px; color: #0f6a57; }
+@media (prefers-reduced-motion: reduce) {
+  .wall-tile img { transition: none; transform: none; }
+  .wall-tile img.on, .wall-tile:hover img.on { transform: none; }
+  .runway .now .ring::after { animation: none; opacity: 0.8; }
+}
+@media (max-width: 1080px) { .launch { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .launch-panel { padding: 20px 18px; }
+  .runway { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; }
+  .runway::before { display: none; }
+  .wall { grid-template-rows: repeat(3, 118px); }
+}

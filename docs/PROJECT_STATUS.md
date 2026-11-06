@@ -20,14 +20,16 @@ Updated 2026-11-06. Everything runs locally. Nothing is deployed, and DNS has no
 | Catalogue of 6 November and apartment locations | All 68 rows compared with the supplied file; end-to-end test of the location filter. The 25 product images are AI mockups, kept off sale until staff confirm each record. The dashboard's location tabs have not been viewed signed in |
 | Apartment condition and single-room booking | End-to-end tests, including simultaneous bookings. Dashboard screens typechecked and built, but not yet viewed signed in |
 | Staff and manager access, overview homepage | End-to-end tests. Invite, set password, manager sign-in, limited menu, charts and hover were clicked through in the dashboard on the test database. Editing prices as a manager is covered by tests only |
-| Docker image | Last built before the 6 November catalogue, location, condition, room, staff and homepage changes, so it needs rebuilding. That build included the `multer` and `deepmerge-ts` overrides and was started and checked: database, photos, payment routes, writable upload folder, non-root user. The test suites run outside Docker, not inside the image |
+| Photo tools | End-to-end tests. Upload, make main, remove, bulk upload and error messages were clicked through in the dashboard on the test database |
+| Stock import, pharmacy approval, unpublished prices, service bookings | End-to-end tests. The pharmacy list, pharmacist review, stock, cars and bookings screens were clicked through on the test database with the full catalogue loaded |
+| Docker image | Built from the current code and started on the test database: database, bundled photos, photo upload and resizing on Linux, overview, non-root user. The test suites run outside Docker, not inside the image |
 
 ## Test results
 
 | Suite | Result |
 |---|---|
 | Unit | 12 passed |
-| End-to-end (6 files) | 81 passed; 8 skipped (real Paystack, needs a key) |
+| End-to-end (8 files) | 114 passed; 8 skipped (real Paystack, needs a key) |
 | Paystack script, dry run on mock | 8 passed |
 | Live route check | 174 operations, 0 failures |
 
@@ -57,11 +59,18 @@ The first commit is on `main`. **No remote, so nothing has been pushed.** Secret
 3. **Dashboard tokens are in browser `localStorage`**, so a script injection could steal them. Consider secure cookies before production.
 4. **Proof uploads are on local disk** and not virus-scanned. File types are checked by content. Production needs a private bucket and scanning.
 5. **Rate limits are per server instance**, so they weaken as Cloud Run scales. Production needs a shared store.
-6. **Invitation links are shown in the dashboard while email is not connected.** Anyone who gets a link within 72 hours can set up that account, so share links privately. They stop being shown once a real mail provider is connected.
-7. **A Super Administrator can edit a payment rule and bank account alone.** Changes are audited, but changing a receiving account should need a second approver.
-8. **Payment rows can change status at database level.** Only events, audit entries and deletions are locked by triggers.
-9. **Reversing a payment doesn't undo a confirmed order or booking.** Staff get a notification and must decide.
-10. **Dependency overrides:** `npm audit --omit=dev` reports 0 vulnerabilities, using package overrides for `multer` and `deepmerge-ts`. Remove them when NestJS and Prisma ship the fixes in the versions used here. Development tools were not audited.
+6. **Uploaded photos are on local disk.** Cloud Run wipes its disk on restart, so production must set `PHOTO_STORAGE_DIR` to a mounted bucket. Database backups do not include these files, so `uploads/public-photos` needs backing up too. Photos are public once uploaded.
+7. **Invitation links are shown in the dashboard while email is not connected.** Anyone who gets a link within 72 hours can set up that account, so share links privately. They stop being shown once a real mail provider is connected.
+8. **A Super Administrator can edit a payment rule and bank account alone.** Changes are audited, but changing a receiving account should need a second approver.
+9. **Payment rows can change status at database level.** Only events, audit entries and deletions are locked by triggers.
+10. **Reversing a payment doesn't undo a confirmed order or booking.** Staff get a notification and must decide.
+11. **Dependency overrides:** `npm audit --omit=dev` reports 0 vulnerabilities, using package overrides for `multer` and `deepmerge-ts`. Remove them when NestJS and Prisma ship the fixes in the versions used here. Development tools were not audited.
+
+## Pharmacy limits
+
+- A Super Administrator holds every permission, so can approve medicines without being a pharmacist. Each approval is recorded with who made it. Decide whether this should be limited to the Pharmacist role.
+- Prescription-only and restricted medicines cannot be bought online. There is no prescription upload yet, so customers book a pharmacist instead.
+- Medicines are set to pickup only until delivery rules are agreed.
 
 ## Missing company data
 

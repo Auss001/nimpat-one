@@ -12,6 +12,7 @@ export const DIVISION_PREFIX: Record<DivisionCode, string> = {
   MEDIA_EVENTS_RENTALS: 'MER',
   REAL_ESTATE_INTERIOR: 'RED',
   ENTERTAINMENT: 'ENT',
+  PHARMACY: 'PHM',
 };
 
 function yymmdd(d = new Date()): string {

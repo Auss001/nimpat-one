@@ -54,6 +54,13 @@ export class RecordsService {
       actor.assertCan(P.recordsVerify, r.divisionId);
       if (r.verification === RecordVerification.DEV_SAMPLE) throw new BadRequestException(`"${r.name}" is development sample data and cannot be verified`);
     }
+    if (dto.type === 'PRODUCT' && dto.verification === 'VERIFIED') {
+      const pharmacy = await this.prisma.product.findMany({ where: { id: { in: dto.ids }, prescriptionStatus: { not: null } }, select: { name: true, divisionId: true, pharmacistApprovedAt: true } });
+      for (const p of pharmacy) {
+        actor.assertCan(P.pharmacyApprove, p.divisionId);
+        if (!p.pharmacistApprovedAt) throw new BadRequestException(`"${p.name}" needs pharmacist approval before it can be confirmed`);
+      }
+    }
     const data = dto.verification === 'VERIFIED'
       ? { verification: RecordVerification.VERIFIED, verifiedAt: new Date(), verifiedById: actor.id }
       : { verification: RecordVerification.AWAITING_CONFIRMATION, verifiedAt: null, verifiedById: null };
@@ -83,7 +90,7 @@ export class RecordsService {
 
     const real = { verification: { not: RecordVerification.DEV_SAMPLE } };
     const [noPrice, noStock, noPhotoProducts, unitsNoPhotos, vehiclesNoPhotos, vehiclesNoDeposit, therapists, treatmentsNoTherapist, liveZones, accounts, locations] = await Promise.all([
-      this.prisma.productVariant.findMany({ where: { unitPriceMinor: { lte: 0 }, product: real }, select: { sku: true, name: true, product: { select: { name: true } } } }),
+      this.prisma.productVariant.findMany({ where: { OR: [{ unitPriceMinor: null }, { unitPriceMinor: { lte: 0 } }], isActive: true, product: { ...real, status: { not: ProductStatus.ARCHIVED } } }, select: { sku: true, name: true, product: { select: { name: true } } } }),
       this.prisma.$queryRaw<{ sku: string; name: string; on_hand: number }[]>`
         SELECT v.sku, p.name, COALESCE(SUM(s.quantity_on_hand), 0)::int AS on_hand
           FROM product_variants v JOIN products p ON p.id = v.product_id
@@ -93,8 +100,8 @@ export class RecordsService {
          GROUP BY v.sku, p.name HAVING COALESCE(SUM(s.quantity_on_hand), 0) = 0 ORDER BY p.name`,
       this.prisma.product.findMany({ where: { ...real, status: { not: ProductStatus.ARCHIVED }, images: { none: {} } }, select: { name: true } }),
       this.prisma.apartmentUnit.findMany({ where: { ...real, images: { none: {} } }, select: { name: true, code: true } }),
-      this.prisma.vehicle.findMany({ where: { ...real, images: { none: {} } }, select: { make: true, model: true } }),
-      this.prisma.vehicle.findMany({ where: { ...real, depositMinor: null }, select: { make: true, model: true } }),
+      this.prisma.vehicle.findMany({ where: { ...real, status: { in: ['AVAILABLE', 'RESERVED'] }, images: { none: {} } }, select: { make: true, model: true } }),
+      this.prisma.vehicle.findMany({ where: { ...real, status: { in: ['AVAILABLE', 'RESERVED'] }, depositMinor: null }, select: { make: true, model: true } }),
       this.prisma.spaPractitioner.count({ where: { isActive: true, displayName: { not: { startsWith: '[DEV SAMPLE]' } } } }),
       this.prisma.spaTreatment.findMany({ where: { ...real, isActive: true, practitioners: { none: { practitioner: { isActive: true } } } }, select: { name: true } }),
       this.prisma.deliveryZone.findMany({ where: { isActive: true }, select: { name: true, verification: true, feeMinor: true } }),

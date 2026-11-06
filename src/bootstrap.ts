@@ -4,6 +4,7 @@ import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { join } from 'node:path';
 import { AppConfig } from './config/app-config.service';
+import { photoRoot } from './modules/photos/photo-storage.service';
 
 // JSON has no BigInt. Money columns are BigInt minor units; they serialise
 // as plain integers (always far below 2^53 for realistic amounts).
@@ -36,7 +37,10 @@ export function configureApp(app: NestExpressApplication): void {
   });
   app.useBodyParser('json', { limit: '1mb' });
 
-  // Catalogue photos shipped with the API (until Cloud Storage uploads exist).
+  // Staff uploads. Must come first: /media below would otherwise answer for this path.
+  // Only this folder is public; payment proofs live elsewhere under uploads/.
+  app.useStaticAssets(photoRoot(), { prefix: '/media/uploads', maxAge: '365d', immutable: true, index: false, dotfiles: 'deny' });
+  // Catalogue photos shipped with the API.
   app.useStaticAssets(join(process.cwd(), 'media'), { prefix: '/media', maxAge: '7d', index: false, dotfiles: 'deny' });
 
   app.setGlobalPrefix(API_PREFIX, { exclude: ['health/live', 'health/ready'] });

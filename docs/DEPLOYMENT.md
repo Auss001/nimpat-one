@@ -113,3 +113,7 @@ separately (GO54 / Hostinger); coordinate the record change with the owner.
 ## Staff dashboard address
 
 Set `ADMIN_PUBLIC_URL` to the dashboard's public address, because staff invitation links are built from it. It defaults to `http://localhost:3001`, which only works on a local machine.
+
+## Uploaded photos
+
+Set `PHOTO_STORAGE_DIR` to a mounted Cloud Storage bucket. Without it, photos are written to the container's disk and are lost when Cloud Run restarts it. Include this folder in backups, because database backups do not contain the files.

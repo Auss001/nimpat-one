@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { get, patch, post } from '../api';
+import { useAccess } from '../access';
+import { get, getAll, patch, post } from '../api';
+import { BulkPhotoUpload, PhotoManager } from '../components/PhotoManager';
 import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useConfirm, useLoad } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
@@ -9,10 +11,12 @@ interface Variant {
   id: string;
   sku: string;
   name: string;
-  unitPriceMinor: number;
+  unitPriceMinor: number | null;
   isActive: boolean;
   availableQuantity: number;
   minOrderQty: number;
+  recordedStockQty: number | null;
+  recordedStockAt: string | null;
 }
 interface Product {
   id: string;
@@ -23,10 +27,33 @@ interface Product {
   status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
   verification: 'VERIFIED' | 'AWAITING_CONFIRMATION' | 'DEV_SAMPLE';
   isAgeRestricted: boolean;
+  listedAvailability: 'IN_STOCK' | 'OUT_OF_STOCK' | null;
+  purchaseEnabled: boolean;
+  prescriptionStatus: Prescription | null;
+  pharmacistApprovedAt: string | null;
+  verificationNote: string | null;
   category: { id: string; name: string } | null;
   images: { id: string; url: string }[];
   variants: Variant[];
 }
+type Prescription = 'NOT_REVIEWED' | 'NOT_REQUIRED' | 'REQUIRED' | 'RESTRICTED';
+const PRESCRIPTION: Record<Prescription, string> = {
+  NOT_REVIEWED: 'Not reviewed',
+  NOT_REQUIRED: 'No prescription needed',
+  REQUIRED: 'Prescription required',
+  RESTRICTED: 'Restricted',
+};
+const shortDate = (s: string) => new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+
+/** Availability in plain terms. A list or an old count is never shown as live stock. */
+function StockCell({ product, variant }: { product: Product; variant: Variant }) {
+  if (product.listedAvailability === 'IN_STOCK') return <><Pill tone="green">In stock</Pill><div className="muted small">From list, not counted</div></>;
+  if (product.listedAvailability === 'OUT_OF_STOCK') return <span className="pill red">Out of stock</span>;
+  if (variant.availableQuantity > 0) return <>{variant.availableQuantity}</>;
+  if (variant.recordedStockQty !== null) return <>{variant.recordedStockQty}<div className="muted small">On {variant.recordedStockAt ? shortDate(variant.recordedStockAt) : 'record'}, not live</div></>;
+  return <span className="pill red">Out of stock</span>;
+}
+
 interface Category {
   id: string;
   name: string;
@@ -42,11 +69,16 @@ export function ProductsPage({ division, title }: { division: string; title: str
   const [category, setCategory] = useState('');
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
+  const [photosFor, setPhotosFor] = useState<string | null>(null);
+  const [bulk, setBulk] = useState(false);
+  const [reviewing, setReviewing] = useState<Product | null>(null);
+  const { can } = useAccess();
+  const canApprove = can({ any: ['pharmacy:approve'], division });
   const { run } = useAction();
   const { ask, dialog } = useConfirm();
 
   const products = useLoad(
-    () => get<{ data: Product[] }>(`/admin/catalog/products?division=${division}&pageSize=100${tab !== 'ALL' ? `&status=${tab}` : ''}`).then((r) => r.data),
+    () => getAll<Product>(`/admin/catalog/products?division=${division}${tab !== 'ALL' ? `&status=${tab}` : ''}`),
     [division, tab],
   );
   const categories = useLoad(() => get<Category[]>(`/catalog/categories?division=${division}`), [division]);
@@ -80,7 +112,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
       <PageHead
         title={title}
         subtitle={<>Click a price to change it. Customers see only products that are on sale and <Link to="/data-check">confirmed</Link>.</>}
-        actions={<button className="btn primary" onClick={() => setAdding(true)}>+ Add product</button>}
+        actions={<><button className="btn" onClick={() => setBulk(true)}>Upload photos in bulk</button><button className="btn primary" onClick={() => setAdding(true)}>+ Add product</button></>}
       />
       <div className="toolbar">
         <Tabs<StatusTab>
@@ -103,7 +135,6 @@ export function ProductsPage({ division, title }: { division: string; title: str
               <tr>
                 <th style={{ width: 52 }}></th>
                 <th>Product</th>
-                <th>Category</th>
                 <th>Size / pack</th>
                 <th className="num">Price</th>
                 <th className="num">In stock</th>
@@ -112,20 +143,21 @@ export function ProductsPage({ division, title }: { division: string; title: str
               </tr>
             </thead>
             <tbody>
-              {rows.length === 0 && <tr><td colSpan={8} className="empty">No products here.</td></tr>}
+              {rows.length === 0 && <tr><td colSpan={7} className="empty">No products here.</td></tr>}
               {rows.map((p) =>
                 (p.variants.length ? p.variants : [null]).map((v, i) => (
                   <tr key={`${p.id}-${v?.id ?? 'none'}`}>
                     {i === 0 && (
                       <>
                         <td rowSpan={Math.max(1, p.variants.length)}>
-                          {p.images[0] ? <img className="thumb" src={p.images[0].url} alt="" /> : <div className="thumb" />}
+                          <button className="thumb-btn" title="Manage photos" aria-label={`Manage photos of ${p.name}`} onClick={() => setPhotosFor(p.id)}>
+                            {p.images[0] ? <img className="thumb" src={p.images[0].url} alt="" /> : <div className="thumb thumb-pending">Image pending</div>}
+                          </button>
                         </td>
                         <td rowSpan={Math.max(1, p.variants.length)}>
                           <strong>{p.name}</strong>
-                          <div className="muted small">{p.brand}{p.isAgeRestricted ? ' · 18+' : ''}</div>
+                          <div className="muted small">{[p.brand, p.category?.name, p.isAgeRestricted ? '18+' : null].filter(Boolean).join(' · ')}</div>
                         </td>
-                        <td rowSpan={Math.max(1, p.variants.length)}>{p.category?.name ?? <span className="muted">—</span>}</td>
                       </>
                     )}
                     <td>
@@ -133,13 +165,15 @@ export function ProductsPage({ division, title }: { division: string; title: str
                       {v && !v.isActive && <StatusPill status="INACTIVE" />}
                     </td>
                     <td className="num">{v ? <InlinePrice minor={v.unitPriceMinor} onSave={(k) => savePrice(v, k)} /> : '—'}</td>
-                    <td className="num">{v ? (v.availableQuantity > 0 ? v.availableQuantity : <span className="pill red">Out of stock</span>) : '—'}</td>
+                    <td className="num">{v ? <StockCell product={p} variant={v} /> : '—'}</td>
                     {i === 0 && (
                       <>
-                        <td rowSpan={Math.max(1, p.variants.length)}><StatusPill status={p.status} />{p.verification !== 'VERIFIED' && <div style={{ marginTop: 4 }}><Pill tone="amber">{p.verification === 'DEV_SAMPLE' ? 'sample' : 'unconfirmed'}</Pill></div>}</td>
+                        <td rowSpan={Math.max(1, p.variants.length)}><StatusPill status={p.status} />{p.verification !== 'VERIFIED' && <div style={{ marginTop: 4 }}><Pill tone="amber">{p.verification === 'DEV_SAMPLE' ? 'sample' : 'unconfirmed'}</Pill></div>}{p.prescriptionStatus && <div style={{ marginTop: 4 }}><Pill tone={p.pharmacistApprovedAt ? 'green' : 'amber'}>{p.pharmacistApprovedAt ? 'Pharmacist approved' : 'Awaiting pharmacist'}</Pill><div className="muted small">{PRESCRIPTION[p.prescriptionStatus]}</div></div>}</td>
                         <td rowSpan={Math.max(1, p.variants.length)}>
                           <div className="row-actions">
                             <button className="btn sm" onClick={() => setEditing(p)}>Edit</button>
+                            <button className="btn sm" onClick={() => setPhotosFor(p.id)}>Photos</button>
+                            {p.prescriptionStatus && canApprove && <button className="btn sm primary" onClick={() => setReviewing(p)}>Review</button>}
                             {p.status === 'ARCHIVED' ? (
                               <button className="btn sm" onClick={() => void setStatus(p, 'ACTIVE')}>Restore</button>
                             ) : (
@@ -157,6 +191,9 @@ export function ProductsPage({ division, title }: { division: string; title: str
         </div>
       )}
       {dialog}
+      {reviewing && <PharmacyReview product={reviewing} onClose={() => setReviewing(null)} onSaved={() => { setReviewing(null); void products.reload(); }} />}
+      {photosFor && <PhotoManager owner="product" id={photosFor} onClose={() => setPhotosFor(null)} onChanged={() => void products.reload()} />}
+      {bulk && <BulkPhotoUpload onClose={() => setBulk(false)} onChanged={() => void products.reload()} />}
       {adding && (
         <ProductForm division={division} categories={categories.data ?? []} onClose={() => setAdding(false)} onSaved={() => { setAdding(false); void products.reload(); }} />
       )}
@@ -170,6 +207,42 @@ export function ProductsPage({ division, title }: { division: string; title: str
         />
       )}
     </>
+  );
+}
+
+/** The pharmacist's decision. Nothing reaches customers without it. */
+function PharmacyReview({ product, onClose, onSaved }: { product: Product; onClose: () => void; onSaved: () => void }) {
+  const { run, busy } = useAction();
+  const [status, setStatus] = useState<Prescription>(product.prescriptionStatus ?? 'NOT_REVIEWED');
+  const [description, setDescription] = useState(product.description ?? '');
+  const [approved, setApproved] = useState(!!product.pharmacistApprovedAt);
+  const [canBuy, setCanBuy] = useState(product.purchaseEnabled);
+  const needsPrescription = status === 'REQUIRED' || status === 'RESTRICTED';
+  const save = () =>
+    run(() => post(`/admin/catalog/products/${product.id}/pharmacy-review`, { prescriptionStatus: status, approved, description: description.trim() || undefined, purchaseEnabled: approved && canBuy && !needsPrescription }), approved ? 'Approved' : 'Saved').then((ok) => ok && onSaved());
+  return (
+    <Modal
+      title={`Pharmacist review: ${product.name}`}
+      onClose={onClose}
+      wide
+      footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" disabled={busy || (approved && status === 'NOT_REVIEWED')} onClick={() => void save()}>Save review</button></>}
+    >
+      {product.verificationNote && <div className="banner warn">To check: {product.verificationNote}</div>}
+      <div className="form-grid">
+        <Field label="Description" hint="This is a draft until you approve it. Do not add dosage advice." full><textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} /></Field>
+        <Field label="Prescription status" full>
+          <select value={status} onChange={(e) => setStatus(e.target.value as Prescription)}>
+            {(Object.keys(PRESCRIPTION) as Prescription[]).map((k) => <option key={k} value={k}>{PRESCRIPTION[k]}</option>)}
+          </select>
+        </Field>
+        <Field label="Approval" full>
+          <label className="check"><input type="checkbox" checked={approved} onChange={(e) => setApproved(e.target.checked)} /> I have checked the name, description and photo against the actual product</label>
+        </Field>
+        <Field label="Purchase" hint={needsPrescription ? 'Prescription and restricted medicines cannot be bought online. Customers are asked to book a pharmacist.' : 'A price, a live stock count and company confirmation are also needed.'} full>
+          <label className="check"><input type="checkbox" disabled={!approved || needsPrescription} checked={canBuy && approved && !needsPrescription} onChange={(e) => setCanBuy(e.target.checked)} /> I have verified current availability, so this may be bought</label>
+        </Field>
+      </div>
+    </Modal>
   );
 }
 
@@ -194,6 +267,9 @@ function ProductForm({
   const [ageRestricted, setAgeRestricted] = useState(product?.isAgeRestricted ?? false);
   const [status, setStatus] = useState<Product['status']>(product?.status ?? 'ACTIVE');
   const [imageUrl, setImageUrl] = useState('');
+  const [listed, setListed] = useState<string>(product?.listedAvailability ?? '');
+  const [canBuy, setCanBuy] = useState(product?.purchaseEnabled ?? true);
+  const isPharmacy = !!product?.prescriptionStatus;
   // New product: first size. Existing product: editable list of sizes.
   const [variants, setVariants] = useState(
     product?.variants.map((v) => ({ id: v.id, sku: v.sku, name: v.name, price: v.unitPriceMinor as number | null, isActive: v.isActive })) ?? [
@@ -202,7 +278,7 @@ function ProductForm({
   );
 
   const update = (i: number, patchV: Partial<(typeof variants)[number]>) => setVariants((vs) => vs.map((v, j) => (j === i ? { ...v, ...patchV } : v)));
-  const valid = name.trim().length >= 2 && variants.every((v) => v.name.trim() && v.price !== null && (v.id || /^[A-Z0-9][A-Z0-9-]{1,47}$/.test(v.sku)));
+  const valid = name.trim().length >= 2 && variants.every((v) => v.name.trim() && (v.id || /^[A-Z0-9][A-Z0-9-]{1,47}$/.test(v.sku)));
 
   const save = () =>
     run(async () => {
@@ -212,6 +288,8 @@ function ProductForm({
         categoryId: categoryId || undefined,
         description: description.trim() || undefined,
         isAgeRestricted: ageRestricted,
+        listedAvailability: listed ? (listed as Product['listedAvailability']) : null,
+        ...(isPharmacy ? {} : { purchaseEnabled: canBuy }),
       };
       if (!product) {
         await post('/admin/catalog/products', {
@@ -276,6 +354,19 @@ function ProductForm({
         <Field label="Age restriction">
           <label className="check"><input type="checkbox" checked={ageRestricted} onChange={(e) => setAgeRestricted(e.target.checked)} /> Alcoholic — 18+ only</label>
         </Field>
+        <Field label="Availability" hint="Use a list status only when there is no live count">
+          <select value={listed} onChange={(e) => setListed(e.target.value)}>
+            <option value="">From the live stock count</option>
+            <option value="IN_STOCK">In stock (from a list)</option>
+            <option value="OUT_OF_STOCK">Out of stock</option>
+          </select>
+        </Field>
+        {!isPharmacy && (
+          <Field label="Purchase" hint="Also needs a price, stock and company confirmation">
+            <label className="check"><input type="checkbox" checked={canBuy} onChange={(e) => setCanBuy(e.target.checked)} /> Availability confirmed, so this may be bought</label>
+          </Field>
+        )}
+        {isPharmacy && <div className="banner warn field full" style={{ margin: 0 }}>Changing the name or description removes pharmacist approval, unless you are the pharmacist.</div>}
         <Field label="Add a photo (optional)" hint="An https:// link, or a /media/… path" full>
           <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…" />
         </Field>
@@ -285,7 +376,7 @@ function ProductForm({
         <h3 style={{ marginBottom: 8 }}>Sizes &amp; prices</h3>
         <table>
           <thead>
-            <tr><th>Size / pack</th><th>SKU</th><th className="num">Price (₦)</th>{product && <th>For sale</th>}</tr>
+            <tr><th>Size / pack</th><th>SKU</th><th className="num">Price (₦), blank if not published</th>{product && <th>For sale</th>}</tr>
           </thead>
           <tbody>
             {variants.map((v, i) => (

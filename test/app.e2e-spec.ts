@@ -95,10 +95,10 @@ afterAll(async () => {
 });
 
 describe('Platform', () => {
-  it('reports health and lists the nine divisions', async () => {
+  it('reports health and lists the ten divisions', async () => {
     await http.get('/health/ready').expect(200, { status: 'ok', database: 'up' });
     const res = await http.get(`${API}/divisions`).expect(200);
-    expect(res.body).toHaveLength(9);
+    expect(res.body).toHaveLength(10);
     expect(res.body.map((d: any) => d.code)).toContain('WATER_DRINKS_WINES');
   });
 

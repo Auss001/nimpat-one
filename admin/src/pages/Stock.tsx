@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { get, patch, post } from '../api';
+import { getAll, patch, post } from '../api';
 import { Field, Loading, Modal, PageHead, Pill, Tabs, useAction, useLoad } from '../components/ui';
 
 interface Level {
@@ -10,28 +10,31 @@ interface Level {
   available: number;
   lowStock: boolean;
   location: { id: string; code: string; name: string };
-  variant: { id: string; sku: string; name: string; product: { id: string; name: string } };
+  variant: { id: string; sku: string; name: string; recordedStockQty: number | null; recordedStockAt: string | null; product: { id: string; name: string; listedAvailability: string | null } };
 }
 
-type Division = 'water-drinks-wines' | 'retail-general-supplies';
+type Division = 'water-drinks-wines' | 'retail-general-supplies' | 'pharmacy-laboratory';
+/** Only a supplied list or old closing count, with no real count yet. */
+const uncounted = (l: Level) => l.quantityOnHand === 0 && (l.variant.recordedStockQty !== null || l.variant.product.listedAvailability !== null);
 type Mode = 'receive' | 'count' | 'reorder';
 
 export function StockPage() {
   const [division, setDivision] = useState<Division>('water-drinks-wines');
   const [q, setQ] = useState('');
-  const [filter, setFilter] = useState<'all' | 'low' | 'out'>('all');
+  const [filter, setFilter] = useState<'all' | 'low' | 'out' | 'uncounted'>('all');
   const [action, setAction] = useState<{ level: Level; mode: Mode } | null>(null);
-  const levels = useLoad(() => get<{ data: Level[] }>(`/admin/inventory?division=${division}&pageSize=100`).then((r) => r.data), [division]);
+  const levels = useLoad(() => getAll<Level>(`/admin/inventory?division=${division}`), [division]);
 
   const rows = useMemo(() => {
     const term = q.trim().toLowerCase();
     return (levels.data ?? [])
       .filter((l) => !term || l.variant.product.name.toLowerCase().includes(term) || l.variant.sku.toLowerCase().includes(term))
-      .filter((l) => (filter === 'low' ? l.lowStock : filter === 'out' ? l.available <= 0 : true))
+      .filter((l) => (filter === 'low' ? l.lowStock : filter === 'out' ? l.available <= 0 && !uncounted(l) : filter === 'uncounted' ? uncounted(l) : true))
       .sort((a, b) => a.variant.product.name.localeCompare(b.variant.product.name));
   }, [levels.data, q, filter]);
 
-  const outCount = (levels.data ?? []).filter((l) => l.available <= 0).length;
+  const outCount = (levels.data ?? []).filter((l) => l.available <= 0 && !uncounted(l)).length;
+  const uncountedCount = (levels.data ?? []).filter(uncounted).length;
 
   return (
     <>
@@ -44,16 +47,21 @@ export function StockPage() {
           {outCount} item{outCount === 1 ? ' is' : 's are'} out of stock and cannot be ordered. Use <strong>Receive</strong> to add opening stock.
         </div>
       )}
+      {uncountedCount > 0 && (
+        <div className="banner info">
+          {uncountedCount} item{uncountedCount === 1 ? ' has' : 's have'} only a supplied list or an old closing count, not a real count. Use <strong>Set count</strong> after checking the shelf.
+        </div>
+      )}
       <div className="toolbar">
         <Tabs<Division>
           value={division}
           onChange={setDivision}
-          options={[{ value: 'water-drinks-wines', label: 'Water, Drinks & Wines' }, { value: 'retail-general-supplies', label: 'Retail & Supplies' }]}
+          options={[{ value: 'water-drinks-wines', label: 'Water, Drinks & Wines' }, { value: 'retail-general-supplies', label: 'Retail & Supplies' }, { value: 'pharmacy-laboratory', label: 'Pharmacy' }]}
         />
-        <Tabs<'all' | 'low' | 'out'>
+        <Tabs<'all' | 'low' | 'out' | 'uncounted'>
           value={filter}
           onChange={setFilter}
-          options={[{ value: 'all', label: 'All' }, { value: 'low', label: 'Low stock' }, { value: 'out', label: 'Out of stock' }]}
+          options={[{ value: 'all', label: 'All' }, { value: 'low', label: 'Low stock' }, { value: 'out', label: 'Out of stock' }, { value: 'uncounted', label: 'Not counted' }]}
         />
         <input className="search" placeholder="Search product or SKU" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
@@ -77,7 +85,7 @@ export function StockPage() {
               {rows.length === 0 && <tr><td colSpan={8} className="empty">Nothing matches.</td></tr>}
               {rows.map((l) => (
                 <tr key={l.id}>
-                  <td><strong>{l.variant.product.name}</strong></td>
+                  <td><strong>{l.variant.product.name}</strong>{l.variant.recordedStockQty !== null && <div className="muted small">{l.variant.recordedStockQty} on {l.variant.recordedStockAt ? new Date(l.variant.recordedStockAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }) : 'record'}, not live</div>}{l.variant.product.listedAvailability === 'IN_STOCK' && <div className="muted small">In stock from list, not counted</div>}</td>
                   <td>{l.variant.name}<div className="muted small mono">{l.variant.sku}</div></td>
                   <td className="small">{l.location.name}</td>
                   <td className="num">{l.quantityOnHand}</td>

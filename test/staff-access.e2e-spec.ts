@@ -122,9 +122,9 @@ describe('homepage overview', () => {
     const res = await h.http.get(`${API}/admin/reports/overview`).set(admin.auth).expect(200);
     expect(res.body.scope).toBe('group');
     const real = await h.prisma.product.count({ where: { status: 'ACTIVE', verification: { not: 'DEV_SAMPLE' } } });
-    const counted = res.body.holdings.filter((x: { label: string }) => /Drinks|Retail/.test(x.label)).reduce((a: number, x: { count: number }) => a + x.count, 0);
+    const counted = res.body.holdings.filter((x: { label: string }) => /Drinks|Retail|Pharmacy/.test(x.label)).reduce((a: number, x: { count: number }) => a + x.count, 0);
     expect(counted).toBe(real);
-    expect(res.body.stock.total).toBe(res.body.stock.inStock + res.body.stock.low + res.body.stock.out);
+    expect(res.body.stock.total).toBe(res.body.stock.inStock + res.body.stock.low + res.body.stock.out + res.body.stock.uncounted);
     expect(res.body.records.confirmed).toBeLessThanOrEqual(res.body.records.total);
     expect(res.body.apartments.byCondition.reduce((a: number, c: { count: number }) => a + c.count, 0)).toBe(res.body.apartments.total);
   });

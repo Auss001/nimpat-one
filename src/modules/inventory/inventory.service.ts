@@ -170,7 +170,7 @@ export class InventoryService {
         orderBy: [{ location: { code: 'asc' } }, { variant: { sku: 'asc' } }],
         include: {
           location: { select: { id: true, code: true, name: true } },
-          variant: { select: { id: true, sku: true, name: true, product: { select: { id: true, name: true, divisionId: true } } } },
+          variant: { select: { id: true, sku: true, name: true, recordedStockQty: true, recordedStockAt: true, product: { select: { id: true, name: true, divisionId: true, listedAvailability: true } } } },
         },
       }),
       this.prisma.stockLevel.count({ where }),

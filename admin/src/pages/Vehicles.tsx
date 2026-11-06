@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { get, patch, post } from '../api';
+import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
 import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, useAction, useLoad } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
@@ -11,12 +12,12 @@ interface Vehicle {
   model: string;
   year: number;
   trim: string | null;
-  condition: 'BRAND_NEW' | 'FOREIGN_USED' | 'NIGERIAN_USED';
+  condition: 'BRAND_NEW' | 'FOREIGN_USED' | 'NIGERIAN_USED' | null;
   transmission: string | null;
   fuelType: string | null;
   colour: string | null;
   mileageKm: number | null;
-  priceMinor: number;
+  priceMinor: number | null;
   depositMinor: number | null;
   customsCleared: boolean;
   description: string | null;
@@ -26,8 +27,9 @@ interface Vehicle {
 const CONDITION = { BRAND_NEW: 'Brand new', FOREIGN_USED: 'Foreign used', NIGERIAN_USED: 'Nigerian used' };
 
 export function VehiclesPage() {
-  const vehicles = useLoad(() => get<{ data: Vehicle[] }>('/admin/vehicles?pageSize=100').then((r) => r.data.filter((v) => v.make !== 'DevSample')));
+  const vehicles = useLoad(() => get<{ data: Vehicle[] }>('/admin/vehicles?pageSize=100').then((r) => r.data.filter((v) => v.make !== 'DevSample' && v.status !== 'ARCHIVED')));
   const [editing, setEditing] = useState<Vehicle | 'new' | null>(null);
+  const [photos, setPhotos] = useState<PhotoTarget | null>(null);
   const { run } = useAction();
 
   const savePrice = (v: Vehicle, kobo: number) =>
@@ -54,18 +56,19 @@ export function VehiclesPage() {
                 <tr key={v.id}>
                   <td>{v.images[0] ? <img className="thumb" style={{ width: 60 }} src={v.images[0].url} alt="" /> : <div className="thumb" />}</td>
                   <td><strong>{v.year} {v.make} {v.model}</strong><div className="muted small">{[v.colour, v.transmission?.toLowerCase(), v.fuelType?.toLowerCase(), v.customsCleared ? 'customs cleared' : null].filter(Boolean).join(' · ')}</div></td>
-                  <td>{CONDITION[v.condition]}</td>
+                  <td>{v.condition ? CONDITION[v.condition] : <span className="muted">Not stated</span>}</td>
                   <td className="num">{v.mileageKm !== null ? `${v.mileageKm.toLocaleString()} km` : '—'}</td>
                   <td className="num"><InlinePrice minor={v.priceMinor} onSave={(k) => savePrice(v, k)} /></td>
                   <td className="num">{v.depositMinor ? formatNaira(v.depositMinor) : <span className="muted">None</span>}</td>
                   <td><StatusPill status={v.status} /></td>
-                  <td><div className="row-actions"><button className="btn sm" onClick={() => setEditing(v)}>Edit</button></div></td>
+                  <td><div className="row-actions"><button className="btn sm" onClick={() => setEditing(v)}>Edit</button><button className="btn sm" onClick={() => setPhotos({ owner: 'vehicle', id: v.id })}>Photos</button></div></td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+      {photos && <PhotoManager {...photos} onClose={() => setPhotos(null)} onChanged={() => void vehicles.reload()} />}
       {editing && <VehicleForm vehicle={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); void vehicles.reload(); }} />}
     </>
   );
@@ -75,7 +78,7 @@ function VehicleForm({ vehicle, onClose, onSaved }: { vehicle?: Vehicle; onClose
   const { run, busy } = useAction();
   const [f, setF] = useState({
     make: vehicle?.make ?? '', model: vehicle?.model ?? '', year: String(vehicle?.year ?? new Date().getFullYear()), trim: vehicle?.trim ?? '',
-    condition: vehicle?.condition ?? 'BRAND_NEW', transmission: vehicle?.transmission ?? 'AUTOMATIC', fuelType: vehicle?.fuelType ?? 'PETROL',
+    condition: vehicle ? vehicle.condition ?? '' : 'BRAND_NEW', transmission: vehicle?.transmission ?? 'AUTOMATIC', fuelType: vehicle?.fuelType ?? 'PETROL',
     colour: vehicle?.colour ?? '', mileageKm: vehicle?.mileageKm !== null && vehicle?.mileageKm !== undefined ? String(vehicle.mileageKm) : '',
     description: vehicle?.description ?? '', status: vehicle?.status ?? ('AVAILABLE' as VStatus),
   });
@@ -83,12 +86,12 @@ function VehicleForm({ vehicle, onClose, onSaved }: { vehicle?: Vehicle; onClose
   const [price, setPrice] = useState<number | null>(vehicle?.priceMinor ?? null);
   const [deposit, setDeposit] = useState<number | null>(vehicle?.depositMinor ?? null);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
-  const valid = f.make.trim() && f.model.trim() && /^\d{4}$/.test(f.year) && price !== null && price > 0 && (deposit === null || deposit > 0);
+  const valid = f.make.trim() && f.model.trim() && /^\d{4}$/.test(f.year) && (price === null || price > 0) && (deposit === null || deposit > 0);
 
   const save = () =>
     run(async () => {
       const body: Record<string, unknown> = {
-        make: f.make.trim(), model: f.model.trim(), year: Number(f.year), trim: f.trim || undefined, condition: f.condition,
+        make: f.make.trim(), model: f.model.trim(), year: Number(f.year), trim: f.trim || undefined, condition: f.condition || null,
         transmission: f.transmission || undefined, fuelType: f.fuelType || undefined, colour: f.colour || undefined,
         mileageKm: f.mileageKm ? Number(f.mileageKm) : undefined, description: f.description || undefined, status: f.status,
         customsCleared: customs, priceMinor: price, ...(deposit !== null ? { depositMinor: deposit } : {}),
@@ -111,6 +114,7 @@ function VehicleForm({ vehicle, onClose, onSaved }: { vehicle?: Vehicle; onClose
         <Field label="Trim"><input value={f.trim} onChange={set('trim')} /></Field>
         <Field label="Condition">
           <select value={f.condition} onChange={set('condition')}>
+            <option value="">Not stated</option>
             {Object.entries(CONDITION).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
           </select>
         </Field>

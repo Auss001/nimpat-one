@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { get, patch, post } from '../api';
+import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
 import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
@@ -52,6 +53,7 @@ export function SpaPage() {
 
 function Menu({ treatments }: { treatments: ReturnType<typeof useLoad<Treatment[]>> }) {
   const [editing, setEditing] = useState<Treatment | 'new' | null>(null);
+  const [photos, setPhotos] = useState<PhotoTarget | null>(null);
   const [q, setQ] = useState('');
   const { run } = useAction();
   const groups = useMemo(() => {
@@ -100,6 +102,7 @@ function Menu({ treatments }: { treatments: ReturnType<typeof useLoad<Treatment[
                     <td>
                       <div className="row-actions">
                         <button className="btn sm" onClick={() => setEditing(t)}>Edit</button>
+                        <button className="btn sm" onClick={() => setPhotos({ owner: 'spa', id: t.id })}>Photo</button>
                         <button className={`btn sm ${t.isActive ? 'danger' : ''}`} onClick={() => void update(t, { isActive: !t.isActive }, t.isActive ? `${t.name} removed from the menu` : `${t.name} is back on the menu`)}>
                           {t.isActive ? 'Remove' : 'Restore'}
                         </button>
@@ -112,6 +115,7 @@ function Menu({ treatments }: { treatments: ReturnType<typeof useLoad<Treatment[
           </table>
         </div>
       )}
+      {photos && <PhotoManager {...photos} onClose={() => setPhotos(null)} />}
       {editing && (
         <TreatmentForm
           treatment={editing === 'new' ? undefined : editing}

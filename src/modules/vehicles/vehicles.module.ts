@@ -52,14 +52,14 @@ class CreateVehicleDto {
   @ApiProperty({ example: 'Land Cruiser' }) @IsString() @Length(1, 60) model: string;
   @ApiProperty({ example: 2024 }) @IsInt() @Min(1950) @Max(2100) year: number;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(1, 60) trim?: string;
-  @ApiProperty({ enum: VehicleCondition }) @IsEnum(VehicleCondition) condition: VehicleCondition;
+  @ApiPropertyOptional({ enum: VehicleCondition, nullable: true }) @IsOptional() @IsEnum(VehicleCondition) condition?: VehicleCondition | null;
   @ApiPropertyOptional() @IsOptional() @IsString() bodyType?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() transmission?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() fuelType?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() colour?: string;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) mileageKm?: number;
   @ApiPropertyOptional() @IsOptional() @Matches(/^[A-HJ-NPR-Z0-9]{17}$/, { message: 'vin must be a 17-character VIN' }) vin?: string;
-  @ApiProperty({ description: 'Price in kobo' }) @MinorAmount() @IsInt() @Min(1) priceMinor: number;
+  @ApiPropertyOptional({ description: 'Price in kobo. Null means not published.', nullable: true }) @IsOptional() @MinorAmount() @IsInt() @Min(1) priceMinor?: number | null;
   @ApiPropertyOptional({ description: 'Reservation deposit in kobo' }) @IsOptional() @MinorAmount() @IsInt() @Min(1) depositMinor?: number;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() customsCleared?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsObject() specs?: Record<string, unknown>;
@@ -256,10 +256,10 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
     }];
   }
 
-  private money<T extends { priceMinor?: number; depositMinor?: number }>(dto: T) {
+  private money<T extends { priceMinor?: number | null; depositMinor?: number }>(dto: T) {
     return {
       ...dto,
-      priceMinor: dto.priceMinor !== undefined ? BigInt(dto.priceMinor) : undefined,
+      priceMinor: dto.priceMinor === undefined ? undefined : dto.priceMinor === null ? null : BigInt(dto.priceMinor),
       depositMinor: dto.depositMinor !== undefined ? BigInt(dto.depositMinor) : undefined,
       specs: (dto as { specs?: Prisma.InputJsonValue }).specs,
     };

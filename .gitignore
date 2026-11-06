@@ -61,3 +61,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .claude/settings.local.json
+
+# Local database and photo backups
+backups/

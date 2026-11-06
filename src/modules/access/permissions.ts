@@ -33,6 +33,7 @@ export const P = {
   paymentsVerify: 'payments:verify', // finance confirms funds against trusted bank / cash records
   paymentsConfigure: 'payments:configure', // bank accounts, payment policies, service locations
   recordsVerify: 'records:verify', // confirm catalogue / listing data before it can be sold or booked
+  pharmacyApprove: 'pharmacy:approve', // medicine text, photos, prescription status and availability
 } as const;
 
 export type PermissionCode = (typeof P)[keyof typeof P];
@@ -105,6 +106,24 @@ export const ROLE_DEFINITIONS: Record<
       P.collectionsRecord, // delivery officers / cashiers: report collections, never verify them
     ],
   },
+  PHARMACIST: {
+    name: 'Pharmacist',
+    description: 'Approves medicine details, photos, prescription status and availability, and handles pharmacy and laboratory bookings.',
+    isDivisionScoped: true,
+    permissions: [
+      P.catalogManage,
+      P.inventoryRead,
+      P.inventoryManage,
+      P.ordersRead,
+      P.ordersManage,
+      P.listingsManage,
+      P.bookingsRead,
+      P.bookingsManage,
+      P.customersRead,
+      P.recordsVerify,
+      P.pharmacyApprove,
+    ],
+  },
   FINANCE_OFFICER: {
     name: 'Finance Officer',
     description: 'Group finance: verifies bank transfers and cash collections against trusted records, reconciles, refunds and resolves disputes.',
@@ -127,7 +146,8 @@ export const ROLE_DEFINITIONS: Record<
 
 /** Which roles an assigner may grant. Super admins can grant anything. */
 export const GRANTABLE_BY: Record<RoleCode, RoleCode[]> = {
-  SUPER_ADMIN: ['SUPER_ADMIN', 'GROUP_MANAGEMENT', 'DEPARTMENT_MANAGER', 'DEPARTMENT_STAFF', 'CUSTOMER_SUPPORT', 'FINANCE_OFFICER'],
+  SUPER_ADMIN: ['SUPER_ADMIN', 'GROUP_MANAGEMENT', 'DEPARTMENT_MANAGER', 'DEPARTMENT_STAFF', 'CUSTOMER_SUPPORT', 'FINANCE_OFFICER', 'PHARMACIST'],
+  PHARMACIST: [],
   FINANCE_OFFICER: [],
   GROUP_MANAGEMENT: [],
   DEPARTMENT_MANAGER: ['DEPARTMENT_STAFF'],

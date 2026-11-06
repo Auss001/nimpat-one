@@ -207,3 +207,16 @@ npm start
 ```
 
 Set the app's API base URL to `http://localhost:4000`. In development, verification and password-reset links are printed in the API console. The Paystack redirect comes back to `PAYSTACK_CALLBACK_URL` (`http://localhost:3000/payments/callback`), a page the app still needs.
+
+## Unpublished prices and availability
+
+- `unitPriceMinor` and `priceFromMinor` may be `null`, which means the price is not published. Show "Contact for price" or hide it. Never show ₦0. `pricePublished` says whether any size has a price.
+- Use `inStock` for availability, because a product may be listed as in stock without a live count.
+- Each variant has `purchasable` and `purchaseNote`. When `purchasable` is false, hide Add to Cart and show the note.
+- `imageStatus` is `AVAILABLE` or `IMAGE_PENDING`. Show "Image pending" for the second, and never a similar product's photo.
+
+## Pharmacy, laboratory and spa bookings
+
+- Pharmacy products use the division `pharmacy-laboratory`, and appear only after pharmacist approval and company confirmation. Show medical information for general reference only, without diagnosis or dosage advice.
+- List pharmacy and laboratory services with `GET /services?division=pharmacy-laboratory`, and book with `POST /services/bookings`. Put what the customer asked for in `details`, such as `{ "requestedTest": "..." }`. Staff then confirm the time and price.
+- Spa bookings use `GET /spa/treatments`, `GET /spa/treatments/:id/slots` and `POST /spa/appointments`. They need at least one active therapist and confirmed treatments.

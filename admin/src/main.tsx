@@ -2,8 +2,8 @@ import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Bell, Building2, CalendarCheck, Car, ClipboardCheck, Clapperboard, Droplets, Landmark, LayoutDashboard, LogOut,
-  Package, Search, Settings2, ShoppingBag, Sparkles, Truck, Users, Wallet, type LucideIcon,
+  Bell, Building2, CalendarCheck, CalendarClock, Car, ClipboardCheck, Clapperboard, Droplets, Landmark, LayoutDashboard, LogOut,
+  Package, Pill, Search, Settings2, ShoppingBag, Sparkles, Truck, Users, Wallet, type LucideIcon,
 } from 'lucide-react';
 import { AccessProvider, useAccess, type Check } from './access';
 import { get, getSession, logout } from './api';
@@ -18,6 +18,7 @@ import { VehiclesPage } from './pages/Vehicles';
 import { ServicesPage } from './pages/Services';
 import { OrdersPage } from './pages/Orders';
 import { ReservationsPage } from './pages/Reservations';
+import { BookingsPage } from './pages/Bookings';
 import { DeliveryPage } from './pages/Delivery';
 import { PaymentsPage } from './pages/Payments';
 import { PaymentSettingsPage } from './pages/PaymentSettings';
@@ -46,18 +47,20 @@ const NAV: { group: string; items: [string, string, LucideIcon, Check?][] }[] = 
   { group: 'Products', items: [
     ['/drinks', 'Water, Drinks & Wines', Droplets, { any: ['catalog:manage'], division: 'water-drinks-wines' }],
     ['/retail', 'Retail & Supplies', ShoppingBag, { any: ['catalog:manage'], division: 'retail-general-supplies' }],
-    ['/stock', 'Stock', Package, { any: ['inventory:read', 'inventory:manage'], division: ['water-drinks-wines', 'retail-general-supplies'] }],
+    ['/pharmacy', 'Pharmacy', Pill, { any: ['catalog:manage'], division: 'pharmacy-laboratory' }],
+    ['/stock', 'Stock', Package, { any: ['inventory:read', 'inventory:manage'], division: ['water-drinks-wines', 'retail-general-supplies', 'pharmacy-laboratory'] }],
     ['/delivery', 'Delivery fees', Truck, { any: ['deliveries:manage'], division: 'water-drinks-wines' }],
   ] },
   { group: 'Bookings & listings', items: [
     ['/apartments', 'Apartments', Building2, { any: ['listings:manage'], division: 'luxury-apartments' }],
     ['/spa', 'Spa & Wellness', Sparkles, { any: ['listings:manage'], division: 'spa-wellness' }],
     ['/vehicles', 'Automobiles', Car, { any: ['listings:manage'], division: 'automobiles' }],
-    ['/services', 'Rentals & property', Clapperboard, { any: ['listings:manage'], division: ['automobiles', 'transport-logistics', 'retail-general-supplies', 'media-events-rentals', 'real-estate-interior-design', 'entertainment'] }],
+    ['/services', 'Rentals & property', Clapperboard, { any: ['listings:manage'], division: ['automobiles', 'transport-logistics', 'retail-general-supplies', 'media-events-rentals', 'real-estate-interior-design', 'entertainment', 'pharmacy-laboratory'] }],
   ] },
   { group: 'Customers', items: [
-    ['/orders', 'Orders', Landmark, { any: ['orders:read'], division: ['water-drinks-wines', 'retail-general-supplies'] }],
+    ['/orders', 'Orders', Landmark, { any: ['orders:read'], division: ['water-drinks-wines', 'retail-general-supplies', 'pharmacy-laboratory'] }],
     ['/reservations', 'Reservations', CalendarCheck, { any: ['bookings:read'], division: 'luxury-apartments' }],
+    ['/bookings', 'Bookings', CalendarClock, { any: ['bookings:read'] }],
   ] },
   { group: 'Finance', items: [
     ['/payments', 'Payments', Wallet, { any: ['payments:read', 'payments:verify', 'payments:configure', 'collections:record'] }],
@@ -148,6 +151,7 @@ function App() {
         <Route index element={<OverviewPage />} />
         <Route path="drinks" element={<ProductsPage key="wdw" division="water-drinks-wines" title="Water, Drinks & Wines" />} />
         <Route path="retail" element={<ProductsPage key="rtl" division="retail-general-supplies" title="Retail & General Supplies" />} />
+        <Route path="pharmacy" element={<ProductsPage key="phm" division="pharmacy-laboratory" title="Pharmacy" />} />
         <Route path="stock" element={<StockPage />} />
         <Route path="delivery" element={<DeliveryPage />} />
         <Route path="apartments" element={<ApartmentsPage />} />
@@ -156,6 +160,7 @@ function App() {
         <Route path="services" element={<ServicesPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="reservations" element={<ReservationsPage />} />
+        <Route path="bookings" element={<BookingsPage />} />
         <Route path="payments" element={<PaymentsPage />} />
         <Route path="payment-settings" element={<PaymentSettingsPage />} />
         <Route path="staff" element={<StaffPage />} />

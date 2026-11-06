@@ -27,6 +27,7 @@ import { NotificationsService, NotifyInput } from '../notifications/notification
 import { PayableContext, PayableHandler, PayableRegistry } from '../payments/payable.registry';
 import { PaymentSummary } from '../payments/payment-ledger.service';
 import { PaymentPolicyService } from '../payments/payment-policy.service';
+import { purchaseBlock } from '../catalog/purchase-rules';
 
 export interface CheckoutInput {
   division: string;
@@ -95,7 +96,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       where: { userId_divisionId: { userId: user.id, divisionId: d.id } },
       include: { items: { include: { variant: true } } },
     });
-    const subtotal = sumMinor((cart?.items ?? []).map((i) => multiplyMinor(i.variant.unitPriceMinor, i.quantity)));
+    const subtotal = sumMinor((cart?.items ?? []).map((i) => multiplyMinor(i.variant.unitPriceMinor ?? 0n, i.quantity)));
     let zoneId: string | null = null;
     let fee = 0n;
     if (fulfilmentType === FulfilmentType.DELIVERY && addressId) {
@@ -135,6 +136,8 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       if (v.product.verification !== RecordVerification.VERIFIED) {
         throw new ConflictException(`${v.product.name} is awaiting confirmation by Nimpat and cannot be sold yet`);
       }
+      const blocked = purchaseBlock(v.product, v);
+      if (blocked) throw new ConflictException(`${v.product.name}: ${blocked}`);
       if (item.quantity < v.minOrderQty || (v.maxOrderQty && item.quantity > v.maxOrderQty)) {
         throw new BadRequestException(`Invalid quantity for ${v.product.name} (${v.name})`);
       }
@@ -148,9 +151,9 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       productName: i.variant.product.name,
       variantName: i.variant.name,
       sku: i.variant.sku,
-      unitPriceMinor: i.variant.unitPriceMinor,
+      unitPriceMinor: i.variant.unitPriceMinor as bigint,
       quantity: i.quantity,
-      lineTotalMinor: multiplyMinor(i.variant.unitPriceMinor, i.quantity),
+      lineTotalMinor: multiplyMinor(i.variant.unitPriceMinor as bigint, i.quantity),
     }));
     const subtotalMinor = sumMinor(lines.map((l) => l.lineTotalMinor));
 

@@ -92,3 +92,13 @@ A stay books either a whole unit or one room. Send `roomId` on `POST /apartments
 `readiness` on a unit or room is `READY`, `FINISHING`, `NOT_READY`, `SERVICING` or `MAINTENANCE`. Only `READY` can be seen or booked by customers. `readinessNote` is for staff only and is left out of customer responses. Changing the condition of a unit does not cancel existing reservations, so staff must check them.
 
 Property lists accept `?location=` and return `location`, `availableRoomCount` and `roomFromMinor`.
+
+## Photos
+
+Staff upload through `/admin/photos/:owner/:ownerId`, where `owner` is `product`, `property`, `unit`, `vehicle`, `spa` or `service`. Files are checked by their content and must be JPG, PNG or WebP, up to 15 MB. Hidden data such as GPS location is removed.
+
+- Product photos become a 1000 x 1000 white square with plain margins trimmed.
+- All other photos are cropped to 1600 x 1067.
+- The first photo by `sortOrder` is the main one. A product photo may carry a `variantId` when it shows one size or pack.
+- Spa treatments and services show one photo, in `imageUrl`.
+- `POST /admin/photos/by-sku` is for bulk uploads: the file name is the SKU. `NMP-WTR-002.png` replaces that product's photos, and `NMP-WTR-002-2.png` adds another.

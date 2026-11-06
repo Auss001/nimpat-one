@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import { get, patch, post } from '../api';
+import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
 import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
@@ -72,6 +73,7 @@ export function ApartmentsPage() {
   const [editUnit, setEditUnit] = useState<{ property: Property; unit?: Unit } | null>(null);
   const [blockUnit, setBlockUnit] = useState<Unit | null>(null);
   const [editRoom, setEditRoom] = useState<{ unit: Unit; room?: Room } | null>(null);
+  const [photos, setPhotos] = useState<PhotoTarget | null>(null);
   const { run } = useAction();
 
   const visible = (props.data ?? []).filter((p) => show === 'all' || p.status === 'ACTIVE' || p.status === 'DRAFT');
@@ -134,6 +136,7 @@ export function ApartmentsPage() {
                   <div className="muted small">{p.addressLine} · {p.city}, {p.state} · check-in {p.checkInTime}, check-out {p.checkOutTime}</div>
                 </div>
                 <button className="btn sm" onClick={() => setEditProp(p)}>Edit property</button>
+                <button className="btn sm" onClick={() => setPhotos({ owner: 'property', id: p.id })}>Property photos</button>
                 <button className="btn sm" onClick={() => setEditUnit({ property: p })}>+ Add unit</button>
               </div>
               <div className="table-wrap">
@@ -161,6 +164,7 @@ export function ApartmentsPage() {
                         <td>
                           <div className="row-actions">
                             <button className="btn sm" onClick={() => setEditUnit({ property: p, unit: u })}>Edit</button>
+                            <button className="btn sm" onClick={() => setPhotos({ owner: 'unit', id: u.id })}>Photos</button>
                             <button className="btn sm" onClick={() => setEditRoom({ unit: u })}>+ Add room</button>
                             <button className="btn sm" onClick={() => setBlockUnit(u)}>Block dates</button>
                             <button className={`btn sm ${u.status === 'ACTIVE' ? 'danger' : ''}`} onClick={() => void toggleUnit(u)}>
@@ -197,6 +201,7 @@ export function ApartmentsPage() {
       {editProp && <PropertyForm property={editProp === 'new' ? undefined : editProp} onClose={() => setEditProp(null)} onSaved={() => { setEditProp(null); void props.reload(); }} />}
       {editUnit && <UnitForm {...editUnit} onClose={() => setEditUnit(null)} onSaved={() => { setEditUnit(null); void props.reload(); }} />}
       {blockUnit && <BlockForm unit={blockUnit} onClose={() => setBlockUnit(null)} />}
+      {photos && <PhotoManager {...photos} onClose={() => setPhotos(null)} onChanged={() => void props.reload()} />}
       {editRoom && <RoomForm {...editRoom} onClose={() => setEditRoom(null)} onSaved={() => { setEditRoom(null); void props.reload(); }} />}
     </>
   );

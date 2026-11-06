@@ -91,7 +91,7 @@ export class ReportsService {
     const serviceWhere: Prisma.ServiceOfferingWhereInput = { divisionId, isActive: true, verification: notSample };
     const confirmed = { verification: RecordVerification.VERIFIED };
 
-    const [products, units, spa, vehicles, services, levels, revenue, confirmedCounts] = await Promise.all([
+    const [products, units, spa, vehicles, services, levels, revenue, confirmedCounts, launch] = await Promise.all([
       this.prisma.product.groupBy({ by: ['divisionId'], where: productWhere, _count: true }),
       this.prisma.apartmentUnit.findMany({ where: unitWhere, select: { readiness: true, property: { select: { location: true } } } }),
       this.prisma.spaTreatment.count({ where: spaWhere }),
@@ -99,7 +99,7 @@ export class ReportsService {
       this.prisma.serviceOffering.count({ where: serviceWhere }),
       this.prisma.stockLevel.findMany({
         where: { location: { divisionId, isActive: true }, variant: { isActive: true, product: productWhere } },
-        select: { quantityOnHand: true, quantityReserved: true, reorderLevel: true },
+        select: { quantityOnHand: true, quantityReserved: true, reorderLevel: true, variant: { select: { recordedStockQty: true, product: { select: { listedAvailability: true } } } } },
       }),
       this.prisma.payment.groupBy({ by: ['divisionId'], where: { status: 'SUCCESS', paidAt: { gte: from, lt: to }, divisionId }, _sum: { amountMinor: true, refundedMinor: true } }),
       Promise.all([
@@ -109,7 +109,17 @@ export class ReportsService {
         this.prisma.vehicle.count({ where: { ...vehicleWhere, ...confirmed } }),
         this.prisma.serviceOffering.count({ where: { ...serviceWhere, ...confirmed } }),
       ]),
+      Promise.all([
+        this.prisma.productVariant.count({ where: { isActive: true, product: productWhere } }),
+        this.prisma.productVariant.count({ where: { isActive: true, product: productWhere, unitPriceMinor: { not: null } } }),
+        this.prisma.product.count({ where: productWhere }),
+        this.prisma.product.count({ where: { ...productWhere, images: { some: {} } } }),
+        this.prisma.bankAccount.count({ where: { isActive: true } }),
+        this.prisma.serviceLocation.count({ where: { isActive: true } }),
+        this.prisma.vehicle.count({ where: { ...vehicleWhere, images: { some: {} } } }),
+      ]),
     ]);
+    const [variantTotal, priced, photoProducts, withPhoto, bankAccounts, serviceLocations, vehiclesWithPhoto] = launch;
 
     const divisions = await this.divisions.all();
     const names = new Map(divisions.map((d) => [d.id, d.name.replace(/^Nimpat /, '')]));
@@ -120,6 +130,9 @@ export class ReportsService {
     };
     const productTotal = products.reduce((n, p) => n + p._count, 0);
     const available = (l: { quantityOnHand: number; quantityReserved: number }) => l.quantityOnHand - l.quantityReserved;
+    // Items with only a supplied list or an old closing count have not really been counted.
+    const uncounted = (l: (typeof levels)[number]) => l.quantityOnHand === 0 && (l.variant.recordedStockQty !== null || l.variant.product.listedAvailability !== null);
+    const counted = levels.filter((l) => !uncounted(l));
     const condition = tally(units.map((u) => u.readiness));
 
     return {
@@ -140,9 +153,16 @@ export class ReportsService {
       },
       stock: {
         total: levels.length,
-        inStock: levels.filter((l) => available(l) > l.reorderLevel).length,
-        low: levels.filter((l) => available(l) > 0 && available(l) <= l.reorderLevel).length,
-        out: levels.filter((l) => available(l) <= 0).length,
+        inStock: counted.filter((l) => available(l) > l.reorderLevel).length,
+        low: counted.filter((l) => available(l) > 0 && available(l) <= l.reorderLevel).length,
+        out: counted.filter((l) => available(l) <= 0).length,
+        uncounted: levels.length - counted.length,
+      },
+      launch: {
+        prices: { done: priced, total: variantTotal },
+        photos: { done: withPhoto + vehiclesWithPhoto, total: photoProducts + vehicles },
+        stock: { done: counted.filter((l) => l.quantityOnHand > 0).length, total: levels.length },
+        payments: { bankAccounts, serviceLocations },
       },
       records: { confirmed: confirmedCounts.reduce((a, b) => a + b, 0), total: productTotal + units.length + spa + vehicles + services },
       revenue: {

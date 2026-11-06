@@ -61,7 +61,7 @@ async function refresh(): Promise<boolean> {
   return refreshing;
 }
 
-export async function api<T = any>(path: string, opts: { method?: string; body?: unknown; headers?: Record<string, string> } = {}, retry = true): Promise<T> {
+export async function api<T = any>(path: string, opts: { method?: string; body?: unknown; form?: FormData; headers?: Record<string, string> } = {}, retry = true): Promise<T> {
   const s = getSession();
   const res = await fetch(`${BASE}${path}`, {
     method: opts.method ?? 'GET',
@@ -70,7 +70,7 @@ export async function api<T = any>(path: string, opts: { method?: string; body?:
       ...(s ? { Authorization: `Bearer ${s.accessToken}` } : {}),
       ...opts.headers,
     },
-    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    body: opts.form ?? (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
   });
   if (res.status === 401 && retry && s && (await refresh())) return api<T>(path, opts, false);
   if (res.status === 401 && s) saveSession(null);
@@ -117,3 +117,22 @@ export const put = <T = any>(p: string, body: unknown) => api<T>(p, { method: 'P
 export const post = <T = any>(p: string, body?: unknown) => api<T>(p, { method: 'POST', body: body ?? {} });
 export const patch = <T = any>(p: string, body: unknown) => api<T>(p, { method: 'PATCH', body });
 export const del = <T = any>(p: string) => api<T>(p, { method: 'DELETE' });
+
+/** Reads every page of a list, for screens that search and filter in the browser. */
+export async function getAll<T = any>(path: string): Promise<T[]> {
+  const sep = path.includes('?') ? '&' : '?';
+  const out: T[] = [];
+  for (let page = 1; ; page++) {
+    const r = await get<{ data: T[]; meta: { totalPages: number } }>(`${path}${sep}pageSize=100&page=${page}`);
+    out.push(...r.data);
+    if (page >= r.meta.totalPages) return out;
+  }
+}
+
+/** Sends one file as a form upload. */
+export function upload<T = any>(p: string, file: File, fields: Record<string, string> = {}) {
+  const form = new FormData();
+  for (const [k, v] of Object.entries(fields)) form.append(k, v);
+  form.append('file', file);
+  return api<T>(p, { method: 'POST', form });
+}

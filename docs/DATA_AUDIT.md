@@ -38,3 +38,26 @@ Because no delivery zone is confirmed, **delivery checkout returns an error for 
 | Stock photos | Some images in the source project are Pexels stock or generic. Replace any that imply they show a real Nimpat property or product | Marketing |
 | Dental services | The project docs say clinical services need approval. Please confirm before enabling them | Management |
 | Entertainment listings | Names and prices came from sample data. Please confirm they are real | Entertainment |
+
+## Stock import of 6 November 2026
+
+Source: `Nimpat_App_Stock_Catalogue.xlsx` and `records updated 1.2.xlsx`, kept in `prisma/catalog/stock-2026-11.json`. Applied by `npm run catalog:stock`.
+
+**Water:** 15 listed products, with prices cleared and shown as in stock from the list, not from a count. Nine reused an existing product and its photo. NMP-WTR-003 (Nestle Pure Life 60cl) is not on the list, so it was archived. The other 55 drinks are not on this list and keep their earlier prices until management decides.
+
+**Pharmacy:** 398 products in 17 categories. Quantities from 29 October are kept as a dated record and are not usable stock. All are unapproved, unpriced and hidden from customers. No photos were added: the contact sheet is an index, not a photo library. Three category spellings were corrected: Anagelsics, Injecttions and Antidiabeties. Items worth checking: the Mortein category includes non-Mortein products such as Colgate, and the Antibiotics category includes Esoma calamine lotion.
+
+**Laboratory:** no test menu or prices were supplied. Three quoted services were added for staff to confirm.
+
+**Cars:** 42 listed: 38 available and 4 sold. The two earlier listings, G63 and Land Cruiser 300, are not on the list, so they were archived. Spellings were tidied. These entries need checking and were kept as supplied:
+
+| Row | Car | Query |
+|---:|---|---|
+| 18 | 2013 Mercedes-Benz C300 | ₦1,300,000, where the other C300 is ₦18,000,000 |
+| 41 | 2012 Toyota Venza | ₦1,800,000, where another 2012 Venza is ₦18,000,000 |
+| 15 | 2013 Toyota Highlander | Model supplied as HIGHLANDER2022 |
+| 43 | 2021 Honda Pilot | No price supplied |
+
+Condition, mileage, colour and photos were not supplied for any car.
+
+**Images:** 8 AI mockups from the partial set were attached. Their labels need checking: Casa Dorado's image reads "Casa Dorada", and St Lauren's reads "Non-Alcoholic Sparkling Wine", which the catalogue does not state.

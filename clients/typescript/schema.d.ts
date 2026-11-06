@@ -653,6 +653,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/catalog/products/{id}/pharmacy-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pharmacist decision: prescription status, approved details and whether it may be bought */
+        post: operations["AdminCatalog_pharmacyReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/catalog/variants/{variantId}": {
         parameters: {
             query?: never;
@@ -2398,6 +2415,59 @@ export interface paths {
         patch: operations["AdminSpa_updatePractitioner"];
         trace?: never;
     };
+    "/api/v1/admin/photos/by-sku": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bulk upload: the file name is the SKU. NMP-WTR-002.png replaces; NMP-WTR-002-2.png adds another photo */
+        post: operations["Photos_bySku"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/photos/{owner}/{ownerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Photos of a product, property, unit, vehicle, spa treatment or service */
+        get: operations["Photos_list"];
+        put?: never;
+        /** Upload a photo. It is checked, stripped of hidden data, and resized to the standard frame */
+        post: operations["Photos_upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/photos/{owner}/{ownerId}/{photoId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a photo */
+        delete: operations["Photos_remove"];
+        options?: never;
+        head?: never;
+        /** Make a photo the main one, or link it to a size or pack */
+        patch: operations["Photos_update"];
+        trace?: never;
+    };
     "/api/v1/logistics/requests": {
         parameters: {
             query?: never;
@@ -2755,13 +2825,13 @@ export interface components {
             jobTitle?: string;
             departmentId?: string;
             /** @enum {string} */
-            role: "SUPER_ADMIN" | "GROUP_MANAGEMENT" | "FINANCE_OFFICER" | "DEPARTMENT_MANAGER" | "DEPARTMENT_STAFF" | "CUSTOMER_SUPPORT" | "CUSTOMER";
+            role: "SUPER_ADMIN" | "GROUP_MANAGEMENT" | "FINANCE_OFFICER" | "DEPARTMENT_MANAGER" | "DEPARTMENT_STAFF" | "CUSTOMER_SUPPORT" | "CUSTOMER" | "PHARMACIST";
             /** @description Required for division-scoped roles */
             divisionId?: string;
         };
         AssignRoleDto: {
             /** @enum {string} */
-            role: "SUPER_ADMIN" | "GROUP_MANAGEMENT" | "FINANCE_OFFICER" | "DEPARTMENT_MANAGER" | "DEPARTMENT_STAFF" | "CUSTOMER_SUPPORT" | "CUSTOMER";
+            role: "SUPER_ADMIN" | "GROUP_MANAGEMENT" | "FINANCE_OFFICER" | "DEPARTMENT_MANAGER" | "DEPARTMENT_STAFF" | "CUSTOMER_SUPPORT" | "CUSTOMER" | "PHARMACIST";
             /** @description Required for division-scoped roles */
             divisionId?: string;
         };
@@ -2776,10 +2846,10 @@ export interface components {
             /** @example Pack of 12 x 75cl */
             name: string;
             /**
-             * @description Price in kobo (integer)
+             * @description Price in kobo. Null or left out means not published; it is never zero for that.
              * @example 250000
              */
-            unitPriceMinor: number;
+            unitPriceMinor?: Record<string, never> | null;
             /** @description Original price in kobo for strike-through display */
             compareAtPriceMinor?: number;
             /** @default 1 */
@@ -2818,6 +2888,13 @@ export interface components {
              * @default false
              */
             isAgeRestricted: boolean;
+            /**
+             * @description Availability shown when there is no live count
+             * @enum {string|null}
+             */
+            listedAvailability?: "IN_STOCK" | "OUT_OF_STOCK" | null;
+            /** @description False until staff confirm the item can really be supplied */
+            purchaseEnabled?: boolean;
             variants?: components["schemas"]["VariantInputDto"][];
             images?: components["schemas"]["ImageInputDto"][];
         };
@@ -2831,6 +2908,18 @@ export interface components {
             status?: "DRAFT" | "ACTIVE" | "ARCHIVED";
             isDeliverable?: boolean;
             isAgeRestricted?: boolean;
+            /** @enum {string|null} */
+            listedAvailability?: "IN_STOCK" | "OUT_OF_STOCK" | null;
+            purchaseEnabled?: boolean;
+        };
+        PharmacyReviewDto: {
+            /** @enum {string} */
+            prescriptionStatus: "NOT_REVIEWED" | "NOT_REQUIRED" | "REQUIRED" | "RESTRICTED";
+            /** @description The pharmacist has checked the details and photo against the real product */
+            approved: boolean;
+            description?: string;
+            /** @description Current availability has been verified, so it may be bought */
+            purchaseEnabled?: boolean;
         };
         UpdateVariantDto: {
             /** @example WDW-TW-75CL-12 */
@@ -2838,10 +2927,10 @@ export interface components {
             /** @example Pack of 12 x 75cl */
             name?: string;
             /**
-             * @description Price in kobo (integer)
+             * @description Price in kobo. Null or left out means not published; it is never zero for that.
              * @example 250000
              */
-            unitPriceMinor?: number;
+            unitPriceMinor?: Record<string, never> | null;
             /** @description Original price in kobo for strike-through display */
             compareAtPriceMinor?: number;
             /** @default 1 */
@@ -3322,16 +3411,16 @@ export interface components {
             /** @example 2024 */
             year: number;
             trim?: string;
-            /** @enum {string} */
-            condition: "BRAND_NEW" | "FOREIGN_USED" | "NIGERIAN_USED";
+            /** @enum {string|null} */
+            condition?: "BRAND_NEW" | "FOREIGN_USED" | "NIGERIAN_USED" | null;
             bodyType?: string;
             transmission?: string;
             fuelType?: string;
             colour?: string;
             mileageKm?: number;
             vin?: string;
-            /** @description Price in kobo */
-            priceMinor: number;
+            /** @description Price in kobo. Null means not published. */
+            priceMinor?: Record<string, never> | null;
             /** @description Reservation deposit in kobo */
             depositMinor?: number;
             customsCleared?: boolean;
@@ -3349,16 +3438,16 @@ export interface components {
             /** @example 2024 */
             year?: number;
             trim?: string;
-            /** @enum {string} */
-            condition?: "BRAND_NEW" | "FOREIGN_USED" | "NIGERIAN_USED";
+            /** @enum {string|null} */
+            condition?: "BRAND_NEW" | "FOREIGN_USED" | "NIGERIAN_USED" | null;
             bodyType?: string;
             transmission?: string;
             fuelType?: string;
             colour?: string;
             mileageKm?: number;
             vin?: string;
-            /** @description Price in kobo */
-            priceMinor?: number;
+            /** @description Price in kobo. Null means not published. */
+            priceMinor?: Record<string, never> | null;
             /** @description Reservation deposit in kobo */
             depositMinor?: number;
             customsCleared?: boolean;
@@ -3473,6 +3562,12 @@ export interface components {
             staffProfileId?: string;
             treatmentIds: string[];
             isActive?: boolean;
+        };
+        UpdatePhotoDto: {
+            /** @description Make this the first photo customers see */
+            main?: boolean;
+            /** @description Size or pack this product photo shows; null for the whole product */
+            variantId?: Record<string, never> | null;
         };
         LogisticsAddressDto: {
             contactName: string;
@@ -4462,6 +4557,30 @@ export interface operations {
         };
         responses: {
             /** @description Requires one of: catalog:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminCatalog_pharmacyReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PharmacyReviewDto"];
+            };
+        };
+        responses: {
+            /** @description Requires one of: pharmacy:approve */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7186,6 +7305,128 @@ export interface operations {
         };
         responses: {
             /** @description Requires one of: listings:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Photos_bySku: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Requires one of: catalog:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Photos_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Requires one of: catalog:manage, listings:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Photos_upload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    /** Format: uuid */
+                    replaceId?: string;
+                    /** Format: uuid */
+                    variantId?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Requires one of: catalog:manage, listings:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Photos_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerId: string;
+                photoId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Requires one of: catalog:manage, listings:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Photos_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerId: string;
+                photoId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePhotoDto"];
+            };
+        };
+        responses: {
+            /** @description Requires one of: catalog:manage, listings:manage */
             403: {
                 headers: {
                     [name: string]: unknown;

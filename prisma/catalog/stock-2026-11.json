@@ -1,0 +1,4488 @@
+{
+ "source": "Nimpat_App_Stock_Catalogue.xlsx and records updated 1.2.xlsx, supplied by Nimpat Group on 2026-11-06.",
+ "recordedStockDate": "2026-10-29",
+ "water": [
+  {
+   "sku": "NMP-WTR-010",
+   "name": "1 LITRE EVA WATER",
+   "brand": "Eva",
+   "size": "1 Litre",
+   "description": "1 Litre Eva Water is a packaged drinking water product in a 1LITRE size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-011",
+   "name": "75CL EVA WATER",
+   "brand": "Eva",
+   "size": "75cl",
+   "description": "75Cl Eva Water is a packaged drinking water product in a 75CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-012",
+   "name": "AQUAFINA",
+   "brand": "Aquafina",
+   "size": "As listed",
+   "description": "Aquafina is a packaged drinking water product. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-005",
+   "name": "CWAY 50CL",
+   "brand": "CWAY",
+   "size": "50cl",
+   "description": "Cway 50Cl is a packaged drinking water product in a 50CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-004",
+   "name": "CWAY 75CL",
+   "brand": "CWAY",
+   "size": "75cl",
+   "description": "Cway 75Cl is a packaged drinking water product in a 75CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-006",
+   "name": "CWAY DISPENSER",
+   "brand": "CWAY",
+   "size": "Dispenser",
+   "description": "Cway Dispenser is a packaged drinking water product. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-013",
+   "name": "MSENDO 50CL",
+   "brand": "Msendo",
+   "size": "50cl",
+   "description": "Msendo 50Cl is a packaged drinking water product in a 50CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-014",
+   "name": "NESTLE 33CL",
+   "brand": "Nestle",
+   "size": "33cl",
+   "description": "Nestle 33Cl is a packaged drinking water product in a 33CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-001",
+   "name": "SWAN 50CL",
+   "brand": "Swan",
+   "size": "50cl",
+   "description": "Swan 50Cl is a packaged drinking water product in a 50CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-002",
+   "name": "SWAN 75CL",
+   "brand": "Swan",
+   "size": "75cl",
+   "description": "Swan 75Cl is a packaged drinking water product in a 75CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-015",
+   "name": "VENIDA 33CL",
+   "brand": "Venida",
+   "size": "33cl",
+   "description": "Venida 33Cl is a packaged drinking water product in a 33CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-009",
+   "name": "VENIDA 50CL",
+   "brand": "Venida",
+   "size": "50cl",
+   "description": "Venida 50Cl is a packaged drinking water product in a 50CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-008",
+   "name": "VENIDA 75CL",
+   "brand": "Venida",
+   "size": "75cl",
+   "description": "Venida 75Cl is a packaged drinking water product in a 75CL size. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-007",
+   "name": "VENIDA DISPENSER",
+   "brand": "Venida",
+   "size": "Dispenser",
+   "description": "Venida Dispenser is a packaged drinking water product. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  },
+  {
+   "sku": "NMP-WTR-SACHET",
+   "name": "venida sachet water",
+   "brand": "Venida",
+   "size": "Sachet",
+   "description": "Venida Sachet Water is a packaged drinking water product. Available for personal use, offices, events and hospitality orders. Packaging and pack quantities are confirmed at checkout.",
+   "note": "Stock listing supplied by inventory export; availability requires live inventory verification"
+  }
+ ],
+ "pharmacy": [
+  {
+   "sku": "NMP-PHM-0001",
+   "name": "MUNRO GLUCOSE D 50G",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 7,
+   "description": "Glucose product providing a source of carbohydrate energy.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 3
+  },
+  {
+   "sku": "NMP-PHM-0002",
+   "name": "MUNRO GLUCOSE D 175G",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Glucose product providing a source of carbohydrate energy.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 4
+  },
+  {
+   "sku": "NMP-PHM-0003",
+   "name": "MUNRO GLUCOSE D 400G",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Glucose product providing a source of carbohydrate energy.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 5
+  },
+  {
+   "sku": "NMP-PHM-0004",
+   "name": "VAMA Oral Rehydration Treatment",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Oral rehydration product used to replace fluids and electrolytes lost through diarrhoea or vomiting.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 6
+  },
+  {
+   "sku": "NMP-PHM-0005",
+   "name": "ORABIOTIC Oral Rehydration Treatment+Zinc",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Oral rehydration product used to replace fluids and electrolytes lost through diarrhoea or vomiting.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 7
+  },
+  {
+   "sku": "NMP-PHM-0006",
+   "name": "COFEX CHILD SYRUP",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Cough-care product; specific ingredients and approved uses must be confirmed from the package.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 8
+  },
+  {
+   "sku": "NMP-PHM-0007",
+   "name": "YOYO BITTERS",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 12,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 9
+  },
+  {
+   "sku": "NMP-PHM-0008",
+   "name": "NOSPAMIN SYRUP 50ML",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 1,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 10
+  },
+  {
+   "sku": "NMP-PHM-0009",
+   "name": "NOSPAMIN DROPS 20ML",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 1,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 11
+  },
+  {
+   "sku": "NMP-PHM-0010",
+   "name": "COLIBAN hyoscine 60ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 6,
+   "description": "Antispasmodic medicine used to relieve certain abdominal cramps and spasms.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 12
+  },
+  {
+   "sku": "NMP-PHM-0011",
+   "name": "Metronidazole child syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 3,
+   "description": "Metronidazole antimicrobial used for certain bacterial and protozoal infections; use under professional guidance.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 13
+  },
+  {
+   "sku": "NMP-PHM-0012",
+   "name": "VAMIS metronidazole 60ml syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Metronidazole antimicrobial used for certain bacterial and protozoal infections; use under professional guidance.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 14
+  },
+  {
+   "sku": "NMP-PHM-0013",
+   "name": "GALWAYS anti diarrhoea syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 15
+  },
+  {
+   "sku": "NMP-PHM-0014",
+   "name": "WOODWARDS gripe water",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 3,
+   "description": "Consumer product; check pack label for exact ingredients and product information.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 16
+  },
+  {
+   "sku": "NMP-PHM-0015",
+   "name": "Disatop suspension",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 15,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 17
+  },
+  {
+   "sku": "NMP-PHM-0016",
+   "name": "Gbomoro syrup 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 9,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 18
+  },
+  {
+   "sku": "NMP-PHM-0017",
+   "name": "CODOLIN expectorant 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Cough-care product; specific ingredients and approved uses must be confirmed from the package.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 19
+  },
+  {
+   "sku": "NMP-PHM-0018",
+   "name": "COFLIN expectorant 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 4,
+   "description": "Cough-care product; specific ingredients and approved uses must be confirmed from the package.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 20
+  },
+  {
+   "sku": "NMP-PHM-0019",
+   "name": "D KOFF syurup 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 4,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 21
+  },
+  {
+   "sku": "NMP-PHM-0020",
+   "name": "TUTOLIN 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 22
+  },
+  {
+   "sku": "NMP-PHM-0021",
+   "name": "TUTOLIN expectorant child 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Cough-care product; specific ingredients and approved uses must be confirmed from the package.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 23
+  },
+  {
+   "sku": "NMP-PHM-0022",
+   "name": "NOVALYN child",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 24
+  },
+  {
+   "sku": "NMP-PHM-0023",
+   "name": "COFLAX child",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 6,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 25
+  },
+  {
+   "sku": "NMP-PHM-0024",
+   "name": "COF N COLD child",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 10,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 26
+  },
+  {
+   "sku": "NMP-PHM-0025",
+   "name": "TUTRIM co-trimoxazole child syrup 50m",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Combination antibiotic used for specific bacterial infections when prescribed.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 27
+  },
+  {
+   "sku": "NMP-PHM-0026",
+   "name": "BABY REX syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 3,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 28
+  },
+  {
+   "sku": "NMP-PHM-0027",
+   "name": "ACEPOL paracetamol syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 4,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 29
+  },
+  {
+   "sku": "NMP-PHM-0028",
+   "name": "BRUSTAN-N ibruprofen syrup 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 25,
+   "description": "Ibuprofen medicine used to relieve pain, inflammation and fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 30
+  },
+  {
+   "sku": "NMP-PHM-0029",
+   "name": "BRUSTAN-N ibruprofen syrup 60ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 9,
+   "description": "Ibuprofen medicine used to relieve pain, inflammation and fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 31
+  },
+  {
+   "sku": "NMP-PHM-0030",
+   "name": "SKG paracetamol syrup 60ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 6,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 32
+  },
+  {
+   "sku": "NMP-PHM-0031",
+   "name": "SKG paracetamol drops 15ML",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 9,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 33
+  },
+  {
+   "sku": "NMP-PHM-0032",
+   "name": "Paracetamol + diphenhydramine syrup 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 34
+  },
+  {
+   "sku": "NMP-PHM-0033",
+   "name": "Piriton syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 9,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 35
+  },
+  {
+   "sku": "NMP-PHM-0034",
+   "name": "EMZOLYN cough syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Cough-care product; specific ingredients and approved uses must be confirmed from the package.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 36
+  },
+  {
+   "sku": "NMP-PHM-0035",
+   "name": "EMZOLYN expectorant",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 5,
+   "description": "Cough-care product; specific ingredients and approved uses must be confirmed from the package.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 37
+  },
+  {
+   "sku": "NMP-PHM-0036",
+   "name": "promethazine syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 10,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 38
+  },
+  {
+   "sku": "NMP-PHM-0037",
+   "name": "Paracetamol drops",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 39
+  },
+  {
+   "sku": "NMP-PHM-0038",
+   "name": "EMZOR paracetamol syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 4,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 40
+  },
+  {
+   "sku": "NMP-PHM-0039",
+   "name": "REXIFEN ibruprofen child syrup 100ml",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 4,
+   "description": "Ibuprofen medicine used to relieve pain, inflammation and fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 41
+  },
+  {
+   "sku": "NMP-PHM-0040",
+   "name": "REXIFEN ibruprofen child syrup 100ml (CHERRY)",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 8,
+   "description": "Ibuprofen medicine used to relieve pain, inflammation and fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 42
+  },
+  {
+   "sku": "NMP-PHM-0041",
+   "name": "NOVAVITE multi vitamin syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 6,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 43
+  },
+  {
+   "sku": "NMP-PHM-0042",
+   "name": "EM-B-PLEX vitamin B-complex syrup",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 10,
+   "description": "B-vitamin supplement supporting energy metabolism and normal nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 44
+  },
+  {
+   "sku": "NMP-PHM-0043",
+   "name": "VAMI CEE vitamin C",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 4,
+   "description": "Vitamin C supplement supporting normal immune function and antioxidant activity.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 45
+  },
+  {
+   "sku": "NMP-PHM-0044",
+   "name": "JINJA natural herbal extract",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 9,
+   "description": "Liquid product; active ingredients and approved indications must be checked on the original packaging.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 46
+  },
+  {
+   "sku": "NMP-PHM-0045",
+   "name": "OGB honey big",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 3,
+   "description": "Packaged honey product for use as a food or sweetener.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 47
+  },
+  {
+   "sku": "NMP-PHM-0046",
+   "name": "OGB honey medium",
+   "category": "Syrups & Anti-suspension",
+   "sourceCategory": "SYRUPS & ANTI SUSPENSION",
+   "recordedQty": 2,
+   "description": "Packaged honey product for use as a food or sweetener.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 48
+  },
+  {
+   "sku": "NMP-PHM-0047",
+   "name": "VITAMIN k Tablets",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 10,
+   "description": "Vitamin K supplement involved in normal blood clotting; suitability requires professional advice.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 51
+  },
+  {
+   "sku": "NMP-PHM-0048",
+   "name": "Tranexemic acid tablets 500mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 9,
+   "description": "Medicine used to reduce excessive bleeding in specific conditions when prescribed.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 52
+  },
+  {
+   "sku": "NMP-PHM-0049",
+   "name": "Super apeti tablets",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 63,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 53
+  },
+  {
+   "sku": "NMP-PHM-0050",
+   "name": "KINGS TONIC 200ML",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 10,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 54
+  },
+  {
+   "sku": "NMP-PHM-0051",
+   "name": "BUNTO blood tonic",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 9,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 55
+  },
+  {
+   "sku": "NMP-PHM-0052",
+   "name": "BECOMBIEN B-complex syrup",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "B-vitamin supplement supporting energy metabolism and normal nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 56
+  },
+  {
+   "sku": "NMP-PHM-0053",
+   "name": "AVRO APETI syrup",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 57
+  },
+  {
+   "sku": "NMP-PHM-0054",
+   "name": "APETADINE",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 58
+  },
+  {
+   "sku": "NMP-PHM-0055",
+   "name": "ABIDEC drops",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 59
+  },
+  {
+   "sku": "NMP-PHM-0056",
+   "name": "KEEP ON emulsion",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 60
+  },
+  {
+   "sku": "NMP-PHM-0057",
+   "name": "Super apeti syrup 200ml",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 3,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 61
+  },
+  {
+   "sku": "NMP-PHM-0058",
+   "name": "DE DEONS 280ml",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 9,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 62
+  },
+  {
+   "sku": "NMP-PHM-0059",
+   "name": "DE DEONS 150ML",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 8,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 63
+  },
+  {
+   "sku": "NMP-PHM-0060",
+   "name": "AMIVIT syrup",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 3,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 64
+  },
+  {
+   "sku": "NMP-PHM-0061",
+   "name": "ASTYMIN big",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 8,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 65
+  },
+  {
+   "sku": "NMP-PHM-0062",
+   "name": "ASTYMIN",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 10,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 66
+  },
+  {
+   "sku": "NMP-PHM-0063",
+   "name": "ASTYMIN TAB",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 67
+  },
+  {
+   "sku": "NMP-PHM-0064",
+   "name": "Ranferon 12 tab",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 11,
+   "description": "Iron-containing nutritional supplement used to support iron intake; confirm formulation on the label.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 68
+  },
+  {
+   "sku": "NMP-PHM-0065",
+   "name": "Ferobin plus",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 14,
+   "description": "Iron-containing nutritional supplement used to support iron intake; confirm formulation on the label.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 69
+  },
+  {
+   "sku": "NMP-PHM-0066",
+   "name": "PAWAVIT omega plus",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 4,
+   "description": "Fatty acid supplement used to support general nutritional intake.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 70
+  },
+  {
+   "sku": "NMP-PHM-0067",
+   "name": "DR MEYER'S folic acid",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Folic acid supplement supporting red blood cell formation and nutritional folate needs.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 71
+  },
+  {
+   "sku": "NMP-PHM-0068",
+   "name": "EMZOR zinc",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Zinc supplement supporting normal immune function and healing.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 72
+  },
+  {
+   "sku": "NMP-PHM-0069",
+   "name": "NATURE'S FIELD CoQ10 200mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 73
+  },
+  {
+   "sku": "NMP-PHM-0070",
+   "name": "Collagen+Gluthatione tab",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 74
+  },
+  {
+   "sku": "NMP-PHM-0071",
+   "name": "Cranberry tablets",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 75
+  },
+  {
+   "sku": "NMP-PHM-0072",
+   "name": "NATURE'S FIELD cod liver oil 1000mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 3,
+   "description": "Fatty acid supplement used to support general nutritional intake.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 76
+  },
+  {
+   "sku": "NMP-PHM-0073",
+   "name": "NATURE'S FIELD magnesium 250mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 3,
+   "description": "Magnesium supplement supporting normal muscle and nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 77
+  },
+  {
+   "sku": "NMP-PHM-0074",
+   "name": "NATURE'S FIELD GLUTHATHIONE 1500mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 78
+  },
+  {
+   "sku": "NMP-PHM-0075",
+   "name": "NATURE'S FIELD ZINGC 50mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 3,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 79
+  },
+  {
+   "sku": "NMP-PHM-0076",
+   "name": "NUTRAVIV magnesium 10 in 1",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Magnesium supplement supporting normal muscle and nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 80
+  },
+  {
+   "sku": "NMP-PHM-0077",
+   "name": "RELOAD women formula",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 81
+  },
+  {
+   "sku": "NMP-PHM-0078",
+   "name": "RELOAD women 50+",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 82
+  },
+  {
+   "sku": "NMP-PHM-0079",
+   "name": "RELOAD men 50+",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 83
+  },
+  {
+   "sku": "NMP-PHM-0080",
+   "name": "RELOAD 4 kidz",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 84
+  },
+  {
+   "sku": "NMP-PHM-0081",
+   "name": "RELOAD infant drops",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 85
+  },
+  {
+   "sku": "NMP-PHM-0082",
+   "name": "SUPRAMALT junior 200ml",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 3,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 86
+  },
+  {
+   "sku": "NMP-PHM-0083",
+   "name": "CALCIMAX calcium tabs",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 32,
+   "description": "Calcium supplement supporting normal bone and teeth health.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 87
+  },
+  {
+   "sku": "NMP-PHM-0084",
+   "name": "ASCOCHEW vitamin C tab (white)",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Vitamin C supplement supporting normal immune function and antioxidant activity.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 88
+  },
+  {
+   "sku": "NMP-PHM-0085",
+   "name": "ROBB inhalers",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 21,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 89
+  },
+  {
+   "sku": "NMP-PHM-0086",
+   "name": "ROBB balms",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 10,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 90
+  },
+  {
+   "sku": "NMP-PHM-0087",
+   "name": "SILYBON 140mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 91
+  },
+  {
+   "sku": "NMP-PHM-0088",
+   "name": "WELLMAN Original",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 92
+  },
+  {
+   "sku": "NMP-PHM-0089",
+   "name": "LUXION wellness vitamin B syrup",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "B-vitamin supplement supporting energy metabolism and normal nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 93
+  },
+  {
+   "sku": "NMP-PHM-0090",
+   "name": "WELLWOMAN plus",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 4,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 94
+  },
+  {
+   "sku": "NMP-PHM-0091",
+   "name": "WELLWOMAN original",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 4,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 95
+  },
+  {
+   "sku": "NMP-PHM-0092",
+   "name": "EMBASSY omega 3 fish oil capsules 100mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Fatty acid supplement used to support general nutritional intake.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 96
+  },
+  {
+   "sku": "NMP-PHM-0093",
+   "name": "NUTRIFY fish oil",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Fatty acid supplement used to support general nutritional intake.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 97
+  },
+  {
+   "sku": "NMP-PHM-0094",
+   "name": "NUTRIFY evening primrose oil 1000mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 98
+  },
+  {
+   "sku": "NMP-PHM-0095",
+   "name": "CHRISCAM magnesium 400mg",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 3,
+   "description": "Magnesium supplement supporting normal muscle and nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 99
+  },
+  {
+   "sku": "NMP-PHM-0096",
+   "name": "CALGOVIT vitamin C tabs",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Vitamin C supplement supporting normal immune function and antioxidant activity.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 100
+  },
+  {
+   "sku": "NMP-PHM-0097",
+   "name": "VITACED magnesium",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 2,
+   "description": "Magnesium supplement supporting normal muscle and nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 101
+  },
+  {
+   "sku": "NMP-PHM-0098",
+   "name": "PROLIFE vitamin C",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 5,
+   "description": "Vitamin C supplement supporting normal immune function and antioxidant activity.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 102
+  },
+  {
+   "sku": "NMP-PHM-0099",
+   "name": "FLAT TUMMY TEA",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 1,
+   "description": "Nutritional supplement; verify its ingredients, strength and intended use from the original label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 103
+  },
+  {
+   "sku": "NMP-PHM-0100",
+   "name": "DAY BY DAY GLUCOSE",
+   "category": "Mineral & Vitamin Supplements",
+   "sourceCategory": "MINERAL & VITAMIN SUPPLEMENTS",
+   "recordedQty": 50,
+   "description": "Glucose product providing a source of carbohydrate energy.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 104
+  },
+  {
+   "sku": "NMP-PHM-0101",
+   "name": "Maternity pads",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 4,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 109
+  },
+  {
+   "sku": "NMP-PHM-0102",
+   "name": "FIRE xtacy",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 18,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 110
+  },
+  {
+   "sku": "NMP-PHM-0103",
+   "name": "FIRE XTRA",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 10,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 111
+  },
+  {
+   "sku": "NMP-PHM-0104",
+   "name": "FIRE xotica",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 22,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 112
+  },
+  {
+   "sku": "NMP-PHM-0105",
+   "name": "DUREX select",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 12,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 113
+  },
+  {
+   "sku": "NMP-PHM-0106",
+   "name": "DUREX pleasure me",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 11,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 114
+  },
+  {
+   "sku": "NMP-PHM-0107",
+   "name": "DUREX please",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 9,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 115
+  },
+  {
+   "sku": "NMP-PHM-0108",
+   "name": "KISS Mint",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 27,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 116
+  },
+  {
+   "sku": "NMP-PHM-0109",
+   "name": "KISS original",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 26,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 117
+  },
+  {
+   "sku": "NMP-PHM-0110",
+   "name": "GOLD CIRCLE",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 24,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 118
+  },
+  {
+   "sku": "NMP-PHM-0111",
+   "name": "VIAGRA 50MG",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 4,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 119
+  },
+  {
+   "sku": "NMP-PHM-0112",
+   "name": "VIAGRA 100MG",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 3,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 120
+  },
+  {
+   "sku": "NMP-PHM-0113",
+   "name": "VIRA tadafil capsules 20mg",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 42,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 121
+  },
+  {
+   "sku": "NMP-PHM-0114",
+   "name": "ACTIVITY tadafil",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 7,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 122
+  },
+  {
+   "sku": "NMP-PHM-0115",
+   "name": "HONNIHIL tadafil",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 19,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 123
+  },
+  {
+   "sku": "NMP-PHM-0116",
+   "name": "POSTINOR-2 TABLETS",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 104,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 124
+  },
+  {
+   "sku": "NMP-PHM-0117",
+   "name": "MSI back up tablets",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 17,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 125
+  },
+  {
+   "sku": "NMP-PHM-0118",
+   "name": "DKT post pill",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 131,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 126
+  },
+  {
+   "sku": "NMP-PHM-0119",
+   "name": "KISS jelly",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 14,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 127
+  },
+  {
+   "sku": "NMP-PHM-0120",
+   "name": "KY JELLY 57G",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 3,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 128
+  },
+  {
+   "sku": "NMP-PHM-0121",
+   "name": "KY JELLY 50G",
+   "category": "Sexual Health",
+   "sourceCategory": "SEXUAL HEALTH",
+   "recordedQty": 6,
+   "description": "Sexual-health product; verify formulation, intended use and any professional guidance required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 129
+  },
+  {
+   "sku": "NMP-PHM-0122",
+   "name": "OMRON nebulizer",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 1,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 132
+  },
+  {
+   "sku": "NMP-PHM-0123",
+   "name": "FIRST AID KIT small",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 1,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 133
+  },
+  {
+   "sku": "NMP-PHM-0124",
+   "name": "FIRST AID KIT (big)",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 1,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 134
+  },
+  {
+   "sku": "NMP-PHM-0125",
+   "name": "Pill crusher",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 3,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 135
+  },
+  {
+   "sku": "NMP-PHM-0126",
+   "name": "Tea tree oil 30ml",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 3,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 136
+  },
+  {
+   "sku": "NMP-PHM-0127",
+   "name": "HEMANI black seed oil",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 1,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 137
+  },
+  {
+   "sku": "NMP-PHM-0128",
+   "name": "ROSSMAX blood glucose monitor",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 1,
+   "description": "Glucose product providing a source of carbohydrate energy.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 138
+  },
+  {
+   "sku": "NMP-PHM-0129",
+   "name": "JZIKI pulse oximeter",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 1,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 139
+  },
+  {
+   "sku": "NMP-PHM-0130",
+   "name": "KIPTRACK blood glucose monitor",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 1,
+   "description": "Glucose product providing a source of carbohydrate energy.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 140
+  },
+  {
+   "sku": "NMP-PHM-0131",
+   "name": "ACCUCHECK blood glucose monitor",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 2,
+   "description": "Glucose product providing a source of carbohydrate energy.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 141
+  },
+  {
+   "sku": "NMP-PHM-0132",
+   "name": "Flamingo arm pouch",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 2,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 142
+  },
+  {
+   "sku": "NMP-PHM-0133",
+   "name": "HYDROGEN PEROXIDE",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 10,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 143
+  },
+  {
+   "sku": "NMP-PHM-0134",
+   "name": "Methylated spirit 100ml",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 19,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 144
+  },
+  {
+   "sku": "NMP-PHM-0135",
+   "name": "MOKO iodine 15ml",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 13,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 145
+  },
+  {
+   "sku": "NMP-PHM-0136",
+   "name": "MOKO gentian violet paint",
+   "category": "Medical Tools & Equipment",
+   "sourceCategory": "MEDICAL TOOLS AND EQUIPMENT",
+   "recordedQty": 11,
+   "description": "Medical or personal-care supply; verify its specifications and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 146
+  },
+  {
+   "sku": "NMP-PHM-0137",
+   "name": "UNICOLD",
+   "category": "Anti-cold",
+   "sourceCategory": "ANTI-COLD",
+   "recordedQty": 192,
+   "description": "Cold or allergy-care product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 151
+  },
+  {
+   "sku": "NMP-PHM-0138",
+   "name": "PROCOLD tab",
+   "category": "Anti-cold",
+   "sourceCategory": "ANTI-COLD",
+   "recordedQty": 224,
+   "description": "Cold or allergy-care product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 152
+  },
+  {
+   "sku": "NMP-PHM-0139",
+   "name": "LORATYN loratidine tab",
+   "category": "Anti-cold",
+   "sourceCategory": "ANTI-COLD",
+   "recordedQty": 87,
+   "description": "Cold or allergy-care product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 153
+  },
+  {
+   "sku": "NMP-PHM-0140",
+   "name": "MIXAGRIP",
+   "category": "Anti-cold",
+   "sourceCategory": "ANTI-COLD",
+   "recordedQty": 114,
+   "description": "Cold or allergy-care product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 154
+  },
+  {
+   "sku": "NMP-PHM-0141",
+   "name": "COLD KRIS tab",
+   "category": "Anti-cold",
+   "sourceCategory": "ANTI-COLD",
+   "recordedQty": 91,
+   "description": "Cold or allergy-care product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 155
+  },
+  {
+   "sku": "NMP-PHM-0142",
+   "name": "XASTEN dexamethose 1mg",
+   "category": "Anti-cold",
+   "sourceCategory": "ANTI-COLD",
+   "recordedQty": 100,
+   "description": "Cold or allergy-care product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 156
+  },
+  {
+   "sku": "NMP-PHM-0143",
+   "name": "EMZOR piriton",
+   "category": "Anti-cold",
+   "sourceCategory": "ANTI-COLD",
+   "recordedQty": 60,
+   "description": "Cold or allergy-care product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 157
+  },
+  {
+   "sku": "NMP-PHM-0144",
+   "name": "ANDREWS LIVER SALT",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 131,
+   "description": "Consumer product; check pack label for exact ingredients and product information.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 160
+  },
+  {
+   "sku": "NMP-PHM-0145",
+   "name": "GAVISCON susp",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 2,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 161
+  },
+  {
+   "sku": "NMP-PHM-0146",
+   "name": "GESTID tab",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 63,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 162
+  },
+  {
+   "sku": "NMP-PHM-0147",
+   "name": "GESTID 100ML susp",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 4,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 163
+  },
+  {
+   "sku": "NMP-PHM-0148",
+   "name": "GESTID susp 200ml",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 8,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 164
+  },
+  {
+   "sku": "NMP-PHM-0149",
+   "name": "RULOX susp 100ml",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 10,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 165
+  },
+  {
+   "sku": "NMP-PHM-0150",
+   "name": "RULOX susp 200ml",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 9,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 166
+  },
+  {
+   "sku": "NMP-PHM-0151",
+   "name": "MOKO mist mag",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 8,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 167
+  },
+  {
+   "sku": "NMP-PHM-0152",
+   "name": "PEPTIKIT ulcer kit",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 4,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 168
+  },
+  {
+   "sku": "NMP-PHM-0153",
+   "name": "JAWASIL antacid susp 100ml",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 24,
+   "description": "Antacid product used for temporary relief of acid-related indigestion, depending on its formulation.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 169
+  },
+  {
+   "sku": "NMP-PHM-0154",
+   "name": "ESOFAG KIT",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 5,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 170
+  },
+  {
+   "sku": "NMP-PHM-0155",
+   "name": "Jepraz D omeprazole 30mg",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 10,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 171
+  },
+  {
+   "sku": "NMP-PHM-0156",
+   "name": "OMEFAST PLUS",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 21,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 172
+  },
+  {
+   "sku": "NMP-PHM-0157",
+   "name": "VISPRID rabeprazole sodium 200mh",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 18,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 173
+  },
+  {
+   "sku": "NMP-PHM-0158",
+   "name": "KRISMOTIL loperamide",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 40,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 174
+  },
+  {
+   "sku": "NMP-PHM-0159",
+   "name": "ANIMOTIL loperamide 2mg",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 200,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 175
+  },
+  {
+   "sku": "NMP-PHM-0160",
+   "name": "IMODIUM tab",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 10,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 176
+  },
+  {
+   "sku": "NMP-PHM-0161",
+   "name": "UNICURE bisacure",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 8,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 177
+  },
+  {
+   "sku": "NMP-PHM-0162",
+   "name": "REFUCIL susp 100mg",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 1,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 178
+  },
+  {
+   "sku": "NMP-PHM-0163",
+   "name": "MEDERAX Metoclopramide 10mg",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 98,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 181
+  },
+  {
+   "sku": "NMP-PHM-0164",
+   "name": "FLUSHOF tab",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 38,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 182
+  },
+  {
+   "sku": "NMP-PHM-0165",
+   "name": "ZENTEL albendazole susp",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 48,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 183
+  },
+  {
+   "sku": "NMP-PHM-0166",
+   "name": "Pyrantrin",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 41,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 184
+  },
+  {
+   "sku": "NMP-PHM-0167",
+   "name": "PRIZILICIDE tabs",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 10,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 185
+  },
+  {
+   "sku": "NMP-PHM-0168",
+   "name": "TANZOL albendazole tab",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 1,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 186
+  },
+  {
+   "sku": "NMP-PHM-0169",
+   "name": "RETRAX levamisole",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 5,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 187
+  },
+  {
+   "sku": "NMP-PHM-0170",
+   "name": "PYRATRIN susp",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 35,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 188
+  },
+  {
+   "sku": "NMP-PHM-0171",
+   "name": "GASTROLOC omeprazole 20mg",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 20,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 189
+  },
+  {
+   "sku": "NMP-PHM-0172",
+   "name": "MEPRASIL-20 omeprazole 20mg",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 16,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 190
+  },
+  {
+   "sku": "NMP-PHM-0173",
+   "name": "MAXCID cimentidine 400mg",
+   "category": "Antacid / Anti-ulcer",
+   "sourceCategory": "ANTACID/ ANTI-ULCER",
+   "recordedQty": 30,
+   "description": "Digestive-health product; confirm active ingredients and approved indications before use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 191
+  },
+  {
+   "sku": "NMP-PHM-0174",
+   "name": "ESOMA calamine lotion",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 194
+  },
+  {
+   "sku": "NMP-PHM-0175",
+   "name": "MOKO calamine lotion",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 6,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 195
+  },
+  {
+   "sku": "NMP-PHM-0176",
+   "name": "PRIMPEX co-trimoxazole",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 60,
+   "description": "Combination antibiotic used for specific bacterial infections when prescribed.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 196
+  },
+  {
+   "sku": "NMP-PHM-0177",
+   "name": "PRIMPEX DS co-trimoxazole 960mg",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 16,
+   "description": "Combination antibiotic used for specific bacterial infections when prescribed.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 197
+  },
+  {
+   "sku": "NMP-PHM-0178",
+   "name": "PRIMPEX co-trimoxazole susp 50ml",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Combination antibiotic used for specific bacterial infections when prescribed.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 198
+  },
+  {
+   "sku": "NMP-PHM-0179",
+   "name": "FLUCAMED fluconazole 35ml",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 20,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 199
+  },
+  {
+   "sku": "NMP-PHM-0180",
+   "name": "CEEZORAL ketoconazole 200mg",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 19,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 200
+  },
+  {
+   "sku": "NMP-PHM-0181",
+   "name": "EDEN fluconazole 200mg",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 16,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 201
+  },
+  {
+   "sku": "NMP-PHM-0182",
+   "name": "EDEN fluconazole 150mg",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 202
+  },
+  {
+   "sku": "NMP-PHM-0183",
+   "name": "METROTAB metronidazole 200mg",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 5,
+   "description": "Metronidazole antimicrobial used for certain bacterial and protozoal infections; use under professional guidance.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 203
+  },
+  {
+   "sku": "NMP-PHM-0184",
+   "name": "METROTAB metronidazole 400mg",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 76,
+   "description": "Metronidazole antimicrobial used for certain bacterial and protozoal infections; use under professional guidance.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 204
+  },
+  {
+   "sku": "NMP-PHM-0185",
+   "name": "UNIGYL 200 metronidazole",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 98,
+   "description": "Metronidazole antimicrobial used for certain bacterial and protozoal infections; use under professional guidance.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 205
+  },
+  {
+   "sku": "NMP-PHM-0186",
+   "name": "OCEFIX suspension 100ml",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 9,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 206
+  },
+  {
+   "sku": "NMP-PHM-0187",
+   "name": "ASTARCLOX ampicillin susp",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 2,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 207
+  },
+  {
+   "sku": "NMP-PHM-0188",
+   "name": "JAWACLOX susp",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 5,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 208
+  },
+  {
+   "sku": "NMP-PHM-0189",
+   "name": "Amoxicillin susp",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 5,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 209
+  },
+  {
+   "sku": "NMP-PHM-0190",
+   "name": "Erythromicin susp",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 210
+  },
+  {
+   "sku": "NMP-PHM-0191",
+   "name": "Eryfast 125",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 211
+  },
+  {
+   "sku": "NMP-PHM-0192",
+   "name": "AMOKSIKLAV 70ML",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 1,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 212
+  },
+  {
+   "sku": "NMP-PHM-0193",
+   "name": "AMOKSILAV 100ML",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 213
+  },
+  {
+   "sku": "NMP-PHM-0194",
+   "name": "FLEMING 457MG",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 214
+  },
+  {
+   "sku": "NMP-PHM-0195",
+   "name": "FLEMING 228MG",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 10,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 215
+  },
+  {
+   "sku": "NMP-PHM-0196",
+   "name": "Azithromycin 200mg",
+   "category": "Antibiotics",
+   "sourceCategory": "ANTIBIOTICS",
+   "recordedQty": 6,
+   "description": "Antibacterial medicine; active ingredients and indications must be confirmed by a pharmacist; prescription may be required.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 216
+  },
+  {
+   "sku": "NMP-PHM-0197",
+   "name": "BIOMESTATINE vag tablets",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 10,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 219
+  },
+  {
+   "sku": "NMP-PHM-0198",
+   "name": "MYCOTEN vag tablets",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 9,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 220
+  },
+  {
+   "sku": "NMP-PHM-0199",
+   "name": "KLOVINAL tab",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 18,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 221
+  },
+  {
+   "sku": "NMP-PHM-0200",
+   "name": "Boric acid (big)",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 3,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 222
+  },
+  {
+   "sku": "NMP-PHM-0201",
+   "name": "Boric acid (small)",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 3,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 223
+  },
+  {
+   "sku": "NMP-PHM-0202",
+   "name": "Feminica tab",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 15,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 224
+  },
+  {
+   "sku": "NMP-PHM-0203",
+   "name": "VITAMOX 500",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 100,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 225
+  },
+  {
+   "sku": "NMP-PHM-0204",
+   "name": "VITAMOX 250",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 99,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 226
+  },
+  {
+   "sku": "NMP-PHM-0205",
+   "name": "TETRACYCLINE 250",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 46,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 227
+  },
+  {
+   "sku": "NMP-PHM-0206",
+   "name": "OSWORTH ciproflaxcin 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 88,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 228
+  },
+  {
+   "sku": "NMP-PHM-0207",
+   "name": "VAMOXIL amoxiciliN 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 95,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 229
+  },
+  {
+   "sku": "NMP-PHM-0208",
+   "name": "JUBICLOX 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 89,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 230
+  },
+  {
+   "sku": "NMP-PHM-0209",
+   "name": "RIFABON rifampicin 300mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 100,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 231
+  },
+  {
+   "sku": "NMP-PHM-0210",
+   "name": "CIPROTAB 500 X 14",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 46,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 232
+  },
+  {
+   "sku": "NMP-PHM-0211",
+   "name": "CIPROTAB 500 X 10",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 41,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 233
+  },
+  {
+   "sku": "NMP-PHM-0212",
+   "name": "LYCINPRO ciprofloxacin 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 20,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 234
+  },
+  {
+   "sku": "NMP-PHM-0213",
+   "name": "DALACAP clindamycin 300mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 20,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 235
+  },
+  {
+   "sku": "NMP-PHM-0214",
+   "name": "CHLORAMPHENICOL 250mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 47,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 236
+  },
+  {
+   "sku": "NMP-PHM-0215",
+   "name": "Doxycycline 100mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 47,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 237
+  },
+  {
+   "sku": "NMP-PHM-0216",
+   "name": "A DAY KIT",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 9,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 238
+  },
+  {
+   "sku": "NMP-PHM-0217",
+   "name": "LEOLIN levofloxacin 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 16,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 239
+  },
+  {
+   "sku": "NMP-PHM-0218",
+   "name": "LYXINCLAV 625mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 10,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 240
+  },
+  {
+   "sku": "NMP-PHM-0219",
+   "name": "ZANEF cefuroxime 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 9,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 241
+  },
+  {
+   "sku": "NMP-PHM-0220",
+   "name": "AZISUREazithromycin",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 9,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 242
+  },
+  {
+   "sku": "NMP-PHM-0221",
+   "name": "ERYFAST 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 49,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 243
+  },
+  {
+   "sku": "NMP-PHM-0222",
+   "name": "G SPAR 200 sparfloxacin",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 10,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 244
+  },
+  {
+   "sku": "NMP-PHM-0223",
+   "name": "AMPICLOX 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 46,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 245
+  },
+  {
+   "sku": "NMP-PHM-0224",
+   "name": "BARILINCO 500mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 1,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 246
+  },
+  {
+   "sku": "NMP-PHM-0225",
+   "name": "BIOMEFLACINE pefloxacin 400mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 20,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 247
+  },
+  {
+   "sku": "NMP-PHM-0226",
+   "name": "AUGUEMENTIN 625mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 10,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 248
+  },
+  {
+   "sku": "NMP-PHM-0227",
+   "name": "STROVID ofloxacin 400mg",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 20,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 249
+  },
+  {
+   "sku": "NMP-PHM-0228",
+   "name": "CEFIRAT cefixime",
+   "category": "Feminine / Vaginal Health",
+   "sourceCategory": "FEMININE/ VAG HEALTH",
+   "recordedQty": 30,
+   "description": "Feminine or vaginal-health product; verify ingredients and intended use before listing.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 250
+  },
+  {
+   "sku": "NMP-PHM-0229",
+   "name": "ARTHEMED 80/480",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 34,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 254
+  },
+  {
+   "sku": "NMP-PHM-0230",
+   "name": "P ALAXIN",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 20,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 255
+  },
+  {
+   "sku": "NMP-PHM-0231",
+   "name": "P ALAXIN DS",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 7,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 256
+  },
+  {
+   "sku": "NMP-PHM-0232",
+   "name": "LONART DS",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 3,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 257
+  },
+  {
+   "sku": "NMP-PHM-0233",
+   "name": "CAMOSUNATE (below 1 yr)",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 11,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 258
+  },
+  {
+   "sku": "NMP-PHM-0234",
+   "name": "CAMOSUNATE (1-6)",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 18,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 259
+  },
+  {
+   "sku": "NMP-PHM-0235",
+   "name": "CAMOSUNATE (7-13)",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 15,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 260
+  },
+  {
+   "sku": "NMP-PHM-0236",
+   "name": "AMATEM SOFT GEL",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 21,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 261
+  },
+  {
+   "sku": "NMP-PHM-0237",
+   "name": "DUO-COTECXIN 40/320",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 21,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 262
+  },
+  {
+   "sku": "NMP-PHM-0238",
+   "name": "NOVAXINE",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 23,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 263
+  },
+  {
+   "sku": "NMP-PHM-0239",
+   "name": "VAMETOR 80/480",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 47,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 264
+  },
+  {
+   "sku": "NMP-PHM-0240",
+   "name": "LYNTEMIN",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 39,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 265
+  },
+  {
+   "sku": "NMP-PHM-0241",
+   "name": "AMALAR",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 148,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 266
+  },
+  {
+   "sku": "NMP-PHM-0242",
+   "name": "SEPTAMAL 80/480",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 30,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 267
+  },
+  {
+   "sku": "NMP-PHM-0243",
+   "name": "COARTEM 80/480",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 6,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 268
+  },
+  {
+   "sku": "NMP-PHM-0244",
+   "name": "SWIDAR 500MG",
+   "category": "Anti-malaria",
+   "sourceCategory": "ANTI MALARIA",
+   "recordedQty": 7,
+   "description": "Antimalarial product; verify formulation and use only according to a qualified clinician’s advice.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 269
+  },
+  {
+   "sku": "NMP-PHM-0245",
+   "name": "M&B paracetamol",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 80,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 272
+  },
+  {
+   "sku": "NMP-PHM-0246",
+   "name": "EMZOR paracetamol",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 375,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 273
+  },
+  {
+   "sku": "NMP-PHM-0247",
+   "name": "PANADOL extra",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 486,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 274
+  },
+  {
+   "sku": "NMP-PHM-0248",
+   "name": "PANADOL",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 151,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 275
+  },
+  {
+   "sku": "NMP-PHM-0249",
+   "name": "JUCOPAN hyoscine",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 400,
+   "description": "Antispasmodic medicine used to relieve certain abdominal cramps and spasms.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 276
+  },
+  {
+   "sku": "NMP-PHM-0250",
+   "name": "SUDREX",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 4,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 277
+  },
+  {
+   "sku": "NMP-PHM-0251",
+   "name": "RESTHROTEC diclofenac sodium",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 1,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 278
+  },
+  {
+   "sku": "NMP-PHM-0252",
+   "name": "ARTHOTEC Diclofenac sodium",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 28,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 279
+  },
+  {
+   "sku": "NMP-PHM-0253",
+   "name": "LOFNAC 100",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 39,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 280
+  },
+  {
+   "sku": "NMP-PHM-0254",
+   "name": "CUREFENAC 50",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 28,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 281
+  },
+  {
+   "sku": "NMP-PHM-0255",
+   "name": "CLOFENAC SR 100mg",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 3,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 282
+  },
+  {
+   "sku": "NMP-PHM-0256",
+   "name": "Felvin 20mg",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 97,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 283
+  },
+  {
+   "sku": "NMP-PHM-0257",
+   "name": "MECURE diclofenac",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 27,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 284
+  },
+  {
+   "sku": "NMP-PHM-0258",
+   "name": "BCOJ vitamin b-complex",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 3,
+   "description": "B-vitamin supplement supporting energy metabolism and normal nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 285
+  },
+  {
+   "sku": "NMP-PHM-0259",
+   "name": "CUREFENAC 100",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 48,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 286
+  },
+  {
+   "sku": "NMP-PHM-0260",
+   "name": "ALABUKUN powder",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 100,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 287
+  },
+  {
+   "sku": "NMP-PHM-0261",
+   "name": "KACHAM caplets",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 1,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 288
+  },
+  {
+   "sku": "NMP-PHM-0262",
+   "name": "NEW DIVINE tab",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 2,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 289
+  },
+  {
+   "sku": "NMP-PHM-0263",
+   "name": "VOLTFAST 50mg",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 4,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 290
+  },
+  {
+   "sku": "NMP-PHM-0264",
+   "name": "ETOSTAL 120",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 5,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 291
+  },
+  {
+   "sku": "NMP-PHM-0265",
+   "name": "BRUSTAN N tab",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 19,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 292
+  },
+  {
+   "sku": "NMP-PHM-0266",
+   "name": "EBU 400 Ibruprofen",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 49,
+   "description": "Ibuprofen medicine used to relieve pain, inflammation and fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 293
+  },
+  {
+   "sku": "NMP-PHM-0267",
+   "name": "NIMEDEX",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 24,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 294
+  },
+  {
+   "sku": "NMP-PHM-0268",
+   "name": "INDOKRIS",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 100,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 295
+  },
+  {
+   "sku": "NMP-PHM-0269",
+   "name": "INDOMETHACIN 25mg",
+   "category": "Analgesics",
+   "sourceCategory": "ANAGELSICS",
+   "recordedQty": 1,
+   "description": "Pain-relief product; confirm active ingredients, strength and indications.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 296
+  },
+  {
+   "sku": "NMP-PHM-0270",
+   "name": "NEURGOESIC 35g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 18,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 299
+  },
+  {
+   "sku": "NMP-PHM-0271",
+   "name": "NEUROGESIC 85g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 10,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 300
+  },
+  {
+   "sku": "NMP-PHM-0272",
+   "name": "NEUROGESIC EXTRA 35g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 9,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 301
+  },
+  {
+   "sku": "NMP-PHM-0273",
+   "name": "PENICILLIN",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 10,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 302
+  },
+  {
+   "sku": "NMP-PHM-0274",
+   "name": "ODOMOS",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 5,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 303
+  },
+  {
+   "sku": "NMP-PHM-0275",
+   "name": "TRIBOTAN 20G",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 8,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 304
+  },
+  {
+   "sku": "NMP-PHM-0276",
+   "name": "WOSAN 20G",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 11,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 305
+  },
+  {
+   "sku": "NMP-PHM-0277",
+   "name": "KETACON 30G",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 10,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 306
+  },
+  {
+   "sku": "NMP-PHM-0278",
+   "name": "GENTAMICIN 15g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 9,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 307
+  },
+  {
+   "sku": "NMP-PHM-0279",
+   "name": "WHITFIELD'S 20g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 10,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 308
+  },
+  {
+   "sku": "NMP-PHM-0280",
+   "name": "MYCOTEN 20g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 8,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 309
+  },
+  {
+   "sku": "NMP-PHM-0281",
+   "name": "DICLOFENAC 30g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 7,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 310
+  },
+  {
+   "sku": "NMP-PHM-0282",
+   "name": "VISITA PLUS 30g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 7,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 311
+  },
+  {
+   "sku": "NMP-PHM-0283",
+   "name": "FUNBACT A cream",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 3,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 312
+  },
+  {
+   "sku": "NMP-PHM-0284",
+   "name": "CLOTRIMAX 20g",
+   "category": "Ointments",
+   "sourceCategory": "OINTMENTS",
+   "recordedQty": 7,
+   "description": "Topical product; verify active ingredients and approved skin-related use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 313
+  },
+  {
+   "sku": "NMP-PHM-0285",
+   "name": "AVENTRA chloramphenicol",
+   "category": "Eye / Ear Drops",
+   "sourceCategory": "EYE/EAR DROPS",
+   "recordedQty": 4,
+   "description": "Eye or ear preparation; verify the exact formulation and whether intended for eye, ear or both.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 317
+  },
+  {
+   "sku": "NMP-PHM-0286",
+   "name": "CIPROTAB 10ml",
+   "category": "Eye / Ear Drops",
+   "sourceCategory": "EYE/EAR DROPS",
+   "recordedQty": 3,
+   "description": "Eye or ear preparation; verify the exact formulation and whether intended for eye, ear or both.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 318
+  },
+  {
+   "sku": "NMP-PHM-0287",
+   "name": "ANTALLERGE 10ml",
+   "category": "Eye / Ear Drops",
+   "sourceCategory": "EYE/EAR DROPS",
+   "recordedQty": 3,
+   "description": "Eye or ear preparation; verify the exact formulation and whether intended for eye, ear or both.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 319
+  },
+  {
+   "sku": "NMP-PHM-0288",
+   "name": "Otrivine nasal drops",
+   "category": "Eye / Ear Drops",
+   "sourceCategory": "EYE/EAR DROPS",
+   "recordedQty": 1,
+   "description": "Eye or ear preparation; verify the exact formulation and whether intended for eye, ear or both.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 320
+  },
+  {
+   "sku": "NMP-PHM-0289",
+   "name": "AVENTRA gentamycin 10ml",
+   "category": "Eye / Ear Drops",
+   "sourceCategory": "EYE/EAR DROPS",
+   "recordedQty": 5,
+   "description": "Eye or ear preparation; verify the exact formulation and whether intended for eye, ear or both.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 321
+  },
+  {
+   "sku": "NMP-PHM-0290",
+   "name": "METACLIM metoclpramide 2ml",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 9890,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 324
+  },
+  {
+   "sku": "NMP-PHM-0291",
+   "name": "OMEPRAVEN omeprazole",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 15,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 325
+  },
+  {
+   "sku": "NMP-PHM-0292",
+   "name": "ADRENALINE",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 20,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 326
+  },
+  {
+   "sku": "NMP-PHM-0293",
+   "name": "XTAPEN cyrstalline penicillin",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 30,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 327
+  },
+  {
+   "sku": "NMP-PHM-0294",
+   "name": "BIOCOMBI Vitamin B complex",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 10,
+   "description": "B-vitamin supplement supporting energy metabolism and normal nerve function.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 328
+  },
+  {
+   "sku": "NMP-PHM-0295",
+   "name": "PROGESTA medroxyprogesterone",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 40,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 329
+  },
+  {
+   "sku": "NMP-PHM-0296",
+   "name": "NELB arthemeter",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 14,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 330
+  },
+  {
+   "sku": "NMP-PHM-0297",
+   "name": "PETAZONE dexamethasone",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 90,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 331
+  },
+  {
+   "sku": "NMP-PHM-0298",
+   "name": "BIOZEP diazepan",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 100,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 332
+  },
+  {
+   "sku": "NMP-PHM-0299",
+   "name": "Sterilized water",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 85,
+   "description": "Consumer product; check pack label for exact ingredients and product information.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 333
+  },
+  {
+   "sku": "NMP-PHM-0300",
+   "name": "PT kits",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 12,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 334
+  },
+  {
+   "sku": "NMP-PHM-0301",
+   "name": "Malaria test kits",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 50,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 335
+  },
+  {
+   "sku": "NMP-PHM-0302",
+   "name": "RANTIDINE",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 26,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 336
+  },
+  {
+   "sku": "NMP-PHM-0303",
+   "name": "PEMALIN arthemeter",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 30,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 337
+  },
+  {
+   "sku": "NMP-PHM-0304",
+   "name": "FORFTIFIED PROCAINE PENICILLIN",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 30,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 338
+  },
+  {
+   "sku": "NMP-PHM-0305",
+   "name": "OBIGOD gentamicin",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 468,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 339
+  },
+  {
+   "sku": "NMP-PHM-0306",
+   "name": "CEFTRIAXONE",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 6,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 340
+  },
+  {
+   "sku": "NMP-PHM-0307",
+   "name": "OMINIMYCIN streptomycin",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 50,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 341
+  },
+  {
+   "sku": "NMP-PHM-0308",
+   "name": "LYNTRIAXONE ceftriaxone",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 13,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 342
+  },
+  {
+   "sku": "NMP-PHM-0309",
+   "name": "Tranexemic acid",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 5,
+   "description": "Medicine used to reduce excessive bleeding in specific conditions when prescribed.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 343
+  },
+  {
+   "sku": "NMP-PHM-0310",
+   "name": "Ciprofloxacin infusion",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 28,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 344
+  },
+  {
+   "sku": "NMP-PHM-0311",
+   "name": "UNIFLOX ciprofloxacin 100ml",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 3,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 345
+  },
+  {
+   "sku": "NMP-PHM-0312",
+   "name": "LEVER artesunate 60mg",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 20,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 346
+  },
+  {
+   "sku": "NMP-PHM-0313",
+   "name": "LEVER artesunate 120mg",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 8,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 347
+  },
+  {
+   "sku": "NMP-PHM-0314",
+   "name": "NELBFENAC diclofenac",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 80,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 348
+  },
+  {
+   "sku": "NMP-PHM-0315",
+   "name": "FEST paracetamol",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 447,
+   "description": "Paracetamol medicine used to relieve mild to moderate pain and reduce fever.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 349
+  },
+  {
+   "sku": "NMP-PHM-0316",
+   "name": "EMAL arthemeter 150mg",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 40,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 350
+  },
+  {
+   "sku": "NMP-PHM-0317",
+   "name": "EMAL arthemeter 75mg",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 11,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 351
+  },
+  {
+   "sku": "NMP-PHM-0318",
+   "name": "Metronidazole infusion",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 29,
+   "description": "Metronidazole antimicrobial used for certain bacterial and protozoal infections; use under professional guidance.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 352
+  },
+  {
+   "sku": "NMP-PHM-0319",
+   "name": "Levofloxacin",
+   "category": "Injections",
+   "sourceCategory": "INJECTTIONS",
+   "recordedQty": 20,
+   "description": "Injectable product for administration by an appropriately qualified healthcare professional; confirm ingredients and strength.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 353
+  },
+  {
+   "sku": "NMP-PHM-0320",
+   "name": "ROSE PLUS TISSUE",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 48,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 359
+  },
+  {
+   "sku": "NMP-PHM-0321",
+   "name": "SOFTCARE SANITARY PADS",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 24,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 360
+  },
+  {
+   "sku": "NMP-PHM-0322",
+   "name": "MOLPED SANITARY PAD",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 11,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 361
+  },
+  {
+   "sku": "NMP-PHM-0323",
+   "name": "LADYCARE SANITARY PADS",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 11,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 362
+  },
+  {
+   "sku": "NMP-PHM-0324",
+   "name": "LADYCARE PREMIUM SANITARY PADS",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 1,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 363
+  },
+  {
+   "sku": "NMP-PHM-0325",
+   "name": "VIRONY SANITARY PADS",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 2,
+   "description": "Iron-containing nutritional supplement used to support iron intake; confirm formulation on the label.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 364
+  },
+  {
+   "sku": "NMP-PHM-0326",
+   "name": "ANGEL SANITARY PADS",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 2,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 365
+  },
+  {
+   "sku": "NMP-PHM-0327",
+   "name": "BTL HAND SANITIZER",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 12,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 366
+  },
+  {
+   "sku": "NMP-PHM-0328",
+   "name": "ULTRA OF SCENT REED DIFFUSER",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 3,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 367
+  },
+  {
+   "sku": "NMP-PHM-0329",
+   "name": "JIK 475ml",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 2,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 368
+  },
+  {
+   "sku": "NMP-PHM-0330",
+   "name": "DETTOL 165ml",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 5,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 369
+  },
+  {
+   "sku": "NMP-PHM-0331",
+   "name": "SNIPER flying insect killer",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 1,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 370
+  },
+  {
+   "sku": "NMP-PHM-0332",
+   "name": "SNIPER crawling insect killer",
+   "category": "Toiletries",
+   "sourceCategory": "TOILETRIES",
+   "recordedQty": 1,
+   "description": "Personal-care or hygiene product; check package for intended use.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 371
+  },
+  {
+   "sku": "NMP-PHM-0333",
+   "name": "COLGATE Max fresh",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 3,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 373
+  },
+  {
+   "sku": "NMP-PHM-0334",
+   "name": "COLGATE active salt",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Consumer product; check pack label for exact ingredients and product information.",
+   "verification": "Ingredient stated in source name; verify product packaging",
+   "sourceRow": 374
+  },
+  {
+   "sku": "NMP-PHM-0335",
+   "name": "COLGATE charcoal",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 3,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 375
+  },
+  {
+   "sku": "NMP-PHM-0336",
+   "name": "COLGATE Total prevention action",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 376
+  },
+  {
+   "sku": "NMP-PHM-0337",
+   "name": "SENSODYNE Rapid action",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 377
+  },
+  {
+   "sku": "NMP-PHM-0338",
+   "name": "NIVEA balck and white spray",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 378
+  },
+  {
+   "sku": "NMP-PHM-0339",
+   "name": "NIVEA dry comfort roll on",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 6,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 379
+  },
+  {
+   "sku": "NMP-PHM-0340",
+   "name": "NIVEA deep spray",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 380
+  },
+  {
+   "sku": "NMP-PHM-0341",
+   "name": "NIVEA rich nourishing",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 381
+  },
+  {
+   "sku": "NMP-PHM-0342",
+   "name": "NIVEA radiant & beauty",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 382
+  },
+  {
+   "sku": "NMP-PHM-0343",
+   "name": "NIVEA nourishing cocoa",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 383
+  },
+  {
+   "sku": "NMP-PHM-0344",
+   "name": "E45 lotion",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 384
+  },
+  {
+   "sku": "NMP-PHM-0345",
+   "name": "RICH & PURE bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 385
+  },
+  {
+   "sku": "NMP-PHM-0346",
+   "name": "PURE CARROT bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 386
+  },
+  {
+   "sku": "NMP-PHM-0347",
+   "name": "DETTOL original bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 4,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 387
+  },
+  {
+   "sku": "NMP-PHM-0348",
+   "name": "EXTRACT bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 12,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 388
+  },
+  {
+   "sku": "NMP-PHM-0349",
+   "name": "EXTRA WHITE bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 389
+  },
+  {
+   "sku": "NMP-PHM-0350",
+   "name": "VISITA bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 390
+  },
+  {
+   "sku": "NMP-PHM-0351",
+   "name": "DRIP carrot bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 3,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 391
+  },
+  {
+   "sku": "NMP-PHM-0352",
+   "name": "DRIP papaya bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 392
+  },
+  {
+   "sku": "NMP-PHM-0353",
+   "name": "CAROTONE bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 393
+  },
+  {
+   "sku": "NMP-PHM-0354",
+   "name": "CARO WHITE bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 6,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 394
+  },
+  {
+   "sku": "NMP-PHM-0355",
+   "name": "SKINCLEAR bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 3,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 395
+  },
+  {
+   "sku": "NMP-PHM-0356",
+   "name": "BB clear bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 396
+  },
+  {
+   "sku": "NMP-PHM-0357",
+   "name": "PERFECT bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 6,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 397
+  },
+  {
+   "sku": "NMP-PHM-0358",
+   "name": "CIDER-COOL bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 398
+  },
+  {
+   "sku": "NMP-PHM-0359",
+   "name": "SMOOTH AS SILK bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 5,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 399
+  },
+  {
+   "sku": "NMP-PHM-0360",
+   "name": "BRONZE TONE bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 5,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 400
+  },
+  {
+   "sku": "NMP-PHM-0361",
+   "name": "GOLDIE bar soap",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 1,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 401
+  },
+  {
+   "sku": "NMP-PHM-0362",
+   "name": "ZOBATEX dental floss picks",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 12,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 402
+  },
+  {
+   "sku": "NMP-PHM-0363",
+   "name": "CONDERE toothbrush",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 17,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 403
+  },
+  {
+   "sku": "NMP-PHM-0364",
+   "name": "Tooth bursh cases",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 2,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 404
+  },
+  {
+   "sku": "NMP-PHM-0365",
+   "name": "COLDENT cotton buds",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 12,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 405
+  },
+  {
+   "sku": "NMP-PHM-0366",
+   "name": "ABONIKI",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 5,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 406
+  },
+  {
+   "sku": "NMP-PHM-0367",
+   "name": "Ginger mint balm",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 9,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 407
+  },
+  {
+   "sku": "NMP-PHM-0368",
+   "name": "Scrubbing brush",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 6,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 408
+  },
+  {
+   "sku": "NMP-PHM-0369",
+   "name": "Razor blade",
+   "category": "Mortein",
+   "sourceCategory": "MORTEIN",
+   "recordedQty": 100,
+   "description": "Household/personal-care product; verify intended purpose and safety precautions from its label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 409
+  },
+  {
+   "sku": "NMP-PHM-0370",
+   "name": "CARZEPIN Carbamezapine 200MG",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 20,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 412
+  },
+  {
+   "sku": "NMP-PHM-0371",
+   "name": "JOPAMOL F bronchdilator",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 11,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 413
+  },
+  {
+   "sku": "NMP-PHM-0372",
+   "name": "JOPAN lamuvidine 150",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 1,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 414
+  },
+  {
+   "sku": "NMP-PHM-0373",
+   "name": "PERILON prednisolone",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 100,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 415
+  },
+  {
+   "sku": "NMP-PHM-0374",
+   "name": "CLIMAX prednisolone",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 100,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 416
+  },
+  {
+   "sku": "NMP-PHM-0375",
+   "name": "LOSARTAN POTASSIUM 25MG",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 20,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 417
+  },
+  {
+   "sku": "NMP-PHM-0376",
+   "name": "LOSARTAN POTASSIUM 50mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 16,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 418
+  },
+  {
+   "sku": "NMP-PHM-0377",
+   "name": "MYOPRESS 5 amlodipine",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 2,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 419
+  },
+  {
+   "sku": "NMP-PHM-0378",
+   "name": "EDEN lisinopril 10MG",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 4,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 420
+  },
+  {
+   "sku": "NMP-PHM-0379",
+   "name": "JOMIA amlodipine 10mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 10,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 421
+  },
+  {
+   "sku": "NMP-PHM-0380",
+   "name": "SamJones amlodipine 5mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 38,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 422
+  },
+  {
+   "sku": "NMP-PHM-0381",
+   "name": "SamJones amlodipine 10mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 34,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 423
+  },
+  {
+   "sku": "NMP-PHM-0382",
+   "name": "Lisinopril 10mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 16,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 424
+  },
+  {
+   "sku": "NMP-PHM-0383",
+   "name": "NORMORETIC",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 13,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 425
+  },
+  {
+   "sku": "NMP-PHM-0384",
+   "name": "GLUCOPHAGE metformin 500mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 20,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 426
+  },
+  {
+   "sku": "NMP-PHM-0385",
+   "name": "GLUCOPHAGE metformin 1000MG",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 20,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 427
+  },
+  {
+   "sku": "NMP-PHM-0386",
+   "name": "BIOPENTIN gabapentin 500mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 80,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 428
+  },
+  {
+   "sku": "NMP-PHM-0387",
+   "name": "BIOPENTIN gabapentin 300mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 20,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 429
+  },
+  {
+   "sku": "NMP-PHM-0388",
+   "name": "VASOPRIN",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 114,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 430
+  },
+  {
+   "sku": "NMP-PHM-0389",
+   "name": "BIOPHAGE metformin 500mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 95,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 431
+  },
+  {
+   "sku": "NMP-PHM-0390",
+   "name": "KOTASE bromelain",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 2,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 432
+  },
+  {
+   "sku": "NMP-PHM-0391",
+   "name": "LaBet labetalol",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 3,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 433
+  },
+  {
+   "sku": "NMP-PHM-0392",
+   "name": "GALVUSMET metformin 1000mg",
+   "category": "Antidiabetics / Antihypertensives",
+   "sourceCategory": "ANTIDIABETIES/ANTI HYPERTENSIVE",
+   "recordedQty": 6,
+   "description": "Prescription-related chronic-care product; verify active ingredient, strength and indication with a pharmacist.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 434
+  },
+  {
+   "sku": "NMP-PHM-0393",
+   "name": "SOSA mixed berry",
+   "category": "Drinks",
+   "sourceCategory": "DRINKS",
+   "recordedQty": 6,
+   "description": "Packaged beverage; confirm ingredients and size from the label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 438
+  },
+  {
+   "sku": "NMP-PHM-0394",
+   "name": "SOSA strawberry",
+   "category": "Drinks",
+   "sourceCategory": "DRINKS",
+   "recordedQty": 6,
+   "description": "Packaged beverage; confirm ingredients and size from the label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 439
+  },
+  {
+   "sku": "NMP-PHM-0395",
+   "name": "LUCOZADE BOOST",
+   "category": "Drinks",
+   "sourceCategory": "DRINKS",
+   "recordedQty": 24,
+   "description": "Packaged beverage; confirm ingredients and size from the label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 440
+  },
+  {
+   "sku": "NMP-PHM-0396",
+   "name": "MALTINA can",
+   "category": "Drinks",
+   "sourceCategory": "DRINKS",
+   "recordedQty": 48,
+   "description": "Packaged beverage; confirm ingredients and size from the label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 441
+  },
+  {
+   "sku": "NMP-PHM-0397",
+   "name": "AMSTEL can",
+   "category": "Drinks",
+   "sourceCategory": "DRINKS",
+   "recordedQty": 48,
+   "description": "Packaged beverage; confirm ingredients and size from the label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 442
+  },
+  {
+   "sku": "NMP-PHM-0398",
+   "name": "Ribene PET",
+   "category": "Drinks",
+   "sourceCategory": "DRINKS",
+   "recordedQty": 24,
+   "description": "Packaged beverage; confirm ingredients and size from the label.",
+   "verification": "Needs pharmacist/label verification",
+   "sourceRow": 443
+  }
+ ],
+ "vehicles": [
+  {
+   "row": 2,
+   "make": "Toyota",
+   "model": "Venza",
+   "year": 2012,
+   "priceNaira": 18000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / VENZA"
+  },
+  {
+   "row": 3,
+   "make": "Toyota",
+   "model": "Venza",
+   "year": 2014,
+   "priceNaira": 20000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / VENZA"
+  },
+  {
+   "row": 4,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2016,
+   "priceNaira": 14500000,
+   "status": "SOLD",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 5,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2014,
+   "priceNaira": 13000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 6,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2013,
+   "priceNaira": 13000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 7,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2013,
+   "priceNaira": 13000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 8,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2013,
+   "priceNaira": 13500000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 9,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2010,
+   "priceNaira": 9000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 10,
+   "make": "Toyota",
+   "model": "Corolla",
+   "year": 2025,
+   "priceNaira": 28000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / COROLLA"
+  },
+  {
+   "row": 11,
+   "make": "Toyota",
+   "model": "Grand Highlander",
+   "year": 2025,
+   "priceNaira": 100000000,
+   "status": "SOLD",
+   "source": "TOYOTA / GRAND HIGHLANDER"
+  },
+  {
+   "row": 12,
+   "make": "Toyota",
+   "model": "Corolla",
+   "year": 2016,
+   "priceNaira": 15000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / COROLLA"
+  },
+  {
+   "row": 13,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2011,
+   "priceNaira": 10000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 14,
+   "make": "Toyota",
+   "model": "Highlander",
+   "year": 2022,
+   "priceNaira": 60000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / HIGHLANDER2022"
+  },
+  {
+   "row": 15,
+   "make": "Toyota",
+   "model": "Highlander",
+   "year": 2013,
+   "priceNaira": 18000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / HIGHLANDER2022"
+  },
+  {
+   "row": 16,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2018,
+   "priceNaira": 27000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 17,
+   "make": "Mercedes-Benz",
+   "model": "ML350",
+   "year": 2014,
+   "priceNaira": 19000000,
+   "status": "AVAILABLE",
+   "source": "MERCEDES BENZ / ML350"
+  },
+  {
+   "row": 18,
+   "make": "Mercedes-Benz",
+   "model": "C300",
+   "year": 2013,
+   "priceNaira": 1300000,
+   "status": "AVAILABLE",
+   "source": "MERCEDES BENZC300 / C300"
+  },
+  {
+   "row": 19,
+   "make": "Mercedes-Benz",
+   "model": "C300",
+   "year": 2015,
+   "priceNaira": 18000000,
+   "status": "AVAILABLE",
+   "source": "MERCEDES BENZ / C300"
+  },
+  {
+   "row": 20,
+   "make": "Mercedes-Benz",
+   "model": "GL550",
+   "year": 2013,
+   "priceNaira": 50000000,
+   "status": "AVAILABLE",
+   "source": "MERCEDES BENZ / GL550"
+  },
+  {
+   "row": 21,
+   "make": "Mercedes-Benz",
+   "model": "GLK",
+   "year": 2010,
+   "priceNaira": 12000000,
+   "status": "AVAILABLE",
+   "source": "MERCEDES BENZ / GLK"
+  },
+  {
+   "row": 22,
+   "make": "Mercedes-Benz",
+   "model": "E550",
+   "year": 2010,
+   "priceNaira": 10000000,
+   "status": "AVAILABLE",
+   "source": "MERCEDES BENZ / E550"
+  },
+  {
+   "row": 23,
+   "make": "Lexus",
+   "model": "ES350",
+   "year": 2017,
+   "priceNaira": 27000000,
+   "status": "AVAILABLE",
+   "source": "LEXUS / ES350"
+  },
+  {
+   "row": 24,
+   "make": "Lexus",
+   "model": "ES350",
+   "year": 2014,
+   "priceNaira": 20000000,
+   "status": "AVAILABLE",
+   "source": "LEXUS / ES350"
+  },
+  {
+   "row": 25,
+   "make": "Lexus",
+   "model": "NX350",
+   "year": 2022,
+   "priceNaira": 75000000,
+   "status": "AVAILABLE",
+   "source": "LEXUS / NX350"
+  },
+  {
+   "row": 26,
+   "make": "Lexus",
+   "model": "RX350",
+   "year": 2013,
+   "priceNaira": 22000000,
+   "status": "AVAILABLE",
+   "source": "LEXUS / RX350"
+  },
+  {
+   "row": 27,
+   "make": "Hyundai",
+   "model": "Sonata",
+   "year": 2015,
+   "priceNaira": 15000000,
+   "status": "AVAILABLE",
+   "source": "HYUNDAI / SONATA"
+  },
+  {
+   "row": 28,
+   "make": "Hyundai",
+   "model": "Tucson",
+   "year": 2017,
+   "priceNaira": 21000000,
+   "status": "AVAILABLE",
+   "source": "HYUNDAI / TUCSON"
+  },
+  {
+   "row": 29,
+   "make": "Hyundai",
+   "model": "Tucson",
+   "year": 2017,
+   "priceNaira": 21000000,
+   "status": "AVAILABLE",
+   "source": "HYUNDAI / TUSCSON"
+  },
+  {
+   "row": 30,
+   "make": "Cadillac",
+   "model": "Escalade",
+   "year": 2025,
+   "priceNaira": 230000000,
+   "status": "AVAILABLE",
+   "source": "CADILAC / ESCALADE"
+  },
+  {
+   "row": 31,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2016,
+   "priceNaira": 16000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 32,
+   "make": "Toyota",
+   "model": "Corolla",
+   "year": 2022,
+   "priceNaira": 22000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / COROLLA"
+  },
+  {
+   "row": 33,
+   "make": "Toyota",
+   "model": "Corolla",
+   "year": 2022,
+   "priceNaira": 22000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / COROLLA"
+  },
+  {
+   "row": 34,
+   "make": "Toyota",
+   "model": "Corolla",
+   "year": 2022,
+   "priceNaira": 22000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / COROLLA"
+  },
+  {
+   "row": 35,
+   "make": "Kia",
+   "model": "Forte",
+   "year": 2013,
+   "priceNaira": 9000000,
+   "status": "SOLD",
+   "source": "KIA / FORTE"
+  },
+  {
+   "row": 36,
+   "make": "Kia",
+   "model": "Sportage",
+   "year": 2025,
+   "priceNaira": 50000000,
+   "status": "AVAILABLE",
+   "source": "KIA / SPORTAGE"
+  },
+  {
+   "row": 37,
+   "make": "Toyota",
+   "model": "Camry",
+   "year": 2005,
+   "priceNaira": 9000000,
+   "status": "SOLD",
+   "source": "TOYOTA / CAMRY"
+  },
+  {
+   "row": 38,
+   "make": "Hyundai",
+   "model": "Sonata",
+   "year": 2015,
+   "priceNaira": 15000000,
+   "status": "AVAILABLE",
+   "source": "HYUNDAI / SONATA"
+  },
+  {
+   "row": 39,
+   "make": "Hyundai",
+   "model": "Sonata",
+   "year": 2015,
+   "priceNaira": 15000000,
+   "status": "AVAILABLE",
+   "source": "HYUNDAI / SONATA"
+  },
+  {
+   "row": 40,
+   "make": "Hyundai",
+   "model": "Tucson",
+   "year": 2017,
+   "priceNaira": 21000000,
+   "status": "AVAILABLE",
+   "source": "HYUNDAI / TUCSON"
+  },
+  {
+   "row": 41,
+   "make": "Toyota",
+   "model": "Venza",
+   "year": 2012,
+   "priceNaira": 1800000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / VENZA"
+  },
+  {
+   "row": 42,
+   "make": "Honda",
+   "model": "Pilot",
+   "year": 2021,
+   "priceNaira": null,
+   "status": "AVAILABLE",
+   "source": "HONDA / PILOT"
+  },
+  {
+   "row": 43,
+   "make": "Toyota",
+   "model": "Corolla",
+   "year": 2017,
+   "priceNaira": 16000000,
+   "status": "AVAILABLE",
+   "source": "TOYOTA / COROLLA"
+  }
+ ]
+}

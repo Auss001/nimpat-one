@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { HttpCode, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CurrentUser, Public, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { AuthUser } from '../access/auth-user';
@@ -8,6 +8,7 @@ import {
   CreateCategoryDto,
   CreateProductDto,
   ImageInputDto,
+  PharmacyReviewDto,
   ProductQueryDto,
   UpdateCategoryDto,
   UpdateProductDto,
@@ -90,6 +91,14 @@ export class AdminCatalogController {
   @ApiOperation({ summary: 'Add a variant (size / pack) with its price in kobo' })
   addVariant(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: VariantInputDto) {
     return this.catalog.addVariant(user, id, dto);
+  }
+
+  @Post('products/:id/pharmacy-review')
+  @HttpCode(200)
+  @RequirePermissions(P.pharmacyApprove)
+  @ApiOperation({ summary: 'Pharmacist decision: prescription status, approved details and whether it may be bought' })
+  pharmacyReview(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: PharmacyReviewDto) {
+    return this.catalog.pharmacyReview(user, id, dto);
   }
 
   @Patch('variants/:variantId')

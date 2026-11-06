@@ -33,7 +33,7 @@ function useGrantable() {
   const isSuper = !!me?.roles.some((r) => r.code === 'SUPER_ADMIN');
   const usable = (roles.data ?? []).filter((r) => r.code !== 'CUSTOMER' && (isSuper || r.code === 'DEPARTMENT_STAFF'));
   // Most useful first, because managers are the usual reason to open this page.
-  const order = ['DEPARTMENT_MANAGER', 'DEPARTMENT_STAFF', 'FINANCE_OFFICER', 'CUSTOMER_SUPPORT', 'GROUP_MANAGEMENT', 'SUPER_ADMIN'];
+  const order = ['DEPARTMENT_MANAGER', 'DEPARTMENT_STAFF', 'PHARMACIST', 'FINANCE_OFFICER', 'CUSTOMER_SUPPORT', 'GROUP_MANAGEMENT', 'SUPER_ADMIN'];
   return { roles: [...usable].sort((a, b) => order.indexOf(a.code) - order.indexOf(b.code)), divisions: divisionsFor('roles:assign') };
 }
 

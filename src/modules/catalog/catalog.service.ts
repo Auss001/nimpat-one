@@ -1,5 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, ProductStatus, RecordVerification } from '@prisma/client';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { DivisionCode, PrescriptionStatus, Prisma, ProductAvailability, ProductStatus, RecordVerification } from '@prisma/client';
 import { pageArgs, paginate } from '../../common/dto/pagination.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../access/auth-user';
@@ -12,12 +12,14 @@ import {
   CreateCategoryDto,
   CreateProductDto,
   ImageInputDto,
+  PharmacyReviewDto,
   ProductQueryDto,
   UpdateCategoryDto,
   UpdateProductDto,
   UpdateVariantDto,
   VariantInputDto,
 } from './catalog.dto';
+import { purchaseBlock } from './purchase-rules';
 
 const productInclude = {
   category: { select: { id: true, name: true, slug: true } },
@@ -63,15 +65,7 @@ export class CatalogService {
       this.prisma.product.count({ where }),
     ]);
     const data = await this.withAvailability(rows);
-    return paginate(
-      data.map((p) => ({
-        ...p,
-        priceFromMinor: p.variants.length ? p.variants.reduce((m, v) => (v.unitPriceMinor < m ? v.unitPriceMinor : m), p.variants[0].unitPriceMinor) : null,
-        inStock: p.variants.some((v) => v.availableQuantity > 0),
-      })),
-      total,
-      q,
-    );
+    return paginate(data.map((p) => publicProduct(p)), total, q);
   }
 
   async getProduct(slugOrId: string) {
@@ -81,7 +75,7 @@ export class CatalogService {
     });
     if (!product) throw new NotFoundException('Product not found');
     const [withStock] = await this.withAvailability([product]);
-    return withStock;
+    return publicProduct(withStock);
   }
 
   /** Live availability for a set of variants (used by product pages before add-to-cart). */
@@ -160,8 +154,10 @@ export class CatalogService {
     const d = await this.divisions.resolve(dto.division);
     user.assertCan(P.catalogManage, d.id);
     if (dto.categoryId) await this.assertCategoryInDivision(dto.categoryId, d.id);
-    const { division, variants, images, ...data } = dto;
+    const { division, variants, images, ...fields } = dto;
     this.validateVariants(variants ?? []);
+    // Anything new in the pharmacy starts unapproved and cannot be bought.
+    const data = d.code === DivisionCode.PHARMACY ? { ...fields, prescriptionStatus: PrescriptionStatus.NOT_REVIEWED, purchaseEnabled: false } : fields;
 
     const product = await this.prisma.$transaction(async (tx) => {
       const created = await tx.product.create({
@@ -190,8 +186,45 @@ export class CatalogService {
     if (dto.status === ProductStatus.ACTIVE && existing.variants.length === 0) {
       throw new BadRequestException('Add at least one active variant before publishing a product');
     }
-    await this.prisma.product.update({ where: { id }, data: dto });
+    const isPharmacy = existing.prescriptionStatus !== null;
+    const isPharmacist = user.can(P.pharmacyApprove, existing.divisionId);
+    if (isPharmacy && dto.purchaseEnabled === true && !isPharmacist) {
+      throw new ForbiddenException('Only a pharmacist can allow this product to be bought');
+    }
+    // Changed medicine text is no longer what the pharmacist approved.
+    const textChanged = (dto.name !== undefined && dto.name !== existing.name) || (dto.description !== undefined && dto.description !== existing.description);
+    const reset: Prisma.ProductUncheckedUpdateInput = isPharmacy && textChanged && !isPharmacist
+      ? { pharmacistApprovedAt: null, pharmacistApprovedById: null, verification: RecordVerification.AWAITING_CONFIRMATION, verifiedAt: null, verifiedById: null }
+      : {};
+    await this.prisma.product.update({ where: { id }, data: { ...dto, ...reset } });
     await this.audit.record({ actorId: user.id, action: 'product.update', entityType: 'product', entityId: id, divisionId: existing.divisionId, changes: { ...dto } });
+    return this.adminGetProduct(user, id);
+  }
+
+  /**
+   * The pharmacist's decision on a medicine. Without approval it cannot appear
+   * to customers, and withdrawing approval takes it off the customer API at once.
+   */
+  async pharmacyReview(user: AuthUser, id: string, dto: PharmacyReviewDto) {
+    const existing = await this.prisma.product.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Product not found');
+    user.assertCan(P.pharmacyApprove, existing.divisionId);
+    if (existing.prescriptionStatus === null) throw new BadRequestException('Only pharmacy products have a pharmacist review');
+    if (dto.approved && dto.prescriptionStatus === PrescriptionStatus.NOT_REVIEWED) {
+      throw new BadRequestException('Choose the prescription status before approving');
+    }
+    await this.prisma.product.update({
+      where: { id },
+      data: {
+        prescriptionStatus: dto.prescriptionStatus,
+        description: dto.description,
+        purchaseEnabled: dto.approved ? dto.purchaseEnabled : false,
+        pharmacistApprovedAt: dto.approved ? new Date() : null,
+        pharmacistApprovedById: dto.approved ? user.id : null,
+        ...(dto.approved ? {} : { verification: RecordVerification.AWAITING_CONFIRMATION, verifiedAt: null, verifiedById: null }),
+      },
+    });
+    await this.audit.record({ actorId: user.id, action: dto.approved ? 'pharmacy.approve' : 'pharmacy.withdraw', entityType: 'product', entityId: id, divisionId: existing.divisionId, changes: { ...dto } });
     return this.adminGetProduct(user, id);
   }
 
@@ -211,10 +244,10 @@ export class CatalogService {
     if (!variant) throw new NotFoundException('Variant not found');
     user.assertCan(P.catalogManage, variant.product.divisionId);
     const merged = { ...variant, ...dto } as unknown as VariantInputDto;
-    this.validateVariants([{ ...merged, unitPriceMinor: Number(merged.unitPriceMinor) }]);
+    this.validateVariants([{ ...merged, unitPriceMinor: merged.unitPriceMinor === null || merged.unitPriceMinor === undefined ? null : Number(merged.unitPriceMinor) }]);
     const data: Prisma.ProductVariantUpdateInput = {
       ...dto,
-      unitPriceMinor: dto.unitPriceMinor !== undefined ? BigInt(dto.unitPriceMinor) : undefined,
+      unitPriceMinor: dto.unitPriceMinor === undefined ? undefined : dto.unitPriceMinor === null ? null : BigInt(dto.unitPriceMinor),
       compareAtPriceMinor: dto.compareAtPriceMinor !== undefined ? BigInt(dto.compareAtPriceMinor) : undefined,
     };
     const updated = await this.prisma.productVariant.update({ where: { id: variantId }, data });
@@ -307,7 +340,7 @@ export class CatalogService {
       if (v.maxOrderQty && v.minOrderQty && v.maxOrderQty < v.minOrderQty) {
         throw new BadRequestException(`Variant ${v.sku}: maxOrderQty must be >= minOrderQty`);
       }
-      if (v.compareAtPriceMinor !== undefined && v.compareAtPriceMinor !== null && v.compareAtPriceMinor < v.unitPriceMinor) {
+      if (v.compareAtPriceMinor !== undefined && v.compareAtPriceMinor !== null && v.unitPriceMinor !== null && v.unitPriceMinor !== undefined && v.compareAtPriceMinor < v.unitPriceMinor) {
         throw new BadRequestException(`Variant ${v.sku}: compareAtPriceMinor must be >= unitPriceMinor`);
       }
     }
@@ -316,10 +349,44 @@ export class CatalogService {
   private variantData(v: VariantInputDto) {
     return {
       ...v,
-      unitPriceMinor: BigInt(v.unitPriceMinor),
+      unitPriceMinor: v.unitPriceMinor === null || v.unitPriceMinor === undefined ? null : BigInt(v.unitPriceMinor),
       compareAtPriceMinor: v.compareAtPriceMinor !== undefined ? BigInt(v.compareAtPriceMinor) : undefined,
     };
   }
+}
+
+type PublicInput = {
+  listedAvailability: ProductAvailability | null;
+  purchaseEnabled: boolean;
+  prescriptionStatus: PrescriptionStatus | null;
+  pharmacistApprovedAt: Date | null;
+  pharmacistApprovedById: string | null;
+  verifiedById: string | null;
+  verificationNote: string | null;
+  images: unknown[];
+  variants: { unitPriceMinor: bigint | null; availableQuantity: number; recordedStockQty: number | null; recordedStockAt: Date | null }[];
+};
+
+/**
+ * What customers see. Historical stock counts and staff notes stay private,
+ * and availability comes from the listed status when there is no live count.
+ */
+function publicProduct<T extends PublicInput>(p: T) {
+  const { verificationNote: _note, pharmacistApprovedById: _by, verifiedById: _verifier, ...rest } = p;
+  const variants = p.variants.map(({ recordedStockQty: _qty, recordedStockAt: _at, ...v }) => ({
+    ...v,
+    purchasable: purchaseBlock(p, v) === null && (p.listedAvailability === ProductAvailability.IN_STOCK || v.availableQuantity > 0),
+    purchaseNote: purchaseBlock(p, v),
+  }));
+  const prices = variants.map((v) => v.unitPriceMinor).filter((x): x is bigint => x !== null);
+  return {
+    ...rest,
+    variants,
+    priceFromMinor: prices.length ? prices.reduce((m, x) => (x < m ? x : m), prices[0]) : null,
+    pricePublished: prices.length > 0,
+    inStock: p.listedAvailability ? p.listedAvailability === ProductAvailability.IN_STOCK : variants.some((v) => v.availableQuantity > 0),
+    imageStatus: p.images.length ? 'AVAILABLE' : 'IMAGE_PENDING',
+  };
 }
 
 function groupBy<T, K>(items: T[], key: (t: T) => K): Map<K, T[]> {

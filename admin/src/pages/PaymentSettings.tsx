@@ -15,6 +15,7 @@ const DIVISIONS: [string, string][] = [
   ['media-events-rentals', 'Media, Events & Rentals'],
   ['real-estate-interior-design', 'Real Estate & Interior'],
   ['entertainment', 'Entertainment'],
+  ['pharmacy-laboratory', 'Pharmacy & Laboratory'],
 ];
 
 export function PaymentSettingsPage() {

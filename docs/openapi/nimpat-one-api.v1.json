@@ -1412,6 +1412,45 @@
         ]
       }
     },
+    "/api/v1/admin/catalog/products/{id}/pharmacy-review": {
+      "post": {
+        "operationId": "AdminCatalog_pharmacyReview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PharmacyReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Requires one of: pharmacy:approve"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Pharmacist decision: prescription status, approved details and whether it may be bought",
+        "tags": [
+          "Admin · Catalogue"
+        ]
+      }
+    },
     "/api/v1/admin/catalog/variants/{variantId}": {
       "patch": {
         "operationId": "AdminCatalog_updateVariant",
@@ -6359,6 +6398,210 @@
         ]
       }
     },
+    "/api/v1/admin/photos/by-sku": {
+      "post": {
+        "operationId": "Photos_bySku",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Requires one of: catalog:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Bulk upload: the file name is the SKU. NMP-WTR-002.png replaces; NMP-WTR-002-2.png adds another photo",
+        "tags": [
+          "Admin · Photos"
+        ]
+      }
+    },
+    "/api/v1/admin/photos/{owner}/{ownerId}": {
+      "get": {
+        "operationId": "Photos_list",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Requires one of: catalog:manage, listings:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Photos of a product, property, unit, vehicle, spa treatment or service",
+        "tags": [
+          "Admin · Photos"
+        ]
+      },
+      "post": {
+        "operationId": "Photos_upload",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "replaceId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "variantId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Requires one of: catalog:manage, listings:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload a photo. It is checked, stripped of hidden data, and resized to the standard frame",
+        "tags": [
+          "Admin · Photos"
+        ]
+      }
+    },
+    "/api/v1/admin/photos/{owner}/{ownerId}/{photoId}": {
+      "patch": {
+        "operationId": "Photos_update",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "photoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePhotoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Requires one of: catalog:manage, listings:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Make a photo the main one, or link it to a size or pack",
+        "tags": [
+          "Admin · Photos"
+        ]
+      },
+      "delete": {
+        "operationId": "Photos_remove",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "photoId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Requires one of: catalog:manage, listings:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a photo",
+        "tags": [
+          "Admin · Photos"
+        ]
+      }
+    },
     "/api/v1/logistics/requests": {
       "post": {
         "operationId": "Logistics_create",
@@ -7362,7 +7605,8 @@
               "DEPARTMENT_MANAGER",
               "DEPARTMENT_STAFF",
               "CUSTOMER_SUPPORT",
-              "CUSTOMER"
+              "CUSTOMER",
+              "PHARMACIST"
             ]
           },
           "divisionId": {
@@ -7390,7 +7634,8 @@
               "DEPARTMENT_MANAGER",
               "DEPARTMENT_STAFF",
               "CUSTOMER_SUPPORT",
-              "CUSTOMER"
+              "CUSTOMER",
+              "PHARMACIST"
             ]
           },
           "divisionId": {
@@ -7433,9 +7678,10 @@
             "example": "Pack of 12 x 75cl"
           },
           "unitPriceMinor": {
-            "type": "number",
-            "description": "Price in kobo (integer)",
-            "example": 250000
+            "type": "object",
+            "description": "Price in kobo. Null or left out means not published; it is never zero for that.",
+            "example": 250000,
+            "nullable": true
           },
           "compareAtPriceMinor": {
             "type": "number",
@@ -7465,8 +7711,7 @@
         },
         "required": [
           "sku",
-          "name",
-          "unitPriceMinor"
+          "name"
         ]
       },
       "ImageInputDto": {
@@ -7527,6 +7772,19 @@
             "default": false,
             "description": "Alcoholic products (18+)"
           },
+          "listedAvailability": {
+            "type": "string",
+            "enum": [
+              "IN_STOCK",
+              "OUT_OF_STOCK"
+            ],
+            "nullable": true,
+            "description": "Availability shown when there is no live count"
+          },
+          "purchaseEnabled": {
+            "type": "boolean",
+            "description": "False until staff confirm the item can really be supplied"
+          },
           "variants": {
             "type": "array",
             "items": {
@@ -7577,8 +7835,48 @@
           },
           "isAgeRestricted": {
             "type": "boolean"
+          },
+          "listedAvailability": {
+            "type": "string",
+            "enum": [
+              "IN_STOCK",
+              "OUT_OF_STOCK"
+            ],
+            "nullable": true
+          },
+          "purchaseEnabled": {
+            "type": "boolean"
           }
         }
+      },
+      "PharmacyReviewDto": {
+        "type": "object",
+        "properties": {
+          "prescriptionStatus": {
+            "type": "string",
+            "enum": [
+              "NOT_REVIEWED",
+              "NOT_REQUIRED",
+              "REQUIRED",
+              "RESTRICTED"
+            ]
+          },
+          "approved": {
+            "type": "boolean",
+            "description": "The pharmacist has checked the details and photo against the real product"
+          },
+          "description": {
+            "type": "string"
+          },
+          "purchaseEnabled": {
+            "type": "boolean",
+            "description": "Current availability has been verified, so it may be bought"
+          }
+        },
+        "required": [
+          "prescriptionStatus",
+          "approved"
+        ]
       },
       "UpdateVariantDto": {
         "type": "object",
@@ -7592,9 +7890,10 @@
             "example": "Pack of 12 x 75cl"
           },
           "unitPriceMinor": {
-            "type": "number",
-            "description": "Price in kobo (integer)",
-            "example": 250000
+            "type": "object",
+            "description": "Price in kobo. Null or left out means not published; it is never zero for that.",
+            "example": 250000,
+            "nullable": true
           },
           "compareAtPriceMinor": {
             "type": "number",
@@ -8903,7 +9202,8 @@
               "BRAND_NEW",
               "FOREIGN_USED",
               "NIGERIAN_USED"
-            ]
+            ],
+            "nullable": true
           },
           "bodyType": {
             "type": "string"
@@ -8924,8 +9224,9 @@
             "type": "string"
           },
           "priceMinor": {
-            "type": "number",
-            "description": "Price in kobo"
+            "type": "object",
+            "description": "Price in kobo. Null means not published.",
+            "nullable": true
           },
           "depositMinor": {
             "type": "number",
@@ -8955,9 +9256,7 @@
           "slug",
           "make",
           "model",
-          "year",
-          "condition",
-          "priceMinor"
+          "year"
         ]
       },
       "UpdateVehicleDto": {
@@ -8987,7 +9286,8 @@
               "BRAND_NEW",
               "FOREIGN_USED",
               "NIGERIAN_USED"
-            ]
+            ],
+            "nullable": true
           },
           "bodyType": {
             "type": "string"
@@ -9008,8 +9308,9 @@
             "type": "string"
           },
           "priceMinor": {
-            "type": "number",
-            "description": "Price in kobo"
+            "type": "object",
+            "description": "Price in kobo. Null means not published.",
+            "nullable": true
           },
           "depositMinor": {
             "type": "number",
@@ -9357,6 +9658,20 @@
           "displayName",
           "treatmentIds"
         ]
+      },
+      "UpdatePhotoDto": {
+        "type": "object",
+        "properties": {
+          "main": {
+            "type": "boolean",
+            "description": "Make this the first photo customers see"
+          },
+          "variantId": {
+            "type": "object",
+            "description": "Size or pack this product photo shows; null for the whole product",
+            "nullable": true
+          }
+        }
       },
       "LogisticsAddressDto": {
         "type": "object",

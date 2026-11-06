@@ -29,6 +29,7 @@ import { QuotationsModule } from './modules/quotations/quotations.module';
 import { RecordsModule } from './modules/records/records.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ServicesModule } from './modules/services/services.module';
+import { PhotosModule } from './modules/photos/photos.module';
 import { SpaModule } from './modules/spa/spa.module';
 import { UsersModule } from './modules/users/users.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
@@ -78,6 +79,7 @@ class AppConfigModule {}
     VehiclesModule,
     ServicesModule,
     SpaModule,
+    PhotosModule,
     LogisticsModule,
     QuotationsModule,
     // Operations

@@ -205,14 +205,14 @@ export function MoneyInput({ value, onChange, placeholder }: { value: number | n
 }
 
 /** Click-to-edit price: shows ₦ value; Enter saves, Escape cancels. */
-export function InlinePrice({ minor, onSave }: { minor: number; onSave: (kobo: number) => Promise<boolean> }) {
+export function InlinePrice({ minor, onSave }: { minor: number | null; onSave: (kobo: number) => Promise<boolean> }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState('');
   const [saving, setSaving] = useState(false);
   if (!editing) {
     return (
       <span className="price-cell" title="Click to change the price" onClick={() => { setText(toNairaInput(minor)); setEditing(true); }}>
-        {formatNaira(minor)}
+        {minor === null ? <span className="muted">Not published</span> : formatNaira(minor)}
       </span>
     );
   }

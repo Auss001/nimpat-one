@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { ProductStatus } from '@prisma/client';
+import { PrescriptionStatus, ProductAvailability, ProductStatus } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -52,8 +52,8 @@ export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {}
 export class VariantInputDto {
   @ApiProperty({ example: 'WDW-TW-75CL-12' }) @Matches(SKU, { message: 'sku must be upper-case letters, digits and dashes' }) sku: string;
   @ApiProperty({ example: 'Pack of 12 x 75cl' }) @IsString() @Length(1, 120) name: string;
-  @ApiProperty({ description: 'Price in kobo (integer)', example: 250000 })
-  @MinorAmount() @IsInt() @Min(0) @Max(1_000_000_000_00) unitPriceMinor: number;
+  @ApiPropertyOptional({ description: 'Price in kobo. Null or left out means not published; it is never zero for that.', example: 250000, nullable: true })
+  @IsOptional() @MinorAmount() @IsInt() @Min(1) @Max(1_000_000_000_00) unitPriceMinor?: number | null;
   @ApiPropertyOptional({ description: 'Original price in kobo for strike-through display' })
   @IsOptional() @MinorAmount() @IsInt() @Min(0) compareAtPriceMinor?: number;
   @ApiPropertyOptional({ default: 1 }) @IsOptional() @IsInt() @Min(1) unitsPerPack?: number;
@@ -87,6 +87,8 @@ export class CreateProductDto {
   @ApiPropertyOptional({ enum: ProductStatus, default: ProductStatus.DRAFT }) @IsOptional() @IsEnum(ProductStatus) status?: ProductStatus;
   @ApiPropertyOptional({ default: true }) @IsOptional() @IsBoolean() isDeliverable?: boolean;
   @ApiPropertyOptional({ default: false, description: 'Alcoholic products (18+)' }) @IsOptional() @IsBoolean() isAgeRestricted?: boolean;
+  @ApiPropertyOptional({ enum: ProductAvailability, nullable: true, description: 'Availability shown when there is no live count' }) @IsOptional() @IsEnum(ProductAvailability) listedAvailability?: ProductAvailability | null;
+  @ApiPropertyOptional({ description: 'False until staff confirm the item can really be supplied' }) @IsOptional() @IsBoolean() purchaseEnabled?: boolean;
 
   @ApiPropertyOptional({ type: [VariantInputDto] })
   @IsOptional() @IsArray() @ArrayMaxSize(50) @ValidateNested({ each: true }) @Type(() => VariantInputDto)
@@ -106,4 +108,13 @@ export class UpdateProductDto {
   @ApiPropertyOptional({ enum: ProductStatus }) @IsOptional() @IsEnum(ProductStatus) status?: ProductStatus;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isDeliverable?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isAgeRestricted?: boolean;
+  @ApiPropertyOptional({ enum: ProductAvailability, nullable: true }) @IsOptional() @IsEnum(ProductAvailability) listedAvailability?: ProductAvailability | null;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() purchaseEnabled?: boolean;
+}
+
+export class PharmacyReviewDto {
+  @ApiProperty({ enum: PrescriptionStatus }) @IsEnum(PrescriptionStatus) prescriptionStatus: PrescriptionStatus;
+  @ApiProperty({ description: 'The pharmacist has checked the details and photo against the real product' }) @IsBoolean() approved: boolean;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Length(0, 5000) description?: string;
+  @ApiPropertyOptional({ description: 'Current availability has been verified, so it may be bought' }) @IsOptional() @IsBoolean() purchaseEnabled?: boolean;
 }

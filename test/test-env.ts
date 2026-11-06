@@ -47,6 +47,7 @@ export function applyTestEnv(): void {
     AUTH_RATE_LIMIT_MAX: '10000',
     REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT: 'true',
     MAIL_TRANSPORT: 'console',
+    PHOTO_STORAGE_DIR: require('node:path').join(require('node:os').tmpdir(), 'nimpat-e2e-photos'),
     SEED_ADMIN_EMAIL: 'e2e.admin@nimpat.test',
     SEED_ADMIN_PASSWORD: 'E2eAdmin!pass-2026',
     SEED_SAMPLE_DATA: 'true',

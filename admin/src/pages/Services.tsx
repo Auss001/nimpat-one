@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { get, patch, post } from '../api';
+import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
 import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, useAction, useLoad } from '../components/ui';
 import { formatNaira } from '../money';
 
@@ -28,6 +29,7 @@ const PRICING = { FIXED: 'Fixed price', STARTING_FROM: 'From', QUOTE_REQUIRED: '
 export function ServicesPage() {
   const offerings = useLoad(() => get<Offering[]>('/admin/services').then((r) => r.filter((o) => !o.name.startsWith('[DEV SAMPLE]'))));
   const [editing, setEditing] = useState<Offering | 'new' | null>(null);
+  const [photos, setPhotos] = useState<PhotoTarget | null>(null);
   const { run } = useAction();
 
   const groups = useMemo(() => {
@@ -71,6 +73,7 @@ export function ServicesPage() {
                     <td><StatusPill status={o.isActive ? 'ACTIVE' : 'INACTIVE'} /></td>
                     <td><div className="row-actions">
                       <button className="btn sm" onClick={() => setEditing(o)}>Edit</button>
+                      <button className="btn sm" onClick={() => setPhotos({ owner: 'service', id: o.id })}>Photo</button>
                       <button className={`btn sm ${o.isActive ? 'danger' : ''}`} onClick={() => void update(o, { isActive: !o.isActive }, o.isActive ? `${o.name} removed` : `${o.name} restored`)}>
                         {o.isActive ? 'Remove' : 'Restore'}
                       </button>
@@ -82,6 +85,7 @@ export function ServicesPage() {
           </table>
         </div>
       )}
+      {photos && <PhotoManager {...photos} onClose={() => setPhotos(null)} />}
       {editing && <OfferingForm offering={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); void offerings.reload(); }} />}
     </>
   );

@@ -25,12 +25,13 @@ const DIVISIONS: { code: DivisionCode; name: string; slug: string; kind: Divisio
   { code: 'RETAIL_GENERAL_SUPPLIES', name: 'Nimpat Retail & General Supplies', slug: 'retail-general-supplies', kind: 'PRIMARY', description: 'Retail and general supplies.' },
   { code: 'MEDIA_EVENTS_RENTALS', name: 'Nimpat Media, Events & Rentals', slug: 'media-events-rentals', kind: 'PRIMARY', description: 'Media production, events and equipment rentals.' },
   { code: 'REAL_ESTATE_INTERIOR', name: 'Nimpat Real Estate & Interior Design', slug: 'real-estate-interior-design', kind: 'PRIMARY', description: 'Real estate and interior design.' },
+  { code: 'PHARMACY', name: 'Nimpat Pharmacy & Laboratory', slug: 'pharmacy-laboratory', kind: 'PRIMARY', description: 'Pharmacy products, pharmacist consultations and laboratory services.' },
   { code: 'ENTERTAINMENT', name: 'Nimpat Entertainment', slug: 'entertainment', kind: 'DISCOVERY', description: 'Club, pool, arcade, PS5 gaming and events.' },
 ];
 
 const PREFIX: Record<DivisionCode, string> = {
   WATER_DRINKS_WINES: 'WDW', LUXURY_APARTMENTS: 'APT', AUTOMOBILES: 'AUT', SPA_WELLNESS: 'SPA', TRANSPORT_LOGISTICS: 'LOG',
-  RETAIL_GENERAL_SUPPLIES: 'RTL', MEDIA_EVENTS_RENTALS: 'MER', REAL_ESTATE_INTERIOR: 'RED', ENTERTAINMENT: 'ENT',
+  RETAIL_GENERAL_SUPPLIES: 'RTL', MEDIA_EVENTS_RENTALS: 'MER', REAL_ESTATE_INTERIOR: 'RED', ENTERTAINMENT: 'ENT', PHARMACY: 'PHM',
 };
 
 /** Earn rates from the Nimpat One architecture brief (hundredths of a point per ₦100). */
@@ -47,6 +48,14 @@ async function seedReferenceData() {
   }
   const divisions = await prisma.division.findMany();
   const byCode = new Map(divisions.map((d) => [d.code, d]));
+
+  // New pharmacy products need a store for their stock rows.
+  const pharmacy = byCode.get('PHARMACY')!;
+  await prisma.stockLocation.upsert({
+    where: { code: 'PHM-MAIN' },
+    create: { code: 'PHM-MAIN', name: 'Pharmacy — main store', divisionId: pharmacy.id, isDefault: true, city: 'Abuja', state: 'FCT' },
+    update: {},
+  });
 
   for (const d of divisions) {
     const code = `${PREFIX[d.code]}-OPS`;

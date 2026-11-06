@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { get, post } from '../api';
+import { get, getAll, post } from '../api';
 import { Loading, PageHead, Pill, Tabs, useAction, useConfirm, useLoad } from '../components/ui';
 import { formatNaira } from '../money';
 
@@ -10,16 +10,15 @@ async function loadRows(type: RecordType): Promise<Row[]> {
   const r = (id: string, name: string, detail: string, priceMinor: number | null, verification: string): Row => ({ id, name, detail, priceMinor, verification });
   switch (type) {
     case 'PRODUCT': {
-      const [d, t] = await Promise.all([
-        get('/admin/catalog/products?division=water-drinks-wines&pageSize=100'),
-        get('/admin/catalog/products?division=retail-general-supplies&pageSize=100'),
-      ]);
-      return [...d.data, ...t.data].filter((p: any) => p.status !== 'ARCHIVED').map((p: any) => r(p.id, p.name, p.category?.name ?? '', p.variants[0]?.unitPriceMinor ?? null, p.verification));
+      const lists = await Promise.all(
+        ['water-drinks-wines', 'retail-general-supplies', 'pharmacy-laboratory'].map((d) => getAll<any>(`/admin/catalog/products?division=${d}`).catch(() => [] as any[])),
+      );
+      return lists.flat().filter((p: any) => p.status !== 'ARCHIVED').map((p: any) => r(p.id, p.name, p.category?.name ?? '', p.variants[0]?.unitPriceMinor ?? null, p.verification));
     }
     case 'APARTMENT_UNIT':
       return (await get<any[]>('/admin/apartments/properties')).flatMap((p) => p.units.map((u: any) => r(u.id, u.name, `${p.name} · ${p.city}`, u.nightlyRateMinor, u.verification)));
     case 'VEHICLE':
-      return (await get('/admin/vehicles?pageSize=100')).data.map((v: any) => r(v.id, `${v.year} ${v.make} ${v.model}`, v.status, v.priceMinor, v.verification));
+      return (await getAll<any>('/admin/vehicles')).filter((v: any) => v.status !== 'ARCHIVED' && v.status !== 'SOLD').map((v: any) => r(v.id, `${v.year} ${v.make} ${v.model}`, v.status, v.priceMinor, v.verification));
     case 'SPA_TREATMENT':
       return (await get<any[]>('/admin/spa/treatments')).map((t) => r(t.id, t.name, `${t.category ?? ''} · ${t.durationMinutes} min`, t.priceMinor, t.verification));
     case 'SERVICE_OFFERING':

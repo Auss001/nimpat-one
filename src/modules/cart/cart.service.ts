@@ -6,6 +6,7 @@ import { AuthUser } from '../access/auth-user';
 import { DeliveryService } from '../delivery/delivery.service';
 import { DivisionsService } from '../divisions/divisions.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { purchaseBlock } from '../catalog/purchase-rules';
 
 const MAX_LINES = 50;
 
@@ -28,7 +29,7 @@ export class CartService {
           orderBy: { createdAt: 'asc' },
           include: {
             variant: {
-              include: { product: { select: { id: true, name: true, slug: true, status: true, verification: true, isAgeRestricted: true, images: { take: 1, orderBy: { sortOrder: 'asc' } } } } },
+              include: { product: { select: { id: true, name: true, slug: true, status: true, verification: true, isAgeRestricted: true, purchaseEnabled: true, listedAvailability: true, prescriptionStatus: true, pharmacistApprovedAt: true, images: { take: 1, orderBy: { sortOrder: 'asc' } } } } },
             },
           },
         },
@@ -42,6 +43,7 @@ export class CartService {
       const available = availability.get(v.id) ?? 0;
       const issues: string[] = [];
       if (!v.isActive || v.product.status !== ProductStatus.ACTIVE || v.product.verification !== RecordVerification.VERIFIED) issues.push('UNAVAILABLE');
+      else if (purchaseBlock(v.product, v)) issues.push('NOT_PURCHASABLE');
       else if (available < i.quantity) issues.push(available === 0 ? 'OUT_OF_STOCK' : 'INSUFFICIENT_STOCK');
       if (i.quantity < v.minOrderQty) issues.push('BELOW_MIN_QTY');
       if (v.maxOrderQty && i.quantity > v.maxOrderQty) issues.push('ABOVE_MAX_QTY');
@@ -57,7 +59,7 @@ export class CartService {
         isAgeRestricted: v.product.isAgeRestricted,
         unitPriceMinor: v.unitPriceMinor,
         quantity: i.quantity,
-        lineTotalMinor: multiplyMinor(v.unitPriceMinor, i.quantity),
+        lineTotalMinor: multiplyMinor(v.unitPriceMinor ?? 0n, i.quantity),
         availableQuantity: available,
         issues,
       };
@@ -149,6 +151,8 @@ export class CartService {
     if (variant.product.verification !== RecordVerification.VERIFIED) {
       throw new ConflictException('This product is awaiting confirmation by Nimpat and cannot be sold yet');
     }
+    const blocked = purchaseBlock(variant.product, variant);
+    if (blocked) throw new ConflictException(blocked);
     return variant;
   }
 
