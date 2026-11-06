@@ -4,6 +4,7 @@ import { Loading, PageHead, StatusPill, Tabs, useAction, useConfirm, useLoad } f
 import { formatNaira } from '../money';
 
 interface Reservation {
+  room: { id: string; name: string } | null;
   id: string;
   reservationNumber: string;
   checkIn: string;
@@ -64,7 +65,7 @@ export function ReservationsPage() {
                 <tr key={r.id}>
                   <td className="mono">{r.reservationNumber}</td>
                   <td>{r.user.customerProfile ? `${r.user.customerProfile.firstName} ${r.user.customerProfile.lastName}` : r.user.email}<div className="muted small">{r.user.phone ?? r.user.email}</div></td>
-                  <td>{r.unit.name}<div className="muted small">{r.unit.property.name}</div></td>
+                  <td>{r.room ? `${r.room.name}, ${r.unit.name}` : r.unit.name}<div className="muted small">{r.unit.property.name}{r.room ? ' · one room' : ''}</div></td>
                   <td className="small">{r.checkIn.slice(0, 10)} → {r.checkOut.slice(0, 10)}<div className="muted">{r.nights} night{r.nights > 1 ? 's' : ''} · {r.guests} guest{r.guests > 1 ? 's' : ''}</div></td>
                   <td className="num">{formatNaira(r.totalMinor)}</td>
                   <td className="num">{formatNaira(r.amountPaidMinor)}{r.depositRequiredMinor > 0 && <div className="muted small">deposit {formatNaira(r.depositRequiredMinor)}</div>}</td>

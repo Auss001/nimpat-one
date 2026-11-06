@@ -23,6 +23,7 @@
     "openapi:export": "ts-node --transpile-only scripts/export-openapi.ts",
     "catalog:import": "ts-node --transpile-only prisma/catalog/import-catalog.ts",
     "catalog:apply": "ts-node --transpile-only prisma/catalog/apply-catalogue.ts",
+    "catalog:apartments": "ts-node --transpile-only prisma/catalog/apply-apartments.ts",
     "test:paystack": "jest --config test/jest-e2e.json --runInBand paystack-live",
     "test:load": "ts-node --transpile-only scripts/load-test.ts",
     "client:generate": "npm run openapi:export && openapi-typescript docs/openapi/nimpat-one-api.v1.json -o clients/typescript/schema.d.ts"

@@ -18,14 +18,15 @@ Updated 2026-11-06. Everything runs locally. Nothing is deployed, and DNS has no
 | Apartment and spa double-booking prevention, concurrent stock | End-to-end tests |
 | Dashboard in your reference style | Viewed in the browser; production build succeeds |
 | Catalogue of 6 November and apartment locations | All 68 rows compared with the supplied file; end-to-end test of the location filter. The 25 product images are AI mockups, kept off sale until staff confirm each record. The dashboard's location tabs have not been viewed signed in |
-| Docker image | Last built before the 6 November catalogue and location changes, so it needs rebuilding. That build included the `multer` and `deepmerge-ts` overrides and was started and checked: database, photos, payment routes, writable upload folder, non-root user. The test suites run outside Docker, not inside the image |
+| Apartment condition and single-room booking | End-to-end tests, including simultaneous bookings. Dashboard screens typechecked and built, but not yet viewed signed in |
+| Docker image | Last built before the 6 November catalogue, location, condition and room changes, so it needs rebuilding. That build included the `multer` and `deepmerge-ts` overrides and was started and checked: database, photos, payment routes, writable upload folder, non-root user. The test suites run outside Docker, not inside the image |
 
 ## Test results
 
 | Suite | Result |
 |---|---|
 | Unit | 12 passed |
-| End-to-end (4 files) | 55 passed; 8 skipped (real Paystack, needs a key) |
+| End-to-end (5 files) | 69 passed; 8 skipped (real Paystack, needs a key) |
 | Paystack script, dry run on mock | 8 passed |
 | Live route check | 174 operations, 0 failures |
 

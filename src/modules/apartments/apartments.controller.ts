@@ -11,12 +11,14 @@ import {
   CreateBlackoutDto,
   CreatePropertyDto,
   CreateReservationDto,
+  CreateRoomDto,
   CreateUnitDto,
   PropertyQueryDto,
   ReservationQueryDto,
   StayQueryDto,
   UpdatePropertyDto,
   UpdateReservationStatusDto,
+  UpdateRoomDto,
   UpdateUnitDto,
 } from './apartments.dto';
 import { ApartmentsService } from './apartments.service';
@@ -44,14 +46,14 @@ export class ApartmentsController {
   @Get('units/:unitId/calendar')
   @ApiOperation({ summary: 'Unavailable date ranges for a unit ([start, end) — end is the checkout day)' })
   calendar(@Param('unitId', ParseUUIDPipe) unitId: string, @Query() q: CalendarQueryDto) {
-    return this.apartments.calendar(unitId, q.from, q.to);
+    return this.apartments.calendar(unitId, q.from, q.to, q.roomId);
   }
 
   @Public()
   @Get('units/:unitId/quote')
-  @ApiOperation({ summary: 'Price breakdown (nightly × nights + cleaning + caution deposit) and availability' })
+  @ApiOperation({ summary: 'Price breakdown (nightly × nights + cleaning + caution deposit) and availability, for the whole unit or one room' })
   quote(@Param('unitId', ParseUUIDPipe) unitId: string, @Query() q: StayQueryDto) {
-    return this.apartments.quote(unitId, q.checkIn, q.checkOut, q.guests);
+    return this.apartments.quote(unitId, q.checkIn, q.checkOut, q.guests, q.roomId);
   }
 
   @Authenticated()
@@ -117,6 +119,19 @@ export class AdminApartmentsController {
   @RequirePermissions(P.listingsManage)
   updateUnit(@CurrentUser() user: AuthUser, @Param('unitId', ParseUUIDPipe) id: string, @Body() dto: UpdateUnitDto) {
     return this.apartments.updateUnit(user, id, dto);
+  }
+
+  @Post('units/:unitId/rooms')
+  @RequirePermissions(P.listingsManage)
+  @ApiOperation({ summary: 'Make a room bookable on its own' })
+  createRoom(@CurrentUser() user: AuthUser, @Param('unitId', ParseUUIDPipe) id: string, @Body() dto: CreateRoomDto) {
+    return this.apartments.createRoom(user, id, dto);
+  }
+
+  @Patch('rooms/:roomId')
+  @RequirePermissions(P.listingsManage)
+  updateRoom(@CurrentUser() user: AuthUser, @Param('roomId', ParseUUIDPipe) id: string, @Body() dto: UpdateRoomDto) {
+    return this.apartments.updateRoom(user, id, dto);
   }
 
   @Post('units/:unitId/blackouts')

@@ -4356,6 +4356,15 @@
             }
           },
           {
+            "name": "roomId",
+            "required": false,
+            "in": "query",
+            "description": "Show dates for one room instead of the whole unit",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "from",
             "required": true,
             "in": "query",
@@ -4398,6 +4407,15 @@
             }
           },
           {
+            "name": "roomId",
+            "required": false,
+            "in": "query",
+            "description": "Price one room instead of the whole unit",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "checkIn",
             "required": true,
             "in": "query",
@@ -4430,7 +4448,7 @@
             "description": ""
           }
         },
-        "summary": "Price breakdown (nightly × nights + cleaning + caution deposit) and availability",
+        "summary": "Price breakdown (nightly × nights + cleaning + caution deposit) and availability, for the whole unit or one room",
         "tags": [
           "Luxury Apartments"
         ]
@@ -4747,6 +4765,83 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UpdateUnitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Requires one of: listings:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Admin · Luxury Apartments"
+        ]
+      }
+    },
+    "/api/v1/admin/apartments/units/{unitId}/rooms": {
+      "post": {
+        "operationId": "AdminApartments_createRoom",
+        "parameters": [
+          {
+            "name": "unitId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoomDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Requires one of: listings:manage"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Make a room bookable on its own",
+        "tags": [
+          "Admin · Luxury Apartments"
+        ]
+      }
+    },
+    "/api/v1/admin/apartments/rooms/{roomId}": {
+      "patch": {
+        "operationId": "AdminApartments_updateRoom",
+        "parameters": [
+          {
+            "name": "roomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoomDto"
               }
             }
           }
@@ -8257,6 +8352,10 @@
           "unitId": {
             "type": "string"
           },
+          "roomId": {
+            "type": "string",
+            "description": "Book one room; leave out to book the whole unit"
+          },
           "checkIn": {
             "type": "string",
             "example": "2026-12-20"
@@ -8453,6 +8552,21 @@
               "INACTIVE",
               "ARCHIVED"
             ]
+          },
+          "readiness": {
+            "type": "string",
+            "enum": [
+              "READY",
+              "FINISHING",
+              "NOT_READY",
+              "SERVICING",
+              "MAINTENANCE"
+            ],
+            "description": "Only READY can be booked"
+          },
+          "readinessNote": {
+            "type": "object",
+            "description": "Staff-only note, for example \"90% ready\""
           }
         },
         "required": [
@@ -8516,6 +8630,125 @@
               "INACTIVE",
               "ARCHIVED"
             ]
+          },
+          "readiness": {
+            "type": "string",
+            "enum": [
+              "READY",
+              "FINISHING",
+              "NOT_READY",
+              "SERVICING",
+              "MAINTENANCE"
+            ],
+            "description": "Only READY can be booked"
+          },
+          "readinessNote": {
+            "type": "object",
+            "description": "Staff-only note, for example \"90% ready\""
+          }
+        }
+      },
+      "CreateRoomDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Bedroom 1"
+          },
+          "description": {
+            "type": "string"
+          },
+          "maxGuests": {
+            "type": "number",
+            "default": 2
+          },
+          "nightlyRateMinor": {
+            "type": "number",
+            "description": "Nightly rate in kobo"
+          },
+          "cleaningFeeMinor": {
+            "type": "number",
+            "description": "One-off cleaning fee in kobo"
+          },
+          "cautionDepositMinor": {
+            "type": "number",
+            "description": "Refundable caution deposit in kobo"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ]
+          },
+          "readiness": {
+            "type": "string",
+            "enum": [
+              "READY",
+              "FINISHING",
+              "NOT_READY",
+              "SERVICING",
+              "MAINTENANCE"
+            ]
+          },
+          "readinessNote": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "nightlyRateMinor"
+        ]
+      },
+      "UpdateRoomDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Bedroom 1"
+          },
+          "description": {
+            "type": "string"
+          },
+          "maxGuests": {
+            "type": "number",
+            "default": 2
+          },
+          "nightlyRateMinor": {
+            "type": "number",
+            "description": "Nightly rate in kobo"
+          },
+          "cleaningFeeMinor": {
+            "type": "number",
+            "description": "One-off cleaning fee in kobo"
+          },
+          "cautionDepositMinor": {
+            "type": "number",
+            "description": "Refundable caution deposit in kobo"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "INACTIVE",
+              "ARCHIVED"
+            ]
+          },
+          "readiness": {
+            "type": "string",
+            "enum": [
+              "READY",
+              "FINISHING",
+              "NOT_READY",
+              "SERVICING",
+              "MAINTENANCE"
+            ]
+          },
+          "readinessNote": {
+            "type": "object"
           }
         }
       },

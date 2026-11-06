@@ -79,3 +79,16 @@ See `.env.example`. Live Paystack keys are refused at startup. In production, pl
 | `npm run test:load` | Local load test (localhost only) |
 | `scripts/verify-api.ts` | Live route and authorization check |
 | `npm run client:generate` | Regenerate the OpenAPI file and client types |
+
+## Apartment rooms and condition
+
+A stay books either a whole unit or one room. Send `roomId` on `POST /apartments/reservations`, and on the `quote` and `calendar` routes, to work with one room. Leave it out for the whole unit.
+
+- A whole-unit stay blocks every room in that unit, and any room stay blocks the whole unit.
+- Two different rooms can be booked for the same dates. The database enforces all of this, including for simultaneous requests.
+- A room uses its own nightly rate, cleaning fee and caution deposit.
+- Blocked dates on a unit also block its rooms.
+
+`readiness` on a unit or room is `READY`, `FINISHING`, `NOT_READY`, `SERVICING` or `MAINTENANCE`. Only `READY` can be seen or booked by customers. `readinessNote` is for staff only and is left out of customer responses. Changing the condition of a unit does not cancel existing reservations, so staff must check them.
+
+Property lists accept `?location=` and return `location`, `availableRoomCount` and `roomFromMinor`.

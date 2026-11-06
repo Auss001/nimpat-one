@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { DivisionCode, ListingStatus, Payment, PaymentPurpose, PaymentStatus, Prisma, RecordVerification, ReservationStatus } from '@prisma/client';
+import { DivisionCode, ListingStatus, Payment, PaymentPurpose, PaymentStatus, Prisma, RecordVerification, ReservationStatus, UnitReadiness } from '@prisma/client';
 import { AppConfig } from '../../config/app-config.service';
 import { pageArgs, paginate } from '../../common/dto/pagination.dto';
 import { isExclusionViolation } from '../../common/filters/prisma-exception.filter';
@@ -20,16 +20,21 @@ import {
   CreateBlackoutDto,
   CreatePropertyDto,
   CreateReservationDto,
+  CreateRoomDto,
   CreateUnitDto,
   PropertyQueryDto,
   ReservationQueryDto,
   UpdatePropertyDto,
+  UpdateRoomDto,
   UpdateUnitDto,
 } from './apartments.dto';
 
 /** Reservation states that occupy the calendar (mirrors the DB exclusion constraint). */
 const BLOCKING: ReservationStatus[] = [ReservationStatus.HOLD, ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN];
 const MAX_ADVANCE_DAYS = 540;
+/** What customers may see and book. */
+const SELLABLE_UNIT = { status: ListingStatus.ACTIVE, verification: RecordVerification.VERIFIED, readiness: UnitReadiness.READY };
+const SELLABLE_ROOM = { status: ListingStatus.ACTIVE, readiness: UnitReadiness.READY };
 
 const STAFF_TRANSITIONS: Partial<Record<ReservationStatus, ReservationStatus[]>> = {
   HOLD: [ReservationStatus.CONFIRMED, ReservationStatus.CANCELLED], // CONFIRMED: staff approval policy
@@ -39,6 +44,7 @@ const STAFF_TRANSITIONS: Partial<Record<ReservationStatus, ReservationStatus[]>>
 
 export interface StayQuote {
   unitId: string;
+  roomId: string | null;
   checkIn: string;
   checkOut: string;
   nights: number;
@@ -56,9 +62,11 @@ export interface StayQuote {
  *  HOLD (15 min, awaiting payment) → CONFIRMED (payment verified)
  *      → CHECKED_IN → COMPLETED;  HOLD/CONFIRMED → CANCELLED;  HOLD → EXPIRED
  *
- * Double booking is impossible: a PostgreSQL exclusion constraint rejects
- * any overlapping [checkIn, checkOut) range for the same unit among
- * HOLD/CONFIRMED/CHECKED_IN reservations, regardless of concurrency.
+ * A stay books either a whole unit or one of its rooms. Double booking is
+ * impossible: a PostgreSQL exclusion constraint rejects overlapping
+ * [checkIn, checkOut) ranges among HOLD/CONFIRMED/CHECKED_IN reservations,
+ * regardless of concurrency. A whole unit conflicts with every room in it;
+ * different rooms never conflict with each other.
  */
 @Injectable()
 export class ApartmentsService implements OnModuleInit, PayableHandler {
@@ -87,7 +95,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       status: ListingStatus.ACTIVE,
       city: q.city ? { equals: q.city, mode: 'insensitive' } : undefined,
       location: q.location ? { equals: q.location, mode: 'insensitive' } : undefined,
-      units: { some: { status: ListingStatus.ACTIVE, verification: RecordVerification.VERIFIED, maxGuests: q.guests ? { gte: q.guests } : undefined } },
+      units: { some: { ...SELLABLE_UNIT, OR: q.guests ? [{ maxGuests: { gte: q.guests } }, { rooms: { some: { ...SELLABLE_ROOM, maxGuests: { gte: q.guests } } } }] : undefined } },
     };
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.property.findMany({
@@ -97,25 +105,33 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
         include: {
           // Property-level photo first; otherwise the first photo of any unit.
           images: { orderBy: [{ unitId: { sort: 'asc', nulls: 'first' } }, { sortOrder: 'asc' }], take: 1 },
-          units: { where: { status: ListingStatus.ACTIVE, verification: RecordVerification.VERIFIED }, select: { id: true, nightlyRateMinor: true, maxGuests: true, bedrooms: true } },
+          units: {
+            where: SELLABLE_UNIT,
+            select: { id: true, nightlyRateMinor: true, maxGuests: true, bedrooms: true, rooms: { where: SELLABLE_ROOM, select: { id: true, unitId: true, slot: true, nightlyRateMinor: true, maxGuests: true } } },
+          },
         },
       }),
       this.prisma.property.count({ where }),
     ]);
 
     let availableUnitIds: Set<string> | null = null;
+    let availableRoomIds: Set<string> | null = null;
     if (q.checkIn && q.checkOut) {
       const { checkIn, checkOut } = this.parseStay(q.checkIn, q.checkOut);
       availableUnitIds = await this.availableUnits(rows.flatMap((p) => p.units.map((u) => u.id)), checkIn, checkOut);
+      availableRoomIds = await this.availableRooms(rows.flatMap((p) => p.units.flatMap((u) => u.rooms)), checkIn, checkOut);
     }
     return paginate(
       rows.map((p) => {
         const units = p.units.filter((u) => (!q.guests || u.maxGuests >= q.guests) && (!availableUnitIds || availableUnitIds.has(u.id)));
+        const rooms = p.units.flatMap((u) => u.rooms).filter((r) => (!q.guests || r.maxGuests >= q.guests) && (!availableRoomIds || availableRoomIds.has(r.id)));
         return {
           id: p.id, name: p.name, slug: p.slug, location: p.location, city: p.city, state: p.state, amenities: p.amenities,
           image: p.images[0]?.url ?? null,
           unitCount: p.units.length,
           availableUnitCount: availableUnitIds ? units.length : null,
+          availableRoomCount: availableRoomIds ? rooms.length : null,
+          roomFromMinor: rooms.length ? rooms.reduce((m, r) => (r.nightlyRateMinor < m ? r.nightlyRateMinor : m), rooms[0].nightlyRateMinor) : null,
           nightlyFromMinor: units.length ? units.reduce((m, u) => (u.nightlyRateMinor < m ? u.nightlyRateMinor : m), units[0].nightlyRateMinor) : null,
         };
       }),
@@ -129,23 +145,28 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       where: { slug, status: ListingStatus.ACTIVE },
       include: {
         images: { orderBy: { sortOrder: 'asc' } },
-        units: { where: { status: ListingStatus.ACTIVE, verification: RecordVerification.VERIFIED }, orderBy: { nightlyRateMinor: 'asc' }, include: { images: { orderBy: { sortOrder: 'asc' } } } },
+        units: { where: SELLABLE_UNIT, orderBy: { nightlyRateMinor: 'asc' }, include: { images: { orderBy: { sortOrder: 'asc' } }, rooms: { where: SELLABLE_ROOM, orderBy: { slot: 'asc' } } } },
       },
     });
     if (!property) throw new NotFoundException('Property not found');
-    return property;
+    // Readiness notes are for staff only.
+    return {
+      ...property,
+      units: property.units.map(({ readinessNote: _u, rooms, ...unit }) => ({ ...unit, rooms: rooms.map(({ readinessNote: _r, ...room }) => room) })),
+    };
   }
 
   /** Booked/blocked date ranges for a unit, for calendar rendering. */
-  async calendar(unitId: string, fromStr: string, toStr: string) {
+  async calendar(unitId: string, fromStr: string, toStr: string, roomId?: string) {
     const from = parseDateOnly(fromStr, 'from');
     const to = parseDateOnly(toStr, 'to');
     if (to <= from || nightsBetween(from, to) > 400) throw new BadRequestException('Range must be 1–400 days');
-    await this.activeUnit(unitId);
+    const unit = await this.activeUnit(unitId);
+    const room = roomId ? await this.activeRoom(unit.id, roomId) : null;
     await this.expireHolds({ unitId });
     const [reservations, blackouts] = await Promise.all([
       this.prisma.reservation.findMany({
-        where: { unitId, status: { in: BLOCKING }, checkIn: { lt: to }, checkOut: { gt: from } },
+        where: { unitId, status: { in: BLOCKING }, checkIn: { lt: to }, checkOut: { gt: from }, OR: room ? [{ roomSlot: null }, { roomSlot: room.slot }] : undefined },
         select: { checkIn: true, checkOut: true },
         orderBy: { checkIn: 'asc' },
       }),
@@ -153,6 +174,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
     ]);
     return {
       unitId,
+      roomId: room?.id ?? null,
       from: fromStr,
       to: toStr,
       unavailable: [
@@ -163,13 +185,16 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   }
 
   /** Server-side price for a stay plus availability. */
-  async quote(unitId: string, checkInStr: string, checkOutStr: string, guests?: number) {
+  async quote(unitId: string, checkInStr: string, checkOutStr: string, guests?: number, roomId?: string) {
     const unit = await this.activeUnit(unitId);
+    const room = roomId ? await this.activeRoom(unit.id, roomId) : null;
     const { checkIn, checkOut, nights } = this.parseStay(checkInStr, checkOutStr);
-    this.assertStayRules(unit, nights, guests);
+    this.assertStayRules({ minNights: unit.minNights, maxNights: unit.maxNights, maxGuests: room?.maxGuests ?? unit.maxGuests }, nights, guests);
     await this.expireHolds({ unitId });
-    const available = (await this.availableUnits([unitId], checkIn, checkOut)).has(unitId);
-    return { ...this.price(unit, checkIn, checkOut, nights), available };
+    const available = room
+      ? (await this.availableRooms([room], checkIn, checkOut)).has(room.id)
+      : (await this.availableUnits([unitId], checkIn, checkOut)).has(unitId);
+    return { ...this.price(unit, room, checkIn, checkOut, nights), available };
   }
 
   // ---------------------------------------------------------------------------
@@ -182,8 +207,9 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       if (prior) return this.getForCustomer(user, prior.id);
     }
     const unit = await this.activeUnit(dto.unitId);
+    const room = dto.roomId ? await this.activeRoom(unit.id, dto.roomId) : null;
     const { checkIn, checkOut, nights } = this.parseStay(dto.checkIn, dto.checkOut);
-    this.assertStayRules(unit, nights, dto.guests);
+    this.assertStayRules({ minNights: unit.minNights, maxNights: unit.maxNights, maxGuests: room?.maxGuests ?? unit.maxGuests }, nights, dto.guests);
 
     const blackout = await this.prisma.unitBlackout.findFirst({ where: { unitId: unit.id, startDate: { lt: checkOut }, endDate: { gt: checkIn } } });
     if (blackout) throw new ConflictException('The apartment is unavailable for some of these dates');
@@ -191,7 +217,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
     // Free up expired holds on this unit so they do not block the new booking.
     await this.expireHolds({ unitId: unit.id });
 
-    const quote = this.price(unit, checkIn, checkOut, nights);
+    const quote = this.price(unit, room, checkIn, checkOut, nights);
     const policy = await this.policies.get(unit.property.divisionId, PaymentPurpose.APARTMENT_RESERVATION);
     const depositRequiredMinor = this.policies.depositFor(policy, quote.totalMinor);
     const holdExpiresAt = addMinutes(new Date(), this.config.get('APARTMENT_HOLD_TTL_MINUTES'));
@@ -201,6 +227,8 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
           data: {
             reservationNumber: businessNumber(DivisionCode.LUXURY_APARTMENTS),
             unitId: unit.id,
+            roomId: room?.id,
+            roomSlot: room?.slot,
             userId: user.id,
             checkIn,
             checkOut,
@@ -221,7 +249,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       );
       await this.audit.record({
         actorId: user.id, action: 'reservation.hold', entityType: 'reservation', entityId: reservation.id,
-        divisionId: unit.property.divisionId, changes: { checkIn: dto.checkIn, checkOut: dto.checkOut, totalMinor: quote.totalMinor },
+        divisionId: unit.property.divisionId, changes: { checkIn: dto.checkIn, checkOut: dto.checkOut, roomId: room?.id, totalMinor: quote.totalMinor },
       });
       return this.getForCustomer(user, reservation.id);
     } catch (e) {
@@ -322,7 +350,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   async adminListProperties(user: AuthUser) {
     const division = await this.divisions.byCode(DivisionCode.LUXURY_APARTMENTS);
     user.assertCan(P.listingsManage, division.id);
-    return this.prisma.property.findMany({ orderBy: { name: 'asc' }, include: { units: { orderBy: { code: 'asc' } }, images: true } });
+    return this.prisma.property.findMany({ orderBy: { name: 'asc' }, include: { units: { orderBy: { code: 'asc' }, include: { rooms: { orderBy: { slot: 'asc' } } } }, images: true } });
   }
 
   async createProperty(user: AuthUser, dto: CreatePropertyDto) {
@@ -358,7 +386,30 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
     const updated = await this.prisma.apartmentUnit.update({ where: { id: unitId }, data: this.unitMoney(dto) as Prisma.ApartmentUnitUpdateInput });
     await this.audit.record({
       actorId: user.id, action: 'unit.update', entityType: 'apartment_unit', entityId: unitId, divisionId: unit.property.divisionId,
-      changes: { before: { nightlyRateMinor: unit.nightlyRateMinor, status: unit.status }, after: { ...dto } },
+      changes: { before: { nightlyRateMinor: unit.nightlyRateMinor, status: unit.status, readiness: unit.readiness }, after: { ...dto } },
+    });
+    return updated;
+  }
+
+  async createRoom(user: AuthUser, unitId: string, dto: CreateRoomDto) {
+    const unit = await this.prisma.apartmentUnit.findUnique({ where: { id: unitId }, include: { property: true } });
+    if (!unit) throw new NotFoundException('Unit not found');
+    user.assertCan(P.listingsManage, unit.property.divisionId);
+    const last = await this.prisma.apartmentRoom.aggregate({ where: { unitId }, _max: { slot: true } });
+    const room = await this.prisma.apartmentRoom.create({ data: { ...this.unitMoney(dto), unitId, slot: (last._max.slot ?? 0) + 1 } as Prisma.ApartmentRoomUncheckedCreateInput });
+    await this.audit.record({ actorId: user.id, action: 'room.create', entityType: 'apartment_room', entityId: room.id, divisionId: unit.property.divisionId, changes: { ...dto } });
+    return room;
+  }
+
+  async updateRoom(user: AuthUser, roomId: string, dto: UpdateRoomDto) {
+    const room = await this.prisma.apartmentRoom.findUnique({ where: { id: roomId }, include: { unit: { include: { property: true } } } });
+    if (!room) throw new NotFoundException('Room not found');
+    const divisionId = room.unit.property.divisionId;
+    user.assertCan(P.listingsManage, divisionId);
+    const updated = await this.prisma.apartmentRoom.update({ where: { id: roomId }, data: this.unitMoney(dto) as Prisma.ApartmentRoomUpdateInput });
+    await this.audit.record({
+      actorId: user.id, action: 'room.update', entityType: 'apartment_room', entityId: roomId, divisionId,
+      changes: { before: { nightlyRateMinor: room.nightlyRateMinor, status: room.status, readiness: room.readiness }, after: { ...dto } },
     });
     return updated;
   }
@@ -400,18 +451,18 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   }
 
   async resolve(reservationId: string, user: AuthUser): Promise<PayableContext> {
-    const r = await this.prisma.reservation.findFirst({ where: { id: reservationId, userId: user.id }, include: { unit: { include: { property: true } } } });
+    const r = await this.prisma.reservation.findFirst({ where: { id: reservationId, userId: user.id }, include: { room: true, unit: { include: { property: true } } } });
     if (!r) throw new NotFoundException('Reservation not found');
     return this.context(r);
   }
 
   async load(db: Tx | PrismaService, reservationId: string): Promise<PayableContext> {
-    const r = await db.reservation.findUnique({ where: { id: reservationId }, include: { unit: { include: { property: true } } } });
+    const r = await db.reservation.findUnique({ where: { id: reservationId }, include: { room: true, unit: { include: { property: true } } } });
     if (!r) throw new NotFoundException('Reservation not found');
     return this.context(r);
   }
 
-  private context(r: Prisma.ReservationGetPayload<{ include: { unit: { include: { property: true } } } }>): PayableContext {
+  private context(r: Prisma.ReservationGetPayload<{ include: { room: true; unit: { include: { property: true } } } }>): PayableContext {
     let acceptsPayments = true;
     let closedReason: string | undefined;
     if (r.status === ReservationStatus.HOLD && r.holdExpiresAt && r.holdExpiresAt < new Date() && r.amountPaidMinor === 0n) {
@@ -428,7 +479,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       divisionId: r.unit.property.divisionId,
       userId: r.userId,
       label: r.reservationNumber,
-      description: `Reservation ${r.reservationNumber} — ${r.unit.property.name}, ${r.nights} night(s)`,
+      description: `Reservation ${r.reservationNumber} — ${r.unit.property.name}${r.room ? `, ${r.room.name}` : ''}, ${r.nights} night(s)`,
       payBy: r.status === ReservationStatus.HOLD ? r.holdExpiresAt : null,
       acceptsPayments,
       closedReason,
@@ -446,7 +497,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
    * STAFF_APPROVAL → never automatically (staff confirm in the dashboard).
    */
   async onPaymentStateChanged(tx: Tx, reservationId: string, summary: PaymentSummary, trigger: Payment): Promise<NotifyInput[]> {
-    const r = await tx.reservation.findUniqueOrThrow({ where: { id: reservationId }, include: { unit: { include: { property: true } } } });
+    const r = await tx.reservation.findUniqueOrThrow({ where: { id: reservationId }, include: { room: true, unit: { include: { property: true } } } });
     if (trigger.status !== PaymentStatus.SUCCESS) return [];
     const policy = await this.policies.get(r.unit.property.divisionId, PaymentPurpose.APARTMENT_RESERVATION, tx);
     const received: NotifyInput = {
@@ -491,7 +542,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       userId: r.userId,
       type: 'reservation.confirmed',
       title: `Reservation ${r.reservationNumber} confirmed`,
-      body: `Your stay at ${r.unit.property.name} (${r.unit.name}) from ${formatDateOnly(r.checkIn)} to ${formatDateOnly(r.checkOut)} is confirmed.${summary.outstandingMinor > 0n ? ` Balance due: ${formatNgn(summary.outstandingMinor)}.` : ''} Check-in from ${r.unit.property.checkInTime}.`,
+      body: `Your stay at ${r.unit.property.name} (${r.room ? `${r.room.name}, ` : ''}${r.unit.name}) from ${formatDateOnly(r.checkIn)} to ${formatDateOnly(r.checkOut)} is confirmed.${summary.outstandingMinor > 0n ? ` Balance due: ${formatNgn(summary.outstandingMinor)}.` : ''} Check-in from ${r.unit.property.checkInTime}.`,
       data: { reservationId: r.id },
       email: true,
     }];
@@ -534,24 +585,51 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
     if (guests && guests > unit.maxGuests) throw new BadRequestException(`This apartment sleeps up to ${unit.maxGuests} guests`);
   }
 
-  private price(unit: { id: string; nightlyRateMinor: bigint; cleaningFeeMinor: bigint; cautionDepositMinor: bigint }, checkIn: Date, checkOut: Date, nights: number): StayQuote {
-    const accommodationMinor = multiplyMinor(unit.nightlyRateMinor, nights);
+  private price(
+    unit: { id: string; nightlyRateMinor: bigint; cleaningFeeMinor: bigint; cautionDepositMinor: bigint },
+    room: { id: string; nightlyRateMinor: bigint; cleaningFeeMinor: bigint; cautionDepositMinor: bigint } | null,
+    checkIn: Date,
+    checkOut: Date,
+    nights: number,
+  ): StayQuote {
+    const rates = room ?? unit;
+    const accommodationMinor = multiplyMinor(rates.nightlyRateMinor, nights);
     return {
       unitId: unit.id,
+      roomId: room?.id ?? null,
       checkIn: formatDateOnly(checkIn),
       checkOut: formatDateOnly(checkOut),
       nights,
-      nightlyRateMinor: unit.nightlyRateMinor,
+      nightlyRateMinor: rates.nightlyRateMinor,
       accommodationMinor,
-      cleaningFeeMinor: unit.cleaningFeeMinor,
-      cautionDepositMinor: unit.cautionDepositMinor,
-      totalMinor: accommodationMinor + unit.cleaningFeeMinor + unit.cautionDepositMinor,
+      cleaningFeeMinor: rates.cleaningFeeMinor,
+      cautionDepositMinor: rates.cautionDepositMinor,
+      totalMinor: accommodationMinor + rates.cleaningFeeMinor + rates.cautionDepositMinor,
       currency: 'NGN',
     };
   }
 
   private async availableUnits(unitIds: string[], checkIn: Date, checkOut: Date): Promise<Set<string>> {
     if (!unitIds.length) return new Set();
+    // Any stay in the unit, including one room, stops the whole unit being booked.
+    const { booked, blocked } = await this.occupancy(unitIds, checkIn, checkOut);
+    const taken = new Set([...booked, ...blocked].map((r) => r.unitId));
+    return new Set(unitIds.filter((id) => !taken.has(id)));
+  }
+
+  /** A room is free unless the unit is blocked, the whole unit is booked, or that room is booked. */
+  private async availableRooms(rooms: { id: string; unitId: string; slot: number }[], checkIn: Date, checkOut: Date): Promise<Set<string>> {
+    if (!rooms.length) return new Set();
+    const { booked, blocked } = await this.occupancy([...new Set(rooms.map((r) => r.unitId))], checkIn, checkOut);
+    const blockedUnits = new Set(blocked.map((b) => b.unitId));
+    return new Set(
+      rooms
+        .filter((room) => !blockedUnits.has(room.unitId) && !booked.some((b) => b.unitId === room.unitId && (b.roomSlot === null || b.roomSlot === room.slot)))
+        .map((room) => room.id),
+    );
+  }
+
+  private async occupancy(unitIds: string[], checkIn: Date, checkOut: Date) {
     const now = new Date();
     const [booked, blocked] = await Promise.all([
       this.prisma.reservation.findMany({
@@ -564,17 +642,22 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
             { status: ReservationStatus.HOLD, holdExpiresAt: { gt: now } },
           ],
         },
-        select: { unitId: true },
+        select: { unitId: true, roomSlot: true },
       }),
       this.prisma.unitBlackout.findMany({ where: { unitId: { in: unitIds }, startDate: { lt: checkOut }, endDate: { gt: checkIn } }, select: { unitId: true } }),
     ]);
-    const taken = new Set([...booked, ...blocked].map((r) => r.unitId));
-    return new Set(unitIds.filter((id) => !taken.has(id)));
+    return { booked, blocked };
+  }
+
+  private async activeRoom(unitId: string, roomId: string) {
+    const room = await this.prisma.apartmentRoom.findFirst({ where: { id: roomId, unitId, ...SELLABLE_ROOM } });
+    if (!room) throw new NotFoundException('Room not found');
+    return room;
   }
 
   private async activeUnit(unitId: string) {
     const unit = await this.prisma.apartmentUnit.findUnique({ where: { id: unitId }, include: { property: true } });
-    if (!unit || unit.status !== ListingStatus.ACTIVE || unit.property.status !== ListingStatus.ACTIVE || unit.verification !== RecordVerification.VERIFIED) {
+    if (!unit || unit.status !== ListingStatus.ACTIVE || unit.property.status !== ListingStatus.ACTIVE || unit.verification !== RecordVerification.VERIFIED || unit.readiness !== UnitReadiness.READY) {
       throw new NotFoundException('Apartment not found');
     }
     return unit;
@@ -591,6 +674,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
 }
 
 const reservationInclude = {
+  room: { select: { id: true, name: true } },
   unit: { select: { id: true, code: true, name: true, property: { select: { id: true, name: true, slug: true, city: true, addressLine: true, checkInTime: true, checkOutTime: true } } } },
 } satisfies Prisma.ReservationInclude;
 

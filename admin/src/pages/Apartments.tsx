@@ -1,9 +1,31 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { get, patch, post } from '../api';
-import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
+import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
 type Listing = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+type Readiness = 'READY' | 'FINISHING' | 'NOT_READY' | 'SERVICING' | 'MAINTENANCE';
+const READINESS: Record<Readiness, { label: string; tone: 'green' | 'amber' | 'red' | 'blue' }> = {
+  READY: { label: 'Ready to sell', tone: 'green' },
+  FINISHING: { label: 'Finishing touches', tone: 'amber' },
+  NOT_READY: { label: 'Not ready', tone: 'red' },
+  SERVICING: { label: 'Being serviced', tone: 'blue' },
+  MAINTENANCE: { label: 'Under maintenance', tone: 'red' },
+};
+const READINESS_KEYS = Object.keys(READINESS) as Readiness[];
+interface Room {
+  id: string;
+  slot: number;
+  name: string;
+  description: string | null;
+  maxGuests: number;
+  nightlyRateMinor: number;
+  cleaningFeeMinor: number;
+  cautionDepositMinor: number;
+  status: Listing;
+  readiness: Readiness;
+  readinessNote: string | null;
+}
 interface Unit {
   id: string;
   code: string;
@@ -18,6 +40,9 @@ interface Unit {
   minNights: number;
   maxNights: number;
   status: Listing;
+  readiness: Readiness;
+  readinessNote: string | null;
+  rooms: Room[];
 }
 interface Property {
   id: string;
@@ -46,6 +71,7 @@ export function ApartmentsPage() {
   const [editProp, setEditProp] = useState<Property | 'new' | null>(null);
   const [editUnit, setEditUnit] = useState<{ property: Property; unit?: Unit } | null>(null);
   const [blockUnit, setBlockUnit] = useState<Unit | null>(null);
+  const [editRoom, setEditRoom] = useState<{ unit: Unit; room?: Room } | null>(null);
   const { run } = useAction();
 
   const visible = (props.data ?? []).filter((p) => show === 'all' || p.status === 'ACTIVE' || p.status === 'DRAFT');
@@ -58,6 +84,12 @@ export function ApartmentsPage() {
       await patch(`/admin/apartments/units/${u.id}`, { nightlyRateMinor: kobo });
       await props.reload();
     }, `${u.name}: nightly rate ${formatNaira(kobo)}`);
+
+  const saveRoomRate = (r: Room, kobo: number) =>
+    run(async () => {
+      await patch(`/admin/apartments/rooms/${r.id}`, { nightlyRateMinor: kobo });
+      await props.reload();
+    }, `${r.name}: nightly rate ${formatNaira(kobo)}`);
 
   const toggleUnit = (u: Unit) =>
     run(async () => {
@@ -77,6 +109,12 @@ export function ApartmentsPage() {
           </>
         }
       />
+      <div className="toolbar" style={{ gap: 8, flexWrap: 'wrap' }} aria-label="Apartment readiness summary">
+        {READINESS_KEYS.map((k) => {
+          const count = visible.flatMap((p) => (p.status === 'ACTIVE' ? p.units : [])).filter((u) => u.readiness === k && u.status !== 'INACTIVE').length;
+          return count ? <Pill key={k} tone={READINESS[k].tone}>{READINESS[k].label}: {count}</Pill> : null;
+        })}
+      </div>
       <div className="toolbar">
         <Tabs value={location} onChange={setLocation} options={[{ value: 'all', label: 'All locations' }, ...groups.map((g) => ({ value: g, label: `${g} (${visible.filter((p) => inGroup(p, g)).length})` }))]} />
       </div>
@@ -103,13 +141,14 @@ export function ApartmentsPage() {
                   <thead>
                     <tr>
                       <th>Unit</th><th className="num">Beds</th><th className="num">Baths</th><th className="num">Guests</th>
-                      <th className="num">Per night</th><th className="num">Cleaning</th><th className="num">Caution deposit</th><th>Status</th><th></th>
+                      <th className="num">Per night</th><th className="num">Cleaning</th><th className="num">Caution deposit</th><th>Condition</th><th>Status</th><th></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {p.units.length === 0 && <tr><td colSpan={9} className="muted">No units yet.</td></tr>}
+                    {p.units.length === 0 && <tr><td colSpan={10} className="muted">No units yet.</td></tr>}
                     {p.units.map((u) => (
-                      <tr key={u.id}>
+                      <Fragment key={u.id}>
+                      <tr>
                         <td><strong>{u.name}</strong><div className="muted small">{u.code}</div></td>
                         <td className="num">{u.bedrooms}</td>
                         <td className="num">{u.bathrooms}</td>
@@ -117,10 +156,12 @@ export function ApartmentsPage() {
                         <td className="num"><InlinePrice minor={u.nightlyRateMinor} onSave={(k) => saveRate(u, k)} /></td>
                         <td className="num">{formatNaira(u.cleaningFeeMinor)}</td>
                         <td className="num">{formatNaira(u.cautionDepositMinor)}</td>
+                        <td><Pill tone={READINESS[u.readiness].tone}>{READINESS[u.readiness].label}</Pill>{u.readinessNote && <div className="muted small">{u.readinessNote}</div>}</td>
                         <td><StatusPill status={u.status} /></td>
                         <td>
                           <div className="row-actions">
                             <button className="btn sm" onClick={() => setEditUnit({ property: p, unit: u })}>Edit</button>
+                            <button className="btn sm" onClick={() => setEditRoom({ unit: u })}>+ Add room</button>
                             <button className="btn sm" onClick={() => setBlockUnit(u)}>Block dates</button>
                             <button className={`btn sm ${u.status === 'ACTIVE' ? 'danger' : ''}`} onClick={() => void toggleUnit(u)}>
                               {u.status === 'ACTIVE' ? 'Switch off' : 'Switch on'}
@@ -128,6 +169,21 @@ export function ApartmentsPage() {
                           </div>
                         </td>
                       </tr>
+                      {u.rooms.map((r) => (
+                        <tr key={r.id} style={{ background: 'var(--surface-2, rgba(0,0,0,0.02))' }}>
+                          <td style={{ paddingLeft: 28 }}>{r.name}<div className="muted small">Bookable on its own</div></td>
+                          <td className="num">1</td>
+                          <td className="num"></td>
+                          <td className="num">{r.maxGuests}</td>
+                          <td className="num"><InlinePrice minor={r.nightlyRateMinor} onSave={(k) => saveRoomRate(r, k)} /></td>
+                          <td className="num">{formatNaira(r.cleaningFeeMinor)}</td>
+                          <td className="num">{formatNaira(r.cautionDepositMinor)}</td>
+                          <td><Pill tone={READINESS[r.readiness].tone}>{READINESS[r.readiness].label}</Pill>{r.readinessNote && <div className="muted small">{r.readinessNote}</div>}</td>
+                          <td><StatusPill status={r.status} /></td>
+                          <td><div className="row-actions"><button className="btn sm" onClick={() => setEditRoom({ unit: u, room: r })}>Edit</button></div></td>
+                        </tr>
+                      ))}
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -141,6 +197,7 @@ export function ApartmentsPage() {
       {editProp && <PropertyForm property={editProp === 'new' ? undefined : editProp} onClose={() => setEditProp(null)} onSaved={() => { setEditProp(null); void props.reload(); }} />}
       {editUnit && <UnitForm {...editUnit} onClose={() => setEditUnit(null)} onSaved={() => { setEditUnit(null); void props.reload(); }} />}
       {blockUnit && <BlockForm unit={blockUnit} onClose={() => setBlockUnit(null)} />}
+      {editRoom && <RoomForm {...editRoom} onClose={() => setEditRoom(null)} onSaved={() => { setEditRoom(null); void props.reload(); }} />}
     </>
   );
 }
@@ -211,6 +268,8 @@ function UnitForm({ property, unit, onClose, onSaved }: { property: Property; un
     minNights: String(unit?.minNights ?? 1),
     maxNights: String(unit?.maxNights ?? 90),
     status: unit?.status ?? ('ACTIVE' as Listing),
+    readiness: unit?.readiness ?? ('READY' as Readiness),
+    readinessNote: unit?.readinessNote ?? '',
   });
   const [rate, setRate] = useState<number | null>(unit?.nightlyRateMinor ?? null);
   const [cleaning, setCleaning] = useState<number | null>(unit?.cleaningFeeMinor ?? 0);
@@ -226,6 +285,7 @@ function UnitForm({ property, unit, onClose, onSaved }: { property: Property; un
         code: f.code.trim(), name: f.name.trim(), description: f.description || undefined,
         bedrooms: num(f.bedrooms), bathrooms: num(f.bathrooms), maxGuests: num(f.maxGuests), minNights: num(f.minNights), maxNights: num(f.maxNights),
         nightlyRateMinor: rate, cleaningFeeMinor: cleaning, cautionDepositMinor: caution, status: f.status,
+        readiness: f.readiness, readinessNote: f.readinessNote.trim() || null,
       };
       if (unit) await patch(`/admin/apartments/units/${unit.id}`, body);
       else await post(`/admin/apartments/properties/${property.id}/units`, body);
@@ -255,6 +315,61 @@ function UnitForm({ property, unit, onClose, onSaved }: { property: Property; un
             <option value="ACTIVE">Bookable</option><option value="DRAFT">Draft (hidden)</option><option value="INACTIVE">Switched off</option>
           </select>
         </Field>
+        <Field label="Condition" hint="Only Ready to sell can be booked">
+          <select value={f.readiness} onChange={set('readiness')}>{READINESS_KEYS.map((k) => <option key={k} value={k}>{READINESS[k].label}</option>)}</select>
+        </Field>
+        <Field label="Condition note" hint="Staff only, for example 90% ready" full><input value={f.readinessNote} onChange={set('readinessNote')} /></Field>
+      </div>
+    </Modal>
+  );
+}
+
+function RoomForm({ unit, room, onClose, onSaved }: { unit: Unit; room?: Room; onClose: () => void; onSaved: () => void }) {
+  const { run, busy } = useAction();
+  const [f, setF] = useState({
+    name: room?.name ?? '',
+    description: room?.description ?? '',
+    maxGuests: String(room?.maxGuests ?? 2),
+    status: room?.status ?? ('ACTIVE' as Listing),
+    readiness: room?.readiness ?? ('READY' as Readiness),
+    readinessNote: room?.readinessNote ?? '',
+  });
+  const [rate, setRate] = useState<number | null>(room?.nightlyRateMinor ?? null);
+  const [cleaning, setCleaning] = useState<number | null>(room?.cleaningFeeMinor ?? 0);
+  const [caution, setCaution] = useState<number | null>(room?.cautionDepositMinor ?? 0);
+  const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
+  const valid = f.name.trim().length >= 2 && rate !== null && rate > 0 && cleaning !== null && caution !== null && Number.isInteger(Number(f.maxGuests)) && Number(f.maxGuests) >= 1;
+  const save = () =>
+    run(async () => {
+      const body = {
+        name: f.name.trim(), description: f.description || undefined, maxGuests: Number(f.maxGuests), nightlyRateMinor: rate, cleaningFeeMinor: cleaning, cautionDepositMinor: caution,
+        status: f.status, readiness: f.readiness, readinessNote: f.readinessNote.trim() || null,
+      };
+      if (room) await patch(`/admin/apartments/rooms/${room.id}`, body);
+      else await post(`/admin/apartments/units/${unit.id}/rooms`, body);
+    }, 'Room saved').then((ok) => ok && onSaved());
+  return (
+    <Modal
+      title={room ? `Edit ${room.name}` : `Add a bookable room to ${unit.name}`}
+      onClose={onClose}
+      footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" disabled={!valid || busy} onClick={() => void save()}>Save</button></>}
+    >
+      <div className="form-grid">
+        <Field label="Room name" full><input value={f.name} onChange={set('name')} placeholder="Bedroom 1" /></Field>
+        <Field label="Nightly rate (₦)"><MoneyInput value={rate} onChange={setRate} /></Field>
+        <Field label="Maximum guests"><input inputMode="numeric" value={f.maxGuests} onChange={set('maxGuests')} /></Field>
+        <Field label="Cleaning fee (₦, once per stay)"><MoneyInput value={cleaning} onChange={setCleaning} /></Field>
+        <Field label="Caution deposit (₦, refundable)"><MoneyInput value={caution} onChange={setCaution} /></Field>
+        <Field label="Status">
+          <select value={f.status} onChange={set('status')}>
+            <option value="ACTIVE">Bookable</option><option value="INACTIVE">Switched off</option>
+          </select>
+        </Field>
+        <Field label="Condition" hint="Only Ready to sell can be booked">
+          <select value={f.readiness} onChange={set('readiness')}>{READINESS_KEYS.map((k) => <option key={k} value={k}>{READINESS[k].label}</option>)}</select>
+        </Field>
+        <Field label="Condition note" hint="Staff only" full><input value={f.readinessNote} onChange={set('readinessNote')} /></Field>
+        <Field label="Description" full><textarea value={f.description} onChange={set('description')} /></Field>
       </div>
     </Modal>
   );

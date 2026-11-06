@@ -1746,7 +1746,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Price breakdown (nightly × nights + cleaning + caution deposit) and availability */
+        /** Price breakdown (nightly × nights + cleaning + caution deposit) and availability, for the whole unit or one room */
         get: operations["Apartments_quote"];
         put?: never;
         post?: never;
@@ -1869,6 +1869,39 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["AdminApartments_updateUnit"];
+        trace?: never;
+    };
+    "/api/v1/admin/apartments/units/{unitId}/rooms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Make a room bookable on its own */
+        post: operations["AdminApartments_createRoom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/apartments/rooms/{roomId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AdminApartments_updateRoom"];
         trace?: never;
     };
     "/api/v1/admin/apartments/units/{unitId}/blackouts": {
@@ -3072,6 +3105,8 @@ export interface components {
         };
         CreateReservationDto: {
             unitId: string;
+            /** @description Book one room; leave out to book the whole unit */
+            roomId?: string;
             /** @example 2026-12-20 */
             checkIn: string;
             /** @example 2026-12-23 */
@@ -3149,6 +3184,13 @@ export interface components {
             maxNights: number;
             /** @enum {string} */
             status?: "DRAFT" | "ACTIVE" | "INACTIVE" | "ARCHIVED";
+            /**
+             * @description Only READY can be booked
+             * @enum {string}
+             */
+            readiness?: "READY" | "FINISHING" | "NOT_READY" | "SERVICING" | "MAINTENANCE";
+            /** @description Staff-only note, for example "90% ready" */
+            readinessNote?: Record<string, never>;
         };
         UpdateUnitDto: {
             /** @example A-101 */
@@ -3172,6 +3214,49 @@ export interface components {
             maxNights: number;
             /** @enum {string} */
             status?: "DRAFT" | "ACTIVE" | "INACTIVE" | "ARCHIVED";
+            /**
+             * @description Only READY can be booked
+             * @enum {string}
+             */
+            readiness?: "READY" | "FINISHING" | "NOT_READY" | "SERVICING" | "MAINTENANCE";
+            /** @description Staff-only note, for example "90% ready" */
+            readinessNote?: Record<string, never>;
+        };
+        CreateRoomDto: {
+            /** @example Bedroom 1 */
+            name: string;
+            description?: string;
+            /** @default 2 */
+            maxGuests: number;
+            /** @description Nightly rate in kobo */
+            nightlyRateMinor: number;
+            /** @description One-off cleaning fee in kobo */
+            cleaningFeeMinor?: number;
+            /** @description Refundable caution deposit in kobo */
+            cautionDepositMinor?: number;
+            /** @enum {string} */
+            status?: "DRAFT" | "ACTIVE" | "INACTIVE" | "ARCHIVED";
+            /** @enum {string} */
+            readiness?: "READY" | "FINISHING" | "NOT_READY" | "SERVICING" | "MAINTENANCE";
+            readinessNote?: Record<string, never>;
+        };
+        UpdateRoomDto: {
+            /** @example Bedroom 1 */
+            name?: string;
+            description?: string;
+            /** @default 2 */
+            maxGuests: number;
+            /** @description Nightly rate in kobo */
+            nightlyRateMinor?: number;
+            /** @description One-off cleaning fee in kobo */
+            cleaningFeeMinor?: number;
+            /** @description Refundable caution deposit in kobo */
+            cautionDepositMinor?: number;
+            /** @enum {string} */
+            status?: "DRAFT" | "ACTIVE" | "INACTIVE" | "ARCHIVED";
+            /** @enum {string} */
+            readiness?: "READY" | "FINISHING" | "NOT_READY" | "SERVICING" | "MAINTENANCE";
+            readinessNote?: Record<string, never>;
         };
         CreateBlackoutDto: {
             startDate: string;
@@ -5983,6 +6068,8 @@ export interface operations {
     Apartments_calendar: {
         parameters: {
             query: {
+                /** @description Show dates for one room instead of the whole unit */
+                roomId?: string;
                 from: string;
                 to: string;
             };
@@ -6005,6 +6092,8 @@ export interface operations {
     Apartments_quote: {
         parameters: {
             query: {
+                /** @description Price one room instead of the whole unit */
+                roomId?: string;
                 checkIn: string;
                 checkOut: string;
                 guests?: number;
@@ -6215,6 +6304,54 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateUnitDto"];
+            };
+        };
+        responses: {
+            /** @description Requires one of: listings:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminApartments_createRoom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                unitId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoomDto"];
+            };
+        };
+        responses: {
+            /** @description Requires one of: listings:manage */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminApartments_updateRoom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoomDto"];
             };
         };
         responses: {

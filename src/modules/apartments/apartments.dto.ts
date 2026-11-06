@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { ListingStatus, ReservationStatus } from '@prisma/client';
+import { ListingStatus, ReservationStatus, UnitReadiness } from '@prisma/client';
 import { ArrayMaxSize, IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, IsUUID, Length, Matches, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationQueryDto } from '../../common/dto/pagination.dto';
@@ -18,18 +18,21 @@ export class PropertyQueryDto extends PaginationQueryDto {
 }
 
 export class StayQueryDto {
+  @ApiPropertyOptional({ description: 'Price one room instead of the whole unit' }) @IsOptional() @IsUUID() roomId?: string;
   @ApiProperty({ example: '2026-12-20' }) @Matches(DATE, { message: 'checkIn must be YYYY-MM-DD' }) checkIn: string;
   @ApiProperty({ example: '2026-12-23' }) @Matches(DATE, { message: 'checkOut must be YYYY-MM-DD' }) checkOut: string;
   @ApiPropertyOptional({ example: 2 }) @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(30) guests?: number;
 }
 
 export class CalendarQueryDto {
+  @ApiPropertyOptional({ description: 'Show dates for one room instead of the whole unit' }) @IsOptional() @IsUUID() roomId?: string;
   @ApiProperty({ example: '2026-12-01' }) @Matches(DATE) from: string;
   @ApiProperty({ example: '2027-01-31' }) @Matches(DATE) to: string;
 }
 
 export class CreateReservationDto {
   @ApiProperty() @IsUUID() unitId: string;
+  @ApiPropertyOptional({ description: 'Book one room; leave out to book the whole unit' }) @IsOptional() @IsUUID() roomId?: string;
   @ApiProperty({ example: '2026-12-20' }) @Matches(DATE) checkIn: string;
   @ApiProperty({ example: '2026-12-23' }) @Matches(DATE) checkOut: string;
   @ApiProperty({ example: 2 }) @IsInt() @Min(1) @Max(30) guests: number;
@@ -84,9 +87,25 @@ export class CreateUnitDto {
   @ApiPropertyOptional({ default: 1 }) @IsOptional() @IsInt() @Min(1) minNights?: number;
   @ApiPropertyOptional({ default: 90 }) @IsOptional() @IsInt() @Min(1) @Max(365) maxNights?: number;
   @ApiPropertyOptional({ enum: ListingStatus }) @IsOptional() @IsEnum(ListingStatus) status?: ListingStatus;
+  @ApiPropertyOptional({ enum: UnitReadiness, description: 'Only READY can be booked' }) @IsOptional() @IsEnum(UnitReadiness) readiness?: UnitReadiness;
+  @ApiPropertyOptional({ description: 'Staff-only note, for example "90% ready"' }) @IsOptional() @IsString() @Length(0, 500) readinessNote?: string | null;
 }
 
 export class UpdateUnitDto extends PartialType(CreateUnitDto) {}
+
+export class CreateRoomDto {
+  @ApiProperty({ example: 'Bedroom 1' }) @IsString() @Length(2, 120) name: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Length(0, 2000) description?: string;
+  @ApiPropertyOptional({ default: 2 }) @IsOptional() @IsInt() @Min(1) @Max(30) maxGuests?: number;
+  @ApiProperty({ description: 'Nightly rate in kobo' }) @MinorAmount() @IsInt() @Min(1) nightlyRateMinor: number;
+  @ApiPropertyOptional({ description: 'One-off cleaning fee in kobo' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) cleaningFeeMinor?: number;
+  @ApiPropertyOptional({ description: 'Refundable caution deposit in kobo' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) cautionDepositMinor?: number;
+  @ApiPropertyOptional({ enum: ListingStatus }) @IsOptional() @IsEnum(ListingStatus) status?: ListingStatus;
+  @ApiPropertyOptional({ enum: UnitReadiness }) @IsOptional() @IsEnum(UnitReadiness) readiness?: UnitReadiness;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Length(0, 500) readinessNote?: string | null;
+}
+
+export class UpdateRoomDto extends PartialType(CreateRoomDto) {}
 
 export class CreateBlackoutDto {
   @ApiProperty() @Matches(DATE) startDate: string;

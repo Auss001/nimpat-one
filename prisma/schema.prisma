@@ -1147,6 +1147,15 @@ model PaymentPolicy {
 // Luxury apartments
 // -----------------------------------------------------------------------------
 
+/// Whether an apartment or room can be sold right now. Only READY can be booked.
+enum UnitReadiness {
+  READY
+  FINISHING
+  NOT_READY
+  SERVICING
+  MAINTENANCE
+}
+
 model Property {
   id           String        @id @default(uuid()) @db.Uuid
   divisionId   String        @map("division_id") @db.Uuid
@@ -1193,16 +1202,44 @@ model ApartmentUnit {
   verifiedAt          DateTime?          @map("verified_at") @db.Timestamptz(3)
   verifiedById        String?            @map("verified_by_id") @db.Uuid
   status              ListingStatus      @default(DRAFT)
+  readiness           UnitReadiness      @default(READY)
+  readinessNote       String?            @map("readiness_note")
   createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   property     Property        @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   images       PropertyImage[]
+  rooms        ApartmentRoom[]
   reservations Reservation[]
   blackouts    UnitBlackout[]
 
   @@unique([propertyId, code])
   @@map("apartment_units")
+}
+
+/// A room that can be booked on its own. The whole unit stays bookable when no
+/// room is taken; see the reservations_no_overlap constraint.
+model ApartmentRoom {
+  id                  String        @id @default(uuid()) @db.Uuid
+  unitId              String        @map("unit_id") @db.Uuid
+  slot                Int
+  name                String
+  description         String?
+  maxGuests           Int           @default(2) @map("max_guests")
+  nightlyRateMinor    BigInt        @map("nightly_rate_minor")
+  cleaningFeeMinor    BigInt        @default(0) @map("cleaning_fee_minor")
+  cautionDepositMinor BigInt        @default(0) @map("caution_deposit_minor")
+  status              ListingStatus @default(ACTIVE)
+  readiness           UnitReadiness @default(READY)
+  readinessNote       String?       @map("readiness_note")
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  unit         ApartmentUnit @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  reservations Reservation[]
+
+  @@unique([unitId, slot])
+  @@map("apartment_rooms")
 }
 
 model PropertyImage {
@@ -1245,6 +1282,10 @@ model Reservation {
   id                   String            @id @default(uuid()) @db.Uuid
   reservationNumber    String            @unique @map("reservation_number")
   unitId               String            @map("unit_id") @db.Uuid
+  /// Set when one room is booked rather than the whole unit.
+  roomId               String?           @map("room_id") @db.Uuid
+  /// Copy of the room's slot, used by the double-booking constraint.
+  roomSlot             Int?              @map("room_slot")
   userId               String            @map("user_id") @db.Uuid
   checkIn              DateTime          @map("check_in") @db.Date
   checkOut             DateTime          @map("check_out") @db.Date
@@ -1269,11 +1310,13 @@ model Reservation {
   createdAt            DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt            DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  unit     ApartmentUnit @relation(fields: [unitId], references: [id], onDelete: Restrict)
-  user     User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  unit     ApartmentUnit  @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  room     ApartmentRoom? @relation(fields: [roomId], references: [id], onDelete: Restrict)
+  user     User           @relation(fields: [userId], references: [id], onDelete: Restrict)
   payments Payment[]
 
   @@unique([userId, idempotencyKey])
+  @@index([roomId])
   @@index([unitId, checkIn])
   @@index([userId, createdAt])
   @@index([status, holdExpiresAt])
