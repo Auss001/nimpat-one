@@ -10,6 +10,10 @@ import { P } from '../access/permissions';
 import { MinorAmount } from '../catalog/catalog.dto';
 import { OrdersService } from './orders.service';
 
+class ChangeOrderAddressDto {
+  @ApiProperty({ description: 'One of your saved addresses' }) @IsUUID() addressId: string;
+}
+
 class CheckoutDto {
   @ApiProperty({ example: 'water-drinks-wines', description: 'Division whose cart is checked out' }) @IsString() division: string;
   @ApiProperty({ enum: FulfilmentType }) @IsEnum(FulfilmentType) fulfilmentType: FulfilmentType;
@@ -72,6 +76,12 @@ export class OrdersController {
   @ApiOperation({ summary: 'My order with status timeline, delivery and payments' })
   get(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string) {
     return this.orders.getForCustomer(user, id);
+  }
+
+  @Patch(':id/address')
+  @ApiOperation({ summary: 'Deliver an unpaid order to another of your addresses, before it is sent out (the fee is worked out again)' })
+  changeAddress(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: ChangeOrderAddressDto) {
+    return this.orders.changeDeliveryAddress(user, id, dto.addressId);
   }
 
   @Post(':id/cancel')

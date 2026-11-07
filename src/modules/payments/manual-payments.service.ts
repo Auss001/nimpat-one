@@ -84,6 +84,13 @@ export class ManualPaymentsService {
       select: { id: true, code: true, name: true, addressLine: true, city: true, state: true, acceptsCash: true, acceptsBankTransfer: true, acceptsCardTerminal: true },
     });
     const open = ctx.acceptsPayments && summary.outstandingMinor - summary.awaitingVerificationMinor > 0n;
+    // Paying in store means coming to collect, so a delivery order never offers it.
+    const order = purpose === PaymentPurpose.ORDER
+      ? await this.prisma.order.findUnique({ where: { id: payableId }, select: { fulfilmentType: true, status: true, amountPaidMinor: true, deliveryAddress: true, deliveryFeeMinor: true, delivery: { select: { status: true } } } })
+      : null;
+    const isDelivery = order?.fulfilmentType === 'DELIVERY';
+    const canChangeAddress = !!order && isDelivery && (order.status === 'PENDING' || order.status === 'ACCEPTED') && order.amountPaidMinor === 0n
+      && summary.awaitingVerificationMinor === 0n && (!order.delivery || order.delivery.status === 'PENDING');
     return {
       purpose,
       payableId,
@@ -99,11 +106,12 @@ export class ManualPaymentsService {
       confirmationRule: policy.confirmationRule,
       payBy: ctx.payBy ?? null,
       methods: {
-        paystack: { available: open && policy.allowPaystack, channels: ['card', 'bank_transfer', 'ussd'], note: 'Paystack checkout (test mode)' },
+        paystack: { available: open && policy.allowPaystack, channels: ['card', 'bank_transfer', 'ussd'], note: process.env.PAYSTACK_MODE === 'live' ? 'Card, bank transfer or USSD through Paystack' : 'Paystack checkout (test mode)' },
         bankTransfer: { available: open && policy.allowBankTransfer && !!account, windowHours: policy.bankTransferWindowHours, note: account ? 'Account details are shown after you choose this option' : 'No receiving account configured' },
         payOnDelivery: { available: purpose === PaymentPurpose.ORDER && policy.allowPayOnDelivery, note: 'Chosen at checkout; staff collect on delivery' },
-        payAtLocation: { available: policy.allowPayAtLocation && locations.length > 0, locations },
+        payAtLocation: { available: policy.allowPayAtLocation && locations.length > 0 && !isDelivery, locations },
       },
+      delivery: isDelivery ? { address: order!.deliveryAddress, feeMinor: order!.deliveryFeeMinor, canChangeAddress } : null,
       closedReason: ctx.acceptsPayments ? undefined : ctx.closedReason,
     };
   }

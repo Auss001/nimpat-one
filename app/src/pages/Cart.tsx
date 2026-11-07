@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Banknote, Building, Check, Clock, CreditCard, MapPin, Minus, Plus, Store, Trash2, Truck, Upload } from 'lucide-react';
 import { api, del, formatNaira, get, getSession, idempotency, patch, post, rows } from '../api';
 import { AddressForm, addressLine, NeedsSignIn, VerifyEmailNote } from './Account';
-import { CallLink, Empty, Field, Loader, Note, PageTitle, Photo, Status, dateTime, useCart, useLoad, useToast } from '../ui';
+import { CallLink, Empty, Field, Loader, Note, PageTitle, Photo, Sheet, Status, dateTime, useCart, useLoad, useToast } from '../ui';
 
 const DIVISION_NAME: Record<string, string> = {
   'water-drinks-wines': 'Water & Drinks',
@@ -274,6 +274,7 @@ export function PayPage() {
         {o.payBy && <p className="muted-text"><Clock size={14} aria-hidden="true" /> Please pay by {dateTime(o.payBy)}</p>}
         <Status value={o.paymentStatus} />
       </section>
+      {o.delivery && <DeliverTo orderId={id} delivery={o.delivery} onChanged={() => void options.reload()} />}
       {o.closedReason && <Note tone="warn">{o.closedReason}</Note>}
       {needsVerify && <VerifyEmailNote />}
       {canChooseDeposit && (
@@ -306,6 +307,58 @@ export function PayPage() {
         <CallLink />
       </section>
     </>
+  );
+}
+
+/** Where an order is going, with a way to fix a wrong address before it is paid or sent out. */
+function DeliverTo({ orderId, delivery, onChanged }: { orderId: string; delivery: { address: any; feeMinor: number; canChangeAddress: boolean }; onChanged: () => void }) {
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const addresses = useLoad(() => (open ? get('/me/addresses').then(rows) : Promise.resolve([])), [open]);
+  const choose = async (addressId: string) => {
+    setBusy(true);
+    try {
+      await patch(`/orders/${orderId}/address`, { addressId });
+      toast('Address changed. The delivery fee has been updated.');
+      setOpen(false);
+      onChanged();
+    } catch (e) {
+      toast((e as Error).message, 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <h2>Delivering to</h2>
+        {delivery.canChangeAddress && <button className="text-link" onClick={() => setOpen(true)}>Change</button>}
+      </div>
+      <div className="address-row">
+        <MapPin size={18} aria-hidden="true" />
+        <span><b>{delivery.address?.recipientName}</b><small>{delivery.address ? addressLine(delivery.address) : ''}</small></span>
+      </div>
+      <div className="sum"><span>Delivery fee</span><span>{formatNaira(delivery.feeMinor)}</span></div>
+      {!delivery.canChangeAddress && <p className="muted-text">To change the address now, please call us.</p>}
+      {open && (
+        <Sheet title="Deliver to another address" onClose={() => setOpen(false)}>
+          {addresses.loading && <Loader />}
+          {(addresses.data ?? []).map((a: any) => (
+            <button key={a.id} className="pay-option" disabled={busy} onClick={() => void choose(a.id)}>
+              <MapPin size={20} aria-hidden="true" />
+              <span><b>{a.label ?? a.recipientName}</b><small>{addressLine(a)}</small></span>
+            </button>
+          ))}
+          {adding ? (
+            <AddressForm onCancel={() => setAdding(false)} onSaved={async (a) => { setAdding(false); await addresses.reload(); if (a?.id) await choose(a.id); }} />
+          ) : (
+            <button className="btn ghost full" onClick={() => setAdding(true)}>Add a new address</button>
+          )}
+        </Sheet>
+      )}
+    </section>
   );
 }
 

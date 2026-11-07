@@ -255,6 +255,43 @@ export class OrdersService implements OnModuleInit, PayableHandler {
     return withOutstanding(order);
   }
 
+  /**
+   * Moves an unpaid delivery order to another of the customer's addresses, before it is sent out.
+   * The delivery fee is worked out again for the new address.
+   */
+  async changeDeliveryAddress(user: AuthUser, id: string, addressId: string) {
+    const order = await this.prisma.order.findFirst({ where: { id, userId: user.id }, include: { delivery: true } });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.fulfilmentType !== FulfilmentType.DELIVERY) throw new BadRequestException('This order is for pickup, so it has no delivery address');
+    const changeable = (order.status === OrderStatus.PENDING || order.status === OrderStatus.ACCEPTED) && order.amountPaidMinor === 0n
+      && (!order.delivery || order.delivery.status === 'PENDING');
+    if (!changeable) throw new BadRequestException('The address can only be changed before the order is paid or sent out. Please call us to change it.');
+    const waiting = await this.prisma.payment.count({ where: { orderId: id, status: { in: [PaymentStatus.AWAITING_VERIFICATION, PaymentStatus.SUCCESS] } } });
+    if (waiting) throw new BadRequestException('A payment for this order is being checked. Please call us to change the address.');
+
+    const address = await this.prisma.address.findFirst({ where: { id: addressId, userId: user.id, deletedAt: null } });
+    if (!address) throw new NotFoundException('Delivery address not found');
+    const q = await this.delivery.quote(order.divisionId, address, order.subtotalMinor);
+    const totalMinor = order.subtotalMinor + q.feeMinor;
+    // The way the customer chose to pay must still be allowed at the new address (for example pay on delivery).
+    const options = await this.policies.orderOptions(order.divisionId, { fulfilment: 'DELIVERY', zoneId: q.zoneId, orderValueMinor: totalMinor });
+    const chosen = options.find((o) => o.option === order.paymentOption);
+    if (chosen && !chosen.available) throw new BadRequestException(`${chosen.reason ?? 'Your payment choice is not available'} at this address. Please choose another address or call us.`);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id },
+        data: { addressId: address.id, deliveryAddress: snapshotAddress(address), deliveryFeeMinor: q.feeMinor, totalMinor },
+      });
+      if (order.delivery) await tx.delivery.update({ where: { id: order.delivery.id }, data: { zoneId: q.zoneId, feeMinor: q.feeMinor } });
+      await this.audit.record({
+        actorId: user.id, action: 'order.address_changed', entityType: 'order', entityId: id, divisionId: order.divisionId,
+        changes: { feeMinor: { from: String(order.deliveryFeeMinor), to: String(q.feeMinor) }, totalMinor: { from: String(order.totalMinor), to: String(totalMinor) } },
+      }, tx);
+    });
+    return this.getForCustomer(user, id);
+  }
+
   async cancelByCustomer(user: AuthUser, id: string) {
     const order = await this.prisma.order.findFirst({ where: { id, userId: user.id } });
     if (!order) throw new NotFoundException('Order not found');
