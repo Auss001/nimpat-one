@@ -35,6 +35,7 @@ interface Product {
   category: { id: string; name: string } | null;
   images: { id: string; url: string }[];
   variants: Variant[];
+  createdAt?: string;
 }
 type Prescription = 'NOT_REVIEWED' | 'NOT_REQUIRED' | 'REQUIRED' | 'RESTRICTED';
 const PRESCRIPTION: Record<Prescription, string> = {
@@ -61,6 +62,60 @@ interface Category {
 
 type StatusTab = 'ACTIVE' | 'DRAFT' | 'ARCHIVED' | 'ALL';
 
+type SortKey = 'category' | 'name' | 'name-desc' | 'price' | 'price-desc' | 'newest' | 'stock';
+const SORTS: { value: SortKey; label: string }[] = [
+  { value: 'category', label: 'Sort: by category' },
+  { value: 'name', label: 'Sort: name A to Z' },
+  { value: 'name-desc', label: 'Sort: name Z to A' },
+  { value: 'price', label: 'Sort: price, lowest first' },
+  { value: 'price-desc', label: 'Sort: price, highest first' },
+  { value: 'stock', label: 'Sort: most in stock first' },
+  { value: 'newest', label: 'Sort: newest first' },
+];
+type ShowKey = 'all' | 'priced' | 'unpriced' | 'photo' | 'no-photo' | 'in-stock' | 'out-of-stock' | 'needs-approval';
+const SHOWS: { value: ShowKey; label: string; pharmacyOnly?: boolean }[] = [
+  { value: 'all', label: 'Show: everything' },
+  { value: 'priced', label: 'Show: with a price' },
+  { value: 'unpriced', label: 'Show: no price yet' },
+  { value: 'photo', label: 'Show: with a photo' },
+  { value: 'no-photo', label: 'Show: no photo yet' },
+  { value: 'in-stock', label: 'Show: in stock' },
+  { value: 'out-of-stock', label: 'Show: out of stock' },
+  { value: 'needs-approval', label: 'Show: awaiting pharmacist', pharmacyOnly: true },
+];
+/** Lowest price of a product, or null when none is set. */
+const lowestPrice = (p: Product) => {
+  const prices = p.variants.map((v) => v.unitPriceMinor).filter((x): x is number => x !== null && x !== undefined).map(Number);
+  return prices.length ? Math.min(...prices) : null;
+};
+/** Same rule as the In stock column: a listed status wins, otherwise the live count. */
+const stockOf = (p: Product) =>
+  p.listedAvailability === 'OUT_OF_STOCK' ? 0 : p.listedAvailability === 'IN_STOCK' ? Infinity : p.variants.reduce((n, v) => n + Math.max(0, v.availableQuantity), 0);
+const shows = (p: Product, show: ShowKey) => {
+  switch (show) {
+    case 'priced': return lowestPrice(p) !== null;
+    case 'unpriced': return lowestPrice(p) === null;
+    case 'photo': return p.images.length > 0;
+    case 'no-photo': return p.images.length === 0;
+    case 'in-stock': return stockOf(p) > 0;
+    case 'out-of-stock': return stockOf(p) === 0;
+    case 'needs-approval': return p.prescriptionStatus !== null && !p.pharmacistApprovedAt;
+    default: return true;
+  }
+};
+
+/** A column heading that sorts the list when clicked, and again the other way. */
+function SortHead({ label, up, down, sort, setSort, num }: { label: string; up: SortKey; down: SortKey; sort: SortKey; setSort: (s: SortKey) => void; num?: boolean }) {
+  const on = sort === up ? '↑' : sort === down ? '↓' : '';
+  return (
+    <th className={num ? 'num' : undefined} aria-sort={sort === up ? 'ascending' : sort === down ? 'descending' : 'none'}>
+      <button className="sort-head" onClick={() => setSort(sort === up ? down : up)} title={`Sort by ${label.toLowerCase()}`}>
+        {label} <span aria-hidden="true">{on || '↕'}</span>
+      </button>
+    </th>
+  );
+}
+
 /** Lets a manager hide this shop's out-of-stock items from customers, or show them again. */
 function OutOfStockSwitch({ division }: { division: string }) {
   const shop = useLoad(() => get<{ hideOutOfStock: boolean }>(`/divisions/${division}`), [division]);
@@ -86,6 +141,8 @@ export function ProductsPage({ division, title }: { division: string; title: str
   const [q, setQ] = useState(params.get('q') ?? '');
   useEffect(() => setQ(params.get('q') ?? ''), [params]);
   const [category, setCategory] = useState('');
+  const [sort, setSort] = useState<SortKey>('category');
+  const [show, setShow] = useState<ShowKey>('all');
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
   const [photosFor, setPhotosFor] = useState<string | null>(null);
@@ -111,14 +168,32 @@ export function ProductsPage({ division, title }: { division: string; title: str
     return (products.data ?? [])
       .filter(
         (p) =>
+          shows(p, show) &&
           (!category || p.category?.id === category) &&
           (!term || p.name.toLowerCase().includes(term) || (p.brand ?? '').toLowerCase().includes(term) || p.variants.some((v) => v.sku.toLowerCase().includes(term))),
       )
-      .sort((a, b) => (order.get(a.category?.id ?? '') ?? 99) - (order.get(b.category?.id ?? '') ?? 99) || a.name.localeCompare(b.name));
-  }, [products.data, categories.data, q, category]);
+      .sort((a, b) => {
+        const byName = a.name.localeCompare(b.name);
+        // Products with no price always go to the end, whichever way prices are sorted.
+        const price = (dir: number) => {
+          const pa = lowestPrice(a), pb = lowestPrice(b);
+          if (pa === null || pb === null) return pa === pb ? byName : pa === null ? 1 : -1;
+          return (pa - pb) * dir || byName;
+        };
+        switch (sort) {
+          case 'name': return byName;
+          case 'name-desc': return -byName;
+          case 'price': return price(1);
+          case 'price-desc': return price(-1);
+          case 'stock': return stockOf(b) - stockOf(a) || byName;
+          case 'newest': return (b.createdAt ?? '').localeCompare(a.createdAt ?? '') || byName;
+          default: return (order.get(a.category?.id ?? '') ?? 99) - (order.get(b.category?.id ?? '') ?? 99) || byName;
+        }
+      });
+  }, [products.data, categories.data, q, category, sort, show]);
 
   // Selection follows the list on screen, so a filter or new tab starts clean.
-  useEffect(() => setSelected(new Set()), [division, tab, q, category]);
+  useEffect(() => setSelected(new Set()), [division, tab, q, category, show]);
   const allOn = rows.length > 0 && rows.every((p) => selected.has(p.id));
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const toggleAll = () => setSelected(allOn ? new Set() : new Set(rows.map((p) => p.id)));
@@ -170,6 +245,12 @@ export function ProductsPage({ division, title }: { division: string; title: str
           <option value="">All categories</option>
           {categories.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
+        <select style={{ width: 'auto' }} value={show} onChange={(e) => setShow(e.target.value as ShowKey)} aria-label="Show">
+          {SHOWS.filter((o) => !o.pharmacyOnly || division === 'pharmacy-laboratory').map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+        <select style={{ width: 'auto' }} value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Sort">
+          {SORTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
         <span className="muted small">{rows.length} products</span>
       </div>
       {count > 0 && (
@@ -197,10 +278,10 @@ export function ProductsPage({ division, title }: { division: string; title: str
               <tr>
                 <th style={{ width: 34 }}><input type="checkbox" className="row-check" aria-label="Select all products shown" title="Select all" checked={allOn} onChange={toggleAll} /></th>
                 <th style={{ width: 52 }}></th>
-                <th>Product</th>
+                <SortHead label="Product" up="name" down="name-desc" sort={sort} setSort={setSort} />
                 <th>Size / pack</th>
-                <th className="num">Price</th>
-                <th className="num">In stock</th>
+                <SortHead label="Price" up="price" down="price-desc" sort={sort} setSort={setSort} num />
+                <SortHead label="In stock" up="stock" down="stock" sort={sort} setSort={setSort} num />
                 <th>Status</th>
                 <th></th>
               </tr>
