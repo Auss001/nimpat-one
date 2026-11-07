@@ -2,6 +2,7 @@
 # Puts Nimpat One on Google Cloud Run. Safe to run again: existing items are kept.
 #   PROJECT=my-project ./deploy/cloud-run.sh setup      first time: database, buckets, secrets, loads local data
 #   PROJECT=my-project ./deploy/cloud-run.sh release    build and deploy the API, customer app and dashboard
+#   PROJECT=my-project ./deploy/cloud-run.sh sql FILE   back up, then apply a data change such as deploy/data/*.sql
 # Secrets are created in Secret Manager and never printed or written to disk.
 set -euo pipefail
 # Git Bash on Windows: leave these arguments alone; everything else needs its normal path handling.
@@ -82,6 +83,21 @@ load_data() {
   echo "data loaded; temporary copy deleted"
 }
 
+run_sql() { # file: a data change such as a price list, applied after a backup
+  local file="${1:?Give the SQL file}" tmp="nimpat-one-import-$NUMBER"
+  [ -f "$file" ] || { echo "No such file: $file"; exit 1; }
+  echo "== backing up the database"
+  gcloud sql backups create --instance="$SQL_INSTANCE" --description="before $(basename "$file")" --quiet
+  echo "== applying $(basename "$file")"
+  gcloud storage buckets describe "gs://$tmp" >/dev/null 2>&1 || gcloud storage buckets create "gs://$tmp" --location="$REGION" --uniform-bucket-level-access --public-access-prevention
+  local sql_sa; sql_sa=$(gcloud sql instances describe "$SQL_INSTANCE" --format='value(serviceAccountEmailAddress)')
+  gcloud storage buckets add-iam-policy-binding "gs://$tmp" --member="serviceAccount:$sql_sa" --role=roles/storage.objectViewer >/dev/null
+  gcloud storage cp "$file" "gs://$tmp/change.sql"
+  gcloud sql import sql "$SQL_INSTANCE" "gs://$tmp/change.sql" --database=nimpat_one --user=nimpat_api --quiet
+  gcloud storage rm --recursive "gs://$tmp"
+  echo "applied; temporary copy deleted"
+}
+
 release() {
   local tag; tag=$(git rev-parse --short HEAD)-$(date +%H%M%S)
   gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet >/dev/null 2>&1
@@ -134,5 +150,6 @@ release() {
 case "${1:-}" in
   setup) setup; load_data ;;
   release) release ;;
-  *) echo "Usage: PROJECT=... $0 setup|release"; exit 1 ;;
+  sql) run_sql "${2:-}" ;;
+  *) echo "Usage: PROJECT=... $0 setup|release|sql FILE"; exit 1 ;;
 esac

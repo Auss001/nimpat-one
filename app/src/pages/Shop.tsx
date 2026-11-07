@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { CalendarCheck, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, Stethoscope } from 'lucide-react';
+import { CalendarCheck, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, Stethoscope } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
 
@@ -247,6 +247,25 @@ export function ProductPage() {
   );
 }
 
+/** Words that mean a whole section of the app. */
+const SECTIONS: { to: string; label: string; words: string[]; key?: 'stays' | 'cars' | 'spa' }[] = [
+  { to: '/spa', label: 'Spa & Wellness', words: ['spa', 'massage', 'facial', 'wellness', 'beauty', 'salon', 'saloon', 'nails', 'braces'], key: 'spa' },
+  { to: '/apartments', label: 'Luxury Apartments', words: ['apartment', 'apartments', 'flat', 'flats', 'stay', 'shortlet', 'short let', 'hotel', 'room', 'rooms', 'mabushi'], key: 'stays' },
+  { to: '/cars', label: 'Cars', words: ['car', 'cars', 'vehicle', 'vehicles', 'auto', 'automobile', 'automobiles'], key: 'cars' },
+  { to: '/pharmacy', label: 'Pharmacy', words: ['pharmacy', 'medicine', 'medicines', 'drug', 'drugs', 'chemist'] },
+  { to: '/services/pharmacy-laboratory', label: 'Laboratory', words: ['lab', 'laboratory', 'test', 'tests'] },
+  { to: '/shop/water-drinks-wines', label: 'Drinks', words: ['drinks', 'drink', 'wine', 'wines', 'spirits', 'whisky', 'whiskey', 'champagne'] },
+  { to: '/shop/water-drinks-wines?category=water', label: 'Water', words: ['water'] },
+  { to: '/shop/retail-general-supplies', label: 'Supplies', words: ['supplies', 'supply', 'retail'] },
+];
+
+/** A section matches when the search is one of its words, or the start of one (at least three letters). */
+function sectionsFor(q: string) {
+  const t = q.trim().toLowerCase();
+  if (t.length < 2) return [];
+  return SECTIONS.filter((x) => x.words.some((w) => w === t || (t.length >= 3 && w.startsWith(t))) || x.label.toLowerCase() === t);
+}
+
 /** One search across products, stays, cars and treatments. */
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
@@ -271,15 +290,18 @@ export function SearchPage() {
       get('/spa/treatments?pageSize=100').catch(() => none),
     ]);
     const has = (...s: (string | null | undefined)[]) => s.some((x) => x?.toLowerCase().includes(q));
+    // Searching a section's name shows everything in it.
+    const whole = new Set(sectionsFor(q).map((x) => x.key));
     return {
       products: products.data,
-      stays: rows(stays).filter((p: any) => has(p.name, p.city, p.location)),
-      cars: rows(cars).filter((v: any) => has(v.make, v.model, String(v.year))),
-      spa: rows(spa).filter((t: any) => has(t.name, t.category)),
+      stays: rows(stays).filter((p: any) => whole.has('stays') || has(p.name, p.city, p.location)),
+      cars: rows(cars).filter((v: any) => whole.has('cars') || has(v.make, v.model, String(v.year))),
+      spa: rows(spa).filter((t: any) => whole.has('spa') || has(t.name, t.category, t.description)),
     };
   }, [initial]);
   const r = results.data;
-  const nothing = r && !r.products.length && !r.stays.length && !r.cars.length && !r.spa.length;
+  const sections = sectionsFor(initial);
+  const nothing = r && !sections.length && !r.products.length && !r.stays.length && !r.cars.length && !r.spa.length;
   return (
     <>
       <PageTitle title="Search" back={false} />
@@ -295,10 +317,12 @@ export function SearchPage() {
         {!initial && <div className="chips wrap">{['Water', 'Champagne', 'Whisky', 'Paracetamol', 'Toyota', 'Massage', 'Mabushi'].map((s) => <button key={s} onClick={() => setText(s)}>{s}</button>)}</div>}
       </section>
       {nothing && <Empty title={`Nothing found for "${initial}"`}>Try another word.</Empty>}
-      {r && r.products.length > 0 && <><h2 className="group-title">Products</h2><ProductGrid products={r.products} /></>}
+      {sections.length > 0 && <div className="chips wrap section-hits" aria-label="Go to">{sections.map((x) => <Link key={x.to} to={x.to} className="chip-link">{x.label} <ChevronRight size={15} aria-hidden="true" /></Link>)}</div>}
+      {r && !sections.length && r.products.length > 0 && <><h2 className="group-title">Products</h2><ProductGrid products={r.products} /></>}
       {r && r.stays.length > 0 && <><h2 className="group-title">Luxury Apartments</h2><div className="list">{r.stays.map((p: any) => <Link key={p.id} to={`/apartments/${p.slug}`} className="row-card"><b>{p.name}</b><small>{p.location ?? p.city}</small></Link>)}</div></>}
       {r && r.cars.length > 0 && <><h2 className="group-title">Cars</h2><div className="list">{r.cars.map((v: any) => <Link key={v.id} to={`/cars/${v.slug}`} className="row-card"><b>{v.year} {v.make} {v.model}</b><small>{v.priceMinor !== null ? formatNaira(v.priceMinor) : 'Contact for price'}</small></Link>)}</div></>}
-      {r && r.spa.length > 0 && <><h2 className="group-title">Spa</h2><div className="list">{r.spa.map((t: any) => <Link key={t.id} to={`/spa/${t.slug}`} className="row-card"><b>{t.name}</b><small>{formatNaira(t.priceMinor)}</small></Link>)}</div></>}
+      {r && r.spa.length > 0 && <><h2 className="group-title">Spa & Wellness</h2><div className="list">{r.spa.map((t: any) => <Link key={t.id} to={`/spa/${t.slug}`} className="row-card"><b>{t.name}</b><small>{formatNaira(t.priceMinor)}</small></Link>)}</div></>}
+      {r && sections.length > 0 && r.products.length > 0 && <><h2 className="group-title">Products</h2><ProductGrid products={r.products} /></>}
     </>
   );
 }
