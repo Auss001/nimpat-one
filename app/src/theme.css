@@ -537,3 +537,14 @@ body { background: var(--bg); }
 
 /* Search: shortcuts to a whole section */
 .chip-link { flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 0 12px 0 16px; border-radius: 20px; font-size: 14px; font-weight: 700; color: #fff; background: linear-gradient(145deg, #0e8249, #0a6236); box-shadow: 0 6px 14px rgb(11 107 58 / 26%); }
+
+/* Home slider: glow fades out at every edge, shadows are not cut off, and wide screens show whole cards. */
+.slider-glows { inset: -36px -16px -8px; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 35%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 35%, transparent 100%); }
+.slider-glow { opacity: .26; }
+.slider-track { padding-bottom: 42px; margin-bottom: -28px; }
+@media (min-width: 900px) {
+  .slider-track { margin: 0 -12px -28px; padding: 4px 12px 42px; scroll-padding: 0 12px; gap: 16px; }
+  .slide { flex-basis: calc((100% - 16px) / 2); }
+  .slider-glow { width: 46%; }
+}
+@media (min-width: 1100px) { .slide { flex-basis: calc((100% - 32px) / 3); } }
