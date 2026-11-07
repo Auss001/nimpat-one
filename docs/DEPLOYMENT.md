@@ -149,3 +149,24 @@ PAYSTACK_MODE=live PROJECT=gen-lang-client-0983782546 ./deploy/cloud-run.sh rele
 ```
 
 Webhook URL for the Paystack dashboard (test and live): `https://nimpat-one-api-170221639175.europe-west1.run.app/api/v1/payments/webhooks/paystack`
+
+## Custom addresses (nimpatgroup.com)
+
+Cloud Run domain mappings (free, with Google-managed HTTPS certificates) point:
+
+| Address | Service | DNS record at GO54 |
+|---|---|---|
+| app.nimpatgroup.com | nimpat-one-app | CNAME `app` → `ghs.googlehosted.com.` |
+| admin.nimpatgroup.com | nimpat-one-admin | CNAME `admin` → `ghs.googlehosted.com.` |
+| api.nimpatgroup.com | nimpat-one-api | CNAME `api` → `ghs.googlehosted.com.` |
+
+The domain is verified in Google Search Console (the existing `google-site-verification` TXT record on nimpatgroup.com must stay).
+Once the certificates are active, release with the public addresses:
+
+```bash
+PUBLIC_DOMAIN=nimpatgroup.com PROJECT=gen-lang-client-0983782546 ./deploy/cloud-run.sh release
+```
+
+That sets the links in emails, the Paystack return address and the dashboard's link to the app to the new addresses, and lets
+both the new and the Cloud Run addresses call the API. The app and dashboard still reach the API through the Cloud Run address
+behind the scenes, and the scheduled jobs keep calling it directly, so they never depend on DNS. The Cloud Run addresses keep working.

@@ -17,9 +17,21 @@ REPO="$REGION-docker.pkg.dev/$PROJECT/nimpat-one"
 SA="nimpat-one-api@$PROJECT.iam.gserviceaccount.com"
 PHOTOS="nimpat-one-photos-$NUMBER"
 PROOFS="nimpat-one-proofs-$NUMBER"
-API_URL="https://nimpat-one-api-$NUMBER.$REGION.run.app"
-APP_URL="https://nimpat-one-app-$NUMBER.$REGION.run.app"
-ADMIN_URL="https://nimpat-one-admin-$NUMBER.$REGION.run.app"
+# Cloud Run addresses: always work, and the app and dashboard reach the API through them behind the scenes.
+RUN_API_URL="https://nimpat-one-api-$NUMBER.$REGION.run.app"
+RUN_APP_URL="https://nimpat-one-app-$NUMBER.$REGION.run.app"
+RUN_ADMIN_URL="https://nimpat-one-admin-$NUMBER.$REGION.run.app"
+# Public addresses customers and emails use. With PUBLIC_DOMAIN=nimpatgroup.com they become app., admin. and api.
+# subdomains; only set it once their DNS and HTTPS certificates work.
+PUBLIC_DOMAIN="${PUBLIC_DOMAIN:-}"
+if [ -n "$PUBLIC_DOMAIN" ]; then
+  APP_URL="https://app.$PUBLIC_DOMAIN" ADMIN_URL="https://admin.$PUBLIC_DOMAIN" API_URL="https://api.$PUBLIC_DOMAIN"
+else
+  APP_URL="$RUN_APP_URL" ADMIN_URL="$RUN_ADMIN_URL" API_URL="$RUN_API_URL"
+fi
+# Both sets of addresses may call the API, so nothing breaks while people move over.
+CORS_LIST="$APP_URL,$ADMIN_URL"
+[ "$APP_URL" != "$RUN_APP_URL" ] && CORS_LIST="$CORS_LIST,$RUN_APP_URL,$RUN_ADMIN_URL"
 gcloud config set project "$PROJECT" >/dev/null 2>&1
 
 random() { node -e "process.stdout.write(require('crypto').randomBytes($1).toString('hex'))"; }
@@ -139,14 +151,14 @@ release() {
     --add-cloudsql-instances="$PROJECT:$REGION:$SQL_INSTANCE" --execution-environment=gen2 --memory=1Gi --cpu=1 --min-instances=0 --max-instances=5 --concurrency=40 --timeout=60 --cpu-boost \
     --add-volume=name=photos,type=cloud-storage,bucket="$PHOTOS" --add-volume-mount=volume=photos,mount-path=/data/photos \
     --add-volume=name=proofs,type=cloud-storage,bucket="$PROOFS" --add-volume-mount=volume=proofs,mount-path=/data/proofs \
-    --set-env-vars="^|^NODE_ENV=production|TRUST_PROXY=true|JOBS_INPROCESS=false|PAYSTACK_MODE=$pay_mode|$mail|REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT=false|PHOTO_STORAGE_DIR=/data/photos|PROOF_STORAGE_DIR=/data/proofs|APP_PUBLIC_URL=$APP_URL|ADMIN_PUBLIC_URL=$ADMIN_URL|PAYSTACK_CALLBACK_URL=$APP_URL/payments/callback|CORS_ORIGINS=$APP_URL,$ADMIN_URL" \
+    --set-env-vars="^|^NODE_ENV=production|TRUST_PROXY=true|JOBS_INPROCESS=false|PAYSTACK_MODE=$pay_mode|$mail|REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT=false|PHOTO_STORAGE_DIR=/data/photos|PROOF_STORAGE_DIR=/data/proofs|APP_PUBLIC_URL=$APP_URL|ADMIN_PUBLIC_URL=$ADMIN_URL|PAYSTACK_CALLBACK_URL=$APP_URL/payments/callback|CORS_ORIGINS=$CORS_LIST" \
     --set-secrets="DATABASE_URL=nimpat-one-database-url:latest,JWT_ACCESS_SECRET=nimpat-one-jwt-secret:latest,JOBS_TOKEN=nimpat-one-jobs-token:latest,PAYSTACK_SECRET_KEY=$pay_secret:latest$mail_secret" \
     --startup-probe=httpGet.path=/health/ready,httpGet.port=8080,initialDelaySeconds=5,timeoutSeconds=5,periodSeconds=10,failureThreshold=12 --quiet
 
   echo "== deploying the customer app and dashboard"
   for s in app admin; do
     gcloud run deploy "nimpat-one-$s" --image="$REPO/$s:$tag" --region="$REGION" --allow-unauthenticated --memory=256Mi --cpu=1 --min-instances=0 --max-instances=5 --port=8080 \
-      --set-env-vars="API_ORIGIN=$API_URL,API_HOST=nimpat-one-api-$NUMBER.$REGION.run.app" --quiet
+      --set-env-vars="API_ORIGIN=$RUN_API_URL,API_HOST=nimpat-one-api-$NUMBER.$REGION.run.app" --quiet
   done
 
   echo "== scheduled jobs"
@@ -154,9 +166,9 @@ release() {
   job() { # name, schedule, path
     local verb=create; gcloud scheduler jobs describe "$1" --location="$REGION" >/dev/null 2>&1 && verb=update
     if [ "$verb" = create ]; then
-      gcloud scheduler jobs create http "$1" --location="$REGION" --schedule="$2" --uri="$API_URL$3" --http-method=POST --headers="X-Job-Token=$token" --quiet >/dev/null
+      gcloud scheduler jobs create http "$1" --location="$REGION" --schedule="$2" --uri="$RUN_API_URL$3" --http-method=POST --headers="X-Job-Token=$token" --quiet >/dev/null
     else
-      gcloud scheduler jobs update http "$1" --location="$REGION" --schedule="$2" --uri="$API_URL$3" --http-method=POST --update-headers="X-Job-Token=$token" --quiet >/dev/null
+      gcloud scheduler jobs update http "$1" --location="$REGION" --schedule="$2" --uri="$RUN_API_URL$3" --http-method=POST --update-headers="X-Job-Token=$token" --quiet >/dev/null
     fi
   }
   job nimpat-one-expire '*/5 * * * *' /api/v1/internal/jobs/expire
