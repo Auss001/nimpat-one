@@ -321,7 +321,7 @@ describe('Water & Drinks commerce + Paystack', () => {
     const refund = await http.post(`${API}/admin/payments/${init.body.paymentId}/refunds`).set('Authorization', `Bearer ${admin}`).send({ reason: 'Order cancelled' }).expect(201);
     expect(refund.body.status).toBe('PENDING');
 
-    await signedWebhook({ event: 'refund.processed', data: { id: Number(refund.body.providerRefundId), status: 'processed', transaction_reference: init.body.reference, amount: 100000, currency: 'NGN' } }).expect(200);
+    await signedWebhook({ event: 'refund.processed', data: { id: Number(refund.body.providerRefundId), status: 'processed', reference: 'RF_a1b2c3d4e5', refund_reference: 'RF_a1b2c3d4e5', transaction_reference: init.body.reference, amount: 100000, currency: 'NGN' } }).expect(200);
     const payment = await prisma.payment.findUniqueOrThrow({ where: { id: init.body.paymentId } });
     expect(payment.refundStatus).toBe('REFUNDED');
     expect(Number(payment.refundedMinor)).toBe(100000);

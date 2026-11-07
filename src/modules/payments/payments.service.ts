@@ -408,7 +408,10 @@ export class PaymentsService {
       throw new BadRequestException('Malformed payload');
     }
     const data = event.data ?? {};
-    const reference: string | undefined = data.reference ?? data.transaction_reference ?? data.transaction?.reference;
+    // A refund event carries its own refund reference as well; the payment is the one in transaction_reference.
+    const reference: string | undefined = event.event?.startsWith('refund.')
+      ? (data.transaction_reference ?? data.transaction?.reference ?? data.reference)
+      : (data.reference ?? data.transaction_reference ?? data.transaction?.reference);
     const eventKey = `webhook:${event.event}:${data.id ?? ''}:${reference ?? ''}:${data.status ?? ''}:${sha256(rawBody.toString('utf8')).slice(0, 16)}`;
 
     const payment = reference ? await this.prisma.payment.findUnique({ where: { reference } }) : null;
