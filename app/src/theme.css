@@ -494,7 +494,8 @@ body { background: var(--bg); }
 
 /* ---------------- home slider */
 .slider { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; isolation: isolate; }
-.slider-glow { position: absolute; z-index: -1; width: 62%; aspect-ratio: 1; border-radius: 50%; filter: blur(46px); opacity: .34; pointer-events: none; animation: glow-drift 11s ease-in-out infinite alternate; }
+.slider-glows { position: absolute; z-index: -1; inset: -24px -16px; overflow: hidden; pointer-events: none; }
+.slider-glow { position: absolute; width: 62%; aspect-ratio: 1; border-radius: 50%; filter: blur(46px); opacity: .34; pointer-events: none; animation: glow-drift 11s ease-in-out infinite alternate; }
 .slider-glow.one { top: -14%; left: -8%; background: #28c7c0; }
 .slider-glow.two { right: -8%; bottom: -8%; background: #f5a524; animation-delay: -5s; }
 @keyframes glow-drift { to { transform: translate(9%, 7%) scale(1.14); } }

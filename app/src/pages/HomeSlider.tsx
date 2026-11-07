@@ -68,8 +68,7 @@ export function HomeSlider({ drinks, stays }: { drinks: any[]; stays: any[] }) {
 
   return (
     <section className="slider" aria-label="Promos and featured items" onPointerDown={rest} onWheel={rest} onFocus={rest}>
-      <span className="slider-glow one" aria-hidden="true" />
-      <span className="slider-glow two" aria-hidden="true" />
+      <span className="slider-glows" aria-hidden="true"><span className="slider-glow one" /><span className="slider-glow two" /></span>
       <div className="slider-track" ref={track} onScroll={onScroll}>
         <Link to="/shop/water-drinks-wines?category=water" className="slide flyer" aria-label="Drinks on promo. See water prices">
           <img src="/promo-drinks.webp" alt="" />
