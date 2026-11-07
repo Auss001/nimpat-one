@@ -555,3 +555,13 @@ body { background: var(--bg); }
 .guest-card-body small { color: #d7efe0; line-height: 1.45; }
 .guest-card-body input { min-height: 44px; border-radius: 14px; border: 0; padding: 0 12px; font: inherit; }
 .guest-card-body .btn { align-self: flex-start; }
+
+/* Phones and tablets: the Nimpat One logo sits in the middle of the header. Desktop keeps it on the left. */
+@media (max-width: 899px) {
+  .top-in { position: relative; justify-content: flex-end; min-height: 50px; }
+  .brand { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+}
+
+/* A checkout address with its edit and remove buttons beside it. */
+.choice-row { display: flex; align-items: center; gap: 4px; }
+.choice-row .choice { flex: 1; min-width: 0; }

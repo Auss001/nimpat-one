@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { CalendarCheck, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, Stethoscope } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
@@ -19,12 +19,10 @@ function ageConfirmed() {
   }
 }
 
-/** Adds to the basket: sign-in first, and an 18+ confirmation for alcohol. */
+/** Adds to the basket, with an 18+ confirmation for alcohol. No sign-in needed. */
 function useAddToBasket() {
-  const { refresh } = useCart();
+  const { refresh, addLocal } = useCart();
   const toast = useToast();
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
   const [askAge, setAskAge] = useState<null | (() => void)>(null);
   const [busy, setBusy] = useState(false);
 
@@ -41,15 +39,19 @@ function useAddToBasket() {
     }
   };
   const request = (product: any, variantId: string, quantity = 1) => {
-    if (!getSession()) {
-      navigate(`/login?next=${encodeURIComponent(pathname)}`);
-      return;
-    }
+    // A visitor shops straight away; their details are asked for once, at checkout.
+    const go = () => {
+      if (getSession()) void add(variantId, quantity, product.name);
+      else {
+        addLocal(product, variantId, quantity);
+        toast(`${product.name} added to your basket`);
+      }
+    };
     if (product.isAgeRestricted && !ageConfirmed()) {
-      setAskAge(() => () => void add(variantId, quantity, product.name));
+      setAskAge(() => go);
       return;
     }
-    void add(variantId, quantity, product.name);
+    go();
   };
   const dialog = askAge ? (
     <Sheet title="Are you 18 or older?" onClose={() => setAskAge(null)}>

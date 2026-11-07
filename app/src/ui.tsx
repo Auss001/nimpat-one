@@ -70,25 +70,88 @@ interface CartState {
   totalMinor: number;
   carts: any[];
   refresh: () => Promise<void>;
+  /** Adds to the basket kept on this device, for a visitor who has not given their details yet. */
+  addLocal: (product: any, variantId: string, quantity: number) => void;
+  setLocalQty: (variantId: string, quantity: number) => void;
 }
-const CartCtx = createContext<CartState>({ count: 0, totalMinor: 0, carts: [], refresh: async () => undefined });
+const CartCtx = createContext<CartState>({ count: 0, totalMinor: 0, carts: [], refresh: async () => undefined, addLocal: () => undefined, setLocalQty: () => undefined });
 export const useCart = () => useContext(CartCtx);
+
+/** A visitor's basket lives on the device until they give their details or sign in; then it moves to their account. */
+const LOCAL_BASKET = 'nimpat-one-basket';
+interface LocalLine { variantId: string; quantity: number; productSlug: string; productName: string; variantName: string; image?: string; unitPriceMinor: number; division: { slug: string; name: string } }
+function readLocal(): LocalLine[] {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_BASKET) ?? '[]');
+  } catch {
+    return [];
+  }
+}
+function writeLocal(lines: LocalLine[]) {
+  try {
+    if (lines.length) localStorage.setItem(LOCAL_BASKET, JSON.stringify(lines));
+    else localStorage.removeItem(LOCAL_BASKET);
+  } catch {
+    /* Storage unavailable: the basket lasts until the page closes. */
+  }
+}
+/** Groups device lines by store, in the same shape the server sends a basket. */
+function localCarts(lines: LocalLine[]) {
+  const by = new Map<string, LocalLine[]>();
+  for (const l of lines) by.set(l.division.slug, [...(by.get(l.division.slug) ?? []), l]);
+  return [...by.entries()].map(([slug, ls]) => ({
+    cartId: `device-${slug}`,
+    local: true,
+    division: ls[0].division,
+    canCheckout: true,
+    itemCount: ls.reduce((n, l) => n + l.quantity, 0),
+    subtotalMinor: ls.reduce((n, l) => n + l.quantity * l.unitPriceMinor, 0),
+    lines: ls.map((l) => ({ ...l, itemId: l.variantId, lineTotalMinor: l.quantity * l.unitPriceMinor })),
+  }));
+}
+
+let moving: Promise<void> | null = null;
+/** Moves the device basket into the signed-in account, once. */
+function moveLocalBasket() {
+  moving ??= (async () => {
+    const lines = readLocal();
+    writeLocal([]);
+    await Promise.allSettled(lines.map((l) => post('/carts/items', { variantId: l.variantId, quantity: l.quantity })));
+  })().finally(() => (moving = null));
+  return moving;
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const session = useSession();
   const [carts, setCarts] = useState<any[]>([]);
   const refresh = useCallback(async () => {
     if (!getSession()) {
-      setCarts([]);
+      setCarts(localCarts(readLocal()));
       return;
     }
+    if (readLocal().length || moving) await moveLocalBasket();
     const all = await Promise.all(SHOP_DIVISIONS.map((d) => get(`/carts/${d}`).catch(() => null)));
     setCarts(all.filter((c) => c && c.lines.length));
+  }, []);
+  const addLocal = useCallback((p: any, variantId: string, quantity: number) => {
+    const v = p.variants?.find((x: any) => x.id === variantId);
+    if (!v) return;
+    const lines = readLocal();
+    const had = lines.find((l) => l.variantId === variantId);
+    if (had) had.quantity += quantity;
+    else lines.push({ variantId, quantity, productSlug: p.slug, productName: p.name, variantName: v.name, image: p.images?.[0]?.url, unitPriceMinor: Number(v.unitPriceMinor ?? 0), division: { slug: p.division?.slug, name: p.division?.name } });
+    writeLocal(lines);
+    setCarts(localCarts(lines));
+  }, []);
+  const setLocalQty = useCallback((variantId: string, quantity: number) => {
+    const lines = readLocal().map((l) => (l.variantId === variantId ? { ...l, quantity } : l)).filter((l) => l.quantity > 0);
+    writeLocal(lines);
+    setCarts(localCarts(lines));
   }, []);
   useEffect(() => {
     void refresh();
   }, [refresh, session?.email]);
-  const value = useMemo(() => ({ carts, refresh, count: carts.reduce((n, c) => n + c.itemCount, 0), totalMinor: carts.reduce((n, c) => n + Number(c.subtotalMinor), 0) }), [carts, refresh]);
+  const value = useMemo(() => ({ carts, refresh, addLocal, setLocalQty, count: carts.reduce((n, c) => n + c.itemCount, 0), totalMinor: carts.reduce((n, c) => n + Number(c.subtotalMinor), 0) }), [carts, refresh, addLocal, setLocalQty]);
   return <CartCtx.Provider value={value}>{children}</CartCtx.Provider>;
 }
 

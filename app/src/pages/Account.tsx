@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Award, CalendarCheck, Check, ChevronRight, FileText, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
 import { del, endSession, formatNaira, get, getSession, login, logout, nigerianPhone, patch, post, register, rows, startGuest, upgradeGuest } from '../api';
 import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
@@ -17,6 +17,7 @@ export function NeedsSignIn({ title, text, next }: { title: string; text: string
 }
 
 export function LoginPage() {
+  const session = useSession();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -47,13 +48,13 @@ export function LoginPage() {
         <Link className="text-link" to="/forgot-password">Forgot your password?</Link>
       </form>
       <p className="auth-switch">New here? <Link to={`/register?next=${encodeURIComponent(safeNext(params.get('next')))}`}>Create an account</Link></p>
-      <GuestStart next={safeNext(params.get('next'))} open={params.get('guest') === '1'} />
+      {!session?.guest && <GuestStart next={safeNext(params.get('next'))} open={params.get('guest') === '1'} />}
     </div>
   );
 }
 
-/** Buy without an account: name, email and phone only. */
-function GuestStart({ next, open }: { next: string; open: boolean }) {
+/** Buy without an account: name, email and phone only. On the basket it is the details step of checkout. */
+export function GuestStart({ next, open, onDone, title = 'Continue as a guest' }: { next?: string; open: boolean; onDone?: () => void; title?: string }) {
   const navigate = useNavigate();
   const [show, setShow] = useState(open);
   const [f, setF] = useState({ firstName: '', lastName: '', email: '', phone: '' });
@@ -69,7 +70,8 @@ function GuestStart({ next, open }: { next: string; open: boolean }) {
     setError(null);
     try {
       await startGuest({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), phone: nigerianPhone(f.phone) });
-      navigate(next, { replace: true });
+      if (onDone) onDone();
+      else navigate(next ?? '/', { replace: true });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -78,7 +80,7 @@ function GuestStart({ next, open }: { next: string; open: boolean }) {
   };
   return (
     <form className="panel" onSubmit={submit}>
-      <h2>Continue as a guest</h2>
+      <h2>{title}</h2>
       <p className="muted-text">No password needed. Guests don't earn Royalty points, but you can create an account later and keep your orders.</p>
       {error && <Note tone="error">{error}</Note>}
       <div className="date-pair">
@@ -560,4 +562,24 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
       )}
     </div>
   );
+}
+
+/**
+ * Runs a booking or request at once for anyone with a session. A visitor first gives their name, email and phone
+ * in a sheet (no password), then the booking carries on. Members can sign in from the same sheet instead.
+ */
+export function useDetailsFirst() {
+  const { pathname, search } = useLocation();
+  const [waiting, setWaiting] = useState<null | (() => void)>(null);
+  const ask = (run: () => void) => {
+    if (getSession()) run();
+    else setWaiting(() => run);
+  };
+  const sheet = waiting ? (
+    <Sheet title="Your details" onClose={() => setWaiting(null)}>
+      <GuestStart open title="Before we book" onDone={() => { const run = waiting; setWaiting(null); run(); }} />
+      <p className="auth-switch">Have an account? <Link to={`/login?next=${encodeURIComponent(pathname + search)}`}>Sign in</Link> and earn Royalty points.</p>
+    </Sheet>
+  ) : null;
+  return { ask, sheet };
 }

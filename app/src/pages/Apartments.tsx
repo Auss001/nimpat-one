@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BedDouble, Bath, Clock, MapPin, Users } from 'lucide-react';
-import { formatNaira, get, getSession, idempotency, post, rows } from '../api';
+import { formatNaira, get, idempotency, post, rows } from '../api';
+import { useDetailsFirst } from './Account';
 import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, useLoad, useToast } from '../ui';
 
 export interface Stay {
@@ -155,7 +156,6 @@ interface Quote {
 /** Whole flat, one room or several. Rooms are chosen for the customer from those free on the dates. */
 function ReserveSheet({ unit, onClose }: { unit: any; onClose: () => void }) {
   const navigate = useNavigate();
-  const { pathname, search } = useLocation();
   const toast = useToast();
   const rooms: any[] = unit.rooms ?? [];
   const [count, setCount] = useState(0); // 0 means the whole flat.
@@ -199,11 +199,8 @@ function ReserveSheet({ unit, onClose }: { unit: any; onClose: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkIn, checkOut, guestsNow, unit.id, count]);
 
+  const details = useDetailsFirst();
   const reserve = async () => {
-    if (!getSession()) {
-      navigate(`/login?next=${encodeURIComponent(pathname + search)}`);
-      return;
-    }
     if (!quote) return;
     setBusy(true);
     const held: any[] = [];
@@ -268,7 +265,8 @@ function ReserveSheet({ unit, onClose }: { unit: any; onClose: () => void }) {
           <div className="sum total"><span>Total</span><b>{formatNaira(quote.totalMinor)}</b></div>
         </>
       )}
-      <button className="btn primary full" disabled={busy || !quote} onClick={reserve}>{busy ? 'Holding your dates…' : 'Reserve and pay'}</button>
+      <button className="btn primary full" disabled={busy || !quote} onClick={() => details.ask(() => void reserve())}>{busy ? 'Holding your dates…' : 'Reserve and pay'}</button>
+      {details.sheet}
     </Sheet>
   );
 }

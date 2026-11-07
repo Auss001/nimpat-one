@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
+import { useDetailsFirst } from './Account';
 import { CallLink, Empty, FavButton, Field, Loader, Note, PageTitle, Photo, useLoad, useToast } from '../ui';
 
 const CONDITION: Record<string, string> = { BRAND_NEW: 'Brand new', FOREIGN_USED: 'Foreign used', NIGERIAN_USED: 'Nigerian used', CERTIFIED_PRE_OWNED: 'Certified pre-owned' };
@@ -92,8 +93,6 @@ export function CarPage() {
 
 function Inquiry({ vehicle }: { vehicle: any }) {
   const session = getSession();
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
   const toast = useToast();
   const [type, setType] = useState<string>('GENERAL');
   const [name, setName] = useState(session?.firstName ?? '');
@@ -102,6 +101,7 @@ function Inquiry({ vehicle }: { vehicle: any }) {
   const [date, setDate] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const details = useDetailsFirst();
   useEffect(() => {
     if (!session) return;
     get('/auth/me').then((me) => {
@@ -132,8 +132,9 @@ function Inquiry({ vehicle }: { vehicle: any }) {
       <h2>Talk to our team</h2>
       {!session ? (
         <>
-          <p>Sign in so we can reply to you, or call us now.</p>
-          <button className="btn primary full" onClick={() => navigate(`/login?next=${encodeURIComponent(pathname)}`)}>Sign in</button>
+          <p>Tell us who you are so we can reply, or call us now.</p>
+          <button className="btn primary full" onClick={() => details.ask(() => undefined)}>Continue</button>
+          {details.sheet}
         </>
       ) : (
         <>

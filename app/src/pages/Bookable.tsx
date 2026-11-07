@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Clock } from 'lucide-react';
-import { formatNaira, get, getSession, idempotency, post, rows } from '../api';
+import { formatNaira, get, idempotency, post, rows } from '../api';
+import { useDetailsFirst } from './Account';
 import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, useLoad, useToast } from '../ui';
 
 export function SpaPage() {
@@ -41,7 +42,6 @@ export function SpaPage() {
 export function TreatmentPage() {
   const { slug = '' } = useParams();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const toast = useToast();
   const treatment = useLoad(() => get(`/spa/treatments/${slug}`), [slug]);
   const t = treatment.data;
@@ -49,15 +49,12 @@ export function TreatmentPage() {
   const [slot, setSlot] = useState<any>(null);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const details = useDetailsFirst();
   const slots = useLoad(() => (t ? get(`/spa/treatments/${t.id}/slots?date=${date}`).then((r) => r.slots ?? []) : Promise.resolve([])), [t?.id, date]);
   useEffect(() => setSlot(null), [date]);
   if (treatment.loading && !t) return <Loader />;
   if (!t) return <><PageTitle title="Not available" /><Empty title="This treatment is not available right now" /></>;
   const book = async () => {
-    if (!getSession()) {
-      navigate(`/login?next=${encodeURIComponent(pathname)}`);
-      return;
-    }
     setBusy(true);
     try {
       const a = await post('/spa/appointments', { treatmentId: t.id, startsAt: slot.startsAt, ...(note.trim() ? { customerNote: note.trim() } : {}) }, idempotency());
@@ -93,7 +90,8 @@ export function TreatmentPage() {
             {slot && (
               <>
                 <Field label="Anything we should know? (optional)"><textarea rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
-                <button className="btn primary full" disabled={busy} onClick={book}>{busy ? 'Booking…' : 'Book and pay'}</button>
+                <button className="btn primary full" disabled={busy} onClick={() => details.ask(() => void book())}>{busy ? 'Booking…' : 'Book and pay'}</button>
+                {details.sheet}
               </>
             )}
           </section>
@@ -143,16 +141,12 @@ export function ServicesPage() {
 
 function ServiceSheet({ service, onClose }: { service: any; onClose: () => void }) {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const toast = useToast();
   const [when, setWhen] = useState('');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const details = useDetailsFirst();
   const send = async () => {
-    if (!getSession()) {
-      navigate(`/login?next=${encodeURIComponent(pathname)}`);
-      return;
-    }
     setBusy(true);
     try {
       await post('/services/bookings', { offeringId: service.id, ...(when ? { scheduledStart: new Date(when).toISOString() } : {}), ...(note.trim() ? { customerNote: note.trim() } : {}) }, idempotency());
@@ -168,7 +162,8 @@ function ServiceSheet({ service, onClose }: { service: any; onClose: () => void 
     <Sheet title={service.name} onClose={onClose}>
       <Field label="Preferred date and time (optional)"><input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} /></Field>
       <Field label="Tell us what you need (optional)"><textarea rows={3} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
-      <button className="btn primary full" disabled={busy} onClick={send}>{busy ? 'Sending…' : 'Send request'}</button>
+      <button className="btn primary full" disabled={busy} onClick={() => details.ask(() => void send())}>{busy ? 'Sending…' : 'Send request'}</button>
+      {details.sheet}
       <small className="muted-text">Our team confirms the time and any price before you pay.</small>
     </Sheet>
   );

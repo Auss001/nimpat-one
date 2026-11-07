@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Banknote, Building, Check, Clock, CreditCard, MapPin, Minus, Plus, Store, Trash2, Truck, Upload } from 'lucide-react';
+import { Banknote, Building, Check, Clock, CreditCard, MapPin, Minus, Pencil, Plus, Store, Trash2, Truck, Upload } from 'lucide-react';
 import { api, del, formatNaira, get, getSession, idempotency, patch, post, rows } from '../api';
-import { AddressForm, addressLine, NeedsSignIn, VerifyEmailNote } from './Account';
+import { AddressForm, addressLine, GuestStart, VerifyEmailNote } from './Account';
 import { CallLink, Empty, Field, Loader, Note, PageTitle, Photo, Sheet, Status, dateTime, useCart, useLoad, useToast } from '../ui';
 
 const DIVISION_NAME: Record<string, string> = {
@@ -13,15 +13,17 @@ const DIVISION_NAME: Record<string, string> = {
 
 export function CartPage() {
   const session = getSession();
-  const { carts, refresh } = useCart();
+  const { carts, refresh, setLocalQty } = useCart();
   const toast = useToast();
   const [ready, setReady] = useState(false);
   useEffect(() => {
     void refresh().finally(() => setReady(true));
   }, [refresh]);
-  if (!session) return <NeedsSignIn title="Basket" text="Sign in, or continue as a guest, to add items and check out." next="/cart" />;
-
   const setQty = async (variantId: string, quantity: number) => {
+    if (!session) {
+      setLocalQty(variantId, quantity);
+      return;
+    }
     try {
       if (quantity <= 0) await del(`/carts/items/${variantId}`);
       else await patch(`/carts/items/${variantId}`, { quantity });
@@ -34,7 +36,7 @@ export function CartPage() {
   return (
     <>
       <PageTitle title="Basket" back={false} sub={carts.length > 1 ? 'Each Nimpat store checks out separately.' : undefined} />
-      {session.guest && carts.length > 0 && <Note><Link to="/account">Create an account</Link> to earn Royalty points on this order.</Note>}
+      {session?.guest && carts.length > 0 && <Note><Link to="/account">Create an account</Link> to earn Royalty points on this order.</Note>}
       {!ready && carts.length === 0 && <Loader />}
       {ready && carts.length === 0 && <Empty title="Your basket is empty" action={<Link className="btn primary" to="/">Start shopping</Link>} />}
       {carts.map((cart) => {
@@ -60,12 +62,25 @@ export function CartPage() {
                 </div>
               ))}
             </section>
-            {cart.canCheckout
+            {cart.local
+              ? null
+              : cart.canCheckout
               ? <CheckoutForm division={slug} version={cart.subtotalMinor} />
               : <Note tone="warn">Please fix the items marked above before you check out.</Note>}
           </div>
         );
       })}
+      {!session && carts.length > 0 && <YourDetails onDone={() => void refresh()} />}
+    </>
+  );
+}
+
+/** A visitor gives their name, email and phone once, then checks out. No account or password needed. */
+function YourDetails({ onDone }: { onDone: () => void }) {
+  return (
+    <>
+      <GuestStart open title="Your details" onDone={onDone} />
+      <p className="auth-switch">Have an account? <Link to="/login?next=/cart">Sign in</Link> and earn Royalty points on this order.</p>
     </>
   );
 }
@@ -92,6 +107,7 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
   const [fulfilment, setFulfilment] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
   const [addressId, setAddressId] = useState('');
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
   const [option, setOption] = useState('');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
@@ -102,6 +118,17 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
     if (!addressId && addresses.data?.length) setAddressId((addresses.data.find((a: any) => a.isDefault) ?? addresses.data[0]).id);
     if (addresses.data && !addresses.data.length) setAdding(true);
   }, [addresses.data, addressId]);
+
+  const removeAddress = async (a: any) => {
+    if (!window.confirm(`Remove ${a.label ?? a.line1}?`)) return;
+    try {
+      await del(`/me/addresses/${a.id}`);
+      if (addressId === a.id) setAddressId('');
+      await addresses.reload();
+    } catch (e) {
+      toast((e as Error).message, 'error');
+    }
+  };
 
   const needsAddress = fulfilment === 'DELIVERY';
   const query = `fulfilmentType=${fulfilment}${needsAddress && addressId ? `&addressId=${addressId}` : ''}`;
@@ -154,13 +181,19 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
         </div>
         {needsAddress && (
           <>
-            {addresses.data?.map((a: any) => (
-              <label key={a.id} className={`choice ${addressId === a.id ? 'on' : ''}`}>
-                <input type="radio" name={`address-${division}`} checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
-                <MapPin size={18} aria-hidden="true" />
-                <span><b>{a.label ?? a.recipientName}</b><small>{addressLine(a)}</small></span>
-              </label>
-            ))}
+            {addresses.data?.map((a: any) => (editing?.id === a.id
+              ? <AddressForm key={a.id} address={a} onCancel={() => setEditing(null)} onSaved={async () => { setEditing(null); await addresses.reload(); void quote.reload(); }} />
+              : (
+                <div key={a.id} className="choice-row">
+                  <label className={`choice ${addressId === a.id ? 'on' : ''}`}>
+                    <input type="radio" name={`address-${division}`} checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
+                    <MapPin size={18} aria-hidden="true" />
+                    <span><b>{a.label ?? a.recipientName}</b><small>{addressLine(a)}</small></span>
+                  </label>
+                  <button type="button" className="icon-btn" aria-label={`Edit ${a.label ?? a.line1}`} onClick={() => setEditing(a)}><Pencil size={16} /></button>
+                  <button type="button" className="icon-btn" aria-label={`Remove ${a.label ?? a.line1}`} onClick={() => removeAddress(a)}><Trash2 size={16} /></button>
+                </div>
+              )))}
             {adding
               ? <AddressForm onCancel={addresses.data?.length ? () => setAdding(false) : undefined} onSaved={async (a) => { await addresses.reload(); setAddressId(a.id); setAdding(false); }} />
               : <button className="btn ghost full" onClick={() => setAdding(true)}><Plus size={16} aria-hidden="true" /> Add an address</button>}
