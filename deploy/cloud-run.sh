@@ -43,9 +43,7 @@ setup() {
 
   echo "== service account"
   gcloud iam service-accounts describe "$SA" >/dev/null 2>&1 || gcloud iam service-accounts create nimpat-one-api --display-name="Nimpat One API"
-  for role in roles/cloudsql.client roles/secretmanager.secretAccessor; do
-    gcloud projects add-iam-policy-binding "$PROJECT" --member="serviceAccount:$SA" --role="$role" --condition=None >/dev/null
-  done
+  gcloud projects add-iam-policy-binding "$PROJECT" --member="serviceAccount:$SA" --role=roles/cloudsql.client --condition=None >/dev/null
   for b in "$PHOTOS" "$PROOFS"; do
     gcloud storage buckets add-iam-policy-binding "gs://$b" --member="serviceAccount:$SA" --role=roles/storage.objectAdmin >/dev/null
   done
@@ -65,6 +63,10 @@ setup() {
   random 32 | secret nimpat-one-jobs-token
   # The API only accepts test keys. Replace this with your own test key in Secret Manager.
   printf 'sk_test_not_set_yet' | secret nimpat-one-paystack-secret
+  # The API may read only the secrets it uses, one by one; never the whole project's.
+  for s in nimpat-one-database-url nimpat-one-jwt-secret nimpat-one-jobs-token nimpat-one-paystack-secret; do
+    gcloud secrets add-iam-policy-binding "$s" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
+  done
 }
 
 load_data() {
@@ -118,6 +120,7 @@ release() {
   if gcloud secrets describe nimpat-one-resend-api-key >/dev/null 2>&1; then
     mail="MAIL_TRANSPORT=resend|EMAIL_FROM=Nimpat One <no-reply@notify.nimpatgroup.com>"
     mail_secret=",RESEND_API_KEY=nimpat-one-resend-api-key:latest"
+    gcloud secrets add-iam-policy-binding nimpat-one-resend-api-key --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
   fi
 
   echo "== deploying the API"
