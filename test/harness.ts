@@ -5,7 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { MockPaystack } from './mock-paystack';
-import { applyTestEnv, MOCK_PAYSTACK_PORT } from './test-env';
+import { applyTestEnv, LIVE_PAYSTACK_KEY, MOCK_PAYSTACK_PORT } from './test-env';
 
 applyTestEnv();
 const { AppModule } = require('../src/app.module');
@@ -50,7 +50,8 @@ export class Harness {
   }
 
   async customer(verified = true) {
-    const email = `pm.customer${++this.seq}.${Date.now()}@example.test`;
+    // Real Paystack refuses .test addresses, so its run uses the reserved example.com instead.
+    const email = `pm.customer${++this.seq}.${Date.now()}@${LIVE_PAYSTACK_KEY ? 'example.com' : 'example.test'}`;
     const password = 'correct-horse-battery-9';
     const res = await this.http.post(`${API}/auth/register`).send({ email, password, firstName: 'Pay', lastName: `Tester${this.seq}` }).expect(201);
     if (verified) await this.http.post(`${API}/auth/verify-email`).send({ token: this.token(email, 'verify-email') }).expect(200);
