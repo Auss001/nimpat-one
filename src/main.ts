@@ -24,6 +24,8 @@ async function bootstrap() {
   // Cloud Run provides PORT and expects the server on 0.0.0.0.
   const port = config.get('PORT');
   await app.listen(port, '0.0.0.0');
+  // The mode only, never the key.
+  new Logger('Paystack').log(`Paystack is in ${process.env.PAYSTACK_MODE === 'live' ? 'LIVE' : 'test'} mode`);
   Logger.log(`Nimpat One API listening on :${port} (docs: /${API_PREFIX}/docs)`, 'Bootstrap');
 }
 

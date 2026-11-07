@@ -129,3 +129,23 @@ never in the code, in Git or in a `.env` file that is shared.
 
 To replace the key later, add a **new version** to the same secret and run the release again. Without the secret, the
 API keeps logging emails instead of sending them. For local testing, a key may go in your own git-ignored `.env`.
+
+## Paystack test and live mode
+
+The API runs in Paystack **test** mode unless a release is started with `PAYSTACK_MODE=live`. Each mode reads its own
+secret, and the key must match the mode or the API refuses to start:
+
+| Mode | Secret in Secret Manager | Key must start with |
+|---|---|---|
+| test (default) | `nimpat-one-paystack-secret` | `sk_test_` |
+| live | `nimpat-one-paystack-live-secret` | `sk_live_` |
+
+Live mode is refused on any machine that is not production, so local development always stays in test mode. The API is
+given access to the live secret only by a live release. Switch to live only after the test-mode payment run, webhook
+signature check and transaction verification have passed:
+
+```bash
+PAYSTACK_MODE=live PROJECT=gen-lang-client-0983782546 ./deploy/cloud-run.sh release
+```
+
+Webhook URL for the Paystack dashboard (test and live): `https://nimpat-one-api-170221639175.europe-west1.run.app/api/v1/payments/webhooks/paystack`

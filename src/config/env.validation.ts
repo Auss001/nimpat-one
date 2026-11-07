@@ -75,6 +75,10 @@ export class EnvironmentVariables {
   @Transform(toInt) @IsInt() @Min(1)
   AUTH_RATE_LIMIT_MAX = 10;
 
+  /** "test" (default) or "live". Live takes real money, so it is only allowed in production. */
+  @IsIn(['test', 'live'])
+  PAYSTACK_MODE: 'test' | 'live' = 'test';
+
   @IsString()
   PAYSTACK_SECRET_KEY!: string;
 
@@ -135,13 +139,17 @@ export function validateEnv(config: Record<string, unknown>): EnvironmentVariabl
     throw new Error(`Invalid environment configuration:\n  ${details}`);
   }
 
-  // Paystack: this build is restricted to TEST MODE. Live keys are refused so
-  // production credentials can never be used by accident.
-  if (!env.PAYSTACK_SECRET_KEY.startsWith('sk_test_')) {
-    throw new Error('PAYSTACK_SECRET_KEY must be a Paystack TEST secret key (sk_test_...).');
+  // Paystack: the key must match the mode, so a live key can never slip into test mode or the reverse.
+  // Live mode is refused outside production, so a developer's computer always uses test mode.
+  const mode = env.PAYSTACK_MODE;
+  if (mode === 'live' && env.NODE_ENV !== NodeEnv.production) {
+    throw new Error('PAYSTACK_MODE=live is only allowed in production. Use test mode on development machines.');
   }
-  if (env.PAYSTACK_PUBLIC_KEY && !env.PAYSTACK_PUBLIC_KEY.startsWith('pk_test_')) {
-    throw new Error('PAYSTACK_PUBLIC_KEY must be a Paystack TEST public key (pk_test_...).');
+  if (!env.PAYSTACK_SECRET_KEY.startsWith(`sk_${mode}_`)) {
+    throw new Error(`PAYSTACK_SECRET_KEY must be a Paystack ${mode.toUpperCase()} secret key (sk_${mode}_...) because PAYSTACK_MODE=${mode}.`);
+  }
+  if (env.PAYSTACK_PUBLIC_KEY && !env.PAYSTACK_PUBLIC_KEY.startsWith(`pk_${mode}_`)) {
+    throw new Error(`PAYSTACK_PUBLIC_KEY must be a Paystack ${mode.toUpperCase()} public key (pk_${mode}_...).`);
   }
   if (env.NODE_ENV === NodeEnv.production && env.JWT_ACCESS_SECRET.startsWith('dev-only')) {
     throw new Error('JWT_ACCESS_SECRET still has the development placeholder value.');

@@ -123,13 +123,24 @@ release() {
     gcloud secrets add-iam-policy-binding nimpat-one-resend-api-key --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
   fi
 
+  # Paystack: test unless the release is run with PAYSTACK_MODE=live. Each mode reads only its own secret,
+  # and the API is given access to the live secret only when live is chosen.
+  local pay_mode="${PAYSTACK_MODE:-test}" pay_secret=nimpat-one-paystack-secret
+  if [ "$pay_mode" = live ]; then
+    pay_secret=nimpat-one-paystack-live-secret
+    gcloud secrets add-iam-policy-binding "$pay_secret" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
+  elif [ "$pay_mode" != test ]; then
+    echo "PAYSTACK_MODE must be test or live"; exit 1
+  fi
+  echo "== Paystack mode: $pay_mode"
+
   echo "== deploying the API"
   gcloud run deploy nimpat-one-api --image="$REPO/api:$tag" --region="$REGION" --service-account="$SA" --allow-unauthenticated \
     --add-cloudsql-instances="$PROJECT:$REGION:$SQL_INSTANCE" --execution-environment=gen2 --memory=1Gi --cpu=1 --min-instances=0 --max-instances=5 --concurrency=40 --timeout=60 --cpu-boost \
     --add-volume=name=photos,type=cloud-storage,bucket="$PHOTOS" --add-volume-mount=volume=photos,mount-path=/data/photos \
     --add-volume=name=proofs,type=cloud-storage,bucket="$PROOFS" --add-volume-mount=volume=proofs,mount-path=/data/proofs \
-    --set-env-vars="^|^NODE_ENV=production|TRUST_PROXY=true|JOBS_INPROCESS=false|$mail|REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT=false|PHOTO_STORAGE_DIR=/data/photos|PROOF_STORAGE_DIR=/data/proofs|APP_PUBLIC_URL=$APP_URL|ADMIN_PUBLIC_URL=$ADMIN_URL|PAYSTACK_CALLBACK_URL=$APP_URL/payments/callback|CORS_ORIGINS=$APP_URL,$ADMIN_URL" \
-    --set-secrets="DATABASE_URL=nimpat-one-database-url:latest,JWT_ACCESS_SECRET=nimpat-one-jwt-secret:latest,JOBS_TOKEN=nimpat-one-jobs-token:latest,PAYSTACK_SECRET_KEY=nimpat-one-paystack-secret:latest$mail_secret" \
+    --set-env-vars="^|^NODE_ENV=production|TRUST_PROXY=true|JOBS_INPROCESS=false|PAYSTACK_MODE=$pay_mode|$mail|REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT=false|PHOTO_STORAGE_DIR=/data/photos|PROOF_STORAGE_DIR=/data/proofs|APP_PUBLIC_URL=$APP_URL|ADMIN_PUBLIC_URL=$ADMIN_URL|PAYSTACK_CALLBACK_URL=$APP_URL/payments/callback|CORS_ORIGINS=$APP_URL,$ADMIN_URL" \
+    --set-secrets="DATABASE_URL=nimpat-one-database-url:latest,JWT_ACCESS_SECRET=nimpat-one-jwt-secret:latest,JOBS_TOKEN=nimpat-one-jobs-token:latest,PAYSTACK_SECRET_KEY=$pay_secret:latest$mail_secret" \
     --startup-probe=httpGet.path=/health/ready,httpGet.port=8080,initialDelaySeconds=5,timeoutSeconds=5,periodSeconds=10,failureThreshold=12 --quiet
 
   echo "== deploying the customer app and dashboard"
