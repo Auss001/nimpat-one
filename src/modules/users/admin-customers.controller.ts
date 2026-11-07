@@ -30,6 +30,8 @@ export class AdminCustomersService {
               {
                 OR: [
                   { email: { contains: term, mode: 'insensitive' as const } },
+                  { contactEmail: { contains: term, mode: 'insensitive' as const } },
+                  { contactPhone: { contains: term } },
                   { phone: { contains: term } },
                   { customerProfile: { firstName: { contains: term, mode: 'insensitive' as const } } },
                   { customerProfile: { lastName: { contains: term, mode: 'insensitive' as const } } },
@@ -47,6 +49,9 @@ export class AdminCustomersService {
         select: {
           id: true,
           email: true,
+          isGuest: true,
+          contactEmail: true,
+          contactPhone: true,
           phone: true,
           status: true,
           emailVerifiedAt: true,

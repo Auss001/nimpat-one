@@ -27,6 +27,9 @@ export class LoyaltyService {
   async awardForPayment(tx: Tx, payment: Payment): Promise<void> {
     const rule = await tx.loyaltyRule.findUnique({ where: { divisionId: payment.divisionId } });
     if (!rule?.isActive) return;
+    // Royalty points are for members only; a guest earns none.
+    const payer = await tx.user.findUnique({ where: { id: payment.userId }, select: { isGuest: true } });
+    if (!payer || payer.isGuest) return;
     const points = LoyaltyService.pointsFor(payment.amountMinor, rule.pointsPer100NgnX100);
     if (points <= 0) return;
     const existing = await tx.loyaltyTransaction.findFirst({ where: { type: LoyaltyTxType.EARN, sourceType: 'payment', sourceId: payment.id } });

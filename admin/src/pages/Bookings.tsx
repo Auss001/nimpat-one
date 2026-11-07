@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAccess } from '../access';
-import { get, patch } from '../api';
+import { contactEmail, contactPhone, get, patch } from '../api';
 import { Field, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
 import { formatNaira } from '../money';
 
@@ -76,7 +76,7 @@ function SpaBookings() {
               {list.data.map((a) => (
                 <tr key={a.id}>
                   <td><strong>{a.treatment.name}</strong>{a.customerNote && <div className="muted small">{a.customerNote}</div>}</td>
-                  <td>{a.user.email}<div className="muted small">{a.user.phone}</div></td>
+                  <td>{contactEmail(a.user)}<div className="muted small">{contactPhone(a.user)}</div></td>
                   <td className="small">{when(a.startsAt)}</td>
                   <td className="small">{a.practitioner?.displayName ?? <span className="muted">Any</span>}</td>
                   <td><StatusPill status={a.status} /></td>
@@ -123,7 +123,7 @@ function ServiceBookings({ tab }: { tab: Tab }) {
                     {b.customerNote && <div className="muted small">{b.customerNote}</div>}
                     {b.details && <div className="muted small">{Object.entries(b.details).map(([k, v]) => `${k}: ${String(v)}`).join(' · ')}</div>}
                   </td>
-                  <td>{b.user.email}<div className="muted small">{b.user.phone}</div></td>
+                  <td>{contactEmail(b.user)}<div className="muted small">{contactPhone(b.user)}</div></td>
                   <td className="small">{when(b.scheduledStart)}</td>
                   <td className="num">{b.priceMinor !== null ? formatNaira(b.priceMinor) : <span className="muted">To be quoted</span>}</td>
                   <td><StatusPill status={b.status} /></td>

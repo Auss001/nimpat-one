@@ -36,7 +36,7 @@ export class CreateAddressDto {
 export class UpdateAddressDto extends PartialType(CreateAddressDto) {}
 
 export class DeleteAccountDto {
-  @ApiProperty({ description: 'The account password, to confirm it is really the owner' }) @IsString() @Length(1, 200) password: string;
+  @ApiPropertyOptional({ description: 'The account password, to confirm it is really the owner. Guests have none.' }) @IsOptional() @IsString() @Length(1, 200) password?: string;
 }
 
 export class FavoriteDto {

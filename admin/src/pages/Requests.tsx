@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAccess } from '../access';
-import { get, patch, post } from '../api';
+import { contactEmail, contactPhone, get, patch, post } from '../api';
 import { Field, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
 import { formatNaira } from '../money';
 
@@ -86,7 +86,7 @@ function Quotations() {
               {list.data.map((q) => (
                 <tr key={q.id}>
                   <td className="mono small">{q.quoteNumber}</td>
-                  <td>{q.user?.email}<div className="muted small">{q.user?.phone}</div></td>
+                  <td>{contactEmail(q.user)}<div className="muted small">{contactPhone(q.user)}</div></td>
                   <td><strong>{q.subject}</strong><div className="muted small">{q.requestDetails}</div></td>
                   <td className="num">{q.totalMinor != null ? formatNaira(q.totalMinor) : '—'}</td>
                   <td><StatusPill status={q.status} /></td>
@@ -156,7 +156,7 @@ function Logistics() {
               {list.data.map((r) => (
                 <tr key={r.id}>
                   <td className="mono small">{r.trackingNumber}<div className="muted">{words(r.type)}</div></td>
-                  <td>{r.user?.email}<div className="muted small">{r.user?.phone}</div></td>
+                  <td>{contactEmail(r.user)}<div className="muted small">{contactPhone(r.user)}</div></td>
                   <td className="small">{place(r.originAddress)} → {place(r.destinationAddress)}</td>
                   <td className="small">{r.packageDescription}</td>
                   <td className="num">{r.quotedPriceMinor != null ? formatNaira(r.quotedPriceMinor) : '—'}</td>

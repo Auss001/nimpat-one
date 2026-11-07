@@ -16,7 +16,8 @@ import { AccessService } from '../access/access.service';
 import { AuthUser } from '../access/auth-user';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../notifications/mail.service';
-import { ChangePasswordDto, LoginDto, RegisterDto, ResetPasswordDto, TokenResponseDto } from './dto/auth.dto';
+import { ChangePasswordDto, GuestDto, LoginDto, RegisterDto, ResetPasswordDto, TokenResponseDto, UpgradeGuestDto } from './dto/auth.dto';
+import { randomUUID } from 'node:crypto';
 
 const MAX_FAILED_LOGINS = 5;
 const LOCK_MINUTES = 15;
@@ -78,6 +79,60 @@ export class AuthService {
     await this.sendVerificationEmail(user).catch((e) => this.logger.warn(`Verification email not sent: ${(e as Error).message}`));
     const tokens = await this.issueSession(user.id);
     return { user: this.publicUser(user), ...tokens };
+  }
+
+  /**
+   * Starts a guest checkout: no password, no Royalty points. The record signs in with an internal
+   * placeholder email so it can never clash with, or reveal, a member's account.
+   */
+  async startGuest(dto: GuestDto) {
+    const member = await this.prisma.user.findFirst({ where: { email: dto.email, isGuest: false }, select: { id: true } });
+    if (member) throw new ConflictException('This email already has a Nimpat One account. Please sign in to earn your Royalty points.');
+    const customerRole = await this.prisma.role.findUniqueOrThrow({ where: { code: RoleCode.CUSTOMER } });
+    const user = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: {
+          email: `guest-${randomUUID()}@guest.invalid`,
+          passwordHash: await this.getDummyHash(),
+          type: UserType.CUSTOMER,
+          isGuest: true,
+          contactEmail: dto.email,
+          contactPhone: dto.phone,
+          customerProfile: { create: { firstName: dto.firstName, lastName: dto.lastName } },
+          roles: { create: { roleId: customerRole.id } },
+        },
+      });
+      await this.audit.record({ actorId: created.id, action: 'auth.guest_start', entityType: 'user', entityId: created.id }, tx);
+      return created;
+    });
+    const tokens = await this.issueSession(user.id);
+    return { user: this.publicUser(user), ...tokens };
+  }
+
+  /** Turns the guest into a member, keeping their orders. Royalty points start from here. */
+  async upgradeGuest(actor: AuthUser, dto: UpgradeGuestDto) {
+    const guest = await this.prisma.user.findUniqueOrThrow({ where: { id: actor.id } });
+    if (!guest.isGuest || !guest.contactEmail) throw new BadRequestException('This is already a full account');
+    const taken = await this.prisma.user.findFirst({ where: { email: guest.contactEmail, id: { not: guest.id } }, select: { id: true } });
+    if (taken) throw new ConflictException('This email already has a Nimpat One account. Please sign in to it instead.');
+    const phoneFree = guest.contactPhone && !(await this.prisma.user.findFirst({ where: { phone: guest.contactPhone }, select: { id: true } }));
+    const user = await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.user.update({
+        where: { id: guest.id },
+        data: {
+          email: guest.contactEmail!,
+          phone: phoneFree ? guest.contactPhone : undefined,
+          passwordHash: await hashPassword(dto.password),
+          isGuest: false,
+          loyaltyAccount: { create: {} },
+        },
+      });
+      await this.audit.record({ actorId: guest.id, action: 'auth.guest_upgrade', entityType: 'user', entityId: guest.id }, tx);
+      return updated;
+    });
+    this.access.invalidate(user.id);
+    await this.sendVerificationEmail(user).catch((e) => this.logger.warn(`Verification email not sent: ${(e as Error).message}`));
+    return this.publicUser(user);
   }
 
   async login(dto: LoginDto) {
@@ -337,8 +392,9 @@ export class AuthService {
   private publicUser(u: User) {
     return {
       id: u.id,
-      email: u.email,
-      phone: u.phone,
+      email: u.isGuest ? u.contactEmail : u.email,
+      phone: u.isGuest ? u.contactPhone : u.phone,
+      isGuest: u.isGuest,
       type: u.type,
       status: u.status,
       emailVerified: !!u.emailVerifiedAt,

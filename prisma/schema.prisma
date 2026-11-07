@@ -423,6 +423,10 @@ model User {
   lastLoginAt     DateTime?  @map("last_login_at") @db.Timestamptz(3)
   failedLogins    Int        @default(0) @map("failed_logins")
   lockedUntil     DateTime?  @map("locked_until") @db.Timestamptz(3)
+  /// A guest buys without an account. Their sign-in email is an internal placeholder; contactEmail and contactPhone are real.
+  isGuest         Boolean    @default(false) @map("is_guest")
+  contactEmail    String?    @map("contact_email")
+  contactPhone    String?    @map("contact_phone")
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
 

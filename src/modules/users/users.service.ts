@@ -20,10 +20,11 @@ export class UsersService {
    * Personal details are erased and sign-in stops. Orders and payments stay, with
    * no name attached, because they are financial records.
    */
-  async deleteAccount(actor: AuthUser, password: string) {
+  async deleteAccount(actor: AuthUser, password?: string) {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: actor.id } });
     if (user.type !== UserType.CUSTOMER) throw new BadRequestException('Staff accounts are closed by an administrator');
-    if (!(await verifyPassword(password, user.passwordHash))) throw new BadRequestException('The password is not correct');
+    // A guest has no password; holding their own session is the proof.
+    if (!user.isGuest && !(password && (await verifyPassword(password, user.passwordHash)))) throw new BadRequestException('The password is not correct');
 
     const closed = [OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.EXPIRED];
     const liveBookings = [BookingStatus.REQUESTED, BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS];
@@ -47,7 +48,7 @@ export class UsersService {
       await tx.verificationToken.deleteMany({ where: { userId: user.id } });
       await tx.user.update({
         where: { id: user.id },
-        data: { email: `deleted-${user.id}@deleted.invalid`, phone: null, passwordHash, status: UserStatus.DEACTIVATED },
+        data: { email: `deleted-${user.id}@deleted.invalid`, phone: null, contactEmail: null, contactPhone: null, passwordHash, status: UserStatus.DEACTIVATED },
       });
       await this.audit.record({ actorId: user.id, action: 'user.delete_account', entityType: 'user', entityId: user.id }, tx);
     });

@@ -10,6 +10,8 @@ export interface Session {
   refreshToken: string;
   email: string;
   firstName?: string;
+  /** Checking out without an account. */
+  guest?: boolean;
 }
 
 export class ApiError extends Error {
@@ -115,6 +117,28 @@ export async function login(email: string, password: string) {
 
 export async function register(body: { email: string; password: string; firstName: string; lastName: string; phone?: string }) {
   startSession(await api<any>('/auth/register', { method: 'POST', body }, false), body.firstName);
+}
+
+/** Accepts 0803..., 803... or +234803... and returns +234803... */
+export function nigerianPhone(raw: string): string {
+  const digits = raw.replace(/[^\d+]/g, '');
+  if (digits.startsWith('+234')) return digits;
+  if (digits.startsWith('234')) return `+${digits}`;
+  if (digits.startsWith('0')) return `+234${digits.slice(1)}`;
+  return `+234${digits}`;
+}
+
+/** Buy without an account. Guests do not earn Royalty points. */
+export async function startGuest(body: { email: string; firstName: string; lastName: string; phone: string }) {
+  const r = await api<any>('/auth/guest', { method: 'POST', body }, false);
+  saveSession({ accessToken: r.accessToken, refreshToken: r.refreshToken, email: r.user.email, firstName: body.firstName, guest: true });
+}
+
+/** Turns the guest into a full account with a password; their orders stay. */
+export async function upgradeGuest(password: string) {
+  const user = await api<any>('/auth/guest/upgrade', { method: 'POST', body: { password } });
+  const s = getSession();
+  if (s) saveSession({ ...s, email: user.email, guest: false });
 }
 
 export async function logout() {

@@ -137,7 +137,7 @@ export class LogisticsService implements OnModuleInit, PayableHandler {
     user.assertCan(P.logisticsManage, d.id);
     const where = { status: q.status };
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.logisticsRequest.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { user: { select: { email: true, phone: true } } } }),
+      this.prisma.logisticsRequest.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true } } } }),
       this.prisma.logisticsRequest.count({ where }),
     ]);
     return paginate(rows, total, q);

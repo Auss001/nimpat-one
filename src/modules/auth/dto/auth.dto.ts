@@ -38,6 +38,30 @@ export class RegisterDto {
   marketingOptIn?: boolean;
 }
 
+export class GuestDto {
+  @ApiProperty({ example: 'ada@example.com', description: 'For receipts and order updates' })
+  @Transform(lower) @IsEmail() @MaxLength(254)
+  email: string;
+
+  @ApiProperty({ example: 'Ada' })
+  @Transform(trim) @IsString() @Length(1, 80)
+  firstName: string;
+
+  @ApiProperty({ example: 'Okafor' })
+  @Transform(trim) @IsString() @Length(1, 80)
+  lastName: string;
+
+  @ApiProperty({ example: '+2348031234567', description: 'Nigerian mobile number in E.164 format, for delivery' })
+  @Matches(NG_PHONE, { message: 'phone must be a Nigerian mobile number in +234 format' })
+  phone: string;
+}
+
+export class UpgradeGuestDto {
+  @ApiProperty({ minLength: 10 })
+  @IsString() @Matches(PASSWORD_RULE, { message: PASSWORD_MESSAGE })
+  password: string;
+}
+
 export class LoginDto {
   @ApiProperty() @Transform(lower) @IsEmail()
   email: string;

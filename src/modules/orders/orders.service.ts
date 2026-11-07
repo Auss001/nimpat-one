@@ -287,7 +287,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
         where,
         orderBy: { createdAt: 'desc' },
         ...pageArgs(q),
-        include: { user: { select: { id: true, email: true, phone: true } }, delivery: { select: { status: true } }, _count: { select: { items: true } } },
+        include: { user: { select: { id: true, email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true } }, delivery: { select: { status: true } }, _count: { select: { items: true } } },
       }),
       this.prisma.order.count({ where }),
     ]);
@@ -300,7 +300,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       include: {
         ...orderInclude,
         statusHistory: { orderBy: { createdAt: 'asc' } },
-        user: { select: { id: true, email: true, phone: true, customerProfile: { select: { firstName: true, lastName: true } } } },
+        user: { select: { id: true, email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true, customerProfile: { select: { firstName: true, lastName: true } } } },
       },
     });
     if (!order) throw new NotFoundException('Order not found');

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { get } from '../api';
+import { contactPhone, get } from '../api';
 import { Loading, PageHead, Pill, useLoad } from '../components/ui';
 
 export function CustomersPage() {
@@ -28,8 +28,8 @@ export function CustomersPage() {
               {list.data.data.map((c) => (
                 <tr key={c.id}>
                   <td><strong>{[c.customerProfile?.firstName, c.customerProfile?.lastName].filter(Boolean).join(' ') || '—'}</strong></td>
-                  <td><a href={`mailto:${c.email}`}>{c.email}</a> {!c.emailVerifiedAt && <Pill tone="amber">Not confirmed</Pill>}</td>
-                  <td>{c.phone ? <a href={`tel:${c.phone}`}>{c.phone}</a> : '—'}</td>
+                  <td><a href={`mailto:${c.isGuest ? c.contactEmail : c.email}`}>{c.isGuest ? c.contactEmail : c.email}</a> {c.isGuest ? <Pill tone="blue">Guest</Pill> : !c.emailVerifiedAt && <Pill tone="amber">Not confirmed</Pill>}</td>
+                  <td>{contactPhone(c) ? <a href={`tel:${contactPhone(c)}`}>{contactPhone(c)}</a> : '—'}</td>
                   <td className="num">{c._count.orders}</td>
                   <td className="num">{c._count.reservations}</td>
                   <td className="small">{new Date(c.createdAt).toLocaleDateString('en-NG', { dateStyle: 'medium' })}</td>

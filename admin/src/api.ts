@@ -136,3 +136,8 @@ export function upload<T = any>(p: string, file: File, fields: Record<string, st
   form.append('file', file);
   return api<T>(p, { method: 'POST', form });
 }
+
+/** A guest's real email and phone are kept apart from their internal sign-in address. */
+type Contact = { email?: string; phone?: string | null; isGuest?: boolean; contactEmail?: string | null; contactPhone?: string | null } | null | undefined;
+export const contactEmail = (u: Contact) => (u?.isGuest ? `${u.contactEmail ?? ''} (guest)` : (u?.email ?? ''));
+export const contactPhone = (u: Contact) => (u?.isGuest ? u.contactPhone : u?.phone) ?? null;

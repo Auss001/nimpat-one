@@ -17,6 +17,8 @@ export class AuthUser {
     readonly sessionId: string,
     readonly roles: { code: RoleCode; divisionId: string | null }[],
     readonly permissions: Map<string, Set<string>>,
+    /** Bought without an account: no Royalty points, and no email check before paying. */
+    readonly isGuest = false,
   ) {}
 
   get isStaff(): boolean {

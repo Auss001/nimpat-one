@@ -41,8 +41,9 @@ export class NotificationsService {
         },
       });
       if (input.email) {
-        const user = await this.prisma.user.findUnique({ where: { id: input.userId }, select: { email: true } });
-        if (user) await this.sendEmailRecorded(input, user.email);
+        const user = await this.prisma.user.findUnique({ where: { id: input.userId }, select: { email: true, isGuest: true, contactEmail: true } });
+        const to = user?.isGuest ? user.contactEmail : user?.email;
+        if (to) await this.sendEmailRecorded(input, to);
       }
     } catch (e) {
       this.logger.error(`notify(${input.type}) failed: ${(e as Error).message}`);

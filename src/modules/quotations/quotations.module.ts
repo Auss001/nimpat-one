@@ -127,7 +127,7 @@ export class QuotationsService implements OnModuleInit, PayableHandler {
       if (allowed) where.divisionId = { in: allowed };
     }
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.quotation.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { items: true, user: { select: { email: true, phone: true } } } }),
+      this.prisma.quotation.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { items: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true } } } }),
       this.prisma.quotation.count({ where }),
     ]);
     return paginate(rows, total, q);

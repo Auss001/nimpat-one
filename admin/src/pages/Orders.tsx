@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api, get, patch } from '../api';
+import { api, contactEmail, contactPhone, get, patch } from '../api';
 import { Field, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useConfirm, useLoad } from '../components/ui';
 import { formatNaira } from '../money';
 
@@ -59,7 +59,7 @@ export function OrdersPage() {
               {orders.data.data.map((o) => (
                 <tr key={o.id}>
                   <td className="mono">{o.orderNumber}</td>
-                  <td>{o.user.email}<div className="muted small">{o.user.phone}</div></td>
+                  <td>{contactEmail(o.user)}<div className="muted small">{contactPhone(o.user)}</div></td>
                   <td className="small">{new Date(o.createdAt).toLocaleString('en-NG')}</td>
                   <td className="num">{o._count.items}</td>
                   <td className="small">{o.fulfilmentType === 'DELIVERY' ? `Delivery${o.delivery ? ` (${o.delivery.status.toLowerCase()})` : ''}` : 'Pickup'}</td>
@@ -110,7 +110,7 @@ function OrderDetail({ id, onClose, onChanged }: { id: string; onClose: () => vo
           <div className="toolbar" style={{ margin: 0 }}>
             <StatusPill status={o.status} />
             <StatusPill status={o.paymentStatus} />
-            <span className="muted small">{o.user.email} · {o.user.phone ?? 'no phone'} · {o.fulfilmentType.toLowerCase()}</span>
+            <span className="muted small">{contactEmail(o.user)} · {contactPhone(o.user) ?? 'no phone'} · {o.fulfilmentType.toLowerCase()}</span>
           </div>
           {o.deliveryAddress && (
             <div className="card card-pad small">

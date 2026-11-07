@@ -226,7 +226,7 @@ export class SpaService implements OnModuleInit, PayableHandler {
       where.startsAt = { gte: addMinutes(day, -LAGOS_OFFSET_MIN), lt: addMinutes(day, 1440 - LAGOS_OFFSET_MIN) };
     }
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.spaAppointment.findMany({ where, orderBy: { startsAt: 'asc' }, ...pageArgs(q), include: { treatment: true, practitioner: true, user: { select: { email: true, phone: true } } } }),
+      this.prisma.spaAppointment.findMany({ where, orderBy: { startsAt: 'asc' }, ...pageArgs(q), include: { treatment: true, practitioner: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true } } } }),
       this.prisma.spaAppointment.count({ where }),
     ]);
     return paginate(rows, total, q);

@@ -179,7 +179,7 @@ export class ServicesService implements OnModuleInit, PayableHandler {
       if (allowed) where.divisionId = { in: allowed };
     }
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.serviceBooking.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { offering: true, user: { select: { email: true, phone: true } } } }),
+      this.prisma.serviceBooking.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { offering: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true } } } }),
       this.prisma.serviceBooking.count({ where }),
     ]);
     return paginate(rows, total, q);

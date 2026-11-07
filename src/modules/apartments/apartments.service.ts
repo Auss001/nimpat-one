@@ -308,7 +308,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
         where,
         orderBy: { checkIn: 'asc' },
         ...pageArgs(q),
-        include: { ...reservationInclude, user: { select: { id: true, email: true, phone: true, customerProfile: { select: { firstName: true, lastName: true } } } } },
+        include: { ...reservationInclude, user: { select: { id: true, email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true, customerProfile: { select: { firstName: true, lastName: true } } } } },
       }),
       this.prisma.reservation.count({ where }),
     ]);

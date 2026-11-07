@@ -548,3 +548,10 @@ body { background: var(--bg); }
   .slider-glow { width: 46%; }
 }
 @media (min-width: 1100px) { .slide { flex-basis: calc((100% - 32px) / 3); } }
+
+/* Guest checkout */
+.guest-card { align-items: flex-start; }
+.guest-card-body { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.guest-card-body small { color: #d7efe0; line-height: 1.45; }
+.guest-card-body input { min-height: 44px; border-radius: 14px; border: 0; padding: 0 12px; font: inherit; }
+.guest-card-body .btn { align-self: flex-start; }

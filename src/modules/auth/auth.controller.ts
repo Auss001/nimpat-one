@@ -7,9 +7,11 @@ import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
   EmailOnlyDto,
+  GuestDto,
   LoginDto,
   RefreshDto,
   RegisterDto,
+  UpgradeGuestDto,
   ResetPasswordDto,
   TokenResponseDto,
   VerifyEmailDto,
@@ -34,6 +36,20 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a customer account (sends a verification email)' })
   register(@Body() dto: RegisterDto) {
     return this.auth.register(dto);
+  }
+
+  @Public() @AuthThrottle()
+  @Post('guest')
+  @ApiOperation({ summary: 'Check out as a guest: name, email and phone, no password. Guests do not earn Royalty points' })
+  guest(@Body() dto: GuestDto) {
+    return this.auth.startGuest(dto);
+  }
+
+  @Post('guest/upgrade')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Turn the signed-in guest into a full account with a password, keeping their orders' })
+  upgradeGuest(@CurrentUser() user: AuthUser, @Body() dto: UpgradeGuestDto) {
+    return this.auth.upgradeGuest(user, dto);
   }
 
   @Public() @AuthThrottle()

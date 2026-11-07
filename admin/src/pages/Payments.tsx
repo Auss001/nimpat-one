@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { get, openProtectedFile, post } from '../api';
+import { contactEmail, contactPhone, get, openProtectedFile, post } from '../api';
 import { Field, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useLoad, useToast } from '../components/ui';
 import { formatNaira } from '../money';
 
@@ -124,7 +124,7 @@ export function PaymentsPage() {
                 <tr key={p.id}>
                   <td className="mono">{p.reference}<div className="muted small">{new Date(p.createdAt).toLocaleString('en-NG')}</div></td>
                   <td className="small" style={{ whiteSpace: "nowrap" }}>{payableLabel(p)}<div className="muted">{p.division?.name}</div></td>
-                  <td className="small">{p.user.email}</td>
+                  <td className="small">{contactEmail(p.user)}</td>
                   <td className="small">{words(p.method)}<div className="muted">{p.serviceLocation?.name ?? words(p.collectionPoint)}</div></td>
                   <td className="small">{p.reportedBy?.staffProfile ? `${p.reportedBy.staffProfile.firstName} ${p.reportedBy.staffProfile.lastName}` : p.reportedById ? 'Customer' : '—'}</td>
                   <td className="num">{p.claimedAmountMinor != null ? formatNaira(p.claimedAmountMinor) : '—'}</td>
@@ -161,7 +161,7 @@ function PodOrders({ division }: { division: string }) {
               {orders.data.data.map((o: any) => (
                 <tr key={o.id}>
                   <td className="mono">{o.orderNumber}</td>
-                  <td className="small">{o.user.email}</td>
+                  <td className="small">{contactEmail(o.user)}</td>
                   <td className="small">{words(o.delivery?.status) || '—'}</td>
                   <td><StatusPill status={o.status} /></td>
                   <td><StatusPill status={o.paymentStatus} /></td>
@@ -276,7 +276,7 @@ function PaymentDetail({ id, onClose, onChanged }: { id: string; onClose: () => 
           <div className="form-grid small">
             <div><span className="muted">Amount</span><br /><strong>{formatNaira(p.amountMinor)}</strong></div>
             <div><span className="muted">Claimed by payer / collector</span><br />{p.claimedAmountMinor != null ? formatNaira(p.claimedAmountMinor) : '—'}</div>
-            <div><span className="muted">Customer</span><br />{p.user.email}{p.user.phone ? ` · ${p.user.phone}` : ''}</div>
+            <div><span className="muted">Customer</span><br />{contactEmail(p.user)}{contactPhone(p.user) ? ` · ${contactPhone(p.user)}` : ''}</div>
             <div><span className="muted">Payer name</span><br />{p.payerName ?? '—'}</div>
             <div><span className="muted">Payer's reference</span><br />{p.customerReference ?? '—'}</div>
             <div><span className="muted">Receipt</span><br />{p.receiptNumber ?? '—'}</div>

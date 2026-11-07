@@ -19,7 +19,7 @@ export function CartPage() {
   useEffect(() => {
     void refresh().finally(() => setReady(true));
   }, [refresh]);
-  if (!session) return <NeedsSignIn title="Basket" text="Sign in to add items and check out." next="/cart" />;
+  if (!session) return <NeedsSignIn title="Basket" text="Sign in, or continue as a guest, to add items and check out." next="/cart" />;
 
   const setQty = async (variantId: string, quantity: number) => {
     try {
@@ -34,6 +34,7 @@ export function CartPage() {
   return (
     <>
       <PageTitle title="Basket" back={false} sub={carts.length > 1 ? 'Each Nimpat store checks out separately.' : undefined} />
+      {session.guest && carts.length > 0 && <Note><Link to="/account">Create an account</Link> to earn Royalty points on this order.</Note>}
       {!ready && carts.length === 0 && <Loader />}
       {ready && carts.length === 0 && <Empty title="Your basket is empty" action={<Link className="btn primary" to="/">Start shopping</Link>} />}
       {carts.map((cart) => {

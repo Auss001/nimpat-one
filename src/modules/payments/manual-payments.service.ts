@@ -559,7 +559,7 @@ export class ManualPaymentsService {
       !q.purpose || q.purpose === 'ORDER'
         ? this.prisma.order.findMany({
             where: { divisionId: inDiv, paymentStatus: states, status: { notIn: [OrderStatus.CANCELLED, OrderStatus.EXPIRED] } },
-            select: { id: true, orderNumber: true, status: true, paymentOption: true, paymentStatus: true, totalMinor: true, amountPaidMinor: true, depositRequiredMinor: true, createdAt: true, user: { select: { email: true } } },
+            select: { id: true, orderNumber: true, status: true, paymentOption: true, paymentStatus: true, totalMinor: true, amountPaidMinor: true, depositRequiredMinor: true, createdAt: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true } } },
             orderBy: { createdAt: 'desc' },
             take,
           })
@@ -567,7 +567,7 @@ export class ManualPaymentsService {
       !q.purpose || q.purpose === 'APARTMENT_RESERVATION'
         ? this.prisma.reservation.findMany({
             where: { paymentStatus: states, status: { in: ['HOLD', 'CONFIRMED', 'CHECKED_IN'] }, unit: { property: { divisionId: inDiv } } },
-            select: { id: true, reservationNumber: true, status: true, paymentStatus: true, totalMinor: true, amountPaidMinor: true, depositRequiredMinor: true, checkIn: true, user: { select: { email: true } } },
+            select: { id: true, reservationNumber: true, status: true, paymentStatus: true, totalMinor: true, amountPaidMinor: true, depositRequiredMinor: true, checkIn: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true } } },
             orderBy: { checkIn: 'asc' },
             take,
           })
@@ -575,14 +575,14 @@ export class ManualPaymentsService {
       !q.purpose || q.purpose === 'SERVICE_BOOKING'
         ? this.prisma.serviceBooking.findMany({
             where: { divisionId: inDiv, paymentStatus: states, priceMinor: { not: null }, status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
-            select: { id: true, bookingNumber: true, status: true, paymentStatus: true, priceMinor: true, amountPaidMinor: true, depositRequiredMinor: true, scheduledStart: true, user: { select: { email: true } } },
+            select: { id: true, bookingNumber: true, status: true, paymentStatus: true, priceMinor: true, amountPaidMinor: true, depositRequiredMinor: true, scheduledStart: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true } } },
             take,
           })
         : [],
       !q.purpose || q.purpose === 'SPA_APPOINTMENT'
         ? this.prisma.spaAppointment.findMany({
             where: { paymentStatus: states, status: { notIn: ['CANCELLED', 'NO_SHOW'] }, treatment: { divisionId: inDiv } },
-            select: { id: true, appointmentNumber: true, status: true, paymentStatus: true, priceMinor: true, amountPaidMinor: true, depositRequiredMinor: true, startsAt: true, user: { select: { email: true } } },
+            select: { id: true, appointmentNumber: true, status: true, paymentStatus: true, priceMinor: true, amountPaidMinor: true, depositRequiredMinor: true, startsAt: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true } } },
             orderBy: { startsAt: 'asc' },
             take,
           })

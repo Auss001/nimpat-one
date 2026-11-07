@@ -55,12 +55,14 @@ export class AccessService {
 
     const authUser = new AuthUser(
       user.id,
-      user.email,
+      // A guest is reached at their real address, not the internal sign-in placeholder.
+      user.isGuest ? (user.contactEmail ?? user.email) : user.email,
       user.type,
       !!user.emailVerifiedAt,
       sessionId,
       user.roles.map((r) => ({ code: r.role.code, divisionId: r.divisionId })),
       permissions,
+      user.isGuest,
     );
     this.cache.set(key, { user: authUser, expires: Date.now() + AccessService.TTL_MS });
     if (this.cache.size > 5000) this.cache.clear();

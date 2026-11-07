@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Award, CalendarCheck, Check, ChevronRight, FileText, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
-import { del, endSession, formatNaira, get, getSession, login, logout, patch, post, register, rows } from '../api';
+import { del, endSession, formatNaira, get, getSession, login, logout, nigerianPhone, patch, post, register, rows, startGuest, upgradeGuest } from '../api';
 import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
 
 /** Only a path inside the app may be a return address after sign-in. */
@@ -11,7 +11,7 @@ export function NeedsSignIn({ title, text, next }: { title: string; text: string
   return (
     <>
       <PageTitle title={title} back={false} />
-      <Empty title="Please sign in" action={<div className="row"><Link className="btn primary" to={`/login?next=${encodeURIComponent(next)}`}>Sign in</Link><Link className="btn ghost" to={`/register?next=${encodeURIComponent(next)}`}>Create account</Link></div>}>{text}</Empty>
+      <Empty title="Please sign in" action={<div className="row"><Link className="btn primary" to={`/login?next=${encodeURIComponent(next)}`}>Sign in</Link><Link className="btn ghost" to={`/login?guest=1&next=${encodeURIComponent(next)}`}>Continue as guest</Link><Link className="btn ghost" to={`/register?next=${encodeURIComponent(next)}`}>Create account</Link></div>}>{text}</Empty>
     </>
   );
 }
@@ -47,7 +47,82 @@ export function LoginPage() {
         <Link className="text-link" to="/forgot-password">Forgot your password?</Link>
       </form>
       <p className="auth-switch">New here? <Link to={`/register?next=${encodeURIComponent(safeNext(params.get('next')))}`}>Create an account</Link></p>
+      <GuestStart next={safeNext(params.get('next'))} open={params.get('guest') === '1'} />
     </div>
+  );
+}
+
+/** Buy without an account: name, email and phone only. */
+function GuestStart({ next, open }: { next: string; open: boolean }) {
+  const navigate = useNavigate();
+  const [show, setShow] = useState(open);
+  const [f, setF] = useState({ firstName: '', lastName: '', email: '', phone: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
+  if (!show) {
+    return <button className="btn ghost full" onClick={() => setShow(true)}>Continue as a guest</button>;
+  }
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await startGuest({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), phone: nigerianPhone(f.phone) });
+      navigate(next, { replace: true });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <form className="panel" onSubmit={submit}>
+      <h2>Continue as a guest</h2>
+      <p className="muted-text">No password needed. Guests don't earn Royalty points, but you can create an account later and keep your orders.</p>
+      {error && <Note tone="error">{error}</Note>}
+      <div className="date-pair">
+        <Field label="First name"><input required autoComplete="given-name" value={f.firstName} onChange={set('firstName')} /></Field>
+        <Field label="Last name"><input required autoComplete="family-name" value={f.lastName} onChange={set('lastName')} /></Field>
+      </div>
+      <Field label="Email" hint="For your receipt and order updates."><input type="email" required autoComplete="email" value={f.email} onChange={set('email')} /></Field>
+      <Field label="Phone" hint="For delivery, for example 0803 123 4567"><input type="tel" required autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
+      <button className="btn primary full" disabled={busy}>{busy ? 'Starting…' : 'Continue'}</button>
+    </form>
+  );
+}
+
+/** A guest sets a password to become a member. Their orders stay, and Royalty points start. */
+function GuestUpgrade({ onDone }: { onDone: () => void }) {
+  const toast = useToast();
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await upgradeGuest(password);
+      toast('Welcome! Your account is ready. Please check your email to confirm it.');
+      onDone();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <form className="reward guest-card" onSubmit={submit}>
+      <Award size={26} aria-hidden="true" />
+      <div className="guest-card-body">
+        <b>You're shopping as a guest</b>
+        <small>Set a password to become a Royalty Member. Your orders stay with you, and you start earning points.</small>
+        {error && <Note tone="error">{error}</Note>}
+        <input type="password" required minLength={10} autoComplete="new-password" aria-label="Choose a password" placeholder="Choose a password (10+ characters, a letter and a number)" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button className="btn primary" disabled={busy}>{busy ? 'Creating…' : 'Create my account'}</button>
+      </div>
+    </form>
   );
 }
 
@@ -260,7 +335,8 @@ export function AccountPage() {
   return (
     <>
       <PageTitle title={m?.customerProfile?.firstName ? `Hello, ${m.customerProfile.firstName}` : 'Account'} sub={session.email} back={false} />
-      {m && !m.emailVerified && <VerifyEmailNote />}
+      {m && !m.emailVerified && !m.isGuest && <VerifyEmailNote />}
+      {m?.isGuest && <GuestUpgrade onDone={() => void me.reload()} />}
       {m?.loyalty && (
         <section className="reward">
           <Award size={26} aria-hidden="true" />
@@ -304,14 +380,15 @@ export function AccountPage() {
         <h2>Help</h2>
         <CallLink />
       </section>
+      {m?.isGuest && <p className="muted-text">If you sign out as a guest, you can't come back to these orders on this device. Create an account above to keep them.</p>}
       <button className="btn ghost full" onClick={async () => { await logout(); await refresh(); navigate('/'); }}><LogOut size={16} aria-hidden="true" /> Sign out</button>
       <button className="text-link danger" onClick={() => setDeleting(true)}>Delete my account</button>
-      {deleting && <DeleteAccount onClose={() => setDeleting(false)} />}
+      {deleting && <DeleteAccount guest={!!m?.isGuest} onClose={() => setDeleting(false)} />}
     </>
   );
 }
 
-function DeleteAccount({ onClose }: { onClose: () => void }) {
+function DeleteAccount({ onClose, guest }: { onClose: () => void; guest: boolean }) {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -321,7 +398,7 @@ function DeleteAccount({ onClose }: { onClose: () => void }) {
     setBusy(true);
     setError(null);
     try {
-      await del('/me', { password });
+      await del('/me', guest ? {} : { password });
       endSession();
       await refresh();
       navigate('/', { replace: true });
@@ -334,10 +411,10 @@ function DeleteAccount({ onClose }: { onClose: () => void }) {
     <Sheet title="Delete your account?" onClose={onClose}>
       <p>This signs you out everywhere and removes your name, email, phone and addresses. Past order and payment records stay, without those details. This cannot be undone. Any open order or booking must be finished or cancelled first.</p>
       {error && <Note tone="error">{error}</Note>}
-      <Field label="Enter your password to confirm"><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
+      {!guest && <Field label="Enter your password to confirm"><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>}
       <div className="row">
         <button className="btn ghost" onClick={onClose}>Keep my account</button>
-        <button className="btn danger grow" disabled={busy || !password} onClick={submit}>{busy ? 'Deleting…' : 'Delete my account'}</button>
+        <button className="btn danger grow" disabled={busy || (!guest && !password)} onClick={submit}>{busy ? 'Deleting…' : 'Delete my account'}</button>
       </div>
     </Sheet>
   );

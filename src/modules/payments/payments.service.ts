@@ -628,7 +628,7 @@ export class PaymentsService {
         orderBy: { createdAt: 'desc' },
         ...pageArgs(q),
         include: {
-          user: { select: { id: true, email: true } },
+          user: { select: { id: true, email: true, isGuest: true, contactEmail: true, contactPhone: true } },
           refunds: true,
           serviceLocation: { select: { id: true, code: true, name: true } },
           reportedBy: { select: { id: true, email: true, staffProfile: { select: { firstName: true, lastName: true } } } },
@@ -652,7 +652,7 @@ export class PaymentsService {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, email: true, phone: true } },
+        user: { select: { id: true, email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true } },
         refunds: true,
         proofs: { select: { id: true, fileName: true, mimeType: true, sizeBytes: true, createdAt: true } },
         serviceLocation: true,
@@ -680,7 +680,8 @@ export class PaymentsService {
   // ---------------------------------------------------------------------------
 
   assertVerifiedEmail(user: AuthUser) {
-    if (this.config.get('REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT') && !user.emailVerified) {
+    // Guests have no account to protect, so the email check is for members only.
+    if (this.config.get('REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT') && !user.emailVerified && !user.isGuest) {
       throw new ForbiddenException('Please verify your email address before making a payment');
     }
   }
