@@ -19,7 +19,7 @@ export function CartPage() {
   useEffect(() => {
     void refresh().finally(() => setReady(true));
   }, [refresh]);
-  if (!session) return <NeedsSignIn title="Your basket" text="Sign in to add items and check out." next="/cart" />;
+  if (!session) return <NeedsSignIn title="Basket" text="Sign in to add items and check out." next="/cart" />;
 
   const setQty = async (variantId: string, quantity: number) => {
     try {
@@ -33,48 +33,58 @@ export function CartPage() {
 
   return (
     <>
-      <PageTitle title="Your basket" back={false} sub={carts.length > 1 ? 'Each Nimpat store checks out separately.' : undefined} />
+      <PageTitle title="Basket" back={false} sub={carts.length > 1 ? 'Each Nimpat store checks out separately.' : undefined} />
       {!ready && carts.length === 0 && <Loader />}
-      {ready && carts.length === 0 && <Empty title="Your basket is empty" action={<Link className="btn primary" to="/">Start shopping</Link>}>Add something you need and it will wait for you here.</Empty>}
-      {carts.map((cart) => (
-        <section key={cart.cartId} className="panel">
-          <h2>{DIVISION_NAME[cart.division?.slug ?? cart.division] ?? cart.division?.name ?? 'Basket'}</h2>
-          {cart.lines.map((l: any) => (
-            <div key={l.itemId} className="line">
-              <Link to={`/product/${l.productSlug}`} className="line-photo"><Photo src={l.image?.url ?? l.image} alt={l.productName} fit="contain" /></Link>
-              <div className="line-body">
-                <Link to={`/product/${l.productSlug}`}><b>{l.productName}</b></Link>
-                {l.variantName !== 'As listed' && <small>{l.variantName}</small>}
-                {l.isAgeRestricted && <small className="tag-inline">18+</small>}
-                <span className="price">{formatNaira(l.lineTotalMinor)}</span>
-                {l.issues?.map((i: any) => <small key={String(i.code ?? i)} className="out">{String(i.message ?? i)}</small>)}
-              </div>
-              <div className="qty small">
-                <button aria-label={l.quantity === 1 ? `Remove ${l.productName}` : `Fewer ${l.productName}`} onClick={() => setQty(l.variantId, l.quantity - 1)}>{l.quantity === 1 ? <Trash2 size={15} /> : <Minus size={15} />}</button>
-                <span>{l.quantity}</span>
-                <button aria-label={`More ${l.productName}`} onClick={() => setQty(l.variantId, l.quantity + 1)}><Plus size={15} /></button>
-              </div>
-            </div>
-          ))}
-          <div className="sum"><span>Subtotal</span><b>{formatNaira(cart.subtotalMinor)}</b></div>
-          {cart.canCheckout
-            ? <Link className="btn primary full" to={`/checkout/${cart.division?.slug ?? cart.division}`}>Go to checkout</Link>
-            : <Note tone="warn">Please fix the items marked above before you check out.</Note>}
-        </section>
-      ))}
+      {ready && carts.length === 0 && <Empty title="Your basket is empty" action={<Link className="btn primary" to="/">Start shopping</Link>} />}
+      {carts.map((cart) => {
+        const slug = cart.division?.slug ?? cart.division;
+        return (
+          <div key={cart.cartId} className="basket-store">
+            <section className="panel">
+              <h2>{DIVISION_NAME[slug] ?? cart.division?.name ?? 'Basket'}</h2>
+              {cart.lines.map((l: any) => (
+                <div key={l.itemId} className="line">
+                  <Link to={`/product/${l.productSlug}`} className="line-photo"><Photo src={l.image?.url ?? l.image} alt={l.productName} fit="contain" /></Link>
+                  <div className="line-body">
+                    <Link to={`/product/${l.productSlug}`}><b>{l.productName}</b></Link>
+                    {l.variantName !== 'As listed' && <small>{l.variantName}</small>}
+                    <span className="price">{formatNaira(l.lineTotalMinor)}</span>
+                    {l.issues?.map((i: any) => <small key={String(i.code ?? i)} className="out">{ISSUE[String(i.code ?? i)] ?? String(i.message ?? i)}</small>)}
+                  </div>
+                  <div className="qty small">
+                    <button aria-label={l.quantity === 1 ? `Remove ${l.productName}` : `Fewer ${l.productName}`} onClick={() => setQty(l.variantId, l.quantity - 1)}>{l.quantity === 1 ? <Trash2 size={15} /> : <Minus size={15} />}</button>
+                    <span>{l.quantity}</span>
+                    <button aria-label={`More ${l.productName}`} onClick={() => setQty(l.variantId, l.quantity + 1)}><Plus size={15} /></button>
+                  </div>
+                </div>
+              ))}
+            </section>
+            {cart.canCheckout
+              ? <CheckoutForm division={slug} version={cart.subtotalMinor} />
+              : <Note tone="warn">Please fix the items marked above before you check out.</Note>}
+          </div>
+        );
+      })}
     </>
   );
 }
 
-const OPTION_INFO: Record<string, { label: string; text: string; icon: any }> = {
-  PAYSTACK: { label: 'Pay online', text: 'Card, bank or USSD through Paystack', icon: CreditCard },
-  BANK_TRANSFER: { label: 'Bank transfer', text: 'We confirm your order once the money arrives', icon: Building },
-  PAY_ON_DELIVERY: { label: 'Pay on delivery', text: 'Pay our delivery staff when your order arrives', icon: Truck },
-  PAY_AT_LOCATION: { label: 'Pay at our location', text: 'Pay when you collect in store', icon: Store },
+const ISSUE: Record<string, string> = {
+  UNAVAILABLE: 'No longer available',
+  NOT_PURCHASABLE: 'Cannot be bought online',
+  OUT_OF_STOCK: 'Out of stock',
+  INSUFFICIENT_STOCK: 'Not enough in stock',
 };
 
-export function CheckoutPage() {
-  const { division = '' } = useParams();
+const OPTION_INFO: Record<string, { label: string; text: string; icon: any }> = {
+  PAYSTACK: { label: 'Card, bank or USSD', text: 'Pay online with Paystack', icon: CreditCard },
+  BANK_TRANSFER: { label: 'Bank transfer', text: 'We confirm once the money arrives', icon: Building },
+  PAY_ON_DELIVERY: { label: 'Pay on delivery', text: 'Pay when your order arrives', icon: Truck },
+  PAY_AT_LOCATION: { label: 'Pay in store', text: 'Pay when you collect', icon: Store },
+};
+
+/** Delivery, payment and total. It sits on the basket, so everything is on one page. */
+function CheckoutForm({ division, version }: { division: string; version?: unknown }) {
   const navigate = useNavigate();
   const toast = useToast();
   const { refresh } = useCart();
@@ -95,10 +105,10 @@ export function CheckoutPage() {
   const needsAddress = fulfilment === 'DELIVERY';
   const query = `fulfilmentType=${fulfilment}${needsAddress && addressId ? `&addressId=${addressId}` : ''}`;
   const ready = !needsAddress || !!addressId;
-  const quote = useLoad(() => (ready ? get(`/carts/${division}/quote?${query}`) : Promise.resolve(null)), [division, query, ready]);
-  const options = useLoad(() => (ready ? get(`/orders/checkout-options?division=${division}&${query}`) : Promise.resolve(null)), [division, query, ready]);
-  const available: any[] = options.data?.options?.filter((o: any) => o.available) ?? [];
-  const unavailable: any[] = options.data?.options?.filter((o: any) => !o.available) ?? [];
+  const quote = useLoad(() => (ready ? get(`/carts/${division}/quote?${query}`) : Promise.resolve(null)), [division, query, ready, version]);
+  const options = useLoad(() => (ready ? get(`/orders/checkout-options?division=${division}&${query}`) : Promise.resolve(null)), [division, query, ready, version]);
+  const all: any[] = options.data?.options ?? [];
+  const available = all.filter((o) => o.available);
   useEffect(() => {
     if (available.length && !available.some((o) => o.option === option)) setOption(available[0].option);
     if (!available.length) setOption('');
@@ -118,10 +128,10 @@ export function CheckoutPage() {
         ...(note.trim() ? { customerNote: note.trim() } : {}),
       }, key.current);
       await refresh();
-      if (option === 'PAYSTACK' || option === 'BANK_TRANSFER') navigate(`/pay/ORDER/${order.id}?method=${option}`, { replace: true });
+      if (option === 'PAYSTACK' || option === 'BANK_TRANSFER') navigate(`/pay/ORDER/${order.id}?method=${option}`);
       else {
         toast(`Order ${order.orderNumber} placed`);
-        navigate('/bookings?tab=orders', { replace: true });
+        navigate('/bookings?tab=orders');
       }
     } catch (e) {
       toast((e as Error).message, 'error');
@@ -135,18 +145,17 @@ export function CheckoutPage() {
   const q = quote.data;
   return (
     <>
-      <PageTitle title="Checkout" sub={DIVISION_NAME[division]} />
       <section className="panel">
-        <h2>How would you like to get it?</h2>
+        <h2>Delivery</h2>
         <div className="segmented" role="group" aria-label="Delivery or collection">
-          <button className={fulfilment === 'DELIVERY' ? 'on' : ''} onClick={() => setFulfilment('DELIVERY')}><Truck size={16} aria-hidden="true" /> Delivery</button>
+          <button className={fulfilment === 'DELIVERY' ? 'on' : ''} onClick={() => setFulfilment('DELIVERY')}><Truck size={16} aria-hidden="true" /> Deliver</button>
           <button className={fulfilment === 'PICKUP' ? 'on' : ''} onClick={() => setFulfilment('PICKUP')}><Store size={16} aria-hidden="true" /> Pick up</button>
         </div>
         {needsAddress && (
           <>
             {addresses.data?.map((a: any) => (
               <label key={a.id} className={`choice ${addressId === a.id ? 'on' : ''}`}>
-                <input type="radio" name="address" checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
+                <input type="radio" name={`address-${division}`} checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
                 <MapPin size={18} aria-hidden="true" />
                 <span><b>{a.label ?? a.recipientName}</b><small>{addressLine(a)}</small></span>
               </label>
@@ -154,35 +163,32 @@ export function CheckoutPage() {
             {adding
               ? <AddressForm onCancel={addresses.data?.length ? () => setAdding(false) : undefined} onSaved={async (a) => { await addresses.reload(); setAddressId(a.id); setAdding(false); }} />
               : <button className="btn ghost full" onClick={() => setAdding(true)}><Plus size={16} aria-hidden="true" /> Add an address</button>}
-            {q?.delivery && q.delivery.available === false && <Note tone="warn">{q.delivery.reason ?? 'We do not deliver to this address yet.'}</Note>}
           </>
         )}
       </section>
 
       <section className="panel">
-        <h2>How would you like to pay?</h2>
-        {options.loading && !options.data && <Loader />}
+        <h2>Payment</h2>
+        {!ready && <p className="muted-text">Add your address to see your choices.</p>}
+        {options.loading && !options.data && ready && <Loader />}
         {options.error && <Note tone="error">{options.error}</Note>}
-        {!needsAddress || addressId ? null : <p className="muted-text">Add your delivery address to see your choices.</p>}
-        {available.map((o) => {
+        {all.map((o) => {
           const info = OPTION_INFO[o.option];
+          if (!info) return null;
           const Icon = info.icon;
           return (
-            <label key={o.option} className={`choice ${option === o.option ? 'on' : ''}`}>
-              <input type="radio" name="payment" checked={option === o.option} onChange={() => setOption(o.option)} />
+            <label key={o.option} className={`choice ${option === o.option ? 'on' : ''} ${o.available ? '' : 'off'}`}>
+              <input type="radio" name={`payment-${division}`} disabled={!o.available} checked={option === o.option} onChange={() => setOption(o.option)} />
               <Icon size={18} aria-hidden="true" />
-              <span><b>{info.label}</b><small>{info.text}</small></span>
+              <span><b>{info.label}</b><small>{o.available ? info.text : o.reason ?? 'Not available yet'}</small></span>
             </label>
           );
         })}
-        {options.data && !available.length && <Note tone="warn">No way to pay is open for this order right now. Please call us and we will help.</Note>}
-        {unavailable.length > 0 && available.length > 0 && <details className="why"><summary>Why are other options missing?</summary>{unavailable.map((o) => <p key={o.option}><b>{OPTION_INFO[o.option]?.label}:</b> {o.reason}</p>)}</details>}
-        <Field label="Note for our team (optional)"><textarea rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
+        <Field label="Note (optional)"><textarea rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
       </section>
 
       <section className="panel">
-        <h2>Your total</h2>
-        {quote.error && <Note tone="error">{quote.error}</Note>}
+        {quote.error && <Note tone="warn">{quote.error}</Note>}
         {q && (
           <>
             <div className="sum"><span>Items</span><span>{formatNaira(q.subtotalMinor)}</span></div>
@@ -191,8 +197,17 @@ export function CheckoutPage() {
           </>
         )}
         <button className="btn primary full" disabled={busy || !q || !option || !ready || q.canCheckout === false} onClick={place}>{busy ? 'Placing your order…' : 'Place order'}</button>
-        <CallLink />
       </section>
+    </>
+  );
+}
+
+export function CheckoutPage() {
+  const { division = '' } = useParams();
+  return (
+    <>
+      <PageTitle title="Checkout" sub={DIVISION_NAME[division]} />
+      <CheckoutForm division={division} />
     </>
   );
 }

@@ -3,10 +3,11 @@ import { get, openProtectedFile, post } from '../api';
 import { Field, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useLoad, useToast } from '../components/ui';
 import { formatNaira } from '../money';
 
-type Queue = 'transfers' | 'collections' | 'pod' | 'balances' | 'disputes' | 'reconcile' | 'history' | 'staff' | 'all';
+type Queue = 'online' | 'transfers' | 'collections' | 'pod' | 'balances' | 'disputes' | 'reconcile' | 'history' | 'staff' | 'all';
 
 const QUEUES: { value: Queue; label: string }[] = [
   { value: 'transfers', label: 'Bank transfers' },
+  { value: 'online', label: 'Paid online' },
   { value: 'collections', label: 'Collections' },
   { value: 'pod', label: 'Pay on delivery' },
   { value: 'balances', label: 'Deposits & balances' },
@@ -19,6 +20,7 @@ const QUEUES: { value: Queue; label: string }[] = [
 
 const QUEUE_FILTER: Partial<Record<Queue, string>> = {
   transfers: 'method=BANK_TRANSFER&collectionPoint=BANK&status=AWAITING_VERIFICATION',
+  online: 'method=PAYSTACK&status=SUCCESS',
   collections: 'status=AWAITING_VERIFICATION',
   disputes: 'reconciliationStatus=DISPUTED',
   reconcile: 'reconciliationStatus=COLLECTION_VERIFIED',
@@ -236,7 +238,7 @@ function StaffReport({ data, error }: { data: any[] | null; error: string | null
   );
 }
 
-type Action = 'confirm' | 'reject' | 'dispute' | 'resolve' | 'reverse' | 'reconcile' | null;
+type Action = 'confirm' | 'reject' | 'dispute' | 'resolve' | 'reverse' | 'reconcile' | 'refund' | null;
 
 function PaymentDetail({ id, onClose, onChanged }: { id: string; onClose: () => void; onChanged: () => void }) {
   const payment = useLoad(() => get<any>(`/admin/payments/${id}`), [id]);
@@ -259,6 +261,7 @@ function PaymentDetail({ id, onClose, onChanged }: { id: string; onClose: () => 
           {p.status === 'SUCCESS' && p.reconciliationStatus === 'DISPUTED' && <button className="btn" onClick={() => setAction('resolve')}>Resolve dispute</button>}
           {p.status === 'SUCCESS' && p.reconciliationStatus === 'COLLECTION_VERIFIED' && <button className="btn primary" onClick={() => setAction('reconcile')}>Reconcile</button>}
           {manual && p.status === 'SUCCESS' && p.reconciliationStatus !== 'RECONCILED' && <button className="btn danger" onClick={() => setAction('reverse')}>Reverse</button>}
+          {!manual && p.status === 'SUCCESS' && <button className="btn danger" onClick={() => setAction('refund')}>Refund</button>}
         </>
       )}
     >
@@ -310,7 +313,7 @@ function PaymentDetail({ id, onClose, onChanged }: { id: string; onClose: () => 
 
 function ActionDialog({ action, payment, onClose, onDone }: { action: Exclude<Action, null>; payment: any; onClose: () => void; onDone: () => void }) {
   const { run, busy } = useAction();
-  const [amount, setAmount] = useState<number | null>(payment.claimedAmountMinor ?? payment.amountMinor);
+  const [amount, setAmount] = useState<number | null>(action === 'refund' ? null : payment.claimedAmountMinor ?? payment.amountMinor);
   const [text, setText] = useState('');
   const config = {
     confirm: { title: 'Confirm funds received', label: 'Bank statement line / cash book reference', btn: 'Confirm funds', path: 'confirm-funds', ok: 'Funds confirmed' },
@@ -319,12 +322,14 @@ function ActionDialog({ action, payment, onClose, onDone }: { action: Exclude<Ac
     resolve: { title: 'Resolve dispute', label: 'Outcome of the investigation', btn: 'Resolve', path: 'resolve-dispute', ok: 'Dispute resolved' },
     reverse: { title: 'Reverse payment', label: 'Reason (shown to the customer)', btn: 'Reverse payment', path: 'reverse', ok: 'Payment reversed' },
     reconcile: { title: 'Reconcile', label: 'Bank settlement / cash banking reference', btn: 'Mark reconciled', path: 'reconcile', ok: 'Payment reconciled' },
+    refund: { title: 'Refund through Paystack', label: 'Reason for the refund', btn: 'Refund', path: 'refunds', ok: 'Refund requested' },
   }[action];
   const valid = text.trim().length >= 3 && (action !== 'confirm' || (amount !== null && amount > 0));
   const body =
     action === 'confirm' ? { receivedAmountMinor: amount, verificationReference: text.trim() }
     : action === 'resolve' ? { note: text.trim() }
     : action === 'reconcile' ? { settlementReference: text.trim() }
+    : action === 'refund' ? { reason: text.trim(), ...(amount ? { amountMinor: amount } : {}) }
     : { reason: text.trim() };
   const save = () => run(() => post(`/admin/payments/${payment.id}/${config.path}`, body), config.ok).then((ok) => ok && onDone());
   return (
@@ -335,6 +340,7 @@ function ActionDialog({ action, payment, onClose, onDone }: { action: Exclude<Ac
           <Field label="Amount actually received (₦)"><MoneyInput value={amount} onChange={setAmount} /></Field>
         </>
       )}
+      {action === 'refund' && <Field label="Amount (₦)" hint={`Leave empty to refund the full ${formatNaira(payment.amountMinor)}.`}><MoneyInput value={amount} onChange={setAmount} /></Field>}
       <Field label={config.label}>
         <input autoFocus value={text} onChange={(e) => setText(e.target.value)} />
       </Field>

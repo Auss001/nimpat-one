@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Award, Check, LogOut, MailCheck, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { Award, CalendarCheck, Check, ChevronRight, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { del, endSession, formatNaira, get, getSession, login, logout, patch, post, register, rows } from '../api';
 import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
 
@@ -266,6 +266,10 @@ export function AccountPage() {
           <div><b>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')} points</b><small>{String(m.loyalty.tier).toLowerCase()} member</small></div>
         </section>
       )}
+      <nav className="panel link-list" aria-label="Your account">
+        <Link to="/bookings"><CalendarCheck size={19} aria-hidden="true" /> Orders and bookings <ChevronRight size={18} aria-hidden="true" /></Link>
+        <Link to="/favorites"><Heart size={19} aria-hidden="true" /> Favourites <ChevronRight size={18} aria-hidden="true" /></Link>
+      </nav>
       <section className="panel">
         <div className="panel-head"><h2>Your details</h2>{!profile && <button className="icon-btn" aria-label="Edit your details" onClick={() => setProfile({ firstName: m?.customerProfile?.firstName ?? '', lastName: m?.customerProfile?.lastName ?? '' })}><Pencil size={16} /></button>}</div>
         {profile ? (
@@ -385,6 +389,41 @@ interface Rendered {
   payable?: boolean;
 }
 
+const ORDER_STEPS: [string, string[]][] = [
+  ['Placed', ['PENDING']],
+  ['Accepted', ['ACCEPTED']],
+  ['Preparing', ['PROCESSING', 'READY']],
+  ['On the way', ['OUT_FOR_DELIVERY']],
+  ['Delivered', ['DELIVERED', 'COMPLETED']],
+];
+
+function OrderSteps({ status }: { status: string }) {
+  const at = ORDER_STEPS.findIndex(([, statuses]) => statuses.includes(status));
+  if (at < 0) return null;
+  return (
+    <ol className="order-steps" aria-label={`Order progress: ${ORDER_STEPS[at][0]}`}>
+      {ORDER_STEPS.map(([label], n) => <li key={label} className={n <= at ? 'done' : ''}><span>{label}</span></li>)}
+    </ol>
+  );
+}
+
+function OrderAgain({ order }: { order: any }) {
+  const { refresh } = useCart();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const again = async () => {
+    setBusy(true);
+    const results = await Promise.allSettled((order.items ?? []).map((i: any) => post('/carts/items', { variantId: i.variantId, quantity: i.quantity })));
+    await refresh();
+    const failed = results.filter((r) => r.status === 'rejected').length;
+    if (failed) toast(`${failed} ${failed === 1 ? 'item is' : 'items are'} no longer available`, 'error');
+    setBusy(false);
+    if (failed < results.length) navigate('/cart');
+  };
+  return <button className="btn ghost" disabled={busy} onClick={again}><RotateCcw size={15} aria-hidden="true" /> Order again</button>;
+}
+
 function History({ path, cancel, canCancel, purpose, empty, render }: { path: string; cancel?: (row: any) => string; canCancel?: (row: any) => boolean; purpose?: string; empty: string; render: (row: any) => Rendered }) {
   const list = useLoad(() => get(path).then(rows), [path]);
   const toast = useToast();
@@ -417,6 +456,7 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
             <div className="history-head"><b>{r.title}</b><Status value={row.status} /></div>
             <small>{r.sub}</small>
             {r.details && <small>{r.details}</small>}
+            {path === '/orders' && <OrderSteps status={row.status} />}
             <div className="history-foot">
               {r.amount !== null && r.amount !== undefined ? <span className="price">{formatNaira(r.amount)}</span> : <span />}
               {purpose && r.amount !== null && r.amount !== undefined && row.paymentStatus && <Status value={row.paymentStatus} />}
@@ -427,6 +467,7 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
                 {payable && <button className="btn primary grow" onClick={() => navigate(`/pay/${purpose}/${row.id}`)}>Pay {formatNaira(r.owing)}</button>}
               </div>
             )}
+            {path === '/orders' && row.items?.length > 0 && <div className="row"><OrderAgain order={row} /></div>}
             {row.paymentStatus === 'PAID' && <small className="paid"><Check size={13} aria-hidden="true" /> Paid in full</small>}
           </article>
         );

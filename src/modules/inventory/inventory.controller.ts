@@ -26,6 +26,10 @@ class AdjustStockDto {
   @ApiProperty({ example: 'Weekly delivery from plant' }) @IsString() @Length(3, 300) reason: string;
 }
 
+class MovementQueryDto extends PaginationQueryDto {
+  @ApiProperty() @IsUUID() variantId: string;
+}
+
 class CreateLocationDto {
   @ApiProperty({ description: 'Division id, slug or code' }) @IsString() division: string;
   @ApiProperty({ example: 'WDW-ABJ-01' }) @IsString() @Length(2, 40) code: string;
@@ -99,7 +103,8 @@ export class InventoryController {
   @Get('movements')
   @RequirePermissions(P.inventoryRead, P.inventoryManage)
   @ApiOperation({ summary: 'Stock movement ledger for a variant' })
-  async movements(@CurrentUser() user: AuthUser, @Query('variantId', ParseUUIDPipe) variantId: string, @Query() q: PaginationQueryDto) {
+  async movements(@CurrentUser() user: AuthUser, @Query() q: MovementQueryDto) {
+    const { variantId } = q;
     const variant = await this.prisma.productVariant.findUniqueOrThrow({ where: { id: variantId }, include: { product: true } });
     user.assertCan(P.inventoryRead, variant.product.divisionId);
     const where = { variantId };

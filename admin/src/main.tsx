@@ -2,7 +2,7 @@ import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Bell, Building2, CalendarCheck, CalendarClock, Car, ClipboardCheck, Clapperboard, Droplets, Landmark, LayoutDashboard, LogOut,
+  Bell, Building2, CalendarCheck, CalendarClock, Car, ClipboardCheck, Clapperboard, Contact, Droplets, ExternalLink, History, Inbox, Landmark, LayoutDashboard, LogOut,
   Package, Pill, Search, Settings2, ShoppingBag, Sparkles, Truck, Users, Wallet, type LucideIcon,
 } from 'lucide-react';
 import { AccessProvider, useAccess, type Check } from './access';
@@ -25,6 +25,9 @@ import { PaymentSettingsPage } from './pages/PaymentSettings';
 import { DataCheckPage } from './pages/DataCheck';
 import { SetPasswordPage } from './pages/SetPassword';
 import { StaffPage } from './pages/Staff';
+import { RequestsPage } from './pages/Requests';
+import { CustomersPage } from './pages/Customers';
+import { ActivityPage } from './pages/Activity';
 import './theme.css';
 
 function useSession() {
@@ -61,6 +64,8 @@ const NAV: { group: string; items: [string, string, LucideIcon, Check?][] }[] = 
     ['/orders', 'Orders', Landmark, { any: ['orders:read'], division: ['water-drinks-wines', 'retail-general-supplies', 'pharmacy-laboratory'] }],
     ['/reservations', 'Reservations', CalendarCheck, { any: ['bookings:read'], division: 'luxury-apartments' }],
     ['/bookings', 'Bookings', CalendarClock, { any: ['bookings:read'] }],
+    ['/requests', 'Customer requests', Inbox, { any: ['inquiries:manage', 'quotations:manage', 'logistics:manage', 'deliveries:manage'] }],
+    ['/customers', 'Customers', Contact, { any: ['customers:read'] }],
   ] },
   { group: 'Finance', items: [
     ['/payments', 'Payments', Wallet, { any: ['payments:read', 'payments:verify', 'payments:configure', 'collections:record'] }],
@@ -69,6 +74,7 @@ const NAV: { group: string; items: [string, string, LucideIcon, Check?][] }[] = 
   { group: 'Team and data', items: [
     ['/staff', 'Staff and managers', Users, { any: ['staff:manage', 'roles:assign'] }],
     ['/data-check', 'Data confirmation', ClipboardCheck, { any: ['records:verify', 'reports:read'] }],
+    ['/activity', 'Activity log', History, { any: ['audit:read'] }],
   ] },
 ];
 
@@ -98,14 +104,15 @@ function Shell({ email }: { email: string }) {
     <div className="frame">
       <header className="topbar">
         <Link to="/" className="logo">
-          <span className="logo-mark" aria-hidden="true">N1</span>
-          <div><strong>Nimpat One</strong><span>Admin dashboard</span></div>
+          <img src="/nimpat-one-logo.webp" alt="Nimpat One" style={{ height: 34, width: 'auto' }} />
+          <div><span>Admin dashboard</span></div>
         </Link>
         <form className="top-search" role="search" onSubmit={(e) => { e.preventDefault(); navigate(`/drinks?q=${encodeURIComponent(q.trim())}`); }}>
           <Search size={17} aria-hidden="true" />
           <input aria-label="Search products" placeholder="Search products by name, brand or SKU…" value={q} onChange={(e) => setQ(e.target.value)} />
         </form>
         <div className="top-actions">
+          <a href={import.meta.env.VITE_APP_URL ?? 'http://localhost:3002'} target="_blank" rel="noopener" className="icon-btn" aria-label="Open the customer app" title="Open the customer app"><ExternalLink size={18} /></a>
           <Link to="/payments" className="icon-btn" aria-label={`${pending} payments awaiting verification`} title="Payments awaiting verification">
             <Bell size={18} />
             {pending > 0 && <span className="badge">{pending}</span>}
@@ -165,6 +172,9 @@ function App() {
         <Route path="payment-settings" element={<PaymentSettingsPage />} />
         <Route path="staff" element={<StaffPage />} />
         <Route path="data-check" element={<DataCheckPage />} />
+        <Route path="requests" element={<RequestsPage />} />
+        <Route path="customers" element={<CustomersPage />} />
+        <Route path="activity" element={<ActivityPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

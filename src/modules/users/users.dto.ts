@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsDateString, IsLatitude, IsLongitude, IsOptional, IsString, Length, Matches } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsLatitude, IsLongitude, IsOptional, IsString, Length, Matches } from 'class-validator';
+import { FavoriteKind } from '@prisma/client';
 import { NG_PHONE } from '../auth/dto/auth.dto';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
@@ -36,4 +37,9 @@ export class UpdateAddressDto extends PartialType(CreateAddressDto) {}
 
 export class DeleteAccountDto {
   @ApiProperty({ description: 'The account password, to confirm it is really the owner' }) @IsString() @Length(1, 200) password: string;
+}
+
+export class FavoriteDto {
+  @ApiProperty({ enum: FavoriteKind }) @IsEnum(FavoriteKind) kind: FavoriteKind;
+  @ApiProperty({ example: 'moet-imperial' }) @IsString() @Length(1, 200) @Matches(/^[a-z0-9-]+$/) slug: string;
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { getAll, patch, post } from '../api';
+import { get, getAll, patch, post } from '../api';
 import { Field, Loading, Modal, PageHead, Pill, Tabs, useAction, useLoad } from '../components/ui';
 
 interface Level {
@@ -23,6 +23,7 @@ export function StockPage() {
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<'all' | 'low' | 'out' | 'uncounted'>('all');
   const [action, setAction] = useState<{ level: Level; mode: Mode } | null>(null);
+  const [history, setHistory] = useState<Level | null>(null);
   const levels = useLoad(() => getAll<Level>(`/admin/inventory?division=${division}`), [division]);
 
   const rows = useMemo(() => {
@@ -100,6 +101,7 @@ export function StockPage() {
                     <div className="row-actions">
                       <button className="btn sm primary" onClick={() => setAction({ level: l, mode: 'receive' })}>Receive</button>
                       <button className="btn sm" onClick={() => setAction({ level: l, mode: 'count' })}>Set count</button>
+                      <button className="btn sm" onClick={() => setHistory(l)}>History</button>
                     </div>
                   </td>
                 </tr>
@@ -109,6 +111,7 @@ export function StockPage() {
         </div>
       )}
       {action && <StockDialog {...action} onClose={() => setAction(null)} onDone={() => { setAction(null); void levels.reload(); }} />}
+      {history && <StockHistory level={history} onClose={() => setHistory(null)} />}
     </>
   );
 }
@@ -164,6 +167,33 @@ function StockDialog({ level, mode, onClose, onDone }: { level: Level; mode: Mod
         <Field label="Reason (kept in the stock history)">
           <input value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
+      )}
+    </Modal>
+  );
+}
+
+function StockHistory({ level, onClose }: { level: Level; onClose: () => void }) {
+  const list = useLoad(() => get<{ data: any[] }>(`/admin/inventory/movements?variantId=${level.variant.id}&pageSize=100`).then((r) => r.data), [level.variant.id]);
+  return (
+    <Modal title={`Stock history: ${level.variant.product.name}`} onClose={onClose} wide>
+      <Loading error={list.error} loading={list.loading && !list.data} />
+      {list.data?.length === 0 && <p className="muted">No stock changes yet.</p>}
+      {list.data && list.data.length > 0 && (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>When</th><th>Type</th><th className="num">Change</th><th>Reason</th></tr></thead>
+            <tbody>
+              {list.data.map((m) => (
+                <tr key={m.id}>
+                  <td className="small">{new Date(m.createdAt).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                  <td className="small">{m.type.toLowerCase().replace(/_/g, ' ')}</td>
+                  <td className="num">{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</td>
+                  <td className="small">{m.reason ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </Modal>
   );

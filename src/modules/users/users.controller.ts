@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseEnumPipe, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FavoriteKind } from '@prisma/client';
 import { Authenticated, CurrentUser } from '../../common/decorators/auth.decorators';
 import { AuthUser } from '../access/auth-user';
-import { CreateAddressDto, DeleteAccountDto, UpdateAddressDto, UpdateProfileDto } from './users.dto';
+import { CreateAddressDto, DeleteAccountDto, FavoriteDto, UpdateAddressDto, UpdateProfileDto } from './users.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('Account')
@@ -21,6 +22,24 @@ export class UsersController {
   @ApiOperation({ summary: 'Update my customer profile' })
   updateProfile(@CurrentUser() user: AuthUser, @Body() dto: UpdateProfileDto) {
     return this.users.updateProfile(user.id, dto);
+  }
+
+  @Get('favorites')
+  @ApiOperation({ summary: 'List what I have saved' })
+  listFavorites(@CurrentUser() user: AuthUser) {
+    return this.users.listFavorites(user.id);
+  }
+
+  @Post('favorites')
+  @ApiOperation({ summary: 'Save something. Saving it twice is harmless' })
+  addFavorite(@CurrentUser() user: AuthUser, @Body() dto: FavoriteDto) {
+    return this.users.addFavorite(user.id, dto.kind, dto.slug);
+  }
+
+  @Delete('favorites/:kind/:slug')
+  @ApiOperation({ summary: 'Remove something I saved' })
+  removeFavorite(@CurrentUser() user: AuthUser, @Param('kind', new ParseEnumPipe(FavoriteKind)) kind: FavoriteKind, @Param('slug') slug: string) {
+    return this.users.removeFavorite(user.id, kind, slug);
   }
 
   @Get('addresses')

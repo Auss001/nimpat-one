@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { BookingStatus, OrderStatus, ReservationStatus, UserStatus, UserType } from '@prisma/client';
+import { BookingStatus, OrderStatus, ReservationStatus, UserStatus, UserType, FavoriteKind } from '@prisma/client';
 import { generateToken, hashPassword, verifyPassword } from '../../common/utils/crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AccessService } from '../access/access.service';
@@ -40,6 +40,7 @@ export class UsersService {
     const passwordHash = await hashPassword(generateToken(32));
     await this.prisma.$transaction(async (tx) => {
       await tx.cartItem.deleteMany({ where: { cart: { userId: user.id } } });
+      await tx.favorite.deleteMany({ where: { userId: user.id } });
       await tx.address.updateMany({ where: { userId: user.id }, data: { deletedAt: new Date(), isDefault: false, recipientName: 'Deleted', phone: '', line1: 'Deleted', line2: null, landmark: null } });
       await tx.customerProfile.updateMany({ where: { userId: user.id }, data: { firstName: 'Deleted', lastName: 'Customer', dateOfBirth: null, marketingOptIn: false } });
       await tx.session.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: new Date() } });
@@ -113,6 +114,20 @@ export class UsersService {
   }
 
   /** Soft delete: past orders keep their own address snapshot. */
+  listFavorites(userId: string) {
+    return this.prisma.favorite.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 200, select: { kind: true, itemSlug: true, createdAt: true } });
+  }
+
+  async addFavorite(userId: string, kind: FavoriteKind, itemSlug: string) {
+    await this.prisma.favorite.upsert({ where: { userId_kind_itemSlug: { userId, kind, itemSlug } }, create: { userId, kind, itemSlug }, update: {} });
+    return { ok: true };
+  }
+
+  async removeFavorite(userId: string, kind: FavoriteKind, itemSlug: string) {
+    await this.prisma.favorite.deleteMany({ where: { userId, kind, itemSlug } });
+    return { ok: true };
+  }
+
   async deleteAddress(userId: string, id: string) {
     await this.getOwnedAddress(userId, id);
     await this.prisma.address.update({ where: { id }, data: { deletedAt: new Date(), isDefault: false } });

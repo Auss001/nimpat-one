@@ -432,6 +432,7 @@ model User {
   sessions           Session[]
   tokens             VerificationToken[]
   addresses          Address[]
+  favorites          Favorite[]
   carts              Cart[]
   orders             Order[]
   payments           Payment[]
@@ -1790,4 +1791,26 @@ model AuditLog {
   @@index([action, createdAt])
   @@index([divisionId, createdAt])
   @@map("audit_logs")
+}
+
+enum FavoriteKind {
+  PRODUCT
+  PROPERTY
+  VEHICLE
+  TREATMENT
+}
+
+/// Something a customer has saved. Slugs keep the list simple across listing types.
+model Favorite {
+  id        String       @id @default(uuid()) @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  kind      FavoriteKind
+  itemSlug  String       @map("item_slug")
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kind, itemSlug])
+  @@index([userId, createdAt])
+  @@map("favorites")
 }

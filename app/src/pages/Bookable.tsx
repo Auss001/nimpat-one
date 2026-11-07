@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 import { formatNaira, get, getSession, idempotency, post, rows } from '../api';
-import { CallLink, Empty, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, useLoad, useToast } from '../ui';
+import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, useLoad, useToast } from '../ui';
 
 export function SpaPage() {
   const list = useLoad(() => get('/spa/treatments?pageSize=100').then(rows));
@@ -24,6 +24,7 @@ export function SpaPage() {
       <div className="grid wide">
         {shown.map((t: any) => (
           <Link key={t.id} to={`/spa/${t.slug}`} className="card stay">
+            <FavButton kind="TREATMENT" slug={t.slug} />
             <div className="card-photo"><Photo src={t.imageUrl} alt={t.name} /></div>
             <div className="card-body">
               <strong>{t.name}</strong>
@@ -70,7 +71,7 @@ export function TreatmentPage() {
   };
   return (
     <article className="detail">
-      <PageTitle title={t.name} sub={t.category} />
+      <PageTitle title={t.name} sub={t.category} action={<FavButton kind="TREATMENT" slug={t.slug} inline />} />
       <div className="detail-grid">
         <div className="stay-photo"><Photo src={t.imageUrl} alt={t.name} /></div>
         <div className="detail-side">

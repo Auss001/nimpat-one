@@ -1,28 +1,29 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { CalendarCheck, Home, Search, ShoppingBasket, User } from 'lucide-react';
-import { CartProvider, ToastProvider, useCart, useSession } from './ui';
-import { HomePage, Wordmark } from './pages/Home';
+import { CalendarCheck, Heart, Home, Search, ShoppingBasket, User } from 'lucide-react';
+import { CartProvider, FavoritesProvider, ToastProvider, useCart } from './ui';
+import { HomePage } from './pages/Home';
+import { FavoritesPage } from './pages/Favorites';
 import { PharmacyPage, ProductPage, SearchPage, ShopPage } from './pages/Shop';
 import { CartPage, CheckoutPage, PaymentCallbackPage, PayPage } from './pages/Cart';
 import { ApartmentPage, ApartmentsPage } from './pages/Apartments';
 import { CarPage, CarsPage } from './pages/Cars';
 import { ServicesPage, SpaPage, TreatmentPage } from './pages/Bookable';
 import { AccountPage, BookingsPage, ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage } from './pages/Account';
+import { formatNaira } from './api';
 import './theme.css';
 
 const TABS = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/search', label: 'Search', icon: Search },
   { to: '/cart', label: 'Basket', icon: ShoppingBasket },
-  { to: '/bookings', label: 'Bookings', icon: CalendarCheck },
+  { to: '/bookings', label: 'Orders', icon: CalendarCheck },
   { to: '/account', label: 'Account', icon: User },
 ];
 
 function Shell() {
-  const { count } = useCart();
-  const session = useSession();
+  const { count, totalMinor } = useCart();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [q, setQ] = useState('');
@@ -34,21 +35,22 @@ function Shell() {
     <div className="shell">
       <header className="top">
         <div className="top-in">
-          <Link to="/" className="brand" aria-label="Nimpat One home"><img src="/logo.webp" alt="" width="34" height="34" /><Wordmark /></Link>
+          <Link to="/" className="brand" aria-label="Nimpat One home"><img src="/nimpat-one-logo.webp" alt="Nimpat One" /></Link>
           <form className="top-search" role="search" onSubmit={(e) => { e.preventDefault(); if (q.trim()) navigate(`/search?q=${encodeURIComponent(q.trim())}`); }}>
             <Search size={17} aria-hidden="true" />
-            <input aria-label="Search Nimpat One" placeholder="Search water, medicine, stays, cars…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <input aria-label="Search Nimpat One" placeholder="What do you need?" value={q} onChange={(e) => setQ(e.target.value)} />
           </form>
-          <nav className="top-nav" aria-label="Main">
-            <NavLink to="/bookings">Bookings</NavLink>
-            <NavLink to="/account">{session?.firstName ?? (session ? 'Account' : 'Sign in')}</NavLink>
-            <Link to="/cart" className="basket-pill" aria-label={`Basket, ${count} items`}><ShoppingBasket size={18} aria-hidden="true" /> {count}</Link>
+          <nav className="top-nav" aria-label="Shortcuts">
+            <Link to="/favorites" className="top-icon" aria-label="Favourites"><Heart size={20} aria-hidden="true" /></Link>
+            <Link to="/bookings" className="top-icon wide-only" aria-label="Orders"><CalendarCheck size={20} aria-hidden="true" /></Link>
+            <Link to="/account" className="top-icon wide-only" aria-label="Account"><User size={20} aria-hidden="true" /></Link>
+            <Link to="/cart" className="top-icon wide-only" aria-label={`Basket, ${count} items`}><ShoppingBasket size={20} aria-hidden="true" />{count > 0 && <em>{count}</em>}</Link>
           </nav>
         </div>
       </header>
-      <main className="main"><Outlet /></main>
+      <main className="main" key={pathname}><Outlet /></main>
       {count > 0 && pathname !== '/cart' && !pathname.startsWith('/checkout') && (
-        <Link to="/cart" className="float-basket"><ShoppingBasket size={18} aria-hidden="true" /> View basket <b>{count}</b></Link>
+        <Link to="/cart" className="float-basket"><span><b>{count}</b> View basket</span><span>{formatNaira(totalMinor)}</span></Link>
       )}
       <nav className="tabs" aria-label="Main">
         {TABS.map(({ to, label, icon: Icon }) => (
@@ -67,6 +69,7 @@ createRoot(document.getElementById('root')!).render(
     <ToastProvider>
       <BrowserRouter>
         <CartProvider>
+          <FavoritesProvider>
           <Routes>
             <Route element={<Shell />}>
               <Route index element={<HomePage />} />
@@ -81,6 +84,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="spa" element={<SpaPage />} />
               <Route path="spa/:slug" element={<TreatmentPage />} />
               <Route path="services/:division" element={<ServicesPage />} />
+              <Route path="favorites" element={<FavoritesPage />} />
               <Route path="cart" element={<CartPage />} />
               <Route path="checkout/:division" element={<CheckoutPage />} />
               <Route path="pay/:purpose/:id" element={<PayPage />} />
@@ -95,6 +99,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>
+          </FavoritesProvider>
         </CartProvider>
       </BrowserRouter>
     </ToastProvider>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CalendarCheck, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, Stethoscope } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
-import { CallLink, Empty, Loader, Note, PageTitle, Photo, Sheet, useCart, useLoad, useToast } from '../ui';
+import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
 
 const DIVISION_TITLE: Record<string, { title: string; sub: string }> = {
   'water-drinks-wines': { title: 'Water & Drinks', sub: 'Water, soft drinks, juices, wines and spirits.' },
@@ -84,6 +84,7 @@ export function ProductCard({ product: p }: { product: any }) {
           {!p.inStock && <small className="out">Out of stock</small>}
         </div>
       </Link>
+      <FavButton kind="PRODUCT" slug={p.slug} />
       {p.isAgeRestricted && <span className="tag">18+</span>}
       {variant && single && <button className="add" aria-label={`Add ${p.name} to basket`} disabled={busy} onClick={() => request(p, variant.id)}><Plus size={20} /></button>}
       {dialog}
@@ -122,8 +123,8 @@ function useProducts(query: string) {
   return { products: pages, meta, loading, error, more: () => meta && void load(meta.page + 1) };
 }
 
-function ProductList({ division, extra, emptyText }: { division: string; extra?: React.ReactNode; emptyText: string }) {
-  const [category, setCategory] = useState('');
+function ProductList({ division, extra, emptyText, initialCategory = '' }: { division: string; extra?: React.ReactNode; emptyText: string; initialCategory?: string }) {
+  const [category, setCategory] = useState(initialCategory);
   const [text, setText] = useState('');
   const [q, setQ] = useState('');
   useEffect(() => {
@@ -146,7 +147,8 @@ function ProductList({ division, extra, emptyText }: { division: string; extra?:
       {error && <Note tone="error">{error}</Note>}
       {!error && !loading && products.length === 0 && <Empty title={q || category ? 'Nothing matches that' : 'Coming soon'}>{q || category ? 'Try another word or category.' : emptyText}</Empty>}
       <ProductGrid products={products} />
-      {loading && <Loader />}
+      {loading && products.length === 0 && <Skeletons />}
+      {loading && products.length > 0 && <Loader />}
       {!loading && meta && meta.page < meta.totalPages && <button className="btn ghost full" onClick={more}>Show more</button>}
     </>
   );
@@ -155,10 +157,12 @@ function ProductList({ division, extra, emptyText }: { division: string; extra?:
 export function ShopPage() {
   const { division = '' } = useParams();
   const info = DIVISION_TITLE[division] ?? { title: 'Shop', sub: '' };
+  const [params] = useSearchParams();
+  const initialCategory = params.get('category') ?? '';
   return (
     <>
       <PageTitle title={info.title} sub={info.sub} />
-      <ProductList key={division} division={division} emptyText="Our team is confirming these products and prices." />
+      <ProductList key={`${division}-${initialCategory}`} division={division} initialCategory={initialCategory} emptyText="Our team is confirming these products and prices." />
     </>
   );
 }
@@ -186,7 +190,9 @@ export function ProductPage() {
   const [photo, setPhoto] = useState(0);
   const p = product.data;
   useEffect(() => {
-    if (p) setVariantId(p.variants.find((v: any) => v.purchasable)?.id ?? p.variants[0]?.id ?? '');
+    if (!p) return;
+    setVariantId(p.variants.find((v: any) => v.purchasable)?.id ?? p.variants[0]?.id ?? '');
+    rememberViewed({ slug: p.slug, name: p.name, image: p.images?.[0]?.url });
   }, [p]);
   if (product.loading && !p) return <Loader />;
   if (!p) return <><PageTitle title="Not available" /><Empty title="This item is not available right now">It may be awaiting confirmation.</Empty></>;
@@ -197,7 +203,7 @@ export function ProductPage() {
   const shown = images[photo] ?? images[0];
   return (
     <article className="detail">
-      <PageTitle title={p.name} sub={[p.brand, p.category?.name].filter(Boolean).join(' · ')} />
+      <PageTitle title={p.name} sub={[p.brand, p.category?.name].filter(Boolean).join(' · ')} action={<FavButton kind="PRODUCT" slug={p.slug} inline />} />
       <div className="detail-grid">
         <div>
           <div className="detail-photo square"><Photo src={shown?.url} alt={p.name} fit="contain" /></div>
@@ -213,6 +219,7 @@ export function ProductPage() {
           )}
           {p.variants.length === 1 && v?.name !== 'As listed' && <p className="pack">{v?.name}</p>}
           <p className="big-price">{v?.unitPriceMinor !== null && v?.unitPriceMinor !== undefined ? formatNaira(v.unitPriceMinor) : 'Contact for price'}</p>
+          {v?.unitPriceMinor != null && v.unitsPerPack > 1 && <p className="muted-text">About {formatNaira(Math.round(v.unitPriceMinor / v.unitsPerPack))} each</p>}
           <p className={p.inStock ? 'stock ok' : 'stock out'}>{p.inStock ? 'In stock' : 'Out of stock'}</p>
           {p.isAgeRestricted && <Note tone="warn">Contains alcohol. Only sold to adults aged 18 and over.</Note>}
           {needsPrescription && <Note tone="warn"><ShieldCheck size={16} aria-hidden="true" /> This medicine needs a pharmacist and prescription review, so it cannot be bought online.</Note>}
@@ -245,6 +252,7 @@ export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const initial = params.get('q') ?? '';
   const [text, setText] = useState(initial);
+  const [recent, setRecent] = useState(recentSearches);
   useEffect(() => setText(initial), [initial]);
   useEffect(() => {
     const t = setTimeout(() => setParams(text.trim() ? { q: text.trim() } : {}, { replace: true }), 350);
@@ -254,6 +262,7 @@ export function SearchPage() {
   const results = useLoad(async () => {
     const q = initial.toLowerCase();
     if (!q) return null;
+    rememberSearch(initial);
     const none = { data: [] as any[] };
     const [products, stays, cars, spa] = await Promise.all([
       get(`/catalog/products?pageSize=24&q=${encodeURIComponent(initial)}`).catch(() => none),
@@ -276,7 +285,15 @@ export function SearchPage() {
       <PageTitle title="Search" back={false} />
       <div className="search-box"><SearchIcon size={17} aria-hidden="true" /><input autoFocus aria-label="Search Nimpat One" placeholder="Water, medicine, stays, cars, spa…" value={text} onChange={(e) => setText(e.target.value)} /></div>
       {results.loading && initial && <Loader label="Searching" />}
-      {!initial && <Empty title="What are you looking for?">Search products, apartments, cars and spa treatments.</Empty>}
+      {!initial && recent.length > 0 && (
+        <section>
+          <div className="rail-head"><h2>Recent</h2><button className="text-link" onClick={() => { forgetSearches(); setRecent([]); }}>Clear</button></div>
+          <div className="chips wrap">{recent.map((r) => <button key={r} onClick={() => setText(r)}>{r}</button>)}</div>
+        </section>
+      )}
+      <section>
+        {!initial && <div className="chips wrap">{['Water', 'Champagne', 'Whisky', 'Paracetamol', 'Toyota', 'Massage', 'Mabushi'].map((s) => <button key={s} onClick={() => setText(s)}>{s}</button>)}</div>}
+      </section>
       {nothing && <Empty title={`Nothing found for "${initial}"`}>Try another word.</Empty>}
       {r && r.products.length > 0 && <><h2 className="group-title">Products</h2><ProductGrid products={r.products} /></>}
       {r && r.stays.length > 0 && <><h2 className="group-title">Stays</h2><div className="list">{r.stays.map((p: any) => <Link key={p.id} to={`/apartments/${p.slug}`} className="row-card"><b>{p.name}</b><small>{p.location ?? p.city}</small></Link>)}</div></>}

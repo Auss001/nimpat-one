@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
-import { CallLink, Empty, Field, Loader, Note, PageTitle, Photo, useLoad, useToast } from '../ui';
+import { CallLink, Empty, FavButton, Field, Loader, Note, PageTitle, Photo, useLoad, useToast } from '../ui';
 
 const CONDITION: Record<string, string> = { BRAND_NEW: 'Brand new', FOREIGN_USED: 'Foreign used', NIGERIAN_USED: 'Nigerian used', CERTIFIED_PRE_OWNED: 'Certified pre-owned' };
 const INQUIRY = [
@@ -38,6 +38,7 @@ export function CarsPage() {
       <div className="grid wide">
         {shown.map((v: any) => (
           <Link key={v.id} to={`/cars/${v.slug}`} className="card stay">
+            <FavButton kind="VEHICLE" slug={v.slug} />
             <div className="card-photo"><Photo src={v.images?.[0]?.url} alt={carName(v)} /></div>
             <div className="card-body">
               <strong>{carName(v)}</strong>
@@ -71,7 +72,7 @@ export function CarPage() {
   const main = v.images?.[photo] ?? v.images?.[0];
   return (
     <article className="detail">
-      <PageTitle title={carName(v)} sub={v.trim} />
+      <PageTitle title={carName(v)} sub={v.trim} action={<FavButton kind="VEHICLE" slug={v.slug} inline />} />
       <div className="detail-grid">
         <div>
           <div className="stay-photo"><Photo src={main?.url} alt={carName(v)} /></div>

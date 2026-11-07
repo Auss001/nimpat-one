@@ -4,7 +4,7 @@
   "description": "Shop your essentials, find your next stay and book a little time for you.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f4f8f4",
-  "theme_color": "#0c3b28",
+  "background_color": "#eef3ee",
+  "theme_color": "#eef3ee",
   "icons": [{ "src": "/logo.webp", "sizes": "512x512", "type": "image/webp" }]
 }

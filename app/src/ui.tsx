@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ImageOff, Phone, X } from 'lucide-react';
-import { get, getSession, PHONE, PHONE_LABEL, SHOP_DIVISIONS } from './api';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Heart, Phone, X } from 'lucide-react';
+import { del, get, getSession, PHONE, PHONE_LABEL, post, rows, SHOP_DIVISIONS } from './api';
 
 // ---------------------------------------------------------------- data loading
 
@@ -66,10 +66,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 interface CartState {
   count: number;
+  totalMinor: number;
   carts: any[];
   refresh: () => Promise<void>;
 }
-const CartCtx = createContext<CartState>({ count: 0, carts: [], refresh: async () => undefined });
+const CartCtx = createContext<CartState>({ count: 0, totalMinor: 0, carts: [], refresh: async () => undefined });
 export const useCart = () => useContext(CartCtx);
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -86,9 +87,105 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void refresh();
   }, [refresh, session?.email]);
-  const value = useMemo(() => ({ carts, refresh, count: carts.reduce((n, c) => n + c.itemCount, 0) }), [carts, refresh]);
+  const value = useMemo(() => ({ carts, refresh, count: carts.reduce((n, c) => n + c.itemCount, 0), totalMinor: carts.reduce((n, c) => n + Number(c.subtotalMinor), 0) }), [carts, refresh]);
   return <CartCtx.Provider value={value}>{children}</CartCtx.Provider>;
 }
+
+// ---------------------------------------------------------------- favourites
+
+interface FavState {
+  has: (kind: string, slug: string) => boolean;
+  toggle: (kind: string, slug: string) => Promise<void>;
+}
+const FavCtx = createContext<FavState>({ has: () => false, toggle: async () => undefined });
+
+export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const session = useSession();
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const toast = useToast();
+  useEffect(() => {
+    if (!session) {
+      setSaved(new Set());
+      return;
+    }
+    get('/me/favorites').then((r) => setSaved(new Set(rows(r).map((f: any) => `${f.kind}:${f.itemSlug}`)))).catch(() => undefined);
+  }, [session?.email]);
+  const value = useMemo<FavState>(() => ({
+    has: (kind, slug) => saved.has(`${kind}:${slug}`),
+    toggle: async (kind, slug) => {
+      const key = `${kind}:${slug}`;
+      const on = saved.has(key);
+      const flip = (add: boolean) => setSaved((s) => {
+        const next = new Set(s);
+        if (add) next.add(key);
+        else next.delete(key);
+        return next;
+      });
+      flip(!on); // Answer at once; put it back if the server says no.
+      try {
+        if (on) await del(`/me/favorites/${kind}/${slug}`);
+        else await post('/me/favorites', { kind, slug });
+      } catch (e) {
+        flip(on);
+        toast((e as Error).message, 'error');
+      }
+    },
+  }), [saved, toast]);
+  return <FavCtx.Provider value={value}>{children}</FavCtx.Provider>;
+}
+
+export function FavButton({ kind, slug, inline }: { kind: string; slug: string; inline?: boolean }) {
+  const { has, toggle } = useContext(FavCtx);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const on = has(kind, slug);
+  return (
+    <button
+      type="button"
+      className={`fav ${on ? 'on' : ''} ${inline ? 'inline' : ''}`}
+      aria-label={on ? 'Remove from favourites' : 'Add to favourites'}
+      aria-pressed={on}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!getSession()) navigate(`/login?next=${encodeURIComponent(pathname)}`);
+        else void toggle(kind, slug);
+      }}
+    >
+      <Heart size={18} fill={on ? 'currentColor' : 'none'} aria-hidden="true" />
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------- remembered on this device
+
+const remember = <T,>(key: string, limit: number, item: T, same: (x: T) => boolean) => {
+  try {
+    const list: T[] = JSON.parse(localStorage.getItem(key) ?? '[]');
+    localStorage.setItem(key, JSON.stringify([item, ...list.filter((x) => !same(x))].slice(0, limit)));
+  } catch {
+    /* Storage unavailable: nothing is remembered. */
+  }
+};
+const recall = <T,>(key: string): T[] => {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? '[]');
+  } catch {
+    return [];
+  }
+};
+export interface Viewed { slug: string; name: string; image?: string | null }
+export const rememberViewed = (p: Viewed) => remember('nimpat-one-viewed', 10, p, (x) => x.slug === p.slug);
+export const viewedProducts = () => recall<Viewed>('nimpat-one-viewed');
+export const rememberSearch = (q: string) => remember('nimpat-one-searches', 6, q, (x) => x.toLowerCase() === q.toLowerCase());
+export const recentSearches = () => recall<string>('nimpat-one-searches');
+export const forgetSearches = () => {
+  try {
+    localStorage.removeItem('nimpat-one-searches');
+  } catch {
+    /* Nothing to forget. */
+  }
+};
 
 // ---------------------------------------------------------------- small parts
 
@@ -98,7 +195,7 @@ export function Photo({ src, alt, fit = 'cover' }: { src?: string | null; alt: s
   if (!src || failed) {
     return (
       <div className="photo pending" role="img" aria-label={`${alt}: image pending`}>
-        <ImageOff size={22} aria-hidden="true" />
+        <img src="/nimpat-one-logo.webp" alt="" />
         <span>Image pending</span>
       </div>
     );
@@ -108,6 +205,15 @@ export function Photo({ src, alt, fit = 'cover' }: { src?: string | null; alt: s
 
 export function Loader({ label = 'Loading' }: { label?: string }) {
   return <div className="loader" role="status"><span className="arcs" aria-hidden="true" />{label}</div>;
+}
+
+/** Soft placeholder cards, so a page keeps its shape while it loads. */
+export function Skeletons({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid" role="status" aria-label="Loading">
+      {Array.from({ length: count }, (_, n) => <div key={n} className="card skeleton"><span /><i /><i /></div>)}
+    </div>
+  );
 }
 
 export function Note({ tone = 'info', children }: { tone?: 'info' | 'warn' | 'error' | 'ok'; children: ReactNode }) {
@@ -125,7 +231,7 @@ export function Empty({ title, children, action }: { title: string; children?: R
   );
 }
 
-export function PageTitle({ title, sub, back = true }: { title: string; sub?: ReactNode; back?: boolean }) {
+export function PageTitle({ title, sub, back = true, action }: { title: string; sub?: ReactNode; back?: boolean; action?: ReactNode }) {
   const navigate = useNavigate();
   return (
     <header className="page-title">
@@ -134,6 +240,7 @@ export function PageTitle({ title, sub, back = true }: { title: string; sub?: Re
         <h1>{title}</h1>
         {sub && <p>{sub}</p>}
       </div>
+      {action}
     </header>
   );
 }
