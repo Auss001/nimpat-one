@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
   Bell, Building2, CalendarCheck, CalendarClock, Car, ClipboardCheck, Clapperboard, Contact, Droplets, ExternalLink, History, Inbox, KeyRound, Landmark, LayoutDashboard, LogOut,
-  Package, Pill, Search, Settings2, ShoppingBag, Sparkles, Truck, Users, Wallet, type LucideIcon,
+  Megaphone, Package, Pill, Search, Settings2, ShoppingBag, Sparkles, Truck, Users, Wallet, type LucideIcon,
 } from 'lucide-react';
 import { AccessProvider, useAccess, type Check } from './access';
 import { get, getSession, logout, post } from './api';
@@ -28,6 +28,7 @@ import { StaffPage } from './pages/Staff';
 import { RequestsPage } from './pages/Requests';
 import { CustomersPage } from './pages/Customers';
 import { ActivityPage } from './pages/Activity';
+import { HomePromosPage } from './pages/HomePromos';
 import './theme.css';
 
 function useSession() {
@@ -59,6 +60,9 @@ const NAV: { group: string; items: [string, string, LucideIcon, Check?][] }[] = 
     ['/spa', 'Spa & Wellness', Sparkles, { any: ['listings:manage'], division: 'spa-wellness' }],
     ['/vehicles', 'Automobiles', Car, { any: ['listings:manage'], division: 'automobiles' }],
     ['/services', 'Rentals & property', Clapperboard, { any: ['listings:manage'], division: ['automobiles', 'transport-logistics', 'retail-general-supplies', 'media-events-rentals', 'real-estate-interior-design', 'entertainment', 'pharmacy-laboratory'] }],
+  ] },
+  { group: 'Customer app', items: [
+    ['/home-promos', 'Home promos', Megaphone, { any: ['divisions:manage'] }],
   ] },
   { group: 'Customers', items: [
     ['/orders', 'Orders', Landmark, { any: ['orders:read'], division: ['water-drinks-wines', 'retail-general-supplies', 'pharmacy-laboratory'] }],
@@ -193,6 +197,7 @@ function App() {
         <Route path="data-check" element={<DataCheckPage />} />
         <Route path="requests" element={<RequestsPage />} />
         <Route path="customers" element={<CustomersPage />} />
+        <Route path="home-promos" element={<HomePromosPage />} />
         <Route path="activity" element={<ActivityPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

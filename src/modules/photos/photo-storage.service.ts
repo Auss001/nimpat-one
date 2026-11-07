@@ -11,7 +11,7 @@ const MIN_LONG_SIDE = 200;
 const SMALL_LONG_SIDE = 800;
 
 /** Square on white for products; a 3:2 frame for places, vehicles and services. */
-export type PhotoPreset = 'product' | 'scene';
+export type PhotoPreset = 'product' | 'scene' | 'banner';
 
 export const photoRoot = () => resolve(process.env.PHOTO_STORAGE_DIR ?? join(process.cwd(), 'uploads', 'public-photos'));
 
@@ -40,7 +40,7 @@ export class PhotoStorageService {
     const warning = longSide < SMALL_LONG_SIDE ? `This photo is small (${longSide} pixels), so it may look soft on large screens.` : undefined;
 
     try {
-      const output = preset === 'product' ? await this.productFrame(input, options) : await this.sceneFrame(input, options);
+      const output = preset === 'product' ? await this.productFrame(input, options) : preset === 'banner' ? await this.bannerFrame(input, options) : await this.sceneFrame(input, options);
       return { output, warning };
     } catch {
       throw new BadRequestException('This image could not be processed. It may be damaged, or too large in pixels.');
@@ -58,6 +58,11 @@ export class PhotoStorageService {
       .composite([{ input: fitted, gravity: 'center' }])
       .webp({ quality: 86 })
       .toBuffer();
+  }
+
+  /** A promo flyer or banner: never cropped or enlarged, because its words must stay whole. */
+  private bannerFrame(input: Buffer, options: { limitInputPixels: number }): Promise<Buffer> {
+    return sharp(input, options).rotate().flatten({ background: '#ffffff' }).resize(1600, 1600, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 86 }).toBuffer();
   }
 
   private sceneFrame(input: Buffer, options: { limitInputPixels: number }): Promise<Buffer> {

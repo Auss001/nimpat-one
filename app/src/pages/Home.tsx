@@ -72,7 +72,7 @@ export function HomePage() {
         ))}
       </nav>
 
-      <HomeSlider drinks={(d?.drinks ?? []).filter((p: any) => p.images?.length && p.priceFromMinor != null)} stays={d?.stays ?? []} />
+      <HomeSlider stays={d?.stays ?? []} />
 
       {home.loading && !d && <Skeletons />}
       {empty && <div className="getting-ready"><h2>Coming soon</h2></div>}

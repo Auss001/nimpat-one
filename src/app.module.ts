@@ -33,6 +33,7 @@ import { PhotosModule } from './modules/photos/photos.module';
 import { SpaModule } from './modules/spa/spa.module';
 import { UsersModule } from './modules/users/users.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
+import { HomeSlidesModule } from './modules/home-slides/home-slides.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Global()
@@ -80,6 +81,7 @@ class AppConfigModule {}
     ServicesModule,
     SpaModule,
     PhotosModule,
+    HomeSlidesModule,
     LogisticsModule,
     QuotationsModule,
     // Operations

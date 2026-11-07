@@ -5,7 +5,7 @@
 # Secrets are created in Secret Manager and never printed or written to disk.
 set -euo pipefail
 # Git Bash on Windows: leave these arguments alone; everything else needs its normal path handling.
-export MSYS2_ARG_CONV_EXCL="--add-volume-mount=;--set-env-vars=;--startup-probe=;--schedule=;--uri=;--add-cloudsql-instances="
+export MSYS2_ARG_CONV_EXCL="--add-volume-mount=;--set-env-vars=;--startup-probe=;--schedule=;--uri=;--add-cloudsql-instances=;--set-cloudsql-instances=;--command="
 
 : "${PROJECT:?Set PROJECT}"
 REGION="${REGION:-europe-west1}"
@@ -90,6 +90,12 @@ release() {
   docker build -f deploy/web.Dockerfile --build-arg APP_DIR=app -t "$REPO/app:$tag" .
   docker build -f deploy/web.Dockerfile --build-arg APP_DIR=admin --build-arg VITE_APP_URL="$APP_URL" -t "$REPO/admin:$tag" .
   docker push -q "$REPO/api:$tag"; docker push -q "$REPO/app:$tag"; docker push -q "$REPO/admin:$tag"
+
+  echo "== backing up and updating the database"
+  gcloud sql backups create --instance="$SQL_INSTANCE" --description="before release $tag" --quiet
+  gcloud run jobs deploy nimpat-one-migrate --image="$REPO/api:$tag" --region="$REGION" --service-account="$SA" \
+    --set-cloudsql-instances="$PROJECT:$REGION:$SQL_INSTANCE" --set-secrets=DATABASE_URL=nimpat-one-database-url:latest \
+    --command=./node_modules/.bin/prisma --args=migrate,deploy --memory=1Gi --max-retries=0 --task-timeout=300 --execute-now --wait --quiet
 
   echo "== deploying the API"
   gcloud run deploy nimpat-one-api --image="$REPO/api:$tag" --region="$REGION" --service-account="$SA" --allow-unauthenticated \

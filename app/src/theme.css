@@ -530,3 +530,7 @@ body { background: var(--bg); }
   .slide { flex-basis: 40%; }
   .slide-text b { font-size: 22px; }
 }
+
+.slide-wait { flex: none; width: 100%; box-shadow: none; background: var(--surface); }
+.product-slide.mint { background-image: linear-gradient(125deg, #c8f2dc, #effbe9 50%, #b8e9d2); }
+.product-slide.violet { background-image: linear-gradient(125deg, #e0d7fb, #f6edfc 50%, #d3c9f6); }

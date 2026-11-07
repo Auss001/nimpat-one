@@ -1,26 +1,41 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { formatNaira } from '../api';
+import { formatNaira, get } from '../api';
+import { useLoad } from '../ui';
 
-/** The products featured on the home page, in order. Each is only shown if it has a picture and a price. */
-const FEATURED: { match: RegExp; label: string; tone: string }[] = [
-  { match: /^chamdor/i, label: 'Featured', tone: 'rose' },
-  { match: /^swan 75/i, label: 'Bottled water', tone: 'sky' },
-  { match: /^hennessy x\.?o/i, label: 'Top shelf', tone: 'gold' },
-];
+interface Slide {
+  id: string;
+  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS';
+  title: string | null;
+  subtitle: string | null;
+  buttonText: string | null;
+  imageUrl: string | null;
+  linkTo: string | null;
+  tone: string;
+  product?: { name: string; slug: string; priceFromMinor: number; image: string; isAgeRestricted: boolean };
+}
 
 const AUTO_MS = 5000;
 const REST_AFTER_TOUCH_MS = 9000;
 
-/** Promos and featured items that slide by themselves and can be swiped. Prices come from the live catalogue. */
-export function HomeSlider({ drinks, stays }: { drinks: any[]; stays: any[] }) {
-  const featured = FEATURED.flatMap((f) => {
-    const product = drinks.find((p) => f.match.test(p.name));
-    return product ? [{ ...f, product }] : [];
-  });
+function SlideLink({ to, className, label, children }: { to: string | null; className: string; label?: string; children: ReactNode }) {
+  if (to?.startsWith('/')) return <Link to={to} className={className} aria-label={label}>{children}</Link>;
+  if (to) return <a href={to} className={className} aria-label={label} target="_blank" rel="noreferrer">{children}</a>;
+  return <div className={className} role="img" aria-label={label}>{children}</div>;
+}
+
+function Go({ text, className = '' }: { text: string; className?: string }) {
+  return <span className={`slide-go ${className}`}>{text} <ArrowRight size={15} aria-hidden="true" /></span>;
+}
+
+/** Promos and featured items, managed under Home promos in the dashboard. Prices are always live. */
+export function HomeSlider({ stays }: { stays: any[] }) {
+  const loaded = useLoad(() => get<Slide[]>('/home-slides'), []);
   const stay = stays.find((s) => s.image);
-  const count = 1 + (stay ? 1 : 0) + featured.length;
+  // The apartments slide waits until a flat with a photo has loaded.
+  const slides = (loaded.data ?? []).filter((s) => s.kind !== 'APARTMENTS' || stay);
+  const count = slides.length;
 
   const track = useRef<HTMLDivElement>(null);
   const restUntil = useRef(0);
@@ -39,7 +54,7 @@ export function HomeSlider({ drinks, stays }: { drinks: any[]; stays: any[] }) {
 
   const onScroll = () => {
     const el = track.current;
-    if (!el) return;
+    if (!el?.children.length) return;
     const left = el.scrollLeft;
     const first = (el.children[0] as HTMLElement).offsetLeft;
     let nearest = 0;
@@ -66,43 +81,66 @@ export function HomeSlider({ drinks, stays }: { drinks: any[]; stays: any[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count]);
 
+  if (loaded.loading && !loaded.data) return <div className="slide slide-wait" aria-hidden="true" />;
+  if (count === 0) return null;
+
   return (
     <section className="slider" aria-label="Promos and featured items" onPointerDown={rest} onWheel={rest} onFocus={rest}>
       <span className="slider-glows" aria-hidden="true"><span className="slider-glow one" /><span className="slider-glow two" /></span>
       <div className="slider-track" ref={track} onScroll={onScroll}>
-        <Link to="/shop/water-drinks-wines?category=water" className="slide flyer" aria-label="Drinks on promo. See water prices">
-          <img src="/promo-drinks.webp" alt="" />
-          <span className="slide-go flyer-go">See prices <ArrowRight size={15} aria-hidden="true" /></span>
-        </Link>
-
-        {stay && (
-          <Link to="/apartments" className="slide photo-slide">
-            <img src={stay.image} alt="" loading="lazy" />
-            <span className="slide-text">
-              <small>{stay.place}</small>
-              <b>Luxury Apartments</b>
-              <span className="slide-price">{formatNaira(stay.unit.nightlyRateMinor)} a night</span>
-              <span className="slide-go">Book now <ArrowRight size={15} aria-hidden="true" /></span>
-            </span>
-          </Link>
-        )}
-
-        {featured.map(({ product: p, label, tone }) => (
-          <Link key={p.id} to={`/product/${p.slug}`} className={`slide product-slide ${tone}`}>
-            <span className="slide-text">
-              <small>{label}{p.isAgeRestricted ? ' · 18+' : ''}</small>
-              <b>{p.name}</b>
-              <span className="slide-price">{formatNaira(p.priceFromMinor)}</span>
-              <span className="slide-go">Shop now <ArrowRight size={15} aria-hidden="true" /></span>
-            </span>
-            <img src={p.images[0].url} alt="" loading="lazy" />
-          </Link>
-        ))}
+        {slides.map((s) => {
+          if (s.kind === 'PRODUCT' && s.product) {
+            const p = s.product;
+            const label = [s.subtitle, p.isAgeRestricted ? '18+' : null].filter(Boolean).join(' · ');
+            return (
+              <Link key={s.id} to={`/product/${p.slug}`} className={`slide product-slide ${s.tone}`}>
+                <span className="slide-text">
+                  {label && <small>{label}</small>}
+                  <b>{p.name}</b>
+                  <span className="slide-price">{formatNaira(p.priceFromMinor)}</span>
+                  <Go text="Shop now" />
+                </span>
+                <img src={p.image} alt="" loading="lazy" />
+              </Link>
+            );
+          }
+          if (s.kind === 'APARTMENTS') {
+            return (
+              <Link key={s.id} to="/apartments" className="slide photo-slide">
+                <img src={stay.image} alt="" loading="lazy" />
+                <span className="slide-text">
+                  <small>{s.subtitle ?? stay.place}</small>
+                  <b>{s.title ?? 'Luxury Apartments'}</b>
+                  <span className="slide-price">{formatNaira(stay.unit.nightlyRateMinor)} a night</span>
+                  <Go text="Book now" />
+                </span>
+              </Link>
+            );
+          }
+          if (s.title) {
+            return (
+              <SlideLink key={s.id} to={s.linkTo} className="slide photo-slide">
+                <img src={s.imageUrl ?? ''} alt="" loading="lazy" />
+                <span className="slide-text">
+                  {s.subtitle && <small>{s.subtitle}</small>}
+                  <b>{s.title}</b>
+                  {s.buttonText && <Go text={s.buttonText} />}
+                </span>
+              </SlideLink>
+            );
+          }
+          return (
+            <SlideLink key={s.id} to={s.linkTo} className="slide flyer" label={s.subtitle ?? s.buttonText ?? 'Promotion'}>
+              <img src={s.imageUrl ?? ''} alt="" />
+              {s.buttonText && <Go text={s.buttonText} className="flyer-go" />}
+            </SlideLink>
+          );
+        })}
       </div>
       {count > 1 && (
         <div className="slider-dots">
-          {Array.from({ length: count }, (_, i) => (
-            <button key={i} className={i === active ? 'on' : ''} aria-label={`Show slide ${i + 1} of ${count}`} aria-current={i === active} onClick={() => { rest(); goTo(i); }} />
+          {slides.map((s, i) => (
+            <button key={s.id} className={i === active ? 'on' : ''} aria-label={`Show slide ${i + 1} of ${count}`} aria-current={i === active} onClick={() => { rest(); goTo(i); }} />
           ))}
         </div>
       )}

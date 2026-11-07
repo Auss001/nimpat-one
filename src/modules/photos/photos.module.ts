@@ -324,5 +324,5 @@ export class PhotosController {
   }
 }
 
-@Module({ providers: [PhotosService, PhotoStorageService], controllers: [PhotosController] })
+@Module({ providers: [PhotosService, PhotoStorageService], controllers: [PhotosController], exports: [PhotoStorageService] })
 export class PhotosModule {}
