@@ -59,7 +59,7 @@ const NAV: { group: string; items: [string, string, LucideIcon, Check?][] }[] = 
     ['/apartments', 'Apartments', Building2, { any: ['listings:manage'], division: 'luxury-apartments' }],
     ['/spa', 'Spa & Wellness', Sparkles, { any: ['listings:manage'], division: 'spa-wellness' }],
     ['/vehicles', 'Automobiles', Car, { any: ['listings:manage'], division: 'automobiles' }],
-    ['/services', 'Rentals & property', Clapperboard, { any: ['listings:manage'], division: ['automobiles', 'transport-logistics', 'retail-general-supplies', 'media-events-rentals', 'real-estate-interior-design', 'entertainment', 'pharmacy-laboratory'] }],
+    ['/services', 'Services & bookings', Clapperboard, { any: ['listings:manage'], division: ['spa-wellness', 'automobiles', 'transport-logistics', 'retail-general-supplies', 'media-events-rentals', 'real-estate-interior-design', 'entertainment', 'pharmacy-laboratory'] }],
   ] },
   { group: 'Customer app', items: [
     ['/home-promos', 'Home promos', Megaphone, { any: ['divisions:manage'] }],

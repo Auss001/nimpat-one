@@ -175,7 +175,7 @@ export function PharmacyPage() {
       <PageTitle title="Pharmacy" sub="Everyday health, reviewed by our pharmacist." />
       <div className="action-pair">
         <Link to="/services/pharmacy-laboratory" className="action-card green"><Stethoscope size={22} aria-hidden="true" /><span><b>Book a pharmacist</b><small>Consultation or prescription review</small></span></Link>
-        <Link to="/services/pharmacy-laboratory" className="action-card teal"><FlaskConical size={22} aria-hidden="true" /><span><b>Book a lab test</b><small>Tell us which test you need</small></span></Link>
+        <Link to="/services/pharmacy-laboratory?category=Lab tests" className="action-card teal"><FlaskConical size={22} aria-hidden="true" /><span><b>Book a lab test</b><small>At our lab, or we collect at home</small></span></Link>
       </div>
       <Note>Medicine information here is for general reference only. It is not a diagnosis or treatment advice. Please speak to a pharmacist or doctor about your health.</Note>
       <ProductList division="pharmacy-laboratory" emptyText="Our pharmacist is reviewing each product before it appears here." />
@@ -255,7 +255,11 @@ const SECTIONS: { to: string; label: string; words: string[]; key?: 'stays' | 'c
   { to: '/apartments', label: 'Luxury Apartments', words: ['apartment', 'apartments', 'flat', 'flats', 'stay', 'shortlet', 'short let', 'hotel', 'room', 'rooms', 'mabushi'], key: 'stays' },
   { to: '/cars', label: 'Cars', words: ['car', 'cars', 'vehicle', 'vehicles', 'auto', 'automobile', 'automobiles'], key: 'cars' },
   { to: '/pharmacy', label: 'Pharmacy', words: ['pharmacy', 'medicine', 'medicines', 'drug', 'drugs', 'chemist'] },
-  { to: '/services/pharmacy-laboratory', label: 'Laboratory', words: ['lab', 'laboratory', 'test', 'tests'] },
+  { to: '/services/pharmacy-laboratory', label: 'Laboratory', words: ['lab', 'laboratory', 'test', 'tests', 'scan', 'blood', 'malaria', 'sample'] },
+  { to: '/services/transport-logistics', label: 'Logistics', words: ['logistics', 'dispatch', 'delivery', 'parcel', 'parcels', 'haulage', 'moving', 'truck', 'transport', 'courier'] },
+  { to: '/services/automobiles?category=Car hire', label: 'Car hire', words: ['hire', 'rent', 'rental', 'car hire', 'driver', 'chauffeur'] },
+  { to: '/services/automobiles?category=Hire purchase', label: 'Hire purchase', words: ['hire purchase', 'instalment', 'installment', 'financing', 'loan'] },
+  { to: '/spa', label: 'Spa at home', words: ['home service', 'home massage', 'at home'] },
   { to: '/shop/water-drinks-wines', label: 'Drinks', words: ['drinks', 'drink', 'wine', 'wines', 'spirits', 'whisky', 'whiskey', 'champagne'] },
   { to: '/shop/water-drinks-wines?category=water', label: 'Water', words: ['water'] },
   { to: '/shop/retail-general-supplies', label: 'Supplies', words: ['supplies', 'supply', 'retail'] },

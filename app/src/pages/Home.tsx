@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Car, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Ticket, type LucideIcon } from 'lucide-react';
+import { Building2, Car, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Ticket, Truck, type LucideIcon } from 'lucide-react';
 import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
@@ -15,6 +15,7 @@ export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string
   { to: '/spa', label: 'Spa', icon: Sparkles, tone: 'pink' },
   { to: '/cars', label: 'Cars', icon: Car, tone: 'red' },
   { to: '/services/pharmacy-laboratory', label: 'Lab', icon: FlaskConical, tone: 'teal' },
+  { to: '/services/transport-logistics', label: 'Logistics', icon: Truck, tone: 'blue' },
   { to: '/shop/retail-general-supplies', label: 'Supplies', icon: Package, tone: 'yellow' },
   { to: '/services/media-events-rentals', label: 'Rentals', icon: Clapperboard, tone: 'violet' },
   { to: '/services/real-estate-interior-design', label: 'Property', icon: HousePlus, tone: 'brown' },

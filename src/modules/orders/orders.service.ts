@@ -28,6 +28,7 @@ import { PayableContext, PayableHandler, PayableRegistry } from '../payments/pay
 import { PaymentSummary } from '../payments/payment-ledger.service';
 import { PaymentPolicyService } from '../payments/payment-policy.service';
 import { purchaseBlock } from '../catalog/purchase-rules';
+import { snapshotAddress } from '../../common/utils/address';
 
 export interface CheckoutInput {
   division: string;
@@ -546,18 +547,3 @@ function withOutstanding<T extends { totalMinor: bigint; amountPaidMinor: bigint
   return { ...o, outstandingMinor: o.totalMinor - o.amountPaidMinor };
 }
 
-function snapshotAddress(a: NonNullable<Awaited<ReturnType<PrismaService['address']['findFirst']>>>): Prisma.InputJsonValue {
-  return {
-    recipientName: a.recipientName,
-    phone: a.phone,
-    line1: a.line1,
-    line2: a.line2,
-    landmark: a.landmark,
-    city: a.city,
-    lga: a.lga,
-    state: a.state,
-    country: a.country,
-    latitude: a.latitude,
-    longitude: a.longitude,
-  };
-}

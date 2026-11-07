@@ -16,8 +16,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiProperty, ApiPropertyOptional, ApiTags, PartialType } from '@nestjs/swagger';
-import { BookingStatus, Payment, PaymentPurpose, PaymentStatus, Prisma, RecordVerification, ServicePricingType } from '@prisma/client';
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsObject, IsOptional, IsString, Length, Matches, Min } from 'class-validator';
+import { BookingStatus, Payment, PaymentPurpose, PaymentStatus, Prisma, RecordVerification, ServiceMode, ServicePricingType } from '@prisma/client';
+import { IsBoolean, IsDateString, IsEnum, IsInt, IsObject, IsOptional, IsString, IsUUID, Length, Matches, Max, Min } from 'class-validator';
+import { homeAddressFor } from '../../common/utils/address';
 import { Authenticated, CurrentUser, Public, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { PaginationQueryDto, pageArgs, paginate } from '../../common/dto/pagination.dto';
 import { formatNgn } from '../../common/utils/money';
@@ -42,6 +43,10 @@ class CreateOfferingDto {
   @ApiPropertyOptional({ description: 'kobo' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) basePriceMinor?: number;
   @ApiPropertyOptional({ description: 'kobo' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) depositMinor?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(5) durationMinutes?: number;
+  @ApiPropertyOptional({ example: 'Lab tests', description: 'Groups services in the app' }) @IsOptional() @IsString() @Length(0, 60) category?: string;
+  @ApiPropertyOptional({ enum: ServiceMode, description: 'At a Nimpat location, at the customer\'s home, or either' }) @IsOptional() @IsEnum(ServiceMode) serviceMode?: ServiceMode;
+  @ApiPropertyOptional({ description: 'kobo, added to a fixed price for a home visit' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) homeFeeMinor?: number;
+  @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) @Max(9999) sortOrder?: number;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
 }
 class UpdateOfferingDto extends PartialType(CreateOfferingDto) {}
@@ -51,6 +56,8 @@ class CreateBookingDto {
   @ApiPropertyOptional() @IsOptional() @IsDateString() scheduledStart?: string;
   @ApiPropertyOptional({ description: 'Service-specific details, e.g. vehicle make/model/plate' }) @IsOptional() @IsObject() details?: Record<string, unknown>;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(1, 1000) customerNote?: string;
+  @ApiPropertyOptional({ description: 'Come to the customer (only for services offered at home)' }) @IsOptional() @IsBoolean() atHome?: boolean;
+  @ApiPropertyOptional({ description: 'One of your saved addresses, for a home visit' }) @IsOptional() @IsUUID() addressId?: string;
 }
 
 class AdminUpdateBookingDto {
@@ -65,6 +72,8 @@ class BookingQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional() @IsOptional() @IsString() division?: string;
   @ApiPropertyOptional({ enum: BookingStatus }) @IsOptional() @IsEnum(BookingStatus) status?: BookingStatus;
 }
+
+const big = (n: number | undefined) => (n !== undefined ? BigInt(n) : undefined);
 
 const BOOKING_TRANSITIONS: Partial<Record<BookingStatus, BookingStatus[]>> = {
   REQUESTED: ['PENDING', 'CONFIRMED', 'CANCELLED'],
@@ -118,7 +127,11 @@ export class ServicesService implements OnModuleInit, PayableHandler {
   async listOfferings(division?: string) {
     const where: Prisma.ServiceOfferingWhereInput = { isActive: true, verification: RecordVerification.VERIFIED };
     if (division) where.divisionId = (await this.divisions.resolve(division)).id;
-    return this.prisma.serviceOffering.findMany({ where, orderBy: { name: 'asc' }, include: { division: { select: { code: true, name: true, slug: true } } } });
+    return this.prisma.serviceOffering.findMany({
+      where,
+      orderBy: [{ sortOrder: 'asc' }, { category: 'asc' }, { name: 'asc' }],
+      include: { division: { select: { code: true, name: true, slug: true } } },
+    });
   }
 
   async book(user: AuthUser, dto: CreateBookingDto) {
@@ -126,6 +139,12 @@ export class ServicesService implements OnModuleInit, PayableHandler {
     if (!offering) throw new NotFoundException('Service not found');
     const start = dto.scheduledStart ? new Date(dto.scheduledStart) : undefined;
     if (start && start < new Date()) throw new BadRequestException('scheduledStart must be in the future');
+    // Where it happens: a home-only service always comes to the customer; "either" follows their choice.
+    const atHome = offering.serviceMode === ServiceMode.AT_HOME || (offering.serviceMode === ServiceMode.EITHER && dto.atHome === true);
+    if (dto.atHome && offering.serviceMode === ServiceMode.AT_VENUE) throw new BadRequestException('This service is only offered at our location');
+    const serviceAddress = atHome ? await homeAddressFor(this.prisma, user.id, dto.addressId) : undefined;
+    const homeFeeMinor = atHome ? (offering.homeFeeMinor ?? 0n) : 0n;
+    const fixedPrice = offering.pricingType === ServicePricingType.FIXED && offering.basePriceMinor !== null ? offering.basePriceMinor + homeFeeMinor : null;
     const division = await this.divisions.byId(offering.divisionId);
     const servicePolicy = await this.policies.get(offering.divisionId, PaymentPurpose.SERVICE_BOOKING);
     const booking = await withUniqueRetry(() =>
@@ -137,10 +156,11 @@ export class ServicesService implements OnModuleInit, PayableHandler {
           userId: user.id,
           scheduledStart: start,
           scheduledEnd: start && offering.durationMinutes ? new Date(start.getTime() + offering.durationMinutes * 60_000) : undefined,
-          priceMinor: offering.pricingType === ServicePricingType.FIXED ? offering.basePriceMinor : null,
-          depositRequiredMinor: offering.pricingType === ServicePricingType.FIXED && offering.basePriceMinor
-            ? this.policies.depositFor(servicePolicy, offering.basePriceMinor, offering.depositMinor)
-            : 0n,
+          priceMinor: fixedPrice,
+          depositRequiredMinor: fixedPrice ? this.policies.depositFor(servicePolicy, fixedPrice, offering.depositMinor) : 0n,
+          atHome,
+          serviceAddress,
+          homeFeeMinor,
           details: dto.details as Prisma.InputJsonValue | undefined,
           customerNote: dto.customerNote,
         },
@@ -153,7 +173,7 @@ export class ServicesService implements OnModuleInit, PayableHandler {
   async mine(user: AuthUser, q: BookingQueryDto) {
     const where: Prisma.ServiceBookingWhereInput = { userId: user.id, status: q.status };
     const [rows, total] = await this.prisma.$transaction([
-      this.prisma.serviceBooking.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { offering: { select: { name: true, code: true } } } }),
+      this.prisma.serviceBooking.findMany({ where, orderBy: { createdAt: 'desc' }, ...pageArgs(q), include: { offering: { select: { name: true, code: true, category: true } } } }),
       this.prisma.serviceBooking.count({ where }),
     ]);
     return paginate(rows, total, q);
@@ -227,20 +247,22 @@ export class ServicesService implements OnModuleInit, PayableHandler {
   async createOffering(user: AuthUser, dto: CreateOfferingDto) {
     const d = await this.divisions.resolve(dto.division);
     user.assertCan(P.listingsManage, d.id);
-    const { division, basePriceMinor, depositMinor, ...rest } = dto;
-    return this.prisma.serviceOffering.create({
-      data: { ...rest, divisionId: d.id, basePriceMinor: basePriceMinor !== undefined ? BigInt(basePriceMinor) : undefined, depositMinor: depositMinor !== undefined ? BigInt(depositMinor) : undefined },
+    const { division, basePriceMinor, depositMinor, homeFeeMinor, ...rest } = dto;
+    const created = await this.prisma.serviceOffering.create({
+      data: { ...rest, category: rest.category?.trim() || null, divisionId: d.id, basePriceMinor: big(basePriceMinor), depositMinor: big(depositMinor), homeFeeMinor: big(homeFeeMinor) },
     });
+    await this.audit.record({ actorId: user.id, action: 'service_offering.create', entityType: 'service_offering', entityId: created.id, divisionId: d.id });
+    return created;
   }
 
   async updateOffering(user: AuthUser, id: string, dto: UpdateOfferingDto) {
     const o = await this.prisma.serviceOffering.findUnique({ where: { id } });
     if (!o) throw new NotFoundException('Service not found');
     user.assertCan(P.listingsManage, o.divisionId);
-    const { division, basePriceMinor, depositMinor, ...rest } = dto;
+    const { division, basePriceMinor, depositMinor, homeFeeMinor, ...rest } = dto;
     const updated = await this.prisma.serviceOffering.update({
       where: { id },
-      data: { ...rest, basePriceMinor: basePriceMinor !== undefined ? BigInt(basePriceMinor) : undefined, depositMinor: depositMinor !== undefined ? BigInt(depositMinor) : undefined },
+      data: { ...rest, ...(rest.category !== undefined ? { category: rest.category.trim() || null } : {}), basePriceMinor: big(basePriceMinor), depositMinor: big(depositMinor), homeFeeMinor: big(homeFeeMinor) },
     });
     await this.audit.record({ actorId: user.id, action: 'service_offering.update', entityType: 'service_offering', entityId: id, divisionId: o.divisionId, changes: { ...dto } });
     return updated;

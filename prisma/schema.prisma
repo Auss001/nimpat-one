@@ -275,6 +275,7 @@ enum InquiryType {
   INSPECTION
   DEPOSIT_HOLD
   FINANCING
+  HIRE_PURCHASE
 }
 
 enum InquiryStatus {
@@ -289,6 +290,13 @@ enum ServicePricingType {
   FIXED
   STARTING_FROM
   QUOTE_REQUIRED
+}
+
+/// Where a service happens: at a Nimpat location, at the customer's address, or the customer chooses.
+enum ServiceMode {
+  AT_VENUE
+  AT_HOME
+  EITHER
 }
 
 enum BookingStatus {
@@ -1463,6 +1471,12 @@ model ServiceOffering {
   basePriceMinor  BigInt?            @map("base_price_minor")
   depositMinor    BigInt?            @map("deposit_minor")
   durationMinutes Int?               @map("duration_minutes")
+  /// Groups services in the app, e.g. "Lab tests", "Car hire", "Hire purchase", "Haulage".
+  category        String?
+  serviceMode     ServiceMode        @default(AT_VENUE) @map("service_mode")
+  /// Added to a fixed price when the service happens at the customer's address.
+  homeFeeMinor    BigInt?            @map("home_fee_minor")
+  sortOrder       Int                @default(0) @map("sort_order")
   verification    RecordVerification @default(AWAITING_CONFIRMATION)
   verifiedAt      DateTime?          @map("verified_at") @db.Timestamptz(3)
   verifiedById    String?            @map("verified_by_id") @db.Uuid
@@ -1491,6 +1505,10 @@ model ServiceBooking {
   scheduledEnd         DateTime?     @map("scheduled_end") @db.Timestamptz(3)
   priceMinor           BigInt?       @map("price_minor")
   details              Json? // e.g. vehicle make/model/plate for auto services
+  /// The service happens at the customer's address (a copy of it, so later edits do not move the booking).
+  atHome               Boolean       @default(false) @map("at_home")
+  serviceAddress       Json?         @map("service_address")
+  homeFeeMinor         BigInt        @default(0) @map("home_fee_minor")
   customerNote         String?       @map("customer_note")
   createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt            DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -1521,6 +1539,9 @@ model SpaTreatment {
   durationMinutes Int                @map("duration_minutes")
   priceMinor      BigInt             @map("price_minor")
   depositMinor    BigInt             @default(0) @map("deposit_minor")
+  /// The therapist can come to the customer's home, for this extra fee.
+  homeService     Boolean            @default(false) @map("home_service")
+  homeFeeMinor    BigInt?            @map("home_fee_minor")
   verification    RecordVerification @default(AWAITING_CONFIRMATION)
   verifiedAt      DateTime?          @map("verified_at") @db.Timestamptz(3)
   verifiedById    String?            @map("verified_by_id") @db.Uuid
@@ -1581,6 +1602,9 @@ model SpaAppointment {
   depositRequiredMinor BigInt        @default(0) @map("deposit_required_minor")
   priceMinor           BigInt        @map("price_minor")
   depositMinor         BigInt        @default(0) @map("deposit_minor")
+  atHome               Boolean       @default(false) @map("at_home")
+  homeAddress          Json?         @map("home_address")
+  homeFeeMinor         BigInt        @default(0) @map("home_fee_minor")
   customerNote         String?       @map("customer_note")
   createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt            DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)

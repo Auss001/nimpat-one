@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Clock } from 'lucide-react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Clock, MapPin } from 'lucide-react';
 import { formatNaira, get, idempotency, post, rows } from '../api';
-import { useDetailsFirst } from './Account';
+import { useDetailsFirst, WhereChooser } from './Account';
 import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, useLoad, useToast } from '../ui';
 
 export function SpaPage() {
@@ -29,7 +29,7 @@ export function SpaPage() {
             <div className="card-photo"><Photo src={t.imageUrl} alt={t.name} /></div>
             <div className="card-body">
               <strong>{t.name}</strong>
-              <small><Clock size={13} aria-hidden="true" /> {t.durationMinutes} minutes</small>
+              <small><Clock size={13} aria-hidden="true" /> {t.durationMinutes} minutes{t.homeService ? ' · at home too' : ''}</small>
               <span className={t.priceMinor === null ? 'price muted' : 'price'}>{t.priceMinor === null ? 'Contact for price' : formatNaira(t.priceMinor)}</span>
             </div>
           </Link>
@@ -49,6 +49,8 @@ export function TreatmentPage() {
   const [slot, setSlot] = useState<any>(null);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const [atHome, setAtHome] = useState(false);
+  const [addressId, setAddressId] = useState('');
   const details = useDetailsFirst();
   const slots = useLoad(() => (t ? get(`/spa/treatments/${t.id}/slots?date=${date}`).then((r) => r.slots ?? []) : Promise.resolve([])), [t?.id, date]);
   useEffect(() => setSlot(null), [date]);
@@ -57,7 +59,7 @@ export function TreatmentPage() {
   const book = async () => {
     setBusy(true);
     try {
-      const a = await post('/spa/appointments', { treatmentId: t.id, startsAt: slot.startsAt, ...(note.trim() ? { customerNote: note.trim() } : {}) }, idempotency());
+      const a = await post('/spa/appointments', { treatmentId: t.id, startsAt: slot.startsAt, ...(note.trim() ? { customerNote: note.trim() } : {}), ...(atHome ? { atHome: true, addressId } : {}) }, idempotency());
       navigate(`/pay/SPA_APPOINTMENT/${a.id}`);
     } catch (e) {
       toast((e as Error).message, 'error');
@@ -75,7 +77,14 @@ export function TreatmentPage() {
           <p className="big-price">{t.priceMinor === null ? 'Contact for price' : formatNaira(t.priceMinor)}</p>
           <p className="muted-text"><Clock size={14} aria-hidden="true" /> {t.durationMinutes} minutes{t.depositMinor > 0 ? `. Deposit ${formatNaira(t.depositMinor)}.` : ''}</p>
           {t.description && <p>{t.description}</p>}
+          {t.homeService && <p className="muted-text"><MapPin size={14} aria-hidden="true" /> Also available at your home{t.homeFeeMinor ? ` for ${formatNaira(t.homeFeeMinor)} more` : ''}.</p>}
           <section className="panel">
+            {t.homeService && (
+              <>
+                <h2>Where</h2>
+                <WhereChooser mode="EITHER" feeMinor={t.homeFeeMinor} venue="At the spa" atHome={atHome} setAtHome={setAtHome} addressId={addressId} setAddressId={setAddressId} />
+              </>
+            )}
             <h2>Choose a time</h2>
             <Field label="Date"><input type="date" min={lagosDate()} value={date} onChange={(e) => setDate(e.target.value)} /></Field>
             {slots.loading && <Loader label="Finding times" />}
@@ -90,7 +99,7 @@ export function TreatmentPage() {
             {slot && (
               <>
                 <Field label="Anything we should know? (optional)"><textarea rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
-                <button className="btn primary full" disabled={busy} onClick={() => details.ask(() => void book())}>{busy ? 'Booking…' : 'Book and pay'}</button>
+                <button className="btn primary full" disabled={busy || (atHome && !addressId)} onClick={() => details.ask(() => void book())}>{busy ? 'Booking…' : 'Book and pay'}</button>
                 {details.sheet}
               </>
             )}
@@ -102,33 +111,55 @@ export function TreatmentPage() {
 }
 
 const SERVICE_TITLE: Record<string, { title: string; sub: string }> = {
-  'pharmacy-laboratory': { title: 'Pharmacist & laboratory', sub: 'Book a consultation, a prescription review or a lab test.' },
+  'pharmacy-laboratory': { title: 'Pharmacist & laboratory', sub: 'Lab tests, consultations and sample collection at home.' },
+  'spa-wellness': { title: 'Spa services', sub: 'Packages and home services.' },
   'media-events-rentals': { title: 'Media, events & rentals', sub: 'Tell us about your event and we will help.' },
   'real-estate-interior-design': { title: 'Property & interiors', sub: 'Real estate and interior design.' },
   entertainment: { title: 'Entertainment', sub: 'Book something to enjoy.' },
-  'transport-logistics': { title: 'Transport & logistics', sub: 'Tell us what needs to move.' },
-  automobiles: { title: 'Car services', sub: 'Servicing and care for your car.' },
+  'transport-logistics': { title: 'Logistics', sub: 'Parcels, haulage, moving and transport.' },
+  automobiles: { title: 'Car hire & car care', sub: 'Hire a car, buy on hire purchase, or book servicing.' },
 };
+
+const priceText = (s: any) =>
+  s.basePriceMinor === null ? 'We confirm the price with you' : `${s.pricingType === 'STARTING_FROM' ? 'From ' : ''}${formatNaira(s.basePriceMinor)}`;
 
 export function ServicesPage() {
   const { division = '' } = useParams();
+  const [params, setParams] = useSearchParams();
   const info = SERVICE_TITLE[division] ?? { title: 'Services', sub: '' };
   const list = useLoad(() => get(`/services?division=${division}`).then(rows), [division]);
   const [picked, setPicked] = useState<any>(null);
+  const cats = useMemo(() => [...new Set((list.data ?? []).map((s: any) => s.category).filter(Boolean))] as string[], [list.data]);
+  const wanted = params.get('category') ?? '';
+  const category = cats.find((c) => c.toLowerCase() === wanted.toLowerCase()) ?? '';
+  const choose = (c: string) => setParams(c ? { category: c } : {}, { replace: true });
+  const shown = (list.data ?? []).filter((s: any) => !category || s.category === category);
   return (
     <>
-      <PageTitle title={info.title} sub={info.sub} />
+      <PageTitle title={category || info.title} sub={category ? info.title : info.sub} />
+      {cats.length > 1 && (
+        <div className="chips" role="group" aria-label="Kind of service">
+          <button className={!category ? 'on' : ''} onClick={() => choose('')}>All</button>
+          {cats.map((c) => <button key={c} className={category === c ? 'on' : ''} onClick={() => choose(c)}>{c}</button>)}
+        </div>
+      )}
       {list.loading && !list.data && <Loader />}
       {list.error && <Note tone="error">{list.error}</Note>}
-      {list.data && list.data.length === 0 && <Empty title="Coming soon" action={<CallLink />}>Our team is getting this ready. In the meantime, please call us.</Empty>}
+      {list.data && shown.length === 0 && <Empty title="Coming soon" action={<CallLink />}>Our team is getting this ready. In the meantime, please call us.</Empty>}
       <div className="list">
-        {(list.data ?? []).map((s: any) => (
+        {shown.map((s: any) => (
           <article key={s.id} className="service">
             {s.imageUrl && <div className="service-photo"><Photo src={s.imageUrl} alt={s.name} /></div>}
             <div className="service-body">
               <h2>{s.name}</h2>
               {s.description && <p>{s.description}</p>}
-              <span className={s.basePriceMinor === null ? 'price muted' : 'price'}>{s.basePriceMinor === null ? 'We confirm the price with you' : `${s.pricingType === 'STARTING_FROM' ? 'From ' : ''}${formatNaira(s.basePriceMinor)}`}</span>
+              <span className={s.basePriceMinor === null ? 'price muted' : 'price'}>{priceText(s)}</span>
+              <div className="service-tags">
+                {!category && s.category && <span>{s.category}</span>}
+                {s.serviceMode === 'AT_HOME' && <span>We come to you</span>}
+                {s.serviceMode === 'EITHER' && <span>At home or with us</span>}
+                {s.durationMinutes && <span>{s.durationMinutes} min</span>}
+              </div>
             </div>
             <button className="btn primary" onClick={() => setPicked(s)}>Book</button>
           </article>
@@ -144,12 +175,20 @@ function ServiceSheet({ service, onClose }: { service: any; onClose: () => void 
   const toast = useToast();
   const [when, setWhen] = useState('');
   const [note, setNote] = useState('');
+  const [atHome, setAtHome] = useState(service.serviceMode === 'AT_HOME');
+  const [addressId, setAddressId] = useState('');
   const [busy, setBusy] = useState(false);
   const details = useDetailsFirst();
+  const home = service.serviceMode === 'AT_HOME' || (service.serviceMode === 'EITHER' && atHome);
   const send = async () => {
     setBusy(true);
     try {
-      await post('/services/bookings', { offeringId: service.id, ...(when ? { scheduledStart: new Date(when).toISOString() } : {}), ...(note.trim() ? { customerNote: note.trim() } : {}) }, idempotency());
+      await post('/services/bookings', {
+        offeringId: service.id,
+        ...(when ? { scheduledStart: new Date(when).toISOString() } : {}),
+        ...(note.trim() ? { customerNote: note.trim() } : {}),
+        ...(home ? { atHome: true, addressId } : {}),
+      }, idempotency());
       toast('Request sent. We will confirm with you soon.');
       navigate('/bookings?tab=services');
     } catch (e) {
@@ -160,9 +199,10 @@ function ServiceSheet({ service, onClose }: { service: any; onClose: () => void 
   };
   return (
     <Sheet title={service.name} onClose={onClose}>
+      <WhereChooser mode={service.serviceMode ?? 'AT_VENUE'} feeMinor={service.homeFeeMinor} venue="At our place" atHome={atHome} setAtHome={setAtHome} addressId={addressId} setAddressId={setAddressId} />
       <Field label="Preferred date and time (optional)"><input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} /></Field>
       <Field label="Tell us what you need (optional)"><textarea rows={3} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
-      <button className="btn primary full" disabled={busy} onClick={() => details.ask(() => void send())}>{busy ? 'Sending…' : 'Send request'}</button>
+      <button className="btn primary full" disabled={busy || (home && !addressId)} onClick={() => details.ask(() => void send())}>{busy ? 'Sending…' : 'Send request'}</button>
       {details.sheet}
       <small className="muted-text">Our team confirms the time and any price before you pay.</small>
     </Sheet>

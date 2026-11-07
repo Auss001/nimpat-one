@@ -22,6 +22,7 @@ import { AppConfig } from '../../config/app-config.service';
 import { Authenticated, CurrentUser, Public, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { PaginationQueryDto, pageArgs, paginate } from '../../common/dto/pagination.dto';
 import { isExclusionViolation } from '../../common/filters/prisma-exception.filter';
+import { homeAddressFor } from '../../common/utils/address';
 import { addMinutes, parseDateOnly } from '../../common/utils/dates';
 import { formatNgn } from '../../common/utils/money';
 import { businessNumber, withUniqueRetry } from '../../common/utils/references';
@@ -51,6 +52,8 @@ class CreateTreatmentDto {
   @ApiProperty({ example: 60 }) @IsInt() @Min(15) @Max(480) durationMinutes: number;
   @ApiProperty({ description: 'kobo' }) @MinorAmount() @IsInt() @Min(0) priceMinor: number;
   @ApiPropertyOptional({ description: 'Online deposit in kobo (0 = pay at the spa)' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) depositMinor?: number;
+  @ApiPropertyOptional({ description: 'A therapist can come to the customer\'s home' }) @IsOptional() @IsBoolean() homeService?: boolean;
+  @ApiPropertyOptional({ description: 'kobo, added to the price for a home visit' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) homeFeeMinor?: number;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
 }
 class UpdateTreatmentDto extends PartialType(CreateTreatmentDto) {}
@@ -75,6 +78,8 @@ class BookAppointmentDto {
   @ApiProperty({ example: '2026-12-05T10:00:00+01:00' }) @IsDateString() startsAt: string;
   @ApiPropertyOptional({ description: 'Leave empty for any available therapist' }) @IsOptional() @IsUUID() practitionerId?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(1, 500) customerNote?: string;
+  @ApiPropertyOptional({ description: 'Have the therapist come to you (treatments offered at home only)' }) @IsOptional() @IsBoolean() atHome?: boolean;
+  @ApiPropertyOptional({ description: 'One of your saved addresses, for a home visit' }) @IsOptional() @IsUUID() addressId?: string;
 }
 
 class AppointmentQueryDto extends PaginationQueryDto {
@@ -151,9 +156,13 @@ export class SpaService implements OnModuleInit, PayableHandler {
     await this.expireHolds();
     const candidates = await this.capablePractitioners(treatment.id, dto.practitionerId);
     if (!candidates.length) throw new ConflictException('No therapist offers this treatment');
+    if (dto.atHome && !treatment.homeService) throw new BadRequestException('This treatment is only offered at the spa');
+    const homeAddress = dto.atHome ? await homeAddressFor(this.prisma, user.id, dto.addressId) : undefined;
+    const homeFeeMinor = dto.atHome ? (treatment.homeFeeMinor ?? 0n) : 0n;
+    const priceMinor = treatment.priceMinor + homeFeeMinor;
     const division = await this.divisions.byCode(DivisionCode.SPA_WELLNESS);
     const policy = await this.policies.get(treatment.divisionId, PaymentPurpose.SPA_APPOINTMENT);
-    const depositRequiredMinor = this.policies.depositFor(policy, treatment.priceMinor, treatment.depositMinor);
+    const depositRequiredMinor = this.policies.depositFor(policy, priceMinor, treatment.depositMinor);
     const needsDeposit = depositRequiredMinor > 0n && policy.confirmationRule !== 'STAFF_APPROVAL';
 
     // Try each capable therapist; the DB exclusion constraint arbitrates races.
@@ -169,9 +178,12 @@ export class SpaService implements OnModuleInit, PayableHandler {
               startsAt,
               endsAt,
               status: needsDeposit ? BookingStatus.PENDING : BookingStatus.REQUESTED,
-              priceMinor: treatment.priceMinor,
+              priceMinor,
               depositMinor: treatment.depositMinor,
               depositRequiredMinor,
+              atHome: !!dto.atHome,
+              homeAddress,
+              homeFeeMinor,
               customerNote: dto.customerNote,
             },
           }),
@@ -243,7 +255,8 @@ export class SpaService implements OnModuleInit, PayableHandler {
   async createTreatment(user: AuthUser, dto: CreateTreatmentDto) {
     const d = await this.divisions.byCode(DivisionCode.SPA_WELLNESS);
     user.assertCan(P.listingsManage, d.id);
-    return this.prisma.spaTreatment.create({ data: { ...dto, priceMinor: BigInt(dto.priceMinor), depositMinor: BigInt(dto.depositMinor ?? 0), divisionId: d.id } });
+    const { homeFeeMinor, ...rest } = dto;
+    return this.prisma.spaTreatment.create({ data: { ...rest, priceMinor: BigInt(dto.priceMinor), depositMinor: BigInt(dto.depositMinor ?? 0), homeFeeMinor: homeFeeMinor !== undefined ? BigInt(homeFeeMinor) : undefined, divisionId: d.id } });
   }
 
   async updateTreatment(user: AuthUser, id: string, dto: UpdateTreatmentDto) {
@@ -251,7 +264,7 @@ export class SpaService implements OnModuleInit, PayableHandler {
     user.assertCan(P.listingsManage, d.id);
     const t = await this.prisma.spaTreatment.update({
       where: { id },
-      data: { ...dto, priceMinor: dto.priceMinor !== undefined ? BigInt(dto.priceMinor) : undefined, depositMinor: dto.depositMinor !== undefined ? BigInt(dto.depositMinor) : undefined },
+      data: { ...dto, priceMinor: dto.priceMinor !== undefined ? BigInt(dto.priceMinor) : undefined, depositMinor: dto.depositMinor !== undefined ? BigInt(dto.depositMinor) : undefined, homeFeeMinor: dto.homeFeeMinor !== undefined ? BigInt(dto.homeFeeMinor) : undefined },
     });
     await this.audit.record({ actorId: user.id, action: 'spa_treatment.update', entityType: 'spa_treatment', entityId: id, divisionId: d.id, changes: { ...dto } });
     return t;

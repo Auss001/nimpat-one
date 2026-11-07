@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, HandCoins, KeyRound, Truck, Wrench } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { useDetailsFirst } from './Account';
 import { CallLink, Empty, FavButton, Field, Loader, Note, PageTitle, Photo, useLoad, useToast } from '../ui';
@@ -12,6 +12,7 @@ const INQUIRY = [
   ['INSPECTION', 'Book an inspection'],
   ['DEPOSIT_HOLD', 'Hold with a deposit'],
   ['FINANCING', 'Ask about financing'],
+  ['HIRE_PURCHASE', 'Buy on hire purchase'],
 ] as const;
 
 const carName = (v: any) => `${v.year} ${v.make} ${v.model}`;
@@ -25,7 +26,14 @@ export function CarsPage() {
   const shown = (cars.data ?? []).filter((v: any) => (!make || v.make === make) && (!q || carName(v).toLowerCase().includes(q)));
   return (
     <>
-      <PageTitle title="Cars" sub="See it, inspect it, drive it, then decide." />
+      <PageTitle title="Cars" sub="Buy, hire, pay over time, or move anything." />
+      <div className="action-grid">
+        <Link to="/services/automobiles?category=Car hire" className="action-card green"><KeyRound size={22} aria-hidden="true" /><span><b>Hire a car</b><small>With or without a driver</small></span></Link>
+        <Link to="/services/automobiles?category=Hire purchase" className="action-card teal"><HandCoins size={22} aria-hidden="true" /><span><b>Hire purchase</b><small>Drive now, pay over time</small></span></Link>
+        <Link to="/services/automobiles" className="action-card green"><Wrench size={22} aria-hidden="true" /><span><b>Car care</b><small>Servicing, repairs, inspection</small></span></Link>
+        <Link to="/services/transport-logistics" className="action-card teal"><Truck size={22} aria-hidden="true" /><span><b>Logistics</b><small>Parcels, haulage, moving</small></span></Link>
+      </div>
+      <h2 className="group-title">Cars for sale</h2>
       <div className="search-box"><input aria-label="Search cars" placeholder="Search make, model or year" value={text} onChange={(e) => setText(e.target.value)} /></div>
       {makes.length > 1 && (
         <div className="chips" role="group" aria-label="Make">

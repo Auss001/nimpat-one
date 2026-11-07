@@ -583,3 +583,63 @@ export function useDetailsFirst() {
   ) : null;
   return { ask, sheet };
 }
+
+/**
+ * Where a service happens. "Either" lets the customer choose between our place and their home; a home visit
+ * then needs one of their saved addresses (a visitor gives their details first, then adds one).
+ */
+export function WhereChooser({ mode, feeMinor, venue, atHome, setAtHome, addressId, setAddressId }: {
+  mode: 'AT_VENUE' | 'AT_HOME' | 'EITHER';
+  feeMinor?: number | null;
+  venue: string;
+  atHome: boolean;
+  setAtHome: (v: boolean) => void;
+  addressId: string;
+  setAddressId: (id: string) => void;
+}) {
+  const session = useSession();
+  const details = useDetailsFirst();
+  const [adding, setAdding] = useState(false);
+  const home = mode === 'AT_HOME' || (mode === 'EITHER' && atHome);
+  const addresses = useLoad(() => (home && session ? get('/me/addresses').then(rows) : Promise.resolve([] as any[])), [home, session?.email]);
+  useEffect(() => {
+    const list = addresses.data ?? [];
+    if (home && list.length && !list.some((a: any) => a.id === addressId)) setAddressId((list.find((a: any) => a.isDefault) ?? list[0]).id);
+    if (home && session && addresses.data && !list.length) setAdding(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addresses.data, home]);
+  if (mode === 'AT_VENUE') return null;
+  const fee = feeMinor ? ` (+${formatNaira(feeMinor)})` : '';
+  return (
+    <div className="where">
+      {mode === 'EITHER'
+        ? (
+          <div className="segmented" role="group" aria-label="Where">
+            <button type="button" className={!atHome ? 'on' : ''} onClick={() => setAtHome(false)}>{venue}</button>
+            <button type="button" className={atHome ? 'on' : ''} onClick={() => setAtHome(true)}><MapPin size={15} aria-hidden="true" /> At my home{fee}</button>
+          </div>
+        )
+        : <p className="muted-text"><MapPin size={14} aria-hidden="true" /> We come to you{fee}.</p>}
+      {home && !session && (
+        <>
+          <button type="button" className="btn ghost full" onClick={() => details.ask(() => undefined)}>Add your details, then your address</button>
+          {details.sheet}
+        </>
+      )}
+      {home && session && (
+        <>
+          {(addresses.data ?? []).map((a: any) => (
+            <label key={a.id} className={`choice ${addressId === a.id ? 'on' : ''}`}>
+              <input type="radio" name="visit-address" checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
+              <MapPin size={18} aria-hidden="true" />
+              <span><b>{a.label ?? a.recipientName}</b><small>{addressLine(a)}</small></span>
+            </label>
+          ))}
+          {adding
+            ? <AddressForm onCancel={addresses.data?.length ? () => setAdding(false) : undefined} onSaved={async (a) => { await addresses.reload(); setAddressId(a.id); setAdding(false); }} />
+            : <button type="button" className="btn ghost full" onClick={() => setAdding(true)}>Add an address</button>}
+        </>
+      )}
+    </div>
+  );
+}

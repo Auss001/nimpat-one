@@ -16,8 +16,10 @@ interface Booking {
   priceMinor: number | null;
   customerNote: string | null;
   details: Record<string, unknown> | null;
+  atHome?: boolean;
+  serviceAddress?: HomeAddress | null;
   divisionId: string;
-  offering: { name: string; pricingType: string };
+  offering: { name: string; pricingType: string; category?: string | null };
   user: { email: string; phone: string | null };
 }
 interface Appointment {
@@ -25,9 +27,19 @@ interface Appointment {
   status: string;
   startsAt: string;
   customerNote: string | null;
+  atHome?: boolean;
+  homeAddress?: HomeAddress | null;
   treatment: { name: string };
   practitioner: { displayName: string } | null;
   user: { email: string; phone: string | null };
+}
+
+interface HomeAddress { recipientName?: string; phone?: string; line1?: string; line2?: string | null; landmark?: string | null; city?: string; state?: string }
+/** "At home: 2 Test Street, near the market, Wuye, FCT · Ada 0803…" for a home visit. */
+function HomeVisit({ address }: { address?: HomeAddress | null }) {
+  if (!address) return null;
+  const where = [address.line1, address.line2, address.landmark && `near ${address.landmark}`, address.city, address.state].filter(Boolean).join(', ');
+  return <div className="small"><strong>At home:</strong> {where}{address.recipientName ? ` · ${address.recipientName}` : ''}{address.phone ? ` ${address.phone}` : ''}</div>;
 }
 
 const when = (s: string | null) => (s ? new Date(s).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' }) : 'No time chosen');
@@ -49,7 +61,7 @@ export function BookingsPage() {
   const [tab, setTab] = useState<Tab>(tabs[0].value);
   return (
     <>
-      <PageHead title="Bookings" subtitle="Confirm, price and complete requests for spa, pharmacy and laboratory services." />
+      <PageHead title="Bookings" subtitle="Confirm, price and complete requests for the spa, pharmacy and laboratory, car hire, hire purchase, logistics and every other service, including home visits." />
       <div className="toolbar"><Tabs<Tab> value={tabs.some((t) => t.value === tab) ? tab : tabs[0].value} onChange={setTab} options={tabs} /></div>
       {tab === 'spa' ? <SpaBookings /> : <ServiceBookings key={tab} tab={tab} />}
     </>
@@ -75,7 +87,7 @@ function SpaBookings() {
               {list.data.length === 0 && <tr><td colSpan={6} className="empty">No spa appointments yet.</td></tr>}
               {list.data.map((a) => (
                 <tr key={a.id}>
-                  <td><strong>{a.treatment.name}</strong>{a.customerNote && <div className="muted small">{a.customerNote}</div>}</td>
+                  <td><strong>{a.treatment.name}</strong>{a.atHome && <HomeVisit address={a.homeAddress} />}{a.customerNote && <div className="muted small">{a.customerNote}</div>}</td>
                   <td>{contactEmail(a.user)}<div className="muted small">{contactPhone(a.user)}</div></td>
                   <td className="small">{when(a.startsAt)}</td>
                   <td className="small">{a.practitioner?.displayName ?? <span className="muted">Any</span>}</td>
@@ -119,7 +131,8 @@ function ServiceBookings({ tab }: { tab: Tab }) {
                 <tr key={b.id}>
                   <td>
                     <strong>{b.offering.name}</strong>
-                    <div className="muted small mono">{b.bookingNumber}</div>
+                    <div className="muted small mono">{b.bookingNumber}{b.offering.category ? ` · ${b.offering.category}` : ''}</div>
+                    {b.atHome && <HomeVisit address={b.serviceAddress} />}
                     {b.customerNote && <div className="muted small">{b.customerNote}</div>}
                     {b.details && <div className="muted small">{Object.entries(b.details).map(([k, v]) => `${k}: ${String(v)}`).join(' · ')}</div>}
                   </td>

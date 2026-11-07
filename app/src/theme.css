@@ -565,3 +565,10 @@ body { background: var(--bg); }
 /* A checkout address with its edit and remove buttons beside it. */
 .choice-row { display: flex; align-items: center; gap: 4px; }
 .choice-row .choice { flex: 1; min-width: 0; }
+
+/* Choosing between our place and a home visit, with the address list below. */
+.where { display: grid; gap: 8px; margin: 4px 0 10px; }
+.service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.service-tags span { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--mint); color: var(--forest); }
+.action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+@media (min-width: 900px) { .action-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

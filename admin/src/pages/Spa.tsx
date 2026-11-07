@@ -13,6 +13,8 @@ interface Treatment {
   durationMinutes: number;
   priceMinor: number;
   depositMinor: number;
+  homeService: boolean;
+  homeFeeMinor: number | null;
   isActive: boolean;
   _count: { practitioners: number };
 }
@@ -86,17 +88,23 @@ function Menu({ treatments }: { treatments: ReturnType<typeof useLoad<Treatment[
         <div className="card table-wrap">
           <table>
             <thead>
-              <tr><th>Treatment</th><th className="num">Duration</th><th className="num">Price</th><th className="num">Online deposit</th><th className="num">Therapists</th><th>Status</th><th></th></tr>
+              <tr><th>Treatment</th><th className="num">Duration</th><th className="num">Price</th><th className="num">Online deposit</th><th>At home</th><th className="num">Therapists</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>
               {groups.map(([cat, list]) => [
-                <tr className="group-row" key={`g-${cat}`}><td colSpan={7}>{cat} · {list.length}</td></tr>,
+                <tr className="group-row" key={`g-${cat}`}><td colSpan={8}>{cat} · {list.length}</td></tr>,
                 ...list.map((t) => (
                   <tr key={t.id}>
                     <td><strong>{t.name}</strong></td>
                     <td className="num">{t.durationMinutes} min</td>
                     <td className="num"><InlinePrice minor={t.priceMinor} onSave={(k) => update(t, { priceMinor: k }, `${t.name}: ${formatNaira(k)}`)} /></td>
                     <td className="num">{t.depositMinor ? formatNaira(t.depositMinor) : <span className="muted">Pay at spa</span>}</td>
+                    <td className="small">
+                      <label className="switch-row">
+                        <input type="checkbox" checked={t.homeService} onChange={(e) => void update(t, { homeService: e.target.checked }, e.target.checked ? `${t.name} can now be booked at home` : `${t.name}: spa only`)} />
+                        {t.homeService ? (t.homeFeeMinor ? `+${formatNaira(t.homeFeeMinor)}` : 'Yes, no fee') : 'No'}
+                      </label>
+                    </td>
                     <td className="num">{t._count.practitioners || <span className="muted">0</span>}</td>
                     <td><StatusPill status={t.isActive ? 'ACTIVE' : 'INACTIVE'} /></td>
                     <td>
@@ -136,11 +144,13 @@ function TreatmentForm({ treatment, categories, onClose, onSaved }: { treatment?
   const [duration, setDuration] = useState(String(treatment?.durationMinutes ?? 60));
   const [price, setPrice] = useState<number | null>(treatment?.priceMinor ?? null);
   const [deposit, setDeposit] = useState<number | null>(treatment?.depositMinor ?? 0);
+  const [home, setHome] = useState(treatment?.homeService ?? false);
+  const [homeFee, setHomeFee] = useState<number | null>(treatment?.homeFeeMinor ?? null);
   const valid = name.trim().length >= 2 && Number(duration) >= 15 && price !== null && deposit !== null && deposit <= price;
 
   const save = () =>
     run(async () => {
-      const body = { name: name.trim(), category: category.trim() || undefined, description: description.trim() || undefined, durationMinutes: Number(duration), priceMinor: price, depositMinor: deposit };
+      const body = { name: name.trim(), category: category.trim() || undefined, description: description.trim() || undefined, durationMinutes: Number(duration), priceMinor: price, depositMinor: deposit, homeService: home, ...(homeFee !== null ? { homeFeeMinor: homeFee } : {}) };
       if (treatment) await patch(`/admin/spa/treatments/${treatment.id}`, body);
       else await post('/admin/spa/treatments', { ...body, slug: `${slugify(name)}-${Date.now().toString(36)}` });
     }, 'Treatment saved').then((ok) => ok && onSaved());
@@ -160,6 +170,13 @@ function TreatmentForm({ treatment, categories, onClose, onSaved }: { treatment?
         <Field label="Duration (minutes)"><input inputMode="numeric" value={duration} onChange={(e) => setDuration(e.target.value.replace(/\D/g, ''))} /></Field>
         <Field label="Price (₦)"><MoneyInput value={price} onChange={setPrice} /></Field>
         <Field label="Online deposit (₦)" hint="0 = customer pays at the spa"><MoneyInput value={deposit} onChange={setDeposit} /></Field>
+        <Field label="Home service" hint="A therapist goes to the customer's address">
+          <select value={home ? 'yes' : 'no'} onChange={(e) => setHome(e.target.value === 'yes')}>
+            <option value="no">At the spa only</option>
+            <option value="yes">Also at the customer's home</option>
+          </select>
+        </Field>
+        {home && <Field label="Home visit fee (₦)" hint="Added to the price. Empty = free."><MoneyInput value={homeFee} onChange={setHomeFee} placeholder="—" /></Field>}
         <Field label="Description" full><textarea value={description} onChange={(e) => setDescription(e.target.value)} /></Field>
       </div>
     </Modal>
