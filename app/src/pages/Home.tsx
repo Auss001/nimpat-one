@@ -9,7 +9,7 @@ import { FavButton, Photo, Rail, Skeletons, useLoad, viewedProducts } from '../u
 export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string }[] = [
   { to: '/shop/water-drinks-wines', label: 'Drinks', icon: Droplets, tone: 'blue' },
   { to: '/pharmacy', label: 'Pharmacy', icon: Pill, tone: 'green' },
-  { to: '/apartments', label: 'Stays', icon: Building2, tone: 'orange' },
+  { to: '/apartments', label: 'Luxury Apartments', icon: Building2, tone: 'orange' },
   { to: '/spa', label: 'Spa', icon: Sparkles, tone: 'pink' },
   { to: '/cars', label: 'Cars', icon: Car, tone: 'red' },
   { to: '/services/pharmacy-laboratory', label: 'Lab', icon: FlaskConical, tone: 'teal' },
@@ -88,7 +88,7 @@ export function HomePage() {
 
       {shelves.topShelf.length > 0 && <Rail title="Top shelf" to="/shop/water-drinks-wines">{shelves.topShelf.map((p: any) => <ProductCard key={p.id} product={p} />)}</Rail>}
 
-      {d && d.stays.length > 0 && <Rail title="Stays" to="/apartments">{d.stays.map((s: any) => <StayCard key={s.key} stay={s} wide />)}</Rail>}
+      {d && d.stays.length > 0 && <Rail title="Luxury Apartments" to="/apartments">{d.stays.map((s: any) => <StayCard key={s.key} stay={s} wide />)}</Rail>}
 
       {shelves.categories.map((c) => c.items.length > 1 && (
         <Rail key={c.slug} title={c.name} to={`/shop/water-drinks-wines?category=${c.slug}`}>

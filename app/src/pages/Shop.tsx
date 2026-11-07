@@ -283,7 +283,7 @@ export function SearchPage() {
   return (
     <>
       <PageTitle title="Search" back={false} />
-      <div className="search-box"><SearchIcon size={17} aria-hidden="true" /><input autoFocus aria-label="Search Nimpat One" placeholder="Water, medicine, stays, cars, spa…" value={text} onChange={(e) => setText(e.target.value)} /></div>
+      <div className="search-box"><SearchIcon size={17} aria-hidden="true" /><input autoFocus aria-label="Search Nimpat One" placeholder="Water, medicine, apartments, cars, spa…" value={text} onChange={(e) => setText(e.target.value)} /></div>
       {results.loading && initial && <Loader label="Searching" />}
       {!initial && recent.length > 0 && (
         <section>
@@ -296,7 +296,7 @@ export function SearchPage() {
       </section>
       {nothing && <Empty title={`Nothing found for "${initial}"`}>Try another word.</Empty>}
       {r && r.products.length > 0 && <><h2 className="group-title">Products</h2><ProductGrid products={r.products} /></>}
-      {r && r.stays.length > 0 && <><h2 className="group-title">Stays</h2><div className="list">{r.stays.map((p: any) => <Link key={p.id} to={`/apartments/${p.slug}`} className="row-card"><b>{p.name}</b><small>{p.location ?? p.city}</small></Link>)}</div></>}
+      {r && r.stays.length > 0 && <><h2 className="group-title">Luxury Apartments</h2><div className="list">{r.stays.map((p: any) => <Link key={p.id} to={`/apartments/${p.slug}`} className="row-card"><b>{p.name}</b><small>{p.location ?? p.city}</small></Link>)}</div></>}
       {r && r.cars.length > 0 && <><h2 className="group-title">Cars</h2><div className="list">{r.cars.map((v: any) => <Link key={v.id} to={`/cars/${v.slug}`} className="row-card"><b>{v.year} {v.make} {v.model}</b><small>{v.priceMinor !== null ? formatNaira(v.priceMinor) : 'Contact for price'}</small></Link>)}</div></>}
       {r && r.spa.length > 0 && <><h2 className="group-title">Spa</h2><div className="list">{r.spa.map((t: any) => <Link key={t.id} to={`/spa/${t.slug}`} className="row-card"><b>{t.name}</b><small>{formatNaira(t.priceMinor)}</small></Link>)}</div></>}
     </>

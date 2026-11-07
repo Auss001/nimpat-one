@@ -7,3 +7,12 @@ coverage
 .git
 test
 *.md
+
+# Everything below stays out of images
+**/node_modules
+**/dist
+backups
+uploads
+.claude
+docs
+clients

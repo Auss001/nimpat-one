@@ -1,8 +1,6 @@
 # Deploying Nimpat One API to Google Cloud Run
 
-Nothing here has been run against a real Google Cloud project yet. The
-commands are a starting template; confirm project ids, region and naming with
-the account owner first.
+Deployed on 7 November 2026 with `deploy/cloud-run.sh`, which is the current way to set up and release. The steps below explain the parts.
 
 ## Architecture
 

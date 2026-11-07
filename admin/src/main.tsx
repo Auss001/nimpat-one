@@ -2,12 +2,12 @@ import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Bell, Building2, CalendarCheck, CalendarClock, Car, ClipboardCheck, Clapperboard, Contact, Droplets, ExternalLink, History, Inbox, Landmark, LayoutDashboard, LogOut,
+  Bell, Building2, CalendarCheck, CalendarClock, Car, ClipboardCheck, Clapperboard, Contact, Droplets, ExternalLink, History, Inbox, KeyRound, Landmark, LayoutDashboard, LogOut,
   Package, Pill, Search, Settings2, ShoppingBag, Sparkles, Truck, Users, Wallet, type LucideIcon,
 } from 'lucide-react';
 import { AccessProvider, useAccess, type Check } from './access';
-import { get, getSession, logout } from './api';
-import { ToastProvider } from './components/ui';
+import { get, getSession, logout, post } from './api';
+import { Field, Modal, ToastProvider, useAction } from './components/ui';
 import { LoginPage } from './pages/Login';
 import { OverviewPage } from './pages/Overview';
 import { ProductsPage } from './pages/Products';
@@ -94,9 +94,26 @@ function usePendingVerifications() {
   return count;
 }
 
+function ChangePassword({ onClose }: { onClose: () => void }) {
+  const { run, busy } = useAction();
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const save = () =>
+    run(() => post('/auth/change-password', { currentPassword: current, newPassword: next }), 'Password changed. Please sign in again.').then((ok) => {
+      if (ok) void logout();
+    });
+  return (
+    <Modal title="Change password" onClose={onClose} footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" disabled={busy || !current || next.length < 10} onClick={() => void save()}>Change password</button></>}>
+      <Field label="Current password"><input type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} /></Field>
+      <Field label="New password" hint="At least 10 characters, with a letter and a number."><input type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></Field>
+    </Modal>
+  );
+}
+
 function Shell({ email }: { email: string }) {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
+  const [changing, setChanging] = useState(false);
   const pending = usePendingVerifications();
   const { can } = useAccess();
   const nav = NAV.map((g) => ({ ...g, items: g.items.filter(([, , , check]) => !check || can(check)) })).filter((g) => g.items.length);
@@ -117,6 +134,7 @@ function Shell({ email }: { email: string }) {
             <Bell size={18} />
             {pending > 0 && <span className="badge">{pending}</span>}
           </Link>
+          <button className="icon-btn" title="Change password" aria-label="Change password" onClick={() => setChanging(true)}><KeyRound size={18} /></button>
           <button className="icon-btn" title="Sign out" aria-label="Sign out" onClick={() => void logout()}><LogOut size={18} /></button>
           <span className="avatar" title={email}>{email.slice(0, 2)}</span>
         </div>
@@ -140,6 +158,7 @@ function Shell({ email }: { email: string }) {
         </nav>
         <main className="main">
           <Outlet />
+          {changing && <ChangePassword onClose={() => setChanging(false)} />}
         </main>
       </div>
     </div>

@@ -22,7 +22,7 @@ export function CustomersPage() {
       {list.data && (
         <div className="card table-wrap">
           <table>
-            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th className="num">Orders</th><th className="num">Stays</th><th>Joined</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th className="num">Orders</th><th className="num">Apartments</th><th>Joined</th></tr></thead>
             <tbody>
               {list.data.data.length === 0 && <tr><td colSpan={6} className="empty">No customers found.</td></tr>}
               {list.data.data.map((c) => (

@@ -1,0 +1,40 @@
+server {
+  listen ${PORT};
+  root /usr/share/nginx/html;
+  index index.html;
+  client_max_body_size 12m;
+  gzip on;
+  gzip_types text/css application/javascript application/json image/svg+xml;
+
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+  add_header X-Frame-Options "SAMEORIGIN" always;
+  add_header Strict-Transport-Security "max-age=2592000" always;
+
+  # Google's internal resolver, so a changed API address is picked up without a restart.
+  resolver 169.254.169.254 valid=30s ipv6=off;
+  set $api_origin ${API_ORIGIN};
+
+  # The pages call /api and /media on their own address; this passes them to the API.
+  location ~ ^/(api|media)/ {
+    proxy_pass $api_origin;
+    proxy_http_version 1.1;
+    proxy_ssl_server_name on;
+    proxy_ssl_name ${API_HOST};
+    proxy_set_header Host ${API_HOST};
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_read_timeout 60s;
+  }
+
+  location /assets/ {
+    add_header Cache-Control "public, max-age=31536000, immutable";
+    try_files $uri =404;
+  }
+
+  # Every other address is a screen inside the app.
+  location / {
+    add_header Cache-Control "no-cache";
+    try_files $uri /index.html;
+  }
+}

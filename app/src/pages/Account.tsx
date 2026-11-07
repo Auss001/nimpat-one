@@ -344,7 +344,7 @@ const INQUIRY_LABEL: Record<string, string> = { GENERAL: 'Question', TEST_DRIVE:
 
 const TABS = [
   { key: 'orders', label: 'Orders' },
-  { key: 'stays', label: 'Stays' },
+  { key: 'stays', label: 'Luxury Apartments' },
   { key: 'spa', label: 'Spa' },
   { key: 'services', label: 'Services' },
   { key: 'cars', label: 'Cars' },
@@ -364,7 +364,7 @@ export function BookingsPage() {
       {tab === 'orders' && <History path="/orders" cancel={(o) => `/orders/${o.id}/cancel`} canCancel={(o) => ['PENDING', 'ACCEPTED'].includes(o.status)} purpose="ORDER" empty="No orders yet." render={(o) => ({
         title: o.orderNumber, sub: `${o.items?.length ?? 0} ${o.items?.length === 1 ? 'item' : 'items'}${o.division?.name ? ` · ${o.division.name}` : ''} · ${shortDate(o.createdAt)}`, amount: o.totalMinor, owing: o.outstandingMinor, details: o.items?.map((i: any) => `${i.quantity} × ${i.productName}`).join(', '),
       })} />}
-      {tab === 'stays' && <History path="/apartments/reservations" cancel={(r) => `/apartments/reservations/${r.id}/cancel`} canCancel={(r) => ['HOLD', 'CONFIRMED'].includes(r.status)} purpose="APARTMENT_RESERVATION" empty="No stays yet." render={(r) => ({
+      {tab === 'stays' && <History path="/apartments/reservations" cancel={(r) => `/apartments/reservations/${r.id}/cancel`} canCancel={(r) => ['HOLD', 'CONFIRMED'].includes(r.status)} purpose="APARTMENT_RESERVATION" empty="No apartment bookings yet." render={(r) => ({
         title: r.unit?.property?.name ?? r.reservationNumber, sub: `${r.room?.name ?? r.unit?.name} · ${shortDate(r.checkIn)} to ${shortDate(r.checkOut)}`, amount: r.totalMinor, owing: Number(r.totalMinor) - Number(r.amountPaidMinor), details: r.status === 'HOLD' && r.holdExpiresAt ? `Held until ${dateTime(r.holdExpiresAt)}` : r.reservationNumber,
       })} />}
       {tab === 'spa' && <History path="/spa/appointments" cancel={(a) => `/spa/appointments/${a.id}/cancel`} canCancel={(a) => ['REQUESTED', 'PENDING', 'CONFIRMED'].includes(a.status)} purpose="SPA_APPOINTMENT" empty="No spa appointments yet." render={(a) => ({

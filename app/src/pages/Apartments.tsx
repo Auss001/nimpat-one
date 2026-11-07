@@ -74,7 +74,7 @@ export function ApartmentsPage() {
   const shown = (stays.data ?? []).filter((s) => (!location || (s.property.location ?? s.property.city) === location) && (!free.data || free.data.has(s.key)));
   return (
     <>
-      <PageTitle title="Stays" />
+      <PageTitle title="Luxury Apartments" />
       <div className="date-pair">
         <Field label="Check in"><input type="date" min={lagosDate()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} /></Field>
         <Field label="Check out"><input type="date" min={checkIn || lagosDate(1)} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} /></Field>
@@ -102,7 +102,7 @@ export function ApartmentPage() {
   const [photo, setPhoto] = useState(0);
   const p = property.data;
   if (property.loading && !p) return <Loader />;
-  if (!p) return <><PageTitle title="Not available" /><Empty title="This stay is not available right now" /></>;
+  if (!p) return <><PageTitle title="Not available" /><Empty title="This apartment is not available right now" /></>;
   const units = unitId ? p.units.filter((u: any) => u.id === unitId) : p.units;
   const single = units.length === 1 ? units[0] : null;
   const photos = single?.images?.length ? single.images : [...(p.images ?? []), ...units.flatMap((u: any) => u.images ?? [])];

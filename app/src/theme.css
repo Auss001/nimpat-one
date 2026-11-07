@@ -485,3 +485,6 @@ body { background: var(--bg); }
 .room-choices button.on { background: linear-gradient(145deg, #0e8249, #0a6236); color: #fff; box-shadow: 0 8px 16px rgb(11 107 58 / 28%); }
 .room-choices button.on small { color: #d9f0e1; }
 @media (min-width: 900px) { .promo { aspect-ratio: 16 / 4; } .promo img { object-position: 50% 28%; } }
+
+/* The main action in a sheet stays in view on short phones. */
+.sheet > .btn.primary.full:last-child { position: sticky; bottom: 0; flex-shrink: 0; }
