@@ -264,7 +264,7 @@ export function AccountPage() {
       {m?.loyalty && (
         <section className="reward">
           <Award size={26} aria-hidden="true" />
-          <div><b>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')} points</b><small>{String(m.loyalty.tier).toLowerCase()} member</small></div>
+          <div><b>Royalty Member</b><small>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')} points</small></div>
         </section>
       )}
       <nav className="panel link-list" aria-label="Your account">

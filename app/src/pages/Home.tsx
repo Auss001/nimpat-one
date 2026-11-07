@@ -5,6 +5,7 @@ import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
 import { FavButton, Photo, Rail, Skeletons, useLoad, viewedProducts } from '../ui';
+import { HomeSlider } from './HomeSlider';
 import { LegalLinks } from './Legal';
 
 export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string }[] = [
@@ -71,7 +72,7 @@ export function HomePage() {
         ))}
       </nav>
 
-      <Link to="/shop/water-drinks-wines?category=water" className="promo" aria-label="Drinks on promo. See water prices"><img src="/promo-drinks.webp" alt="Drinks on promo" /></Link>
+      <HomeSlider drinks={(d?.drinks ?? []).filter((p: any) => p.images?.length && p.priceFromMinor != null)} stays={d?.stays ?? []} />
 
       {home.loading && !d && <Skeletons />}
       {empty && <div className="getting-ready"><h2>Coming soon</h2></div>}

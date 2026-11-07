@@ -43,9 +43,15 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const existing = await this.prisma.user.findFirst({
       where: { OR: [{ email: dto.email }, ...(dto.phone ? [{ phone: dto.phone }] : [])] },
-      select: { id: true },
+      select: { email: true },
     });
-    if (existing) throw new ConflictException('An account with this email or phone already exists');
+    if (existing) {
+      throw new ConflictException(
+        existing.email === dto.email
+          ? 'An account with this email already exists. Please sign in instead.'
+          : 'This phone number is already on another account. Please use a different number, or leave it blank.',
+      );
+    }
 
     const passwordHash = await hashPassword(dto.password);
     const customerRole = await this.prisma.role.findUniqueOrThrow({ where: { code: RoleCode.CUSTOMER } });

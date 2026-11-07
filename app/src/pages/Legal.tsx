@@ -15,7 +15,7 @@ const PRIVACY: Section[] = [
     'Your account: your name, email address and password, and your phone number if you add it. Your password is stored in a scrambled form that our staff cannot read.',
     'Your orders and bookings: what you order or book, dates, guest numbers, notes you add, delivery addresses, landmarks, and the name and phone number of the person receiving a delivery.',
     'Your payments: the amount, method, reference and status. Card details are entered with Paystack, and we do not store them. If you pay by bank transfer, we keep any receipt you upload in private storage.',
-    'Your activity with us: favourites, basket, loyalty points, car enquiries and messages to our team.',
+    'Your activity with us: favourites, basket, Royalty points, car enquiries and messages to our team.',
     'Technical information: standard connection and security logs, which include your network address and device or browser details.',
   ],
   [
@@ -24,7 +24,7 @@ const PRIVACY: Section[] = [
   ],
   [
     'How we use it',
-    'To run your account, process orders and bookings, take and check payments, deliver, contact you about your order or booking, give customer support and award loyalty points. Staff check payments and prescription items where needed.',
+    'To run your account, process orders and bookings, take and check payments, deliver, contact you about your order or booking, give customer support and award Royalty points. Staff check payments and prescription items where needed.',
     'To keep the service safe, prevent fraud and misuse, and meet our legal and record-keeping duties.',
     'We process your information because we need it to provide what you asked for, to meet a legal duty, for our legitimate interest in keeping the service secure, or with your consent where consent is required.',
     'We send marketing only if you have chosen to receive it, and you can withdraw that choice at any time. We do not sell your personal information.',

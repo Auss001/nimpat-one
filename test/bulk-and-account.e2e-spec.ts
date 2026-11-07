@@ -22,6 +22,20 @@ beforeAll(async () => {
 });
 afterAll(() => h.stop());
 
+describe('creating an account', () => {
+  it('says whether the email or the phone number is already taken', async () => {
+    const stamp = Date.now();
+    const email = `taken-${stamp}@nimpat.test`;
+    const phone = `+23480${String(stamp).slice(-8)}`;
+    const person = { password: 'correct-horse-battery-9', firstName: 'New', lastName: 'Person' };
+    await h.http.post(`${API}/auth/register`).send({ ...person, email, phone }).expect(201);
+    const sameEmail = await h.http.post(`${API}/auth/register`).send({ ...person, email }).expect(409);
+    expect(sameEmail.body.message).toContain('this email');
+    const samePhone = await h.http.post(`${API}/auth/register`).send({ ...person, email: `other-${email}`, phone }).expect(409);
+    expect(samePhone.body.message).toContain('phone number');
+  });
+});
+
 describe('bulk product actions', () => {
   it('shows many products to customers with one action', async () => {
     const [a, b] = [await product(), await product()];
