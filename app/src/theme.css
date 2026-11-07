@@ -488,3 +488,10 @@ body { background: var(--bg); }
 
 /* The main action in a sheet stays in view on short phones. */
 .sheet > .btn.primary.full:last-child { position: sticky; bottom: 0; flex-shrink: 0; }
+
+/* ---------------- privacy and terms */
+.legal { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 720px; margin: 0 auto; }
+.legal p { line-height: 1.6; font-size: 14.5px; }
+.legal-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; }
+.legal-links a, .legal-note a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+.legal-note { font-size: 13px; line-height: 1.5; color: var(--ink-2); }

@@ -5,6 +5,7 @@ import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
 import { FavButton, Photo, Rail, Skeletons, useLoad, viewedProducts } from '../ui';
+import { LegalLinks } from './Legal';
 
 export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string }[] = [
   { to: '/shop/water-drinks-wines', label: 'Drinks', icon: Droplets, tone: 'blue' },
@@ -130,6 +131,7 @@ export function HomePage() {
           ))}
         </Rail>
       )}
+      <LegalLinks />
     </div>
   );
 }

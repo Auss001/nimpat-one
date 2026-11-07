@@ -4,6 +4,7 @@ import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocat
 import { CalendarCheck, Heart, Home, Search, ShoppingBasket, User } from 'lucide-react';
 import { CartProvider, FavoritesProvider, ToastProvider, useCart } from './ui';
 import { HomePage } from './pages/Home';
+import { PrivacyPage, TermsPage } from './pages/Legal';
 import { FavoritesPage } from './pages/Favorites';
 import { PharmacyPage, ProductPage, SearchPage, ShopPage } from './pages/Shop';
 import { CartPage, CheckoutPage, PaymentCallbackPage, PayPage } from './pages/Cart';
@@ -91,6 +92,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="payments/callback" element={<PaymentCallbackPage />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="account" element={<AccountPage />} />
+              <Route path="privacy" element={<PrivacyPage />} />
+              <Route path="terms" element={<TermsPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
               <Route path="forgot-password" element={<ForgotPage />} />

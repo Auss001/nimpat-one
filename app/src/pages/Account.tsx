@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Award, CalendarCheck, Check, ChevronRight, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, Trash2 } from 'lucide-react';
+import { Award, CalendarCheck, Check, ChevronRight, FileText, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
 import { del, endSession, formatNaira, get, getSession, login, logout, patch, post, register, rows } from '../api';
 import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
 
@@ -83,6 +83,7 @@ export function RegisterPage() {
         <Field label="Email" hint="We will send you a link to confirm it."><input type="email" required autoComplete="email" value={f.email} onChange={set('email')} /></Field>
         <Field label="Phone (optional)" hint="For example +2348012345678"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
         <Field label="Password" hint="At least 10 characters, with a letter and a number."><input type="password" required minLength={10} autoComplete="new-password" value={f.password} onChange={set('password')} /></Field>
+        <p className="legal-note">By creating an account, you agree to our <a href="/terms" target="_blank" rel="noreferrer">Terms of Use</a> and confirm you have read our <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.</p>
         <button className="btn primary full" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
       </form>
       <p className="auth-switch">Already have an account? <Link to={`/login?next=${encodeURIComponent(safeNext(params.get('next')))}`}>Sign in</Link></p>
@@ -269,6 +270,8 @@ export function AccountPage() {
       <nav className="panel link-list" aria-label="Your account">
         <Link to="/bookings"><CalendarCheck size={19} aria-hidden="true" /> Orders and bookings <ChevronRight size={18} aria-hidden="true" /></Link>
         <Link to="/favorites"><Heart size={19} aria-hidden="true" /> Favourites <ChevronRight size={18} aria-hidden="true" /></Link>
+        <Link to="/privacy"><ShieldCheck size={19} aria-hidden="true" /> Privacy Policy <ChevronRight size={18} aria-hidden="true" /></Link>
+        <Link to="/terms"><FileText size={19} aria-hidden="true" /> Terms of Use <ChevronRight size={18} aria-hidden="true" /></Link>
       </nav>
       <section className="panel">
         <div className="panel-head"><h2>Your details</h2>{!profile && <button className="icon-btn" aria-label="Edit your details" onClick={() => setProfile({ firstName: m?.customerProfile?.firstName ?? '', lastName: m?.customerProfile?.lastName ?? '' })}><Pencil size={16} /></button>}</div>
