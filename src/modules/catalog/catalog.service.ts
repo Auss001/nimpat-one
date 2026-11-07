@@ -51,7 +51,12 @@ export class CatalogService {
   }
 
   async listProducts(q: ProductQueryDto) {
-    const where = { ...(await this.productWhere(q, ProductStatus.ACTIVE)), verification: RecordVerification.VERIFIED };
+    const hidden = await this.hiddenOutOfStock();
+    const where: Prisma.ProductWhereInput = {
+      ...(await this.productWhere(q, ProductStatus.ACTIVE)),
+      verification: RecordVerification.VERIFIED,
+      ...(hidden.length ? { id: { notIn: hidden } } : {}),
+    };
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
         where,
@@ -363,6 +368,39 @@ export class CatalogService {
       ];
     }
     return where;
+  }
+
+  /**
+   * Products customers should not see in lists because their shop hides out-of-stock items. Matches the
+   * "In stock" rule customers see: a listed status wins; otherwise live stock at the shop's main location.
+   * A direct link to the product still opens it, marked out of stock.
+   */
+  private async hiddenOutOfStock(): Promise<string[]> {
+    const rows = await this.prisma.$queryRaw<{ id: string }[]>`
+      SELECT p."id"::text AS id
+        FROM "products" p
+        JOIN "divisions" d ON d."id" = p."division_id"
+       WHERE d."hide_out_of_stock" AND p."status" = 'ACTIVE'
+         AND (p."listed_availability" = 'OUT_OF_STOCK'
+              OR (p."listed_availability" IS NULL AND NOT EXISTS (
+                    SELECT 1
+                      FROM "product_variants" v
+                      JOIN "stock_levels" s ON s."variant_id" = v."id"
+                      JOIN "stock_locations" l ON l."id" = s."location_id"
+                     WHERE v."product_id" = p."id" AND v."is_active"
+                       AND l."division_id" = p."division_id" AND l."is_default" AND l."is_active"
+                       AND s."quantity_on_hand" - s."quantity_reserved" > 0)))`;
+    return rows.map((r) => r.id);
+  }
+
+  /** Switches hiding of out-of-stock items for one shop. */
+  async setHideOutOfStock(user: AuthUser, division: string, hide: boolean) {
+    const d = await this.divisions.resolve(division);
+    user.assertCan(P.catalogManage, d.id);
+    await this.prisma.division.update({ where: { id: d.id }, data: { hideOutOfStock: hide } });
+    this.divisions.invalidate();
+    await this.audit.record({ actorId: user.id, action: hide ? 'catalog.hide_out_of_stock.on' : 'catalog.hide_out_of_stock.off', entityType: 'division', entityId: d.id, divisionId: d.id });
+    return { division: d.slug, hideOutOfStock: hide };
   }
 
   private sort(sort?: string): Prisma.ProductOrderByWithRelationInput[] {

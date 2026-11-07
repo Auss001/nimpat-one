@@ -32,6 +32,11 @@ export class DivisionsService {
     return d;
   }
 
+  /** Forget the cached list after a setting changes. */
+  invalidate() {
+    this.cache = undefined;
+  }
+
   async byCode(code: DivisionCode): Promise<Division> {
     const d = (await this.all()).find((x) => x.code === code);
     if (!d) throw new NotFoundException(`Division ${code} is not configured`);

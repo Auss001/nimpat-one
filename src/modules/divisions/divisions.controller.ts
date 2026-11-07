@@ -20,6 +20,6 @@ export class DivisionsController {
   @ApiOperation({ summary: 'Get a division by slug or code' })
   async get(@Param('slug') slug: string) {
     const d = await this.divisions.resolve(slug);
-    return { id: d.id, code: d.code, name: d.name, slug: d.slug, kind: d.kind, description: d.description };
+    return { id: d.id, code: d.code, name: d.name, slug: d.slug, kind: d.kind, description: d.description, hideOutOfStock: d.hideOutOfStock };
   }
 }

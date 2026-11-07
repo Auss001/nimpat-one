@@ -61,6 +61,25 @@ interface Category {
 
 type StatusTab = 'ACTIVE' | 'DRAFT' | 'ARCHIVED' | 'ALL';
 
+/** Lets a manager hide this shop's out-of-stock items from customers, or show them again. */
+function OutOfStockSwitch({ division }: { division: string }) {
+  const shop = useLoad(() => get<{ hideOutOfStock: boolean }>(`/divisions/${division}`), [division]);
+  const { run, busy } = useAction();
+  const hide = !!shop.data?.hideOutOfStock;
+  const toggle = () =>
+    run(async () => {
+      await patch(`/admin/catalog/divisions/${division}/display`, { hideOutOfStock: !hide });
+      await shop.reload();
+    }, hide ? 'Out-of-stock items are showing to customers again' : 'Out-of-stock items are now hidden from customers');
+  if (!shop.data) return null;
+  return (
+    <label className="check stock-switch" title="Customers can still open an out-of-stock item from a saved link, marked out of stock.">
+      <input type="checkbox" checked={hide} disabled={busy} onChange={() => void toggle()} />
+      Hide out-of-stock items from customers
+    </label>
+  );
+}
+
 export function ProductsPage({ division, title }: { division: string; title: string }) {
   const [tab, setTab] = useState<StatusTab>('ACTIVE');
   const [params] = useSearchParams();
@@ -138,7 +157,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
       <PageHead
         title={title}
         subtitle={<>Click a price to change it. Customers see only products that are on sale and <Link to="/data-check">confirmed</Link>.</>}
-        actions={<><button className="btn" onClick={() => setBulk(true)}>Upload photos in bulk</button><button className="btn primary" onClick={() => setAdding(true)}>+ Add product</button></>}
+        actions={<><OutOfStockSwitch division={division} /><button className="btn" onClick={() => setBulk(true)}>Upload photos in bulk</button><button className="btn primary" onClick={() => setAdding(true)}>+ Add product</button></>}
       />
       <div className="toolbar">
         <Tabs<StatusTab>

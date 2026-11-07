@@ -17,6 +17,12 @@ import {
   VariantInputDto,
 } from './catalog.dto';
 import { CatalogService } from './catalog.service';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean } from 'class-validator';
+
+class ShopDisplayDto {
+  @ApiProperty() @IsBoolean() hideOutOfStock: boolean;
+}
 
 @ApiTags('Catalogue')
 @Controller('catalog')
@@ -59,6 +65,13 @@ export class CatalogController {
 @Controller('admin/catalog')
 export class AdminCatalogController {
   constructor(private readonly catalog: CatalogService) {}
+
+  @Patch('divisions/:division/display')
+  @RequirePermissions(P.catalogManage)
+  @ApiOperation({ summary: "Hide or show this shop's out-of-stock items to customers" })
+  setDisplay(@CurrentUser() user: AuthUser, @Param('division') division: string, @Body() dto: ShopDisplayDto) {
+    return this.catalog.setHideOutOfStock(user, division, dto.hideOutOfStock);
+  }
 
   @Get('products')
   @RequirePermissions(P.catalogManage)

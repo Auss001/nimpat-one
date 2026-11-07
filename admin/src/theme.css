@@ -383,3 +383,4 @@ textarea { min-height: 80px; resize: vertical; }
 .promo-results button:hover { background: #eef5f0; }
 .promo-results img { width: 32px; height: 32px; object-fit: contain; }
 @media (max-width: 720px) { .promo-form { grid-template-columns: 1fr; } }
+.stock-switch { padding: 6px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 13.5px; }

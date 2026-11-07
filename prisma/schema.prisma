@@ -361,6 +361,8 @@ model Division {
   description String?
   isActive    Boolean      @default(true) @map("is_active")
   sortOrder   Int          @default(0) @map("sort_order")
+  /// When on, customers do not see this shop's out-of-stock items in lists or search.
+  hideOutOfStock Boolean   @default(false) @map("hide_out_of_stock")
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
