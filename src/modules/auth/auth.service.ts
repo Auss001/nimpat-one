@@ -74,7 +74,8 @@ export class AuthService {
       return created;
     });
 
-    await this.sendVerificationEmail(user);
+    // A delivery problem must not undo the new account; the customer can ask for another email.
+    await this.sendVerificationEmail(user).catch((e) => this.logger.warn(`Verification email not sent: ${(e as Error).message}`));
     const tokens = await this.issueSession(user.id);
     return { user: this.publicUser(user), ...tokens };
   }
@@ -168,7 +169,9 @@ export class AuthService {
 
   async resendVerification(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (user && !user.emailVerifiedAt && user.status === UserStatus.ACTIVE) await this.sendVerificationEmail(user);
+    if (user && !user.emailVerifiedAt && user.status === UserStatus.ACTIVE) {
+      await this.sendVerificationEmail(user).catch((e) => this.logger.warn(`Verification email not sent: ${(e as Error).message}`));
+    }
     // Same response whether or not the account exists (no enumeration).
     return { ok: true };
   }
@@ -178,12 +181,15 @@ export class AuthService {
     if (user && user.status === UserStatus.ACTIVE) {
       const token = await this.createToken(user.id, TokenPurpose.PASSWORD_RESET, this.config.get('PASSWORD_RESET_TTL_MINUTES') * 60_000);
       const link = `${this.config.get('APP_PUBLIC_URL')}/reset-password?token=${token}`;
-      await this.mail.send({
-        to: user.email,
-        subject: 'Reset your Nimpat One password',
-        text: `Use this link to reset your password. It expires in ${this.config.get('PASSWORD_RESET_TTL_MINUTES')} minutes: ${link}`,
-        devOnlyDetail: `reset link: ${link}`,
-      });
+      // The reply is the same whether or not the email went out, so it never reveals which addresses have accounts.
+      await this.mail
+        .send({
+          to: user.email,
+          subject: 'Reset your Nimpat One password',
+          text: `Use this link to reset your password. It expires in ${this.config.get('PASSWORD_RESET_TTL_MINUTES')} minutes: ${link}\n\nIf you did not ask for this, you can ignore this email.`,
+          devOnlyDetail: `reset link: ${link}`,
+        })
+        .catch((e) => this.logger.warn(`Password reset email not sent: ${(e as Error).message}`));
       await this.audit.record({ actorId: user.id, action: 'auth.password_reset.requested', entityType: 'user', entityId: user.id });
     }
     return { ok: true };

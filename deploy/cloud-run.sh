@@ -113,13 +113,20 @@ release() {
     --set-cloudsql-instances="$PROJECT:$REGION:$SQL_INSTANCE" --set-secrets=DATABASE_URL=nimpat-one-database-url:latest \
     --command=./node_modules/.bin/prisma --args=migrate,deploy --memory=1Gi --max-retries=0 --task-timeout=300 --execute-now --wait --quiet
 
+  # Email goes out through Resend once its key is in Secret Manager; until then it is only logged.
+  local mail="MAIL_TRANSPORT=console" mail_secret=""
+  if gcloud secrets describe nimpat-one-resend-api-key >/dev/null 2>&1; then
+    mail="MAIL_TRANSPORT=resend|EMAIL_FROM=Nimpat One <no-reply@notify.nimpatgroup.com>"
+    mail_secret=",RESEND_API_KEY=nimpat-one-resend-api-key:latest"
+  fi
+
   echo "== deploying the API"
   gcloud run deploy nimpat-one-api --image="$REPO/api:$tag" --region="$REGION" --service-account="$SA" --allow-unauthenticated \
     --add-cloudsql-instances="$PROJECT:$REGION:$SQL_INSTANCE" --execution-environment=gen2 --memory=1Gi --cpu=1 --min-instances=0 --max-instances=5 --concurrency=40 --timeout=60 --cpu-boost \
     --add-volume=name=photos,type=cloud-storage,bucket="$PHOTOS" --add-volume-mount=volume=photos,mount-path=/data/photos \
     --add-volume=name=proofs,type=cloud-storage,bucket="$PROOFS" --add-volume-mount=volume=proofs,mount-path=/data/proofs \
-    --set-env-vars="^|^NODE_ENV=production|TRUST_PROXY=true|JOBS_INPROCESS=false|MAIL_TRANSPORT=console|REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT=false|PHOTO_STORAGE_DIR=/data/photos|PROOF_STORAGE_DIR=/data/proofs|APP_PUBLIC_URL=$APP_URL|ADMIN_PUBLIC_URL=$ADMIN_URL|PAYSTACK_CALLBACK_URL=$APP_URL/payments/callback|CORS_ORIGINS=$APP_URL,$ADMIN_URL" \
-    --set-secrets=DATABASE_URL=nimpat-one-database-url:latest,JWT_ACCESS_SECRET=nimpat-one-jwt-secret:latest,JOBS_TOKEN=nimpat-one-jobs-token:latest,PAYSTACK_SECRET_KEY=nimpat-one-paystack-secret:latest \
+    --set-env-vars="^|^NODE_ENV=production|TRUST_PROXY=true|JOBS_INPROCESS=false|$mail|REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT=false|PHOTO_STORAGE_DIR=/data/photos|PROOF_STORAGE_DIR=/data/proofs|APP_PUBLIC_URL=$APP_URL|ADMIN_PUBLIC_URL=$ADMIN_URL|PAYSTACK_CALLBACK_URL=$APP_URL/payments/callback|CORS_ORIGINS=$APP_URL,$ADMIN_URL" \
+    --set-secrets="DATABASE_URL=nimpat-one-database-url:latest,JWT_ACCESS_SECRET=nimpat-one-jwt-secret:latest,JOBS_TOKEN=nimpat-one-jobs-token:latest,PAYSTACK_SECRET_KEY=nimpat-one-paystack-secret:latest$mail_secret" \
     --startup-probe=httpGet.path=/health/ready,httpGet.port=8080,initialDelaySeconds=5,timeoutSeconds=5,periodSeconds=10,failureThreshold=12 --quiet
 
   echo "== deploying the customer app and dashboard"

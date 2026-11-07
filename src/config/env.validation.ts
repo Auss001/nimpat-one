@@ -2,6 +2,7 @@ import { plainToInstance, Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -9,6 +10,7 @@ import {
   Max,
   Min,
   MinLength,
+  ValidateIf,
   validateSync,
 } from 'class-validator';
 
@@ -106,11 +108,18 @@ export class EnvironmentVariables {
   @IsString() @MinLength(16)
   JOBS_TOKEN!: string;
 
-  @IsString()
+  /** "console" logs emails (development); "resend" sends them through Resend. */
+  @IsIn(['console', 'resend'])
   MAIL_TRANSPORT = 'console';
 
   @IsString()
-  MAIL_FROM = 'Nimpat One <no-reply@nimpatgroup.com>';
+  EMAIL_FROM = 'Nimpat One <no-reply@notify.nimpatgroup.com>';
+
+  /** Secret. Required when MAIL_TRANSPORT is "resend"; never logged. */
+  @ValidateIf((env: EnvironmentVariables) => env.MAIL_TRANSPORT === 'resend')
+  @IsString()
+  @MinLength(10)
+  RESEND_API_KEY?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

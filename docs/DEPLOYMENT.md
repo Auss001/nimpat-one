@@ -115,3 +115,17 @@ Set `ADMIN_PUBLIC_URL` to the dashboard's public address, because staff invitati
 ## Uploaded photos
 
 Set `PHOTO_STORAGE_DIR` to a mounted Cloud Storage bucket. Without it, photos are written to the container's disk and are lost when Cloud Run restarts it. Include this folder in backups, because database backups do not contain the files.
+
+## Email (Resend)
+
+Emails for account verification, password resets and staff invitations go out through Resend from
+`Nimpat One <no-reply@notify.nimpatgroup.com>`. The API key is a secret: it lives only in Google Secret Manager,
+never in the code, in Git or in a `.env` file that is shared.
+
+1. In Google Cloud, open **Security → Secret Manager** for the project and choose **Create secret**.
+2. Name it `nimpat-one-resend-api-key`, paste the Resend key as the secret value, keep the other settings, and create it.
+3. Run `PROJECT=gen-lang-client-0983782546 ./deploy/cloud-run.sh release`. The release sees the secret and switches the
+   API to `MAIL_TRANSPORT=resend`, with `RESEND_API_KEY` read from the secret and `EMAIL_FROM` set as above.
+
+To replace the key later, add a **new version** to the same secret and run the release again. Without the secret, the
+API keeps logging emails instead of sending them. For local testing, a key may go in your own git-ignored `.env`.
