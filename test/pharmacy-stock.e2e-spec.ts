@@ -150,6 +150,8 @@ describe('laboratory and pharmacist bookings', () => {
   it('books a quoted service, and staff price it', async () => {
     const stamp = `${Date.now()}${++n}`;
     const offering = await h.http.post(`${API}/admin/services`).set(admin).send({ division: PHARMACY, code: `LAB-${stamp}`, name: `Lab test ${stamp}`, pricingType: 'QUOTE_REQUIRED' }).expect(201);
+    // Staff-added services show at once; a hidden one cannot be booked.
+    await h.http.post(`${API}/admin/records/verification`).set(admin).send({ type: 'SERVICE_OFFERING', ids: [offering.body.id], verification: 'AWAITING_CONFIRMATION' }).expect(200);
     await h.http.post(`${API}/services/bookings`).set(customer.auth).send({ offeringId: offering.body.id }).expect(404);
     await h.http.post(`${API}/admin/records/verification`).set(admin).send({ type: 'SERVICE_OFFERING', ids: [offering.body.id], verification: 'VERIFIED' }).expect(200);
     const listed = await h.http.get(`${API}/services?division=${PHARMACY}`).expect(200);

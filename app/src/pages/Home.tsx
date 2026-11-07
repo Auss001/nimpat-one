@@ -57,7 +57,12 @@ export function HomePage() {
       if (!categories.has(slug)) categories.set(slug, { slug, name: SHORT_NAME[slug] ?? p.category.name, items: [] });
       categories.get(slug)!.items.push(p);
     }
-    return { topShelf: byPrice.slice(0, 12), categories: [...categories.values()] };
+    // Water and everyday drinks first, then wines and the rest.
+    const order = Object.keys(SHORT_NAME);
+    const rank = (slug: string) => (order.includes(slug) ? order.indexOf(slug) : order.length);
+    const all = [...categories.values()].sort((a, b) => rank(a.slug) - rank(b.slug));
+    const everyday = new Set(['water', 'soft-drinks-juices-energy-drinks']);
+    return { topShelf: byPrice.slice(0, 12), first: all.filter((c) => everyday.has(c.slug)), rest: all.filter((c) => !everyday.has(c.slug)) };
   }, [d]);
 
   return (
@@ -89,15 +94,21 @@ export function HomePage() {
         </Rail>
       )}
 
-      {shelves.topShelf.length > 0 && <Rail title="Top shelf" to="/shop/water-drinks-wines">{shelves.topShelf.map((p: any) => <ProductCard key={p.id} product={p} />)}</Rail>}
-
-      {d && d.stays.length > 0 && <Rail title="Luxury Apartments" to="/apartments">{d.stays.map((s: any) => <StayCard key={s.key} stay={s} wide />)}</Rail>}
-
-      {shelves.categories.map((c) => c.items.length > 1 && (
+      {shelves.first.map((c) => c.items.length > 1 && (
         <Rail key={c.slug} title={c.name} to={`/shop/water-drinks-wines?category=${c.slug}`}>
           {c.items.slice(0, 12).map((p: any) => <ProductCard key={p.id} product={p} />)}
         </Rail>
       ))}
+
+      {d && d.stays.length > 0 && <Rail title="Luxury Apartments" to="/apartments">{d.stays.map((s: any) => <StayCard key={s.key} stay={s} wide />)}</Rail>}
+
+      {shelves.rest.map((c) => c.items.length > 1 && (
+        <Rail key={c.slug} title={c.name} to={`/shop/water-drinks-wines?category=${c.slug}`}>
+          {c.items.slice(0, 12).map((p: any) => <ProductCard key={p.id} product={p} />)}
+        </Rail>
+      ))}
+
+      {shelves.topShelf.length > 0 && <Rail title="Top shelf" to="/shop/water-drinks-wines">{shelves.topShelf.map((p: any) => <ProductCard key={p.id} product={p} />)}</Rail>}
 
       {d && d.supplies.length > 0 && <Rail title="Supplies" to="/shop/retail-general-supplies">{d.supplies.map((p: any) => <ProductCard key={p.id} product={p} />)}</Rail>}
 

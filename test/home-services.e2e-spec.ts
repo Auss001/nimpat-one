@@ -6,7 +6,6 @@ let admin: { auth: object };
 
 const offering = async (body: Record<string, unknown>) => {
   const o = (await h.http.post(`${API}/admin/services`).set(admin.auth).send({ code: `TST-${Date.now().toString(36).toUpperCase()}${Math.floor(Math.random() * 1000)}`, ...body }).expect(201)).body;
-  await h.prisma.serviceOffering.update({ where: { id: o.id }, data: { verification: 'VERIFIED' } });
   return o;
 };
 const slot = (dayOffset: number, hourLagos: number) => {
@@ -24,7 +23,7 @@ afterAll(() => h.stop());
 describe('services by category and at home', () => {
   it('lists a lab test with its category and keeps the admin fields', async () => {
     const o = await offering({ division: 'pharmacy-laboratory', name: 'Test full blood count', pricingType: 'FIXED', basePriceMinor: 800000, category: 'Lab tests', serviceMode: 'EITHER', homeFeeMinor: 200000 });
-    expect(o).toMatchObject({ category: 'Lab tests', serviceMode: 'EITHER', homeFeeMinor: 200000 });
+    expect(o).toMatchObject({ category: 'Lab tests', serviceMode: 'EITHER', homeFeeMinor: 200000, verification: 'VERIFIED' });
     const list = (await h.http.get(`${API}/services`).query({ division: 'pharmacy-laboratory' }).expect(200)).body;
     expect(list.find((s: any) => s.id === o.id)).toMatchObject({ category: 'Lab tests', serviceMode: 'EITHER' });
   });

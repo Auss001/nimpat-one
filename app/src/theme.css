@@ -572,3 +572,12 @@ body { background: var(--bg); }
 .service-tags span { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--mint); color: var(--forest); }
 .action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 @media (min-width: 900px) { .action-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Rows of cards slide without a visible scrollbar. On a computer, small round arrows sit beside "See all". */
+.rail-track { scrollbar-width: none !important; }
+.rail-track::-webkit-scrollbar { display: none !important; }
+.rail-actions { display: flex; align-items: center; gap: 6px; }
+.rail-arrow { display: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--forest); align-items: center; justify-content: center; cursor: pointer; }
+.rail-arrow:hover { border-color: var(--green); color: var(--green); }
+.rail-actions a { margin-right: 4px; }
+@media (hover: hover) and (pointer: fine) { .rail-arrow { display: inline-flex; } }

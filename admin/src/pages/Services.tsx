@@ -69,7 +69,7 @@ export function ServicesPage() {
     <>
       <PageHead
         title="Services & bookings"
-        subtitle="Lab tests, home visits, car hire, hire purchase, logistics, rentals and every other service customers can book. A service shows in the app once it is confirmed."
+        subtitle="Lab tests, home visits, car hire, hire purchase, logistics, rentals and every other service customers can book. A new service shows in the app straight away; Hide takes it out."
         actions={<button className="btn primary" onClick={() => setEditing('new')}>+ Add service</button>}
       />
       <Tabs value={division} onChange={setDivision} options={[{ value: 'all', label: 'All' }, ...DIVISIONS.filter((d) => present.has(d.slug)).map((d) => ({ value: d.slug, label: d.label }))]} />

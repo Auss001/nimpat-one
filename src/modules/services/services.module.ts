@@ -249,7 +249,8 @@ export class ServicesService implements OnModuleInit, PayableHandler {
     user.assertCan(P.listingsManage, d.id);
     const { division, basePriceMinor, depositMinor, homeFeeMinor, ...rest } = dto;
     const created = await this.prisma.serviceOffering.create({
-      data: { ...rest, category: rest.category?.trim() || null, divisionId: d.id, basePriceMinor: big(basePriceMinor), depositMinor: big(depositMinor), homeFeeMinor: big(homeFeeMinor) },
+      // Staff adding a service is the confirmation: it shows in the app at once and can be hidden from the dashboard.
+      data: { ...rest, category: rest.category?.trim() || null, verification: RecordVerification.VERIFIED, verifiedAt: new Date(), verifiedById: user.id, divisionId: d.id, basePriceMinor: big(basePriceMinor), depositMinor: big(depositMinor), homeFeeMinor: big(homeFeeMinor) },
     });
     await this.audit.record({ actorId: user.id, action: 'service_offering.create', entityType: 'service_offering', entityId: created.id, divisionId: d.id });
     return created;

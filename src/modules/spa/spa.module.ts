@@ -256,7 +256,7 @@ export class SpaService implements OnModuleInit, PayableHandler {
     const d = await this.divisions.byCode(DivisionCode.SPA_WELLNESS);
     user.assertCan(P.listingsManage, d.id);
     const { homeFeeMinor, ...rest } = dto;
-    return this.prisma.spaTreatment.create({ data: { ...rest, priceMinor: BigInt(dto.priceMinor), depositMinor: BigInt(dto.depositMinor ?? 0), homeFeeMinor: homeFeeMinor !== undefined ? BigInt(homeFeeMinor) : undefined, divisionId: d.id } });
+    return this.prisma.spaTreatment.create({ data: { ...rest, priceMinor: BigInt(dto.priceMinor), depositMinor: BigInt(dto.depositMinor ?? 0), homeFeeMinor: homeFeeMinor !== undefined ? BigInt(homeFeeMinor) : undefined, verification: RecordVerification.VERIFIED, verifiedAt: new Date(), verifiedById: user.id, divisionId: d.id } });
   }
 
   async updateTreatment(user: AuthUser, id: string, dto: UpdateTreatmentDto) {

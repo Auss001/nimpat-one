@@ -1,7 +1,7 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Phone, X } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Phone, X } from 'lucide-react';
 import { del, get, getSession, PHONE, PHONE_LABEL, post, rows, SHOP_DIVISIONS } from './api';
 
 // ---------------------------------------------------------------- data loading
@@ -356,14 +356,21 @@ export function Status({ value }: { value: string }) {
   return <span className={`status ${tone}`}>{label}</span>;
 }
 
+/** A row of cards that slides sideways: swipe on a phone; on a computer, the arrows beside "See all". No scrollbar. */
 export function Rail({ title, to, children }: { title: string; to: string; children: ReactNode }) {
+  const track = useRef<HTMLDivElement>(null);
+  const slide = (dir: 1 | -1) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.85, behavior: 'smooth' });
   return (
     <section className="rail">
       <div className="rail-head">
         <h2>{title}</h2>
-        <Link to={to}>See all</Link>
+        <div className="rail-actions">
+          <Link to={to}>See all</Link>
+          <button type="button" className="rail-arrow" aria-label={`Back through ${title}`} onClick={() => slide(-1)}><ChevronLeft size={18} aria-hidden="true" /></button>
+          <button type="button" className="rail-arrow" aria-label={`More ${title}`} onClick={() => slide(1)}><ChevronRight size={18} aria-hidden="true" /></button>
+        </div>
       </div>
-      <div className="rail-track">{children}</div>
+      <div className="rail-track" ref={track}>{children}</div>
     </section>
   );
 }
