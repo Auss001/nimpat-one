@@ -1,7 +1,7 @@
 # Builds the Nimpat One phone apps in the cloud (this project has no Mac and no Android tools locally).
 #   Android: a test APK to install on a phone, from every run. With the release key secrets set, also a signed
 #            bundle (.aab) ready for Google Play.
-#   iPhone:  always checks that the app builds. With the App Store Connect secrets set, it also signs the app
+#   iPhone:  always checks that the app builds. With the App Store Connect secrets set (they are, since 8 Nov 2026), it signs the app
 #            and sends it to TestFlight.
 # Run it from GitHub: Actions → "Phone apps" → Run workflow. It also runs when the customer app changes on main.
 name: Phone apps
