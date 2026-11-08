@@ -29,13 +29,13 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: app/package-lock.json
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -51,7 +51,7 @@ jobs:
       - name: Test app (APK)
         working-directory: app/android
         run: ./gradlew --no-daemon assembleDebug
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: nimpat-one-android-test-${{ env.VERSION_NAME }}
           path: app/android/app/build/outputs/apk/debug/*.apk
@@ -70,7 +70,7 @@ jobs:
             -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: ${{ hashFiles('app/android/app/build/outputs/bundle/release/*.aab') != '' }}
         with:
           name: nimpat-one-android-play-${{ env.VERSION_NAME }}
@@ -87,8 +87,8 @@ jobs:
       ASC_KEY: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
       TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
