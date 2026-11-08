@@ -16,3 +16,6 @@ uploads
 .claude
 docs
 clients
+app/android
+app/ios
+app/assets

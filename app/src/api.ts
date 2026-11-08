@@ -2,7 +2,21 @@
  * Client for the Nimpat One API. A 401 triggers one refresh-token rotation
  * before the customer is asked to sign in again.
  */
-const BASE = '/api/v1';
+/** The website reaches the API through its own server; the phone apps call it directly. */
+const ORIGIN = (import.meta.env.VITE_API_ORIGIN as string | undefined) ?? '';
+const BASE = `${ORIGIN}/api/v1`;
+
+/** In the phone apps, photo paths like /media/... must point at the API server. */
+function withMediaOrigin<T>(value: T): T {
+  if (!ORIGIN) return value;
+  const walk = (v: any): any => {
+    if (typeof v === 'string') return v.startsWith('/media/') ? ORIGIN + v : v;
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x)]));
+    return v;
+  };
+  return walk(value);
+}
 const KEY = 'nimpat-one-session';
 
 export interface Session {
@@ -89,7 +103,7 @@ export async function api<T = any>(path: string, opts: { method?: string; body?:
     const msg = Array.isArray(data?.message) ? data.message.join('. ') : data?.message;
     throw new ApiError(res.status, msg ?? 'Something went wrong. Please try again.');
   }
-  return data as T;
+  return withMediaOrigin(data) as T;
 }
 
 export const get = <T = any>(p: string) => api<T>(p);

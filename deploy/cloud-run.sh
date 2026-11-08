@@ -30,7 +30,8 @@ else
   APP_URL="$RUN_APP_URL" ADMIN_URL="$RUN_ADMIN_URL" API_URL="$RUN_API_URL"
 fi
 # Both sets of addresses may call the API, so nothing breaks while people move over.
-CORS_LIST="$APP_URL,$ADMIN_URL"
+# The Android app runs at https://localhost and the iPhone app at capacitor://localhost.
+CORS_LIST="$APP_URL,$ADMIN_URL,https://localhost,capacitor://localhost"
 [ "$APP_URL" != "$RUN_APP_URL" ] && CORS_LIST="$CORS_LIST,$RUN_APP_URL,$RUN_ADMIN_URL"
 gcloud config set project "$PROJECT" >/dev/null 2>&1
 

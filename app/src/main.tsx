@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { CalendarCheck, Crown, Heart, Home, Search, ShoppingBasket, User } from 'lucide-react';
+import { startNativeApp } from './native';
 import { CartProvider, FavoritesProvider, ToastProvider, useCart } from './ui';
 import { HomePage } from './pages/Home';
 import { PrivacyPage, TermsPage } from './pages/Legal';
@@ -28,6 +29,8 @@ function Shell() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [q, setQ] = useState('');
+  // Phone apps only: back button, status bar, splash screen, returning from a payment.
+  useEffect(() => startNativeApp(navigate), []); // eslint-disable-line react-hooks/exhaustive-deps
   // Braces matter: newer browsers return a promise from scrollTo, and React would treat it as a cleanup.
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Banknote, Building, Check, Clock, CreditCard, MapPin, Minus, Pencil, Plus, Store, Trash2, Truck, Upload } from 'lucide-react';
 import { api, del, formatNaira, get, getSession, idempotency, patch, post, rows } from '../api';
+import { openPayment } from '../native';
 import { AddressForm, addressLine, DetailsForm, VerifyEmailNote } from './Account';
 import { CallLink, Empty, Field, Loader, Note, PageTitle, Photo, Sheet, Status, dateTime, useCart, useLoad, useToast } from '../ui';
 
@@ -274,7 +275,7 @@ export function PayPage() {
   };
   const paystack = () => pay(async () => {
     const r = await post('/payments/initialize', { purpose, payableId: id, amountOption: amount }, idempotency());
-    window.location.assign(r.authorizationUrl);
+    await openPayment(r.authorizationUrl, r.reference);
   });
   const bank = () => pay(async () => setTransfer(await post('/payments/bank-transfer', { purpose, payableId: id, amountOption: amount }, idempotency())));
 
