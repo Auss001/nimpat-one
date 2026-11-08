@@ -63,13 +63,41 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        # Each check reports in plain words as a run annotation (visible on the run page); no secret is ever printed.
+        # Stray spaces and line breaks from copy-and-paste are removed first.
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
-          ./gradlew --no-daemon bundleRelease \
-            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.keystore" \
-            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+          set -uo pipefail
+          KS="$RUNNER_TEMP/release.keystore"
+          STORE_PASS="$(printf '%s' "$KEYSTORE_PASSWORD" | tr -d '[:space:]')"
+          KEY_PASS="$(printf '%s' "$KEY_PASSWORD" | tr -d '[:space:]')"
+          ALIAS="$(printf '%s' "$KEY_ALIAS" | tr -d '[:space:]')"
+          echo "::add-mask::$STORE_PASS"
+          echo "::add-mask::$KEY_PASS"
+          if ! printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > "$KS" 2>/dev/null || [ ! -s "$KS" ]; then
+            echo "::error title=Play key::ANDROID_KEYSTORE_BASE64 is not a valid key. Copy the long line under its name in secrets.txt again, all of it."
+            exit 1
+          fi
+          echo "Key file: $(wc -c < "$KS") bytes"
+          if ! keytool -list -keystore "$KS" -storepass "$STORE_PASS" > /dev/null 2>&1; then
+            echo "::error title=Play key::ANDROID_KEYSTORE_PASSWORD does not open the key. Copy the value under its name in secrets.txt again."
+            exit 1
+          fi
+          if ! keytool -list -keystore "$KS" -storepass "$STORE_PASS" -alias "$ALIAS" > /dev/null 2>&1; then
+            echo "::error title=Play key::ANDROID_KEY_ALIAS is not in the key. It should be: nimpat-upload"
+            exit 1
+          fi
+          echo "Key checks passed."
+          if ! ./gradlew --no-daemon bundleRelease \
+            -Pandroid.injected.signing.store.file="$KS" \
+            -Pandroid.injected.signing.store.password="$STORE_PASS" \
+            -Pandroid.injected.signing.key.alias="$ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASS" > "$RUNNER_TEMP/bundle.log" 2>&1; then
+            tail -40 "$RUNNER_TEMP/bundle.log"
+            reason="$(grep -m1 -E 'What went wrong|error:|Execution failed' -A2 "$RUNNER_TEMP/bundle.log" | tr '\n' ' ' | cut -c1-400)"
+            echo "::error title=Play bundle::${reason:-The signed build failed; see the log above.}"
+            exit 1
+          fi
+          tail -5 "$RUNNER_TEMP/bundle.log"
       - uses: actions/upload-artifact@v5
         if: ${{ hashFiles('app/android/app/build/outputs/bundle/release/*.aab') != '' }}
         with:
