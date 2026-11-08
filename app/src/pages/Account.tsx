@@ -11,13 +11,13 @@ export function NeedsSignIn({ title, text, next }: { title: string; text: string
   return (
     <>
       <PageTitle title={title} back={false} />
-      <Empty title="Please sign in" action={<div className="row"><Link className="btn primary" to={`/login?next=${encodeURIComponent(next)}`}>Sign in</Link><Link className="btn ghost" to={`/login?guest=1&next=${encodeURIComponent(next)}`}>Continue as guest</Link><Link className="btn ghost" to={`/register?next=${encodeURIComponent(next)}`}>Create account</Link></div>}>{text}</Empty>
+      <Empty title={text} action={<Link className="btn primary" to="/">Start shopping</Link>}>No account needed to order or book.</Empty>
+      <p className="auth-switch">Have an account? <Link to={`/login?next=${encodeURIComponent(next)}`}>Sign in</Link> · <Link to={`/register?next=${encodeURIComponent(next)}`}>Create one</Link></p>
     </>
   );
 }
 
 export function LoginPage() {
-  const session = useSession();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -48,30 +48,23 @@ export function LoginPage() {
         <Link className="text-link" to="/forgot-password">Forgot your password?</Link>
       </form>
       <p className="auth-switch">New here? <Link to={`/register?next=${encodeURIComponent(safeNext(params.get('next')))}`}>Create an account</Link></p>
-      {!session?.guest && <GuestStart next={safeNext(params.get('next'))} open={params.get('guest') === '1'} />}
     </div>
   );
 }
 
-/** Buy without an account: name, email and phone only. On the basket it is the details step of checkout. */
-export function GuestStart({ next, open, onDone, title = 'Continue as a guest' }: { next?: string; open: boolean; onDone?: () => void; title?: string }) {
-  const navigate = useNavigate();
-  const [show, setShow] = useState(open);
+/** Name, email and phone, asked once when someone first orders or books. No account or password. */
+export function DetailsForm({ onDone, title = 'Your details' }: { onDone: () => void; title?: string }) {
   const [f, setF] = useState({ firstName: '', lastName: '', email: '', phone: '' });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
-  if (!show) {
-    return <button className="btn ghost full" onClick={() => setShow(true)}>Continue as a guest</button>;
-  }
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
       await startGuest({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), phone: nigerianPhone(f.phone) });
-      if (onDone) onDone();
-      else navigate(next ?? '/', { replace: true });
+      onDone();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -81,7 +74,7 @@ export function GuestStart({ next, open, onDone, title = 'Continue as a guest' }
   return (
     <form className="panel" onSubmit={submit}>
       <h2>{title}</h2>
-      <p className="muted-text">No password needed. Guests don't earn Royalty points, but you can create an account later and keep your orders.</p>
+      <p className="muted-text">For your receipt and so we can reach you about your order.</p>
       {error && <Note tone="error">{error}</Note>}
       <div className="date-pair">
         <Field label="First name"><input required autoComplete="given-name" value={f.firstName} onChange={set('firstName')} /></Field>
@@ -94,7 +87,7 @@ export function GuestStart({ next, open, onDone, title = 'Continue as a guest' }
   );
 }
 
-/** A guest sets a password to become a member. Their orders stay, and Royalty points start. */
+/** Someone who ordered with just their details can add a password and keep their orders. */
 function GuestUpgrade({ onDone }: { onDone: () => void }) {
   const toast = useToast();
   const [password, setPassword] = useState('');
@@ -118,8 +111,8 @@ function GuestUpgrade({ onDone }: { onDone: () => void }) {
     <form className="reward guest-card" onSubmit={submit}>
       <Award size={26} aria-hidden="true" />
       <div className="guest-card-body">
-        <b>You're shopping as a guest</b>
-        <small>Set a password to become a Royalty Member. Your orders stay with you, and you start earning points.</small>
+        <b>Save your details</b>
+        <small>Add a password to sign in on any device. Your orders stay with you.</small>
         {error && <Note tone="error">{error}</Note>}
         <input type="password" required minLength={10} autoComplete="new-password" aria-label="Choose a password" placeholder="Choose a password (10+ characters, a letter and a number)" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button className="btn primary" disabled={busy}>{busy ? 'Creating…' : 'Create my account'}</button>
@@ -313,7 +306,7 @@ export function AccountPage() {
   const [form, setForm] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [profile, setProfile] = useState<{ firstName: string; lastName: string } | null>(null);
-  if (!session) return <NeedsSignIn title="Account" text="Your orders, bookings and rewards, all in one place." next="/account" />;
+  if (!session) return <NeedsSignIn title="Account" text="Your orders and bookings will show here" next="/account" />;
   const m = me.data;
   const removeAddress = async (a: any) => {
     if (!window.confirm(`Remove ${a.label ?? a.line1}?`)) return;
@@ -339,7 +332,7 @@ export function AccountPage() {
       <PageTitle title={m?.customerProfile?.firstName ? `Hello, ${m.customerProfile.firstName}` : 'Account'} sub={session.email} back={false} />
       {m && !m.emailVerified && !m.isGuest && <VerifyEmailNote />}
       {m?.isGuest && <GuestUpgrade onDone={() => void me.reload()} />}
-      {m?.loyalty && (
+      {m?.loyalty && !m.isGuest && (
         <section className="reward">
           <Award size={26} aria-hidden="true" />
           <div><b>Royalty Member</b><small>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')} points</small></div>
@@ -382,7 +375,7 @@ export function AccountPage() {
         <h2>Help</h2>
         <CallLink />
       </section>
-      {m?.isGuest && <p className="muted-text">If you sign out as a guest, you can't come back to these orders on this device. Create an account above to keep them.</p>}
+      {m?.isGuest && <p className="muted-text">Add a password above before signing out, so you can come back to these orders.</p>}
       <button className="btn ghost full" onClick={async () => { await logout(); await refresh(); navigate('/'); }}><LogOut size={16} aria-hidden="true" /> Sign out</button>
       <button className="text-link danger" onClick={() => setDeleting(true)}>Delete my account</button>
       {deleting && <DeleteAccount guest={!!m?.isGuest} onClose={() => setDeleting(false)} />}
@@ -436,7 +429,7 @@ export function BookingsPage() {
   const session = useSession();
   const [params, setParams] = useSearchParams();
   const tab = (params.get('tab') ?? 'orders') as (typeof TABS)[number]['key'];
-  if (!session) return <NeedsSignIn title="Orders & bookings" text="Everything you have ordered or booked shows up here." next="/bookings" />;
+  if (!session) return <NeedsSignIn title="Orders & bookings" text="Nothing ordered yet" next="/bookings" />;
   return (
     <>
       <PageTitle title="Orders & bookings" back={false} />
@@ -577,8 +570,8 @@ export function useDetailsFirst() {
   };
   const sheet = waiting ? (
     <Sheet title="Your details" onClose={() => setWaiting(null)}>
-      <GuestStart open title="Before we book" onDone={() => { const run = waiting; setWaiting(null); run(); }} />
-      <p className="auth-switch">Have an account? <Link to={`/login?next=${encodeURIComponent(pathname + search)}`}>Sign in</Link> and earn Royalty points.</p>
+      <DetailsForm title="Who is this for?" onDone={() => { const run = waiting; setWaiting(null); run(); }} />
+      <p className="auth-switch">Have an account? <Link to={`/login?next=${encodeURIComponent(pathname + search)}`}>Sign in</Link></p>
     </Sheet>
   ) : null;
   return { ask, sheet };

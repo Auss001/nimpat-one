@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Banknote, Building, Check, Clock, CreditCard, MapPin, Minus, Pencil, Plus, Store, Trash2, Truck, Upload } from 'lucide-react';
 import { api, del, formatNaira, get, getSession, idempotency, patch, post, rows } from '../api';
-import { AddressForm, addressLine, GuestStart, VerifyEmailNote } from './Account';
+import { AddressForm, addressLine, DetailsForm, VerifyEmailNote } from './Account';
 import { CallLink, Empty, Field, Loader, Note, PageTitle, Photo, Sheet, Status, dateTime, useCart, useLoad, useToast } from '../ui';
 
 const DIVISION_NAME: Record<string, string> = {
@@ -36,7 +36,6 @@ export function CartPage() {
   return (
     <>
       <PageTitle title="Basket" back={false} sub={carts.length > 1 ? 'Each Nimpat store checks out separately.' : undefined} />
-      {session?.guest && carts.length > 0 && <Note><Link to="/account">Create an account</Link> to earn Royalty points on this order.</Note>}
       {!ready && carts.length === 0 && <Loader />}
       {ready && carts.length === 0 && <Empty title="Your basket is empty" action={<Link className="btn primary" to="/">Start shopping</Link>} />}
       {carts.map((cart) => {
@@ -75,12 +74,12 @@ export function CartPage() {
   );
 }
 
-/** A visitor gives their name, email and phone once, then checks out. No account or password needed. */
+/** Someone new gives their name, email and phone once, then checks out. No account or password needed. */
 function YourDetails({ onDone }: { onDone: () => void }) {
   return (
     <>
-      <GuestStart open title="Your details" onDone={onDone} />
-      <p className="auth-switch">Have an account? <Link to="/login?next=/cart">Sign in</Link> and earn Royalty points on this order.</p>
+      <DetailsForm onDone={onDone} />
+      <p className="auth-switch">Have an account? <Link to="/login?next=/cart">Sign in</Link></p>
     </>
   );
 }

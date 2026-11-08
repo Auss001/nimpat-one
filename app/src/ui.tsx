@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Phone, X } from 'lucide-react';
 import { del, get, getSession, PHONE, PHONE_LABEL, post, rows, SHOP_DIVISIONS } from './api';
 
@@ -163,16 +163,42 @@ interface FavState {
 }
 const FavCtx = createContext<FavState>({ has: () => false, toggle: async () => undefined });
 
+const LOCAL_FAVOURITES = 'nimpat-one-favourites';
+/** Favourites kept on this device, as "KIND:slug". */
+export function localFavourites(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_FAVOURITES) ?? '[]');
+  } catch {
+    return [];
+  }
+}
+function writeLocalFavourites(keys: string[]) {
+  try {
+    if (keys.length) localStorage.setItem(LOCAL_FAVOURITES, JSON.stringify(keys));
+    else localStorage.removeItem(LOCAL_FAVOURITES);
+  } catch {
+    /* Storage unavailable: favourites last until the page closes. */
+  }
+}
+
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const session = useSession();
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const toast = useToast();
   useEffect(() => {
     if (!session) {
-      setSaved(new Set());
+      setSaved(new Set(localFavourites()));
       return;
     }
-    get('/me/favorites').then((r) => setSaved(new Set(rows(r).map((f: any) => `${f.kind}:${f.itemSlug}`)))).catch(() => undefined);
+    void (async () => {
+      const local = localFavourites();
+      if (local.length) {
+        writeLocalFavourites([]);
+        await Promise.allSettled(local.map((k) => post('/me/favorites', { kind: k.split(':')[0], slug: k.slice(k.indexOf(':') + 1) })));
+      }
+      const r = await get('/me/favorites').catch(() => null);
+      if (r) setSaved(new Set(rows(r).map((f: any) => `${f.kind}:${f.itemSlug}`)));
+    })();
   }, [session?.email]);
   const value = useMemo<FavState>(() => ({
     has: (kind, slug) => saved.has(`${kind}:${slug}`),
@@ -186,6 +212,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         return next;
       });
       flip(!on); // Answer at once; put it back if the server says no.
+      if (!getSession()) {
+        const keys = localFavourites().filter((k) => k !== key);
+        writeLocalFavourites(on ? keys : [key, ...keys]);
+        return;
+      }
       try {
         if (on) await del(`/me/favorites/${kind}/${slug}`);
         else await post('/me/favorites', { kind, slug });
@@ -200,8 +231,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
 export function FavButton({ kind, slug, inline }: { kind: string; slug: string; inline?: boolean }) {
   const { has, toggle } = useContext(FavCtx);
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
   const on = has(kind, slug);
   return (
     <button
@@ -212,8 +241,7 @@ export function FavButton({ kind, slug, inline }: { kind: string; slug: string; 
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!getSession()) navigate(`/login?next=${encodeURIComponent(pathname)}`);
-        else void toggle(kind, slug);
+        void toggle(kind, slug);
       }}
     >
       <Heart size={18} fill={on ? 'currentColor' : 'none'} aria-hidden="true" />

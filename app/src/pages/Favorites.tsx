@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
 import { formatNaira, get, rows } from '../api';
-import { NeedsSignIn } from './Account';
 import { ProductCard } from './Shop';
-import { Empty, FavButton, Loader, Note, PageTitle, Photo, useLoad, useSession } from '../ui';
+import { Empty, FavButton, localFavourites, Loader, Note, PageTitle, Photo, useLoad, useSession } from '../ui';
 
 const PATH: Record<string, (slug: string) => string> = {
   PRODUCT: (s) => `/catalog/products/${s}`,
@@ -14,13 +13,14 @@ const PATH: Record<string, (slug: string) => string> = {
 export function FavoritesPage() {
   const session = useSession();
   const list = useLoad(async () => {
-    if (!session) return [];
-    const favourites = rows(await get('/me/favorites'));
+    // Without an account, favourites are kept on this device.
+    const favourites = session
+      ? rows(await get('/me/favorites'))
+      : localFavourites().map((k) => ({ kind: k.split(':')[0], itemSlug: k.slice(k.indexOf(':') + 1) }));
     // Something no longer on sale simply drops off the list.
     const found = await Promise.all(favourites.map((f: any) => get(PATH[f.kind](f.itemSlug)).then((item) => ({ kind: f.kind, slug: f.itemSlug, item })).catch(() => null)));
     return found.filter(Boolean) as { kind: string; slug: string; item: any }[];
   }, [session?.email]);
-  if (!session) return <NeedsSignIn title="Favourites" text="Save the things you love and find them here." next="/favorites" />;
   const data = list.data ?? [];
   const products = data.filter((f) => f.kind === 'PRODUCT');
   const others = data.filter((f) => f.kind !== 'PRODUCT');
