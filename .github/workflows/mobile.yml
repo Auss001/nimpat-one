@@ -3,7 +3,7 @@
 #            bundle (.aab) ready for Google Play.
 #   iPhone:  always checks that the app builds. With the App Store Connect secrets set (they are, since 8 Nov 2026), it signs the app
 #            and sends it to TestFlight.
-# Run it from GitHub: Actions → "Phone apps" → Run workflow. It also runs when the customer app changes on main.
+# Run it from GitHub: Actions → "Phone apps" → Run workflow (or "Re-run all jobs" on a run). It also runs when the customer app changes on main.
 name: Phone apps
 
 on:
