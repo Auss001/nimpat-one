@@ -1,0 +1,55 @@
+# One-time: creates the Google Play upload key for Nimpat One.
+# Run it from GitHub: Actions → "Make Play upload key" → Run workflow. Then:
+#   1. Download the "play-upload-key" artifact (kept for 1 day), unzip it, and store both files somewhere safe
+#      (a password manager or an encrypted drive). Losing them means asking Google to reset the upload key.
+#   2. Add the four values from secrets.txt as repository secrets (Settings → Secrets and variables → Actions).
+#   3. Delete the artifact from the run page.
+# Nothing secret is printed in the log. Run it again only if you want a new key (the old one would stop working).
+name: Make Play upload key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  key:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Create the key
+        run: |
+          set -euo pipefail
+          umask 077
+          OUT="$RUNNER_TEMP/play-upload-key"
+          mkdir -p "$OUT"
+          PASS="$(openssl rand -base64 30 | tr -d '/+=' | cut -c1-32)"
+          echo "::add-mask::$PASS"
+          ALIAS=nimpat-upload
+          keytool -genkeypair -v -keystore "$OUT/nimpat-one-upload.keystore" -alias "$ALIAS" \
+            -keyalg RSA -keysize 4096 -validity 10000 \
+            -storepass "$PASS" -keypass "$PASS" \
+            -dname "CN=Nimpat One, O=Inertia Interactive, C=NG" > /dev/null 2>&1
+          {
+            echo "Add these four as GitHub repository secrets (Settings > Secrets and variables > Actions)."
+            echo
+            echo "ANDROID_KEYSTORE_BASE64"
+            base64 -w0 "$OUT/nimpat-one-upload.keystore"
+            echo
+            echo
+            echo "ANDROID_KEYSTORE_PASSWORD"
+            echo "$PASS"
+            echo
+            echo "ANDROID_KEY_ALIAS"
+            echo "$ALIAS"
+            echo
+            echo "ANDROID_KEY_PASSWORD"
+            echo "$PASS"
+          } > "$OUT/secrets.txt"
+          echo "Key created."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: play-upload-key
+          path: ${{ runner.temp }}/play-upload-key
+          retention-days: 1
