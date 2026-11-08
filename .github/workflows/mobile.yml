@@ -106,7 +106,8 @@ jobs:
           path: app/android/app/build/outputs/bundle/release/*.aab
 
   ios:
-    runs-on: macos-15
+    # Apple only accepts apps built with Xcode 26 (iOS 26 SDK) or later.
+    runs-on: macos-26
     defaults:
       run:
         working-directory: app
@@ -131,6 +132,11 @@ jobs:
             exit 1
           fi
       - run: npx cap sync ios
+      - name: Use the newest Xcode 26
+        run: |
+          XC=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XC" ]; then sudo xcode-select -s "$XC"; fi
+          xcodebuild -version
       - name: Add the Firebase file to the iPhone project (notifications)
         run: |
           gem list -i xcodeproj >/dev/null || sudo gem install xcodeproj --no-document
