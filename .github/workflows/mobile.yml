@@ -158,11 +158,13 @@ jobs:
           ISSUER="$(printf '%s' "$ASC_ISSUER_ID" | tr -d '[:space:]')"
           TEAM="$(printf '%s' "$TEAM_ID" | tr -d '[:space:]')"
           KEY_PATH="$RUNNER_TEMP/AuthKey_$KEY_ID.p8"
-          printf '%s\n' "$ASC_KEY" | tr -d '\r' > "$KEY_PATH"
-          if ! grep -q "BEGIN PRIVATE KEY" "$KEY_PATH"; then
-            echo "::error title=TestFlight::APP_STORE_CONNECT_KEY_P8 does not look like the .p8 key. Paste the whole file, including the BEGIN and END lines."
+          # Accept the key with or without its BEGIN/END lines and with any line breaks; rebuild the standard .p8 layout.
+          BODY="$(printf '%s' "$ASC_KEY" | sed -e 's/-----[A-Z ]*-----//g' | tr -d '[:space:]')"
+          if [ "${#BODY}" -lt 150 ] || ! printf '%s' "$BODY" | base64 -d > /dev/null 2>&1; then
+            echo "::error title=TestFlight::APP_STORE_CONNECT_KEY_P8 is not the .p8 key: it holds ${#BODY} usable characters, and the key has about 200. Open the AuthKey_….p8 file in Notepad, copy all of it, and update the secret."
             exit 1
           fi
+          { echo '-----BEGIN PRIVATE KEY-----'; printf '%s' "$BODY" | fold -w 64; echo; echo '-----END PRIVATE KEY-----'; } > "$KEY_PATH"
           AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER")
           fail() {
             grep -E "error:|\*\* (ARCHIVE|EXPORT) FAILED|No profiles|No Accounts|not (be )?found|Authentication" "$1" | head -20
