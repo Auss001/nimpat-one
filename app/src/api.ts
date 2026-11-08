@@ -133,14 +133,6 @@ export async function register(body: { email: string; password: string; firstNam
   startSession(await api<any>('/auth/register', { method: 'POST', body }, false), body.firstName);
 }
 
-/** Accepts 0803..., 803... or +234803... and returns +234803... */
-export function nigerianPhone(raw: string): string {
-  const digits = raw.replace(/[^\d+]/g, '');
-  if (digits.startsWith('+234')) return digits;
-  if (digits.startsWith('234')) return `+${digits}`;
-  if (digits.startsWith('0')) return `+234${digits.slice(1)}`;
-  return `+234${digits}`;
-}
 
 /** Buy without an account. Guests do not earn Royalty points. */
 export async function startGuest(body: { email: string; firstName: string; lastName: string; phone: string }) {

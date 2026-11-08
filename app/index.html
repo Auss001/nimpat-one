@@ -9,12 +9,74 @@
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preload" href="/nimpat-one-logo-hd.webp" as="image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      /* The opening screen: shown before the app's code loads, then faded out by src/splash.ts. */
+      #splash { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; overflow: hidden;
+        background: radial-gradient(120% 80% at 50% 0%, #ffffff 0%, #eef3ee 55%, #e1efe6 100%);
+        font-family: Manrope, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #10291e; transition: opacity .35s ease, visibility .35s; }
+      #splash.leaving { opacity: 0; visibility: hidden; }
+      #splash .glow { position: absolute; width: 70vmax; aspect-ratio: 1; border-radius: 50%; filter: blur(70px); opacity: .22; pointer-events: none; }
+      #splash .glow.one { top: -35vmax; left: -25vmax; background: #f5b326; animation: sp-drift 6s ease-in-out infinite alternate; }
+      #splash .glow.two { bottom: -40vmax; right: -25vmax; background: #2bb8c9; animation: sp-drift 7s ease-in-out infinite alternate-reverse; }
+      #splash .stage { position: relative; display: grid; justify-items: center; gap: 18px; padding: 24px; }
+      #splash .logo { width: min(46vw, 190px); height: auto; animation: sp-pop .7s cubic-bezier(.2, 1.4, .4, 1) both, sp-float 2.6s ease-in-out .7s infinite; }
+      #splash .basket { width: 64px; height: 56px; margin-top: 4px; }
+      #splash .basket .item { transform-box: fill-box; transform-origin: center; opacity: 0; animation: sp-drop 1.6s cubic-bezier(.3, 1.2, .5, 1) infinite; }
+      #splash .basket .item.b { animation-delay: .25s; }
+      #splash .basket .item.c { animation-delay: .5s; }
+      #splash .line { height: 22px; font-size: 15px; font-weight: 600; letter-spacing: -.01em; color: #3e5a4c; }
+      #splash .line span { display: inline-block; animation: sp-line .5s ease both; }
+      #splash .bar { width: min(40vw, 150px); height: 3px; border-radius: 3px; background: rgb(10 122 62 / 14%); overflow: hidden; }
+      #splash .bar i { display: block; width: 38%; height: 100%; border-radius: 3px; background: #0a7a3e; animation: sp-bar 1.3s cubic-bezier(.45, 0, .25, 1) infinite; }
+      @keyframes sp-pop { from { opacity: 0; transform: scale(.7) translateY(10px); } to { opacity: 1; transform: none; } }
+      @keyframes sp-float { 50% { transform: translateY(-6px); } }
+      @keyframes sp-drop { 0% { opacity: 0; transform: translateY(-26px) scale(.6); } 30% { opacity: 1; transform: translateY(0) scale(1); } 80% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(0) scale(1); } }
+      @keyframes sp-line { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+      @keyframes sp-bar { 0% { transform: translateX(-110%); } 100% { transform: translateX(240%); } }
+      @keyframes sp-drift { to { transform: translate(6vmax, 4vmax); } }
+      @media (prefers-reduced-motion: reduce) { #splash *, #splash *::before { animation: none !important; } #splash .basket .item { opacity: 1; } }
+    </style>
   </head>
   <body>
+    <div id="splash" role="status" aria-label="Nimpat One is loading">
+      <div class="glow one"></div>
+      <div class="glow two"></div>
+      <div class="stage">
+        <img class="logo" src="/nimpat-one-logo-hd.webp" alt="Nimpat One" width="640" height="302" />
+        <svg class="basket" viewBox="0 0 64 56" aria-hidden="true">
+          <circle class="item a" cx="22" cy="24" r="7" fill="#12a150" />
+          <rect class="item b" x="28" y="15" width="11" height="16" rx="3" fill="#f97316" />
+          <circle class="item c" cx="45" cy="24" r="7" fill="#2563eb" />
+          <path d="M8 26h48l-5 22a5 5 0 0 1-4.9 4H17.9A5 5 0 0 1 13 48L8 26Z" fill="#0c3b28" />
+          <path d="M20 26 28 12M44 26 36 12" stroke="#0c3b28" stroke-width="3.5" stroke-linecap="round" fill="none" />
+          <path d="M22 33v11M32 33v11M42 33v11" stroke="#eef3ee" stroke-width="2.5" stroke-linecap="round" opacity=".55" />
+        </svg>
+        <div class="line"><span id="splash-line">Filling your basket…</span></div>
+        <div class="bar"><i></i></div>
+      </div>
+    </div>
     <div id="root"></div>
+    <script>
+      // Changes the line under the basket while the app loads.
+      (function () {
+        var lines = ['Filling your basket…', 'Something for every need…', 'Chilling the drinks…', 'Fluffing the pillows…', 'Warming up the spa…', 'Almost there…'];
+        var i = 0;
+        window.__splashStarted = Date.now();
+        window.__splashTimer = setInterval(function () {
+          var el = document.getElementById('splash-line');
+          if (!el) return;
+          i = (i + 1) % lines.length;
+          var next = document.createElement('span');
+          next.id = 'splash-line';
+          next.textContent = lines[i];
+          el.replaceWith(next);
+        }, 650);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

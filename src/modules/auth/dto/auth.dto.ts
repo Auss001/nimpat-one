@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsPhone } from '../../../common/utils/phone';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsEmail, IsOptional, IsString, Length, Matches, MaxLength, MinLength } from 'class-validator';
 
@@ -9,8 +10,6 @@ const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? val
 export const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{10,128}$/;
 export const PASSWORD_MESSAGE = 'Password must be 10–128 characters and include at least one letter and one number';
 
-/** Nigerian numbers in E.164 (+234...) */
-export const NG_PHONE = /^\+234[789][01]\d{8}$/;
 
 export class RegisterDto {
   @ApiProperty({ example: 'ada@example.com' })
@@ -29,8 +28,8 @@ export class RegisterDto {
   @Transform(trim) @IsString() @Length(1, 80)
   lastName: string;
 
-  @ApiPropertyOptional({ example: '+2348031234567', description: 'Nigerian mobile number in E.164 format' })
-  @IsOptional() @Matches(NG_PHONE, { message: 'phone must be a Nigerian mobile number in +234 format' })
+  @ApiPropertyOptional({ example: '+2348031234567', description: 'Phone number: local Nigerian (0803…) or international (+44…)' })
+  @IsOptional() @IsPhone()
   phone?: string;
 
   @ApiPropertyOptional({ default: false })
@@ -51,8 +50,8 @@ export class GuestDto {
   @Transform(trim) @IsString() @Length(1, 80)
   lastName: string;
 
-  @ApiProperty({ example: '+2348031234567', description: 'Nigerian mobile number in E.164 format, for delivery' })
-  @Matches(NG_PHONE, { message: 'phone must be a Nigerian mobile number in +234 format' })
+  @ApiProperty({ example: '+2348031234567', description: 'Phone number: local Nigerian (0803…) or international (+44…), for delivery' })
+  @IsPhone()
   phone: string;
 }
 

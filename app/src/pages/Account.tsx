@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Award, CalendarCheck, Check, ChevronRight, Crown, FileText, Gift, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, ShieldCheck, Smartphone, Trash2 } from 'lucide-react';
-import { del, endSession, formatNaira, get, getSession, login, logout, nigerianPhone, patch, post, register, rows, startGuest, upgradeGuest } from '../api';
+import { del, endSession, formatNaira, get, getSession, login, logout, patch, post, register, rows, startGuest, upgradeGuest } from '../api';
 import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
 
 /** Only a path inside the app may be a return address after sign-in. */
@@ -63,7 +63,7 @@ export function DetailsForm({ onDone, title = 'Your details' }: { onDone: () => 
     setBusy(true);
     setError(null);
     try {
-      await startGuest({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), phone: nigerianPhone(f.phone) });
+      await startGuest({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), phone: f.phone.trim() });
       onDone();
     } catch (err) {
       setError((err as Error).message);
@@ -81,7 +81,7 @@ export function DetailsForm({ onDone, title = 'Your details' }: { onDone: () => 
         <Field label="Last name"><input required autoComplete="family-name" value={f.lastName} onChange={set('lastName')} /></Field>
       </div>
       <Field label="Email" hint="For your receipt and order updates."><input type="email" required autoComplete="email" value={f.email} onChange={set('email')} /></Field>
-      <Field label="Phone" hint="For delivery, for example 0803 123 4567"><input type="tel" required autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
+      <Field label="Phone" hint="For delivery. e.g. 0803 123 4567, or +44… if abroad"><input type="tel" required autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
       <button className="btn primary full" disabled={busy}>{busy ? 'Starting…' : 'Continue'}</button>
     </form>
   );
@@ -171,7 +171,7 @@ export function RegisterPage() {
           <Field label="Last name"><input required autoComplete="family-name" value={f.lastName} onChange={set('lastName')} /></Field>
         </div>
         <Field label="Email" hint="We will send you a link to confirm it."><input type="email" required autoComplete="email" value={f.email} onChange={set('email')} /></Field>
-        <Field label="Phone (optional)" hint="For example +2348012345678"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
+        <Field label="Phone (optional)" hint="E.g. 0803 123 4567, or +44… if abroad"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
         <Field label="Password" hint="At least 10 characters, with a letter and a number."><input type="password" required minLength={10} autoComplete="new-password" value={f.password} onChange={set('password')} /></Field>
         <p className="legal-note">By creating an account, you agree to our <a href="/terms" target="_blank" rel="noreferrer">Terms of Use</a> and confirm you have read our <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.</p>
         <button className="btn primary full" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
@@ -300,7 +300,7 @@ export function AddressForm({ address, onSaved, onCancel }: { address?: any; onS
   return (
     <div className="address-form">
       <Field label="Who receives it?"><input autoComplete="name" value={f.recipientName} onChange={set('recipientName')} /></Field>
-      <Field label="Their phone" hint="For example +2348012345678"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
+      <Field label="Their phone" hint="E.g. 0803 123 4567, or +44… if abroad"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
       <Field label="Address"><input autoComplete="street-address" value={f.line1} onChange={set('line1')} /></Field>
       <Field label="Landmark (optional)"><input value={f.landmark} onChange={set('landmark')} /></Field>
       <div className="date-pair">

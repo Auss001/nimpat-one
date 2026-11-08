@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
   android: { allowMixedContent: false },
   server: { androidScheme: 'https' },
   plugins: {
-    SplashScreen: { launchShowDuration: 900, backgroundColor: '#eef3ee', showSpinner: false },
+    SplashScreen: { launchShowDuration: 300, backgroundColor: '#eef3ee', showSpinner: false },
   },
 };
 

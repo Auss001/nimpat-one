@@ -96,3 +96,13 @@ describe('guest checkout', () => {
     await h.http.delete(`${API}/me`).set(c.auth).send({}).expect(400);
   });
 });
+
+describe('phone numbers at checkout', () => {
+  it('accepts a local Nigerian number and an international one', async () => {
+    const local = await h.http.post(`${API}/auth/guest`).send({ firstName: 'Local', lastName: 'Phone', email: `local.${Date.now()}@example.test`, phone: '0803 123 4567' }).expect(201);
+    expect((await h.prisma.user.findUniqueOrThrow({ where: { id: local.body.user.id } })).contactPhone).toBe('+2348031234567');
+    const abroad = await h.http.post(`${API}/auth/guest`).send({ firstName: 'Abroad', lastName: 'Phone', email: `abroad.${Date.now()}@example.test`, phone: '+44 7700 900123' }).expect(201);
+    expect((await h.prisma.user.findUniqueOrThrow({ where: { id: abroad.body.user.id } })).contactPhone).toBe('+447700900123');
+    await h.http.post(`${API}/auth/guest`).send({ firstName: 'Bad', lastName: 'Phone', email: `bad.${Date.now()}@example.test`, phone: 'call me' }).expect(400);
+  });
+});

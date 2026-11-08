@@ -25,7 +25,7 @@ import { PrismaService, Tx } from '../../prisma/prisma.service';
 import { AuthUser } from '../access/auth-user';
 import { P } from '../access/permissions';
 import { AuditService } from '../audit/audit.service';
-import { NG_PHONE } from '../auth/dto/auth.dto';
+import { IsPhone } from '../../common/utils/phone';
 import { MinorAmount } from '../catalog/catalog.dto';
 import { DivisionsService } from '../divisions/divisions.service';
 import { NotificationsService, NotifyInput } from '../notifications/notifications.service';
@@ -34,7 +34,7 @@ import { PaymentSummary } from '../payments/payment-ledger.service';
 
 class LogisticsAddressDto {
   @ApiProperty() @IsString() @Length(2, 120) contactName: string;
-  @ApiProperty() @Matches(NG_PHONE) phone: string;
+  @ApiProperty() @IsPhone() phone: string;
   @ApiProperty() @IsString() @Length(3, 200) line1: string;
   @ApiProperty() @IsString() @Length(2, 80) city: string;
   @ApiProperty() @IsString() @Length(2, 40) state: string;

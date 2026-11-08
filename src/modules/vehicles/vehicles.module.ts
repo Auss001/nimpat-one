@@ -25,7 +25,7 @@ import { PrismaService, Tx } from '../../prisma/prisma.service';
 import { AuthUser } from '../access/auth-user';
 import { P } from '../access/permissions';
 import { AuditService } from '../audit/audit.service';
-import { NG_PHONE } from '../auth/dto/auth.dto';
+import { IsPhone } from '../../common/utils/phone';
 import { MinorAmount } from '../catalog/catalog.dto';
 import { DivisionsService } from '../divisions/divisions.service';
 import { NotifyInput } from '../notifications/notifications.service';
@@ -73,7 +73,7 @@ class CreateInquiryDto {
   @ApiProperty({ enum: InquiryType }) @IsEnum(InquiryType) type: InquiryType;
   @ApiProperty() @IsString() @Length(2, 120) contactName: string;
   @ApiProperty() @IsEmail() contactEmail: string;
-  @ApiProperty({ example: '+2348031234567' }) @Matches(NG_PHONE) contactPhone: string;
+  @ApiProperty({ example: '+2348031234567' }) @IsPhone() contactPhone: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(1, 2000) message?: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() preferredDate?: string;
 }

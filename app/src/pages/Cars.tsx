@@ -149,7 +149,7 @@ function Inquiry({ vehicle }: { vehicle: any }) {
           <Field label="What would you like?"><select value={type} onChange={(e) => setType(e.target.value)}>{INQUIRY.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></Field>
           {type === 'DEPOSIT_HOLD' && <Note>Our team will confirm the deposit with you before you pay anything.</Note>}
           <Field label="Your name"><input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></Field>
-          <Field label="Phone number" hint="For example +2348012345678"><input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" /></Field>
+          <Field label="Phone number" hint="E.g. 0803 123 4567, or +44… if abroad"><input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" /></Field>
           {wantsDate && <Field label="Preferred date and time"><input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} /></Field>}
           <Field label="Message (optional)"><textarea rows={3} maxLength={1000} value={message} onChange={(e) => setMessage(e.target.value)} /></Field>
           <button className="btn primary full" disabled={busy || name.trim().length < 2 || phone.trim().length < 7} onClick={send}>{busy ? 'Sending…' : 'Send'}</button>

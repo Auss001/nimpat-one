@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { CalendarCheck, Crown, Heart, Home, Search, ShoppingBasket, User } from 'lucide-react';
 import { startNativeApp, startPush } from './native';
+import { hideSplash } from './splash';
 import { CartProvider, FavoritesProvider, ToastProvider, useCart, useSession } from './ui';
 import { HomePage } from './pages/Home';
 import { PrivacyPage, TermsPage } from './pages/Legal';
@@ -31,6 +32,8 @@ function Shell() {
   const [q, setQ] = useState('');
   // Phone apps only: back button, status bar, splash screen, returning from a payment.
   useEffect(() => startNativeApp(navigate), []); // eslint-disable-line react-hooks/exhaustive-deps
+  // The opening screen in index.html fades once the app has drawn.
+  useEffect(() => hideSplash(), []);
   const session = useSession();
   // Phone apps: notifications once someone has given their details or signed in.
   useEffect(() => {
