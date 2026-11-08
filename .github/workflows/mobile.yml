@@ -42,7 +42,11 @@ jobs:
       - run: npm ci
       - run: npm run build:native
       - name: Check the app knows where the API is
-        run: grep -qE "run[.]app|api[.]nimpatgroup[.]com" dist/assets/*.js || { echo "No API address in the build: is app/.env.native committed?"; exit 1; }
+        run: |
+          if ! grep -qE "run[.]app|api[.]nimpatgroup[.]com" dist/assets/*.js; then
+            echo "No API address in the build. Is app/.env.native committed?"
+            exit 1
+          fi
       - run: npx cap sync android
       - name: Test app (APK)
         working-directory: app/android
@@ -92,7 +96,11 @@ jobs:
       - run: npm ci
       - run: npm run build:native
       - name: Check the app knows where the API is
-        run: grep -qE "run[.]app|api[.]nimpatgroup[.]com" dist/assets/*.js || { echo "No API address in the build: is app/.env.native committed?"; exit 1; }
+        run: |
+          if ! grep -qE "run[.]app|api[.]nimpatgroup[.]com" dist/assets/*.js; then
+            echo "No API address in the build. Is app/.env.native committed?"
+            exit 1
+          fi
       - run: npx cap sync ios
       - name: Check that the iPhone app builds
         if: ${{ env.ASC_KEY_ID == '' }}
