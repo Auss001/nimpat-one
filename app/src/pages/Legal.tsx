@@ -50,7 +50,7 @@ const PRIVACY: Section[] = [
   ],
   [
     'Deleting your account',
-    'You can delete your account in the app under Account, once any open orders or bookings are finished or cancelled. This signs you out and removes your name, email, phone number, addresses, favourites and basket. Past order and payment records stay, without those details, because we need them for our accounts and legal duties.',
+    'You can delete your account in the app under Account, once any open orders or bookings are finished or cancelled. This signs you out and removes your name, email, phone number, addresses, favourites and basket. Past order and payment records stay, without those details, because we need them for our accounts and legal duties. Step-by-step help, including how to ask us to delete it, is at app.nimpatgroup.com/delete-account.',
   ],
   [
     'Your rights',
@@ -129,6 +129,34 @@ export function PrivacyPage() {
 
 export function TermsPage() {
   return <LegalPage title="Terms of Use" sections={TERMS} other={{ to: '/privacy', label: 'Read the Privacy Policy' }} />;
+}
+
+const DELETE_ACCOUNT: Section[] = [
+  ['Nimpat One', 'This page explains how to delete your Nimpat One account. Nimpat One is run by NIMPAT Group of Companies, shown as Nimpat Group on Google Play and the App Store.'],
+  [
+    'Delete it in the app',
+    '1. Open Nimpat One and sign in.',
+    '2. Tap Account at the bottom of the screen.',
+    '3. Scroll down and tap Delete my account.',
+    '4. Confirm. If you set a password, enter it to confirm it is you.',
+    'Any open order or booking must be finished or cancelled first. Deletion happens straight away.',
+  ],
+  [
+    'Or ask us',
+    `If you cannot open the app, email ${EMAIL} from the email address on your account, or call ${PHONE_TEXT}, and ask us to delete your Nimpat One account. We confirm it is you, then delete it within 7 days and tell you when it is done.`,
+  ],
+  [
+    'What is deleted',
+    'Your name, email address, phone number, saved addresses, favourites, basket, Royalty points, notifications on your phones, and every signed-in session. You are signed out everywhere and the account cannot be used again.',
+  ],
+  [
+    'What is kept, and for how long',
+    'Past orders, bookings and payment records stay, without your name or contact details, because the law requires businesses to keep financial records. We keep them for as long as Nigerian tax and accounting law requires, usually six years, and then delete them. Payment receipts you uploaded are kept for the same time, privately.',
+  ],
+];
+
+export function DeleteAccountPage() {
+  return <LegalPage title="Delete your Nimpat One account" sections={DELETE_ACCOUNT} other={{ to: '/privacy', label: 'Read the Privacy Policy' }} />;
 }
 
 /** Quiet links to the policies, for the foot of a page. */

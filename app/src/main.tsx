@@ -6,7 +6,7 @@ import { startNativeApp, startPush } from './native';
 import { hideSplash } from './splash';
 import { CartProvider, FavoritesProvider, ToastProvider, useCart, useSession } from './ui';
 import { HomePage } from './pages/Home';
-import { PrivacyPage, TermsPage } from './pages/Legal';
+import { DeleteAccountPage, PrivacyPage, TermsPage } from './pages/Legal';
 import { FavoritesPage } from './pages/Favorites';
 import { PharmacyPage, ProductPage, SearchPage, ShopPage } from './pages/Shop';
 import { CartPage, CheckoutPage, PaymentCallbackPage, PayPage } from './pages/Cart';
@@ -107,6 +107,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="royalty" element={<RoyaltyPage />} />
               <Route path="privacy" element={<PrivacyPage />} />
               <Route path="terms" element={<TermsPage />} />
+              <Route path="delete-account" element={<DeleteAccountPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
               <Route path="forgot-password" element={<ForgotPage />} />
