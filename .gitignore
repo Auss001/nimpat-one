@@ -64,3 +64,6 @@ Thumbs.db
 
 # Local database and photo backups
 backups/
+
+# The phone apps' public API address (no secrets) must reach the cloud build.
+!app/.env.native
