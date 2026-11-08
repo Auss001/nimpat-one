@@ -2,7 +2,7 @@
 #   Android: a test APK to install on a phone, from every run. With the release key secrets set, also a signed
 #            bundle (.aab) ready for Google Play.
 #   iPhone:  always checks that the app builds. With the App Store Connect secrets set (they are, since 8 Nov 2026), it signs the app
-#            (automatic signing needs at least one registered iPhone on the developer account; one is registered)
+#            (automatic signing needs at least one registered iPhone, and an Admin App Store Connect key for cloud signing)
 #            and sends it to TestFlight.
 # Run it from GitHub: Actions → "Phone apps" → Run workflow (or "Re-run all jobs" on a run). It also runs when the customer app changes on main.
 name: Phone apps
