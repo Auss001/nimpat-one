@@ -37,11 +37,13 @@ export function configureApp(app: NestExpressApplication): void {
   });
   app.useBodyParser('json', { limit: '1mb' });
 
+  // Photos are public, and the Android and iPhone apps show them from another origin, so they may load anywhere.
+  const anyOrigin = (res: { setHeader: (k: string, v: string) => void }) => res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   // Staff uploads. Must come first: /media below would otherwise answer for this path.
   // Only this folder is public; payment proofs live elsewhere under uploads/.
-  app.useStaticAssets(photoRoot(), { prefix: '/media/uploads', maxAge: '365d', immutable: true, index: false, dotfiles: 'deny' });
+  app.useStaticAssets(photoRoot(), { prefix: '/media/uploads', maxAge: '365d', immutable: true, index: false, dotfiles: 'deny', setHeaders: anyOrigin });
   // Catalogue photos shipped with the API.
-  app.useStaticAssets(join(process.cwd(), 'media'), { prefix: '/media', maxAge: '7d', index: false, dotfiles: 'deny' });
+  app.useStaticAssets(join(process.cwd(), 'media'), { prefix: '/media', maxAge: '7d', index: false, dotfiles: 'deny', setHeaders: anyOrigin });
 
   app.setGlobalPrefix(API_PREFIX, { exclude: ['health/live', 'health/ready'] });
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });

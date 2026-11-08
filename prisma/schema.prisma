@@ -447,6 +447,7 @@ model User {
   tokens             VerificationToken[]
   addresses          Address[]
   favorites          Favorite[]
+  pushDevices        PushDevice[]
   carts              Cart[]
   orders             Order[]
   payments           Payment[]
@@ -1861,6 +1862,21 @@ model HomeSlide {
   @@index([isActive, sortOrder])
   @@index([productId])
   @@map("home_slides")
+}
+
+/// A customer's phone that receives notifications (a Firebase Cloud Messaging token).
+model PushDevice {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  token      String   @unique
+  platform   String // "android" or "ios"
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_devices")
 }
 
 model Favorite {

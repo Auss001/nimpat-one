@@ -119,6 +119,10 @@ export class EnvironmentVariables {
   @IsString()
   EMAIL_FROM = 'Nimpat One <no-reply@notify.nimpatgroup.com>';
 
+  /** Firebase project for phone notifications (the Google Cloud project id). Unset = no phone notifications. */
+  @IsOptional() @IsString()
+  FCM_PROJECT_ID?: string;
+
   /** Secret. Required when MAIL_TRANSPORT is "resend"; never logged. */
   @ValidateIf((env: EnvironmentVariables) => env.MAIL_TRANSPORT === 'resend')
   @IsString()

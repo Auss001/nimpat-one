@@ -156,6 +156,8 @@ export async function upgradeGuest(password: string) {
 }
 
 export async function logout() {
+  // Phone apps: stop notifications for this account first, while the session still works.
+  await import('./native').then((n) => n.stopPush()).catch(() => undefined);
   try {
     await api('/auth/logout', { method: 'POST', body: {} }, false);
   } catch {

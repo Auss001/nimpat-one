@@ -3,6 +3,7 @@ import { NotificationChannel, NotificationStatus, Prisma } from '@prisma/client'
 import { PaginationQueryDto, pageArgs, paginate } from '../../common/dto/pagination.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MailService } from './mail.service';
+import { PushService } from './push.service';
 
 export interface NotifyInput {
   userId: string;
@@ -20,10 +21,11 @@ export class NotificationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly push: PushService,
   ) {}
 
   /**
-   * Creates an in-app notification and optionally emails the user.
+   * Creates an in-app notification, sends it to the customer's phones, and optionally emails them.
    * Delivery failures are recorded, never thrown to the caller.
    */
   async notify(input: NotifyInput): Promise<void> {
@@ -40,6 +42,7 @@ export class NotificationsService {
           sentAt: new Date(),
         },
       });
+      await this.push.sendToUser(input.userId, input.title, input.body, input.data);
       if (input.email) {
         const user = await this.prisma.user.findUnique({ where: { id: input.userId }, select: { email: true, isGuest: true, contactEmail: true } });
         const to = user?.isGuest ? user.contactEmail : user?.email;

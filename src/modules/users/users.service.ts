@@ -42,6 +42,7 @@ export class UsersService {
     await this.prisma.$transaction(async (tx) => {
       await tx.cartItem.deleteMany({ where: { cart: { userId: user.id } } });
       await tx.favorite.deleteMany({ where: { userId: user.id } });
+      await tx.pushDevice.deleteMany({ where: { userId: user.id } });
       await tx.address.updateMany({ where: { userId: user.id }, data: { deletedAt: new Date(), isDefault: false, recipientName: 'Deleted', phone: '', line1: 'Deleted', line2: null, landmark: null } });
       await tx.customerProfile.updateMany({ where: { userId: user.id }, data: { firstName: 'Deleted', lastName: 'Customer', dateOfBirth: null, marketingOptIn: false } });
       await tx.session.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: new Date() } });

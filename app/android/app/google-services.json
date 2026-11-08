@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "170221639175",
+    "project_id": "gen-lang-client-0983782546",
+    "storage_bucket": "gen-lang-client-0983782546.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170221639175:android:f97e42e7f6776935883ca2",
+        "android_client_info": {
+          "package_name": "com.nimpatgroup.one"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC85l2uaV4hsrsedjT2RJkGnf_tIl7wXXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

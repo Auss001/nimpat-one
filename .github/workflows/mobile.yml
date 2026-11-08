@@ -102,6 +102,10 @@ jobs:
             exit 1
           fi
       - run: npx cap sync ios
+      - name: Add the Firebase file to the iPhone project (notifications)
+        run: |
+          gem list -i xcodeproj >/dev/null || sudo gem install xcodeproj --no-document
+          ruby ios/scripts/add-firebase-plist.rb
       - name: Check that the iPhone app builds
         if: ${{ env.ASC_KEY_ID == '' }}
         working-directory: app/ios/App
