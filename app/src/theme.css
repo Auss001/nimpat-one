@@ -581,3 +581,6 @@ body { background: var(--bg); }
 .rail-arrow:hover { border-color: var(--green); color: var(--green); }
 .rail-actions a { margin-right: 4px; }
 @media (hover: hover) and (pointer: fine) { .rail-arrow { display: inline-flex; } }
+
+/* Sentences in the Royalty card read normally, not Title Case. */
+.reward small { text-transform: none; line-height: 1.45; }

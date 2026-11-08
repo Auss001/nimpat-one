@@ -111,13 +111,40 @@ function GuestUpgrade({ onDone }: { onDone: () => void }) {
     <form className="reward guest-card" onSubmit={submit}>
       <Award size={26} aria-hidden="true" />
       <div className="guest-card-body">
-        <b>Save your details</b>
-        <small>Add a password to sign in on any device. Your orders stay with you.</small>
+        <b>Become a Royalty Member</b>
+        <small>Optional. Add a password to sign in on any device and keep your orders. More member benefits are on the way.</small>
         {error && <Note tone="error">{error}</Note>}
         <input type="password" required minLength={10} autoComplete="new-password" aria-label="Choose a password" placeholder="Choose a password (10+ characters, a letter and a number)" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button className="btn primary" disabled={busy}>{busy ? 'Creating…' : 'Create my account'}</button>
+        <button className="btn primary" disabled={busy}>{busy ? 'Joining…' : 'Join'}</button>
       </div>
     </form>
+  );
+}
+
+/** The Account tab before signing in: shopping needs no account; membership and signing in are options. */
+function AccountOptions() {
+  return (
+    <>
+      <PageTitle title="Account" back={false} />
+      <section className="reward">
+        <Award size={26} aria-hidden="true" />
+        <div>
+          <b>Royalty Member</b>
+          <small>Optional. Join to keep your orders in one place, on any device. More member benefits are on the way.</small>
+        </div>
+      </section>
+      <div className="row">
+        <Link className="btn primary grow" to="/register?next=/account">Join</Link>
+        <Link className="btn ghost grow" to="/login?next=/account">Sign in</Link>
+      </div>
+      <p className="muted-text">You can order and book without an account. We only ask for your name, email and phone when you check out.</p>
+      <nav className="panel link-list" aria-label="Help and policies">
+        <Link to="/bookings"><CalendarCheck size={19} aria-hidden="true" /> Orders and bookings <ChevronRight size={18} aria-hidden="true" /></Link>
+        <Link to="/privacy"><ShieldCheck size={19} aria-hidden="true" /> Privacy Policy <ChevronRight size={18} aria-hidden="true" /></Link>
+        <Link to="/terms"><FileText size={19} aria-hidden="true" /> Terms of Use <ChevronRight size={18} aria-hidden="true" /></Link>
+      </nav>
+      <section className="panel"><h2>Help</h2><CallLink /></section>
+    </>
   );
 }
 
@@ -143,7 +170,7 @@ export function RegisterPage() {
   };
   return (
     <div className="auth">
-      <PageTitle title="Create your account" sub="One account for everything Nimpat." />
+      <PageTitle title="Become a Royalty Member" sub="One account for everything Nimpat." />
       <form className="panel" onSubmit={submit}>
         {error && <Note tone="error">{error}</Note>}
         <div className="date-pair">
@@ -306,7 +333,7 @@ export function AccountPage() {
   const [form, setForm] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [profile, setProfile] = useState<{ firstName: string; lastName: string } | null>(null);
-  if (!session) return <NeedsSignIn title="Account" text="Your orders and bookings will show here" next="/account" />;
+  if (!session) return <AccountOptions />;
   const m = me.data;
   const removeAddress = async (a: any) => {
     if (!window.confirm(`Remove ${a.label ?? a.line1}?`)) return;
