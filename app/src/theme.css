@@ -584,3 +584,16 @@ body { background: var(--bg); }
 
 /* Sentences in the Royalty card read normally, not Title Case. */
 .reward small { text-transform: none; line-height: 1.45; }
+
+/* Royalty: a gold crown in the header, and a page that explains membership. */
+.royalty-icon { color: #b8860b; }
+.royalty-hero { display: grid; gap: 8px; justify-items: start; padding: 22px 18px; border-radius: var(--radius); color: #fff; background: linear-gradient(145deg, #125c3d, #0c3b28); box-shadow: 0 14px 28px rgb(12 59 40 / 26%); }
+.royalty-hero svg { color: #f5b326; }
+.royalty-hero h2 { margin: 0; font-size: 21px; line-height: 1.2; letter-spacing: -.01em; }
+.royalty-hero p { margin: 0; color: #d7efe0; line-height: 1.45; }
+.royalty-balance b { font-size: 30px; color: #fff; }
+.royalty-benefits { display: grid; gap: 12px; }
+.benefit { display: flex; gap: 12px; align-items: flex-start; }
+.benefit svg { flex: none; color: var(--green); margin-top: 2px; }
+.benefit span { display: flex; flex-direction: column; gap: 2px; }
+a.reward { text-decoration: none; }

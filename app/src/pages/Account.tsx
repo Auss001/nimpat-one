@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Award, CalendarCheck, Check, ChevronRight, FileText, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
+import { Award, CalendarCheck, Check, ChevronRight, Crown, FileText, Gift, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, ShieldCheck, Smartphone, Trash2 } from 'lucide-react';
 import { del, endSession, formatNaira, get, getSession, login, logout, nigerianPhone, patch, post, register, rows, startGuest, upgradeGuest } from '../api';
 import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
 
@@ -11,7 +11,7 @@ export function NeedsSignIn({ title, text, next }: { title: string; text: string
   return (
     <>
       <PageTitle title={title} back={false} />
-      <Empty title={text} action={<Link className="btn primary" to="/">Start shopping</Link>}>No account needed to order or book.</Empty>
+      <Empty title={text} action={<Link className="btn primary" to="/">Start shopping</Link>} />
       <p className="auth-switch">Have an account? <Link to={`/login?next=${encodeURIComponent(next)}`}>Sign in</Link> · <Link to={`/register?next=${encodeURIComponent(next)}`}>Create one</Link></p>
     </>
   );
@@ -112,7 +112,7 @@ function GuestUpgrade({ onDone }: { onDone: () => void }) {
       <Award size={26} aria-hidden="true" />
       <div className="guest-card-body">
         <b>Become a Royalty Member</b>
-        <small>Optional. Add a password to sign in on any device and keep your orders. More member benefits are on the way.</small>
+        <small>Add a password to join, and start earning points on what you pay for.</small>
         {error && <Note tone="error">{error}</Note>}
         <input type="password" required minLength={10} autoComplete="new-password" aria-label="Choose a password" placeholder="Choose a password (10+ characters, a letter and a number)" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button className="btn primary" disabled={busy}>{busy ? 'Joining…' : 'Join'}</button>
@@ -126,19 +126,12 @@ function AccountOptions() {
   return (
     <>
       <PageTitle title="Account" back={false} />
-      <section className="reward">
-        <Award size={26} aria-hidden="true" />
-        <div>
-          <b>Royalty Member</b>
-          <small>Optional. Join to keep your orders in one place, on any device. More member benefits are on the way.</small>
-        </div>
-      </section>
       <div className="row">
-        <Link className="btn primary grow" to="/register?next=/account">Join</Link>
-        <Link className="btn ghost grow" to="/login?next=/account">Sign in</Link>
+        <Link className="btn primary grow" to="/login?next=/account">Sign in</Link>
+        <Link className="btn ghost grow" to="/register?next=/account">Create account</Link>
       </div>
-      <p className="muted-text">You can order and book without an account. We only ask for your name, email and phone when you check out.</p>
       <nav className="panel link-list" aria-label="Help and policies">
+        <Link to="/royalty"><Crown size={19} aria-hidden="true" /> Royalty Member <ChevronRight size={18} aria-hidden="true" /></Link>
         <Link to="/bookings"><CalendarCheck size={19} aria-hidden="true" /> Orders and bookings <ChevronRight size={18} aria-hidden="true" /></Link>
         <Link to="/privacy"><ShieldCheck size={19} aria-hidden="true" /> Privacy Policy <ChevronRight size={18} aria-hidden="true" /></Link>
         <Link to="/terms"><FileText size={19} aria-hidden="true" /> Terms of Use <ChevronRight size={18} aria-hidden="true" /></Link>
@@ -360,10 +353,10 @@ export function AccountPage() {
       {m && !m.emailVerified && !m.isGuest && <VerifyEmailNote />}
       {m?.isGuest && <GuestUpgrade onDone={() => void me.reload()} />}
       {m?.loyalty && !m.isGuest && (
-        <section className="reward">
+        <Link to="/royalty" className="reward">
           <Award size={26} aria-hidden="true" />
           <div><b>Royalty Member</b><small>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')} points</small></div>
-        </section>
+        </Link>
       )}
       <nav className="panel link-list" aria-label="Your account">
         <Link to="/bookings"><CalendarCheck size={19} aria-hidden="true" /> Orders and bookings <ChevronRight size={18} aria-hidden="true" /></Link>
@@ -661,5 +654,62 @@ export function WhereChooser({ mode, feeMinor, venue, atHome, setAtHome, address
         </>
       )}
     </div>
+  );
+}
+
+const DEPARTMENT: Record<string, string> = {
+  'water-drinks-wines': 'Water, drinks & wines',
+  'luxury-apartments': 'Luxury Apartments',
+  automobiles: 'Cars',
+  'spa-wellness': 'Spa',
+  'pharmacy-laboratory': 'Pharmacy & lab',
+  'retail-general-supplies': 'Supplies',
+};
+
+/** What Royalty membership gives, with the live points rates; join or sign in from here. */
+export function RoyaltyPage() {
+  const session = useSession();
+  const me = useLoad(() => (session ? get('/auth/me') : Promise.resolve(null)), [session?.email]);
+  const rules = useLoad(() => get('/loyalty/rules').then(rows).catch(() => [] as any[]), []);
+  const m = me.data;
+  const member = !!session && !!m && !m.isGuest;
+  const rates = (rules.data ?? []).filter((r: any) => r.isActive);
+  return (
+    <>
+      <PageTitle title="Royalty Member" />
+      <section className="royalty-hero">
+        <Crown size={34} aria-hidden="true" />
+        <h2>Every naira you spend with Nimpat earns you points.</h2>
+        {member && m.loyalty
+          ? <p className="royalty-balance"><b>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')}</b> points</p>
+          : <p>Join free, then collect points across water and drinks, apartments, the spa, cars and more.</p>}
+      </section>
+
+      <section className="panel royalty-benefits">
+        <h2>What you get</h2>
+        <div className="benefit"><Award size={20} aria-hidden="true" /><span><b>Points on every payment</b><small>Paid orders and bookings earn points automatically.</small></span></div>
+        <div className="benefit"><Gift size={20} aria-hidden="true" /><span><b>Bonus points and member offers</b><small>Extra points and deals, just for members.</small></span></div>
+        <div className="benefit"><Smartphone size={20} aria-hidden="true" /><span><b>Your orders on any device</b><small>Sign in anywhere to see your orders, bookings and points.</small></span></div>
+      </section>
+
+      {rates.length > 0 && (
+        <section className="panel">
+          <h2>How many points</h2>
+          {rates.map((r: any) => (
+            <div key={r.id} className="sum"><span>{DEPARTMENT[r.division?.slug] ?? r.division?.name}</span><span>{(r.pointsPer100NgnX100 / 100).toLocaleString('en-NG')} {r.pointsPer100NgnX100 === 100 ? 'point' : 'points'} per ₦100</span></div>
+          ))}
+          <small className="muted-text">Points are added once a payment is confirmed, and taken back if it is refunded.</small>
+        </section>
+      )}
+
+      {!session && (
+        <div className="row">
+          <Link className="btn primary grow" to="/register?next=/royalty">Join</Link>
+          <Link className="btn ghost grow" to="/login?next=/royalty">Sign in</Link>
+        </div>
+      )}
+      {session && m?.isGuest && <GuestUpgrade onDone={() => void me.reload()} />}
+      {member && <Link className="btn ghost full" to="/bookings">See my orders</Link>}
+    </>
   );
 }

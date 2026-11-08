@@ -1,7 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { CalendarCheck, Heart, Home, Search, ShoppingBasket, User } from 'lucide-react';
+import { CalendarCheck, Crown, Heart, Home, Search, ShoppingBasket, User } from 'lucide-react';
 import { CartProvider, FavoritesProvider, ToastProvider, useCart } from './ui';
 import { HomePage } from './pages/Home';
 import { PrivacyPage, TermsPage } from './pages/Legal';
@@ -11,7 +11,7 @@ import { CartPage, CheckoutPage, PaymentCallbackPage, PayPage } from './pages/Ca
 import { ApartmentPage, ApartmentsPage } from './pages/Apartments';
 import { CarPage, CarsPage } from './pages/Cars';
 import { ServicesPage, SpaPage, TreatmentPage } from './pages/Bookable';
-import { AccountPage, BookingsPage, ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage } from './pages/Account';
+import { AccountPage, RoyaltyPage, BookingsPage, ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage } from './pages/Account';
 import { formatNaira } from './api';
 import './theme.css';
 
@@ -42,6 +42,7 @@ function Shell() {
             <input aria-label="Search Nimpat One" placeholder="What do you need?" value={q} onChange={(e) => setQ(e.target.value)} />
           </form>
           <nav className="top-nav" aria-label="Shortcuts">
+            <Link to="/royalty" className="top-icon royalty-icon" aria-label="Royalty Member" title="Royalty Member"><Crown size={20} aria-hidden="true" /></Link>
             <Link to="/favorites" className="top-icon" aria-label="Favourites"><Heart size={20} aria-hidden="true" /></Link>
             <Link to="/bookings" className="top-icon wide-only" aria-label="Orders"><CalendarCheck size={20} aria-hidden="true" /></Link>
             <Link to="/account" className="top-icon wide-only" aria-label="Account"><User size={20} aria-hidden="true" /></Link>
@@ -92,6 +93,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="payments/callback" element={<PaymentCallbackPage />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="account" element={<AccountPage />} />
+              <Route path="royalty" element={<RoyaltyPage />} />
               <Route path="privacy" element={<PrivacyPage />} />
               <Route path="terms" element={<TermsPage />} />
               <Route path="login" element={<LoginPage />} />
