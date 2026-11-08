@@ -41,6 +41,8 @@ jobs:
           java-version: 21
       - run: npm ci
       - run: npm run build:native
+      - name: Check the app knows where the API is
+        run: grep -q "europe-west1.run.app|api.nimpatgroup.com" dist/assets/*.js || { echo "No API address in the build: is app/.env.native committed?"; exit 1; }
       - run: npx cap sync android
       - name: Test app (APK)
         working-directory: app/android
@@ -89,6 +91,8 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - run: npm ci
       - run: npm run build:native
+      - name: Check the app knows where the API is
+        run: grep -q "europe-west1.run.app|api.nimpatgroup.com" dist/assets/*.js || { echo "No API address in the build: is app/.env.native committed?"; exit 1; }
       - run: npx cap sync ios
       - name: Check that the iPhone app builds
         if: ${{ env.ASC_KEY_ID == '' }}
