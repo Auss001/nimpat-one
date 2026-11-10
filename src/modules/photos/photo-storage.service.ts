@@ -48,25 +48,48 @@ export class PhotoStorageService {
   }
 
   private async productFrame(input: Buffer, options: { limitInputPixels: number }): Promise<Buffer> {
-    const SIZE = 1000;
-    const INNER = 860;
+    const SIZE = 1200;
+    const INNER = 1032;
     const upright = await sharp(input, options).rotate().flatten({ background: '#ffffff' }).png().toBuffer();
-    // Removes plain margins, so that every product fills its square the same way.
-    const trimmed = await sharp(upright).trim({ background: '#ffffff', threshold: 12 }).png().toBuffer().catch(() => upright);
-    const fitted = await sharp(trimmed).resize(INNER, INNER, { fit: 'inside', kernel: 'lanczos3' }).png().toBuffer();
+    const { width = 0, height = 0 } = await sharp(upright).metadata();
+    // A photo that already comes as a white square keeps its framing, so a 50cl bottle can stay
+    // smaller than its 75cl sister. Other photos lose their plain margins and are centred.
+    const framed = width === height && (await this.whiteBorder(upright));
+    let fitted: Buffer;
+    if (framed) fitted = await sharp(upright).resize(SIZE, SIZE, { kernel: 'lanczos3' }).png().toBuffer();
+    else {
+      const trimmed = await sharp(upright).trim({ background: '#ffffff', threshold: 12 }).png().toBuffer().catch(() => upright);
+      fitted = await sharp(trimmed).resize(INNER, INNER, { fit: 'inside', kernel: 'lanczos3' }).png().toBuffer();
+    }
+    const crisp = await sharp(fitted).sharpen({ sigma: 0.6, m1: 0.5, m2: 1.5 }).png().toBuffer();
     return sharp({ create: { width: SIZE, height: SIZE, channels: 3, background: '#ffffff' } })
-      .composite([{ input: fitted, gravity: 'center' }])
-      .webp({ quality: 86 })
+      .composite([{ input: crisp, gravity: 'center' }])
+      .webp({ quality: 92, smartSubsample: true, effort: 5 })
       .toBuffer();
+  }
+
+  /** True when the outer edge of a picture is (almost) plain white. */
+  private async whiteBorder(png: Buffer): Promise<boolean> {
+    const { data, info } = await sharp(png).resize(64, 64, { fit: 'fill' }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    let edge = 0, white = 0;
+    for (let y = 0; y < info.height; y++) {
+      for (let x = 0; x < info.width; x++) {
+        if (x > 1 && y > 1 && x < info.width - 2 && y < info.height - 2) continue;
+        const i = (y * info.width + x) * info.channels;
+        edge++;
+        if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) white++;
+      }
+    }
+    return white / edge > 0.97;
   }
 
   /** A promo flyer or banner: never cropped or enlarged, because its words must stay whole. */
   private bannerFrame(input: Buffer, options: { limitInputPixels: number }): Promise<Buffer> {
-    return sharp(input, options).rotate().flatten({ background: '#ffffff' }).resize(1600, 1600, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 86 }).toBuffer();
+    return sharp(input, options).rotate().flatten({ background: '#ffffff' }).resize(1600, 1600, { fit: 'inside', withoutEnlargement: true }).sharpen({ sigma: 0.5 }).webp({ quality: 90, smartSubsample: true }).toBuffer();
   }
 
   private sceneFrame(input: Buffer, options: { limitInputPixels: number }): Promise<Buffer> {
-    return sharp(input, options).rotate().flatten({ background: '#ffffff' }).resize(1600, 1067, { fit: 'cover', position: 'attention' }).webp({ quality: 82 }).toBuffer();
+    return sharp(input, options).rotate().flatten({ background: '#ffffff' }).resize(1600, 1067, { fit: 'cover', position: 'attention', kernel: 'lanczos3' }).sharpen({ sigma: 0.6, m1: 0.5, m2: 1.5 }).webp({ quality: 88, smartSubsample: true }).toBuffer();
   }
 
   async save(input: Buffer, preset: PhotoPreset): Promise<{ url: string; warning?: string }> {
