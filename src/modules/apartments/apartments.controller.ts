@@ -51,7 +51,7 @@ export class ApartmentsController {
 
   @Public()
   @Get('units/:unitId/quote')
-  @ApiOperation({ summary: 'Price breakdown (nightly × nights + cleaning + caution deposit) and availability, for the whole unit or one room' })
+  @ApiOperation({ summary: 'Price breakdown (nightly × nights + caution deposit) and availability, for the whole unit or one room' })
   quote(@Param('unitId', ParseUUIDPipe) unitId: string, @Query() q: StayQueryDto) {
     return this.apartments.quote(unitId, q.checkIn, q.checkOut, q.guests, q.roomId);
   }

@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { FulfilmentType, ProductStatus, RecordVerification } from '@prisma/client';
 import { multiplyMinor, sumMinor } from '../../common/utils/money';
+import { vatOn, vatRateBps } from '../../common/utils/vat';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../access/auth-user';
 import { DeliveryService } from '../delivery/delivery.service';
@@ -134,7 +135,8 @@ export class CartService {
       delivery = await this.delivery.quote(cart.division.id, address, cart.subtotalMinor);
     }
     const deliveryFeeMinor = delivery?.feeMinor ?? 0n;
-    return { ...cart, fulfilmentType, delivery, deliveryFeeMinor, discountMinor: 0n, totalMinor: cart.subtotalMinor + deliveryFeeMinor };
+    const taxMinor = vatOn(cart.division.code, cart.subtotalMinor);
+    return { ...cart, fulfilmentType, delivery, deliveryFeeMinor, discountMinor: 0n, taxMinor, vatRateBps: vatRateBps(cart.division.code), totalMinor: cart.subtotalMinor + taxMinor + deliveryFeeMinor };
   }
 
   private async findItem(user: AuthUser, variantId: string) {

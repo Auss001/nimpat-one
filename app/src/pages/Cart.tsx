@@ -246,9 +246,10 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
           <>
             <div className="sum"><span>Items</span><span>{formatNaira(q.subtotalMinor)}</span></div>
             {needsAddress && <div className="sum"><span>Delivery</span><span>{q.deliveryFeeMinor === null || q.deliveryFeeMinor === undefined ? 'To be confirmed' : formatNaira(q.deliveryFeeMinor)}</span></div>}
+            {Number(q.taxMinor) > 0 && <div className="sum"><span>VAT ({Number(q.vatRateBps) / 100}%)</span><span>{formatNaira(q.taxMinor)}</span></div>}
             {!needsAddress && <div className="sum"><span>Delivery</span><span>Free (pick up)</span></div>}
             <div className="sum total"><span>Total</span><b>{formatNaira(q.totalMinor)}</b></div>
-            <small className="muted-text">No extra tax is added. The total is what you pay.</small>
+            <small className="muted-text">{Number(q.taxMinor) > 0 ? 'The total includes VAT. It is what you pay.' : 'No extra tax is added. The total is what you pay.'}</small>
           </>
         )}
         <button className="btn primary full" disabled={busy || !q || !option || !ready || q.canCheckout === false} onClick={place}>{busy ? 'Placing your order…' : 'Place order'}</button>

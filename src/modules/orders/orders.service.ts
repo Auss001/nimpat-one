@@ -15,6 +15,7 @@ import { AppConfig } from '../../config/app-config.service';
 import { pageArgs, paginate, PaginationQueryDto } from '../../common/dto/pagination.dto';
 import { addMinutes } from '../../common/utils/dates';
 import { formatNgn, multiplyMinor, sumMinor } from '../../common/utils/money';
+import { vatOn } from '../../common/utils/vat';
 import { businessNumber, randomTrackingCode, withUniqueRetry } from './order-numbers';
 import { PrismaService, Tx } from '../../prisma/prisma.service';
 import { AuthUser } from '../access/auth-user';
@@ -107,8 +108,9 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       zoneId = q.zoneId;
       fee = q.feeMinor;
     }
-    const options = await this.policies.orderOptions(d.id, { fulfilment: fulfilmentType, zoneId, orderValueMinor: subtotal + fee });
-    return { division: d.slug, fulfilmentType, orderValueMinor: subtotal + fee, options };
+    const value = subtotal + vatOn(d.code, subtotal) + fee;
+    const options = await this.policies.orderOptions(d.id, { fulfilment: fulfilmentType, zoneId, orderValueMinor: value });
+    return { division: d.slug, fulfilmentType, orderValueMinor: value, options };
   }
 
   /**
@@ -169,7 +171,8 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       deliveryFeeMinor = q.feeMinor;
       zoneId = q.zoneId;
     }
-    const totalMinor = subtotalMinor + deliveryFeeMinor;
+    const taxMinor = vatOn(division.code, subtotalMinor);
+    const totalMinor = subtotalMinor + taxMinor + deliveryFeeMinor;
     if (input.expectedTotalMinor !== undefined && BigInt(input.expectedTotalMinor) !== totalMinor) {
       throw new ConflictException({ statusCode: 409, error: 'Conflict', message: 'Prices or delivery charges have changed. Please review your cart.', totalMinor });
     }
@@ -197,6 +200,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
             fulfilmentType: input.fulfilmentType,
             subtotalMinor,
             deliveryFeeMinor,
+            taxMinor,
             totalMinor,
             addressId: address?.id,
             deliveryAddress: address ? snapshotAddress(address) : undefined,
@@ -273,7 +277,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
     const address = await this.prisma.address.findFirst({ where: { id: addressId, userId: user.id, deletedAt: null } });
     if (!address) throw new NotFoundException('Delivery address not found');
     const q = await this.delivery.quote(order.divisionId, address, order.subtotalMinor);
-    const totalMinor = order.subtotalMinor + q.feeMinor;
+    const totalMinor = order.subtotalMinor + order.taxMinor + q.feeMinor;
     // The way the customer chose to pay must still be allowed at the new address (for example pay on delivery).
     const options = await this.policies.orderOptions(order.divisionId, { fulfilment: 'DELIVERY', zoneId: q.zoneId, orderValueMinor: totalMinor });
     const chosen = options.find((o) => o.option === order.paymentOption);

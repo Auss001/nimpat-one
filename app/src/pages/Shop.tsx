@@ -173,6 +173,9 @@ export function ShopPage() {
   );
 }
 
+/** Stores that add Nigerian VAT on top of their prices (the server works out the amount). */
+const VAT_DIVISIONS = new Set(['water-drinks-wines']);
+
 /** What delivery costs, before the customer reaches checkout. */
 function DeliveryHint({ division }: { division?: string }) {
   const zones = useLoad(() => (division ? get(`/delivery/zones?division=${division}`).then(rows).catch(() => [] as any[]) : Promise.resolve([] as any[])), [division]);
@@ -185,7 +188,7 @@ function DeliveryHint({ division }: { division?: string }) {
     <div className="delivery-hint">
       <span><Truck size={15} aria-hidden="true" /> Delivery {z.length === 1 ? `${formatNaira(low)} ${where}` : where}</span>
       <span><Store size={15} aria-hidden="true" /> Pick up free</span>
-      <small>No extra tax is added at checkout. The total you see is what you pay.</small>
+      <small>{VAT_DIVISIONS.has(division ?? '') ? 'Prices exclude 7.5% VAT, which is added at checkout.' : 'No extra tax is added at checkout. The total you see is what you pay.'}</small>
     </div>
   );
 }

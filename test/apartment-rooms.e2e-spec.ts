@@ -50,7 +50,7 @@ describe('single-room booking', () => {
     const res = await quote(day(10), day(12), rooms[0].id).expect(200);
     expect(res.body).toEqual(expect.objectContaining({ roomId: rooms[0].id, nightlyRateMinor: 8_000_000, totalMinor: 16_000_000, available: true }));
     const whole = await quote(day(10), day(12)).expect(200);
-    expect(whole.body).toEqual(expect.objectContaining({ roomId: null, totalMinor: 48_000_000 + 2_500_000 + 6_000_000 }));
+    expect(whole.body).toEqual(expect.objectContaining({ roomId: null, totalMinor: 48_000_000 + 6_000_000 }));
   });
 
   it('lets two guests book different rooms on the same dates, and blocks the whole unit', async () => {

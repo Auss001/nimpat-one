@@ -144,7 +144,7 @@ export function ApartmentsPage() {
                   <thead>
                     <tr>
                       <th>Unit</th><th className="num">Beds</th><th className="num">Baths</th><th className="num">Guests</th>
-                      <th className="num">Per night</th><th className="num">Cleaning</th><th className="num">Caution deposit</th><th>Condition</th><th>Status</th><th></th>
+                      <th className="num">Per night</th><th className="num">Caution deposit</th><th>Condition</th><th>Status</th><th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -157,7 +157,6 @@ export function ApartmentsPage() {
                         <td className="num">{u.bathrooms}</td>
                         <td className="num">{u.maxGuests}</td>
                         <td className="num"><InlinePrice minor={u.nightlyRateMinor} onSave={(k) => saveRate(u, k)} /></td>
-                        <td className="num">{formatNaira(u.cleaningFeeMinor)}</td>
                         <td className="num">{formatNaira(u.cautionDepositMinor)}</td>
                         <td><Pill tone={READINESS[u.readiness].tone}>{READINESS[u.readiness].label}</Pill>{u.readinessNote && <div className="muted small">{u.readinessNote}</div>}</td>
                         <td><StatusPill status={u.status} /></td>
@@ -180,7 +179,6 @@ export function ApartmentsPage() {
                           <td className="num"></td>
                           <td className="num">{r.maxGuests}</td>
                           <td className="num"><InlinePrice minor={r.nightlyRateMinor} onSave={(k) => saveRoomRate(r, k)} /></td>
-                          <td className="num">{formatNaira(r.cleaningFeeMinor)}</td>
                           <td className="num">{formatNaira(r.cautionDepositMinor)}</td>
                           <td><Pill tone={READINESS[r.readiness].tone}>{READINESS[r.readiness].label}</Pill>{r.readinessNote && <div className="muted small">{r.readinessNote}</div>}</td>
                           <td><StatusPill status={r.status} /></td>
@@ -277,7 +275,7 @@ function UnitForm({ property, unit, onClose, onSaved }: { property: Property; un
     readinessNote: unit?.readinessNote ?? '',
   });
   const [rate, setRate] = useState<number | null>(unit?.nightlyRateMinor ?? null);
-  const [cleaning, setCleaning] = useState<number | null>(unit?.cleaningFeeMinor ?? 0);
+  const cleaning = 0; // No cleaning fee is charged any more.
   const [caution, setCaution] = useState<number | null>(unit?.cautionDepositMinor ?? 0);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
   const num = (s: string) => Number(s);
@@ -310,7 +308,6 @@ function UnitForm({ property, unit, onClose, onSaved }: { property: Property; un
         <Field label="Bathrooms" hint="3.5 = three plus a guest toilet"><input inputMode="decimal" value={f.bathrooms} onChange={set('bathrooms')} /></Field>
         <Field label="Maximum guests"><input inputMode="numeric" value={f.maxGuests} onChange={set('maxGuests')} /></Field>
         <Field label="Nightly rate (₦)"><MoneyInput value={rate} onChange={setRate} /></Field>
-        <Field label="Cleaning fee (₦, once per stay)"><MoneyInput value={cleaning} onChange={setCleaning} /></Field>
         <Field label="Caution deposit (₦, refundable)"><MoneyInput value={caution} onChange={setCaution} /></Field>
         <Field label="Minimum nights"><input inputMode="numeric" value={f.minNights} onChange={set('minNights')} /></Field>
         <Field label="Maximum nights"><input inputMode="numeric" value={f.maxNights} onChange={set('maxNights')} /></Field>
@@ -340,7 +337,7 @@ function RoomForm({ unit, room, onClose, onSaved }: { unit: Unit; room?: Room; o
     readinessNote: room?.readinessNote ?? '',
   });
   const [rate, setRate] = useState<number | null>(room?.nightlyRateMinor ?? null);
-  const [cleaning, setCleaning] = useState<number | null>(room?.cleaningFeeMinor ?? 0);
+  const cleaning = 0; // No cleaning fee is charged any more.
   const [caution, setCaution] = useState<number | null>(room?.cautionDepositMinor ?? 0);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
   const valid = f.name.trim().length >= 2 && rate !== null && rate > 0 && cleaning !== null && caution !== null && Number.isInteger(Number(f.maxGuests)) && Number(f.maxGuests) >= 1;
@@ -363,7 +360,6 @@ function RoomForm({ unit, room, onClose, onSaved }: { unit: Unit; room?: Room; o
         <Field label="Room name" full><input value={f.name} onChange={set('name')} placeholder="Bedroom 1" /></Field>
         <Field label="Nightly rate (₦)"><MoneyInput value={rate} onChange={setRate} /></Field>
         <Field label="Maximum guests"><input inputMode="numeric" value={f.maxGuests} onChange={set('maxGuests')} /></Field>
-        <Field label="Cleaning fee (₦, once per stay)"><MoneyInput value={cleaning} onChange={setCleaning} /></Field>
         <Field label="Caution deposit (₦, refundable)"><MoneyInput value={caution} onChange={setCaution} /></Field>
         <Field label="Status">
           <select value={f.status} onChange={set('status')}>

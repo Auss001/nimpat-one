@@ -125,6 +125,7 @@ function OrderDetail({ id, onClose, onChanged }: { id: string; onClose: () => vo
               {o.items.map((i: any) => (
                 <tr key={i.id}><td>{i.productName}<div className="muted small">{i.variantName} · {i.sku}</div></td><td className="num">{i.quantity}</td><td className="num">{formatNaira(i.unitPriceMinor)}</td><td className="num">{formatNaira(i.lineTotalMinor)}</td></tr>
               ))}
+              {Number(o.taxMinor) > 0 && <tr><td colSpan={3} className="num muted">VAT</td><td className="num">{formatNaira(o.taxMinor)}</td></tr>}
               <tr><td colSpan={3} className="num muted">Delivery</td><td className="num">{formatNaira(o.deliveryFeeMinor)}</td></tr>
               <tr><td colSpan={3} className="num"><strong>Total</strong></td><td className="num"><strong>{formatNaira(o.totalMinor)}</strong></td></tr>
               <tr><td colSpan={3} className="num muted">Paid (verified)</td><td className="num">{formatNaira(o.amountPaidMinor)}</td></tr>

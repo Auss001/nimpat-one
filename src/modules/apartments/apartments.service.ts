@@ -602,9 +602,10 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       nights,
       nightlyRateMinor: rates.nightlyRateMinor,
       accommodationMinor,
-      cleaningFeeMinor: rates.cleaningFeeMinor,
+      // No cleaning fee is charged (owner's decision, 10 November 2026).
+      cleaningFeeMinor: 0n,
       cautionDepositMinor: rates.cautionDepositMinor,
-      totalMinor: accommodationMinor + rates.cleaningFeeMinor + rates.cautionDepositMinor,
+      totalMinor: accommodationMinor + rates.cautionDepositMinor,
       currency: 'NGN',
     };
   }

@@ -881,6 +881,8 @@ model Order {
   subtotalMinor        BigInt         @map("subtotal_minor")
   deliveryFeeMinor     BigInt         @default(0) @map("delivery_fee_minor")
   discountMinor        BigInt         @default(0) @map("discount_minor")
+  /// VAT added on top of the items (see src/common/utils/vat.ts).
+  taxMinor             BigInt         @default(0) @map("tax_minor")
   totalMinor           BigInt         @map("total_minor")
   addressId            String?        @map("address_id") @db.Uuid
   deliveryAddress      Json?          @map("delivery_address") // immutable snapshot
