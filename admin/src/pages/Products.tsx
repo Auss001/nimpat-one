@@ -5,6 +5,7 @@ import { useAccess } from '../access';
 import { get, getAll, patch, post } from '../api';
 import { BulkPhotoUpload, PhotoManager } from '../components/PhotoManager';
 import { PriceListUpload } from '../components/PriceListUpload';
+import { DetailsUpload } from '../components/DetailsUpload';
 import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useConfirm, useLoad } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
@@ -148,6 +149,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
   const [photosFor, setPhotosFor] = useState<string | null>(null);
   const [bulk, setBulk] = useState(false);
   const [priceList, setPriceList] = useState(false);
+  const [details, setDetails] = useState(false);
   const [reviewing, setReviewing] = useState<Product | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkReview, setBulkReview] = useState(false);
@@ -233,7 +235,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
       <PageHead
         title={title}
         subtitle={<>Click a price to change it. Customers see only products that are on sale and <Link to="/data-check">confirmed</Link>.</>}
-        actions={<><OutOfStockSwitch division={division} /><button className="btn" onClick={() => setPriceList(true)}>Upload price list</button><button className="btn" onClick={() => setBulk(true)}>Upload photos in bulk</button><button className="btn primary" onClick={() => setAdding(true)}>+ Add product</button></>}
+        actions={<><OutOfStockSwitch division={division} /><button className="btn" onClick={() => setPriceList(true)}>Upload price list</button><button className="btn" onClick={() => setDetails(true)}>Names & descriptions</button><button className="btn" onClick={() => setBulk(true)}>Upload photos in bulk</button><button className="btn primary" onClick={() => setAdding(true)}>+ Add product</button></>}
       />
       <div className="toolbar">
         <Tabs<StatusTab>
@@ -342,6 +344,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
       {reviewing && <PharmacyReview product={reviewing} onClose={() => setReviewing(null)} onSaved={() => { setReviewing(null); void products.reload(); }} />}
       {photosFor && <PhotoManager owner="product" id={photosFor} onClose={() => setPhotosFor(null)} onChanged={() => void products.reload()} />}
       {bulk && <BulkPhotoUpload onClose={() => setBulk(false)} onChanged={() => void products.reload()} />}
+      {details && <DetailsUpload division={division} title={title} onClose={() => setDetails(false)} onChanged={() => void products.reload()} />}
       {priceList && <PriceListUpload division={division} title={title} onClose={() => setPriceList(false)} onChanged={() => void products.reload()} />}
       {adding && (
         <ProductForm division={division} categories={categories.data ?? []} onClose={() => setAdding(false)} onSaved={() => { setAdding(false); void products.reload(); }} />

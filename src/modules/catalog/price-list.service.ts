@@ -6,7 +6,7 @@ import { AuthUser } from '../access/auth-user';
 import { P } from '../access/permissions';
 import { AuditService } from '../audit/audit.service';
 import { DivisionsService } from '../divisions/divisions.service';
-import { ApplyPriceListDto } from './catalog.dto';
+import { ApplyDetailsDto, ApplyPriceListDto } from './catalog.dto';
 import { Candidate, listRows, matchRow, nameWords, slugOf, SURE, tidyName } from './price-list';
 
 export type PriceAction = 'update' | 'same' | 'new' | 'check' | 'skip';
@@ -111,6 +111,82 @@ export class PriceListService {
       summary: { rows: out.length, update: count('update'), same: count('same'), new: count('new'), check: count('check'), skip: count('skip') },
       rows: out,
     };
+  }
+
+  /**
+   * Product write-ups from a sheet: SKU, Name, Description. Shows the old and new text for each
+   * product; nothing is saved until the ticked rows are applied. Empty cells change nothing.
+   */
+  async detailsPreview(user: AuthUser, division: string, file?: { buffer: Buffer; originalname: string }) {
+    const d = await this.divisions.resolve(division);
+    user.assertCan(P.catalogManage, d.id);
+    if (!file?.buffer?.length) throw new BadRequestException('Choose a spreadsheet to upload.');
+    let sheets;
+    try {
+      sheets = readSpreadsheet(file.buffer, file.originalname ?? '');
+    } catch (e) {
+      throw new BadRequestException(e instanceof SpreadsheetError ? e.message : 'This file could not be read. Please save it as .xlsx or .csv.');
+    }
+    const wanted: { sku: string; name: string; description: string; line: number }[] = [];
+    for (const s of sheets) {
+      const head = (s.rows[0] ?? []).map((h) => String(h).toUpperCase().trim());
+      const sku = head.findIndex((h) => h === 'SKU' || h === 'CODE');
+      const name = head.findIndex((h) => h === 'NAME' || h === 'NEW NAME' || h === 'PRODUCT NAME');
+      const desc = head.findIndex((h) => h === 'DESCRIPTION' || h === 'NEW DESCRIPTION');
+      if (sku < 0 || (name < 0 && desc < 0)) continue;
+      s.rows.slice(1).forEach((r, i) => {
+        const code = String(r[sku] ?? '').trim().toUpperCase();
+        if (code) wanted.push({ sku: code, name: name >= 0 ? String(r[name] ?? '').trim() : '', description: desc >= 0 ? String(r[desc] ?? '').trim() : '', line: i + 2 });
+      });
+    }
+    if (!wanted.length) throw new BadRequestException('No rows found. The first row needs an "SKU" column and a "Name" or "Description" column.');
+    const variants = await this.prisma.productVariant.findMany({
+      where: { sku: { in: wanted.map((w) => w.sku) }, product: { divisionId: d.id } },
+      select: { sku: true, product: { select: { id: true, name: true, description: true } } },
+    });
+    const bySku = new Map(variants.map((v) => [v.sku.toUpperCase(), v.product]));
+    const rows = wanted.map((w) => {
+      const prod = bySku.get(w.sku);
+      const name = w.name && w.name !== prod?.name ? w.name.slice(0, 160) : null;
+      const description = w.description && w.description !== (prod?.description ?? '') ? w.description.slice(0, 5000) : null;
+      return {
+        key: `${w.sku}:${w.line}`,
+        sku: w.sku,
+        productId: prod?.id ?? null,
+        currentName: prod?.name ?? null,
+        currentDescription: prod?.description ?? null,
+        name,
+        description,
+        action: !prod ? 'missing' : name || description ? 'change' : 'same',
+      };
+    });
+    const count = (a: string) => rows.filter((r) => r.action === a).length;
+    return { division: { slug: d.slug, name: d.name }, fileName: file.originalname, summary: { rows: rows.length, change: count('change'), same: count('same'), missing: count('missing') }, rows };
+  }
+
+  async detailsApply(user: AuthUser, dto: ApplyDetailsDto) {
+    const d = await this.divisions.resolve(dto.division);
+    user.assertCan(P.catalogManage, d.id);
+    const ids = [...new Set(dto.items.map((i) => i.productId))];
+    const known = await this.prisma.product.findMany({ where: { id: { in: ids }, divisionId: d.id }, select: { id: true, name: true, description: true } });
+    if (known.length !== ids.length) throw new BadRequestException('Some rows point at products that are not in this store. Please preview the file again.');
+    const before = new Map(known.map((k) => [k.id, k]));
+    await this.prisma.$transaction(
+      async (tx) => {
+        for (const item of dto.items) {
+          await tx.product.update({ where: { id: item.productId }, data: { ...(item.name ? { name: item.name } : {}), ...(item.description ? { description: item.description } : {}) } });
+        }
+        await this.audit.record(
+          {
+            actorId: user.id, action: 'catalog.details_upload', entityType: 'division', entityId: d.id, divisionId: d.id,
+            changes: { fileName: dto.fileName, products: dto.items.map((i) => ({ id: i.productId, from: { name: before.get(i.productId)?.name, description: before.get(i.productId)?.description }, to: { name: i.name, description: i.description } })) },
+          },
+          tx,
+        );
+      },
+      { timeout: 120_000, maxWait: 20_000 },
+    );
+    return { updated: dto.items.length, division: d.slug };
   }
 
   async apply(user: AuthUser, dto: ApplyPriceListDto) {

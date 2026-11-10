@@ -6,6 +6,7 @@ import { CurrentUser, Public, RequirePermissions } from '../../common/decorators
 import { AuthUser } from '../access/auth-user';
 import { P } from '../access/permissions';
 import {
+  ApplyDetailsDto,
   ApplyPriceListDto,
   AdminProductQueryDto,
   CreateCategoryDto,
@@ -81,6 +82,24 @@ export class AdminCatalogController {
   @ApiOperation({ summary: 'Read a price list (.xlsx or .csv) and show what would change. Nothing is saved' })
   previewPriceList(@CurrentUser() user: AuthUser, @Body('division') division: string, @UploadedFile() file?: { buffer: Buffer; originalname: string }) {
     return this.priceList.preview(user, division, file);
+  }
+
+  @Post('details/preview')
+  @HttpCode(200)
+  @RequirePermissions(P.catalogManage)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024, files: 1 } }))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Read a sheet of product names and descriptions (by SKU) and show what would change. Nothing is saved' })
+  previewDetails(@CurrentUser() user: AuthUser, @Body('division') division: string, @UploadedFile() file?: { buffer: Buffer; originalname: string }) {
+    return this.priceList.detailsPreview(user, division, file);
+  }
+
+  @Post('details/apply')
+  @HttpCode(200)
+  @RequirePermissions(P.catalogManage)
+  @ApiOperation({ summary: 'Apply the ticked product names and descriptions' })
+  applyDetails(@CurrentUser() user: AuthUser, @Body() dto: ApplyDetailsDto) {
+    return this.priceList.detailsApply(user, dto);
   }
 
   @Post('price-list/apply')
