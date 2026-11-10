@@ -694,6 +694,8 @@ model ProductVariant {
   id                  String   @id @default(uuid()) @db.Uuid
   productId           String   @map("product_id") @db.Uuid
   sku                 String   @unique
+  /// The store's own code for this item (barcode or stock code), set by price list uploads.
+  stockCode           String?  @map("stock_code")
   name                String // e.g. "Pack of 12 x 75cl"
   /// Null means the price is not published. It is never zero for that.
   unitPriceMinor      BigInt?  @map("unit_price_minor")
@@ -719,6 +721,7 @@ model ProductVariant {
   orderItems     OrderItem[]
 
   @@index([productId, isActive])
+  @@index([stockCode])
   @@map("product_variants")
 }
 

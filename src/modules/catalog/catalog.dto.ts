@@ -113,3 +113,19 @@ export class BulkProductsDto {
   @ApiProperty({ enum: BULK_ACTIONS, description: 'PUBLISH confirms the products and puts them on sale, so customers can see them' }) @IsIn(BULK_ACTIONS as unknown as string[]) action: BulkAction;
   @ApiPropertyOptional({ enum: PrescriptionStatus, description: 'Required for PHARMACY_APPROVE' }) @IsOptional() @IsEnum(PrescriptionStatus) prescriptionStatus?: PrescriptionStatus;
 }
+
+export class PriceListItemDto {
+  @ApiPropertyOptional({ description: 'Product size to update; left out to add a new product' }) @IsOptional() @IsUUID() variantId?: string;
+  @ApiProperty() @IsString() @Length(1, 200) name: string;
+  @ApiPropertyOptional({ description: 'Selling price in kobo', nullable: true }) @IsOptional() @IsInt() @Min(1) @Max(1_000_000_000_00) salePriceMinor?: number | null;
+  @ApiPropertyOptional({ nullable: true }) @IsOptional() @IsInt() @Min(0) @Max(10_000_000) quantity?: number | null;
+  @ApiPropertyOptional({ description: 'Barcode or stock code from the list', nullable: true }) @IsOptional() @IsString() @Length(0, 64) code?: string | null;
+}
+
+export class ApplyPriceListDto {
+  @ApiProperty({ description: 'Division id, slug or code' }) @IsString() division: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Length(0, 200) fileName?: string;
+  @ApiProperty({ type: [PriceListItemDto] })
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(5000) @ValidateNested({ each: true }) @Type(() => PriceListItemDto)
+  items: PriceListItemDto[];
+}

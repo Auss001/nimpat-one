@@ -1,9 +1,12 @@
-import { HttpCode, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { HttpCode, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { PriceListService } from './price-list.service';
 import { CurrentUser, Public, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { AuthUser } from '../access/auth-user';
 import { P } from '../access/permissions';
 import {
+  ApplyPriceListDto,
   AdminProductQueryDto,
   CreateCategoryDto,
   CreateProductDto,
@@ -64,7 +67,29 @@ export class CatalogController {
 @ApiTags('Admin · Catalogue')
 @Controller('admin/catalog')
 export class AdminCatalogController {
-  constructor(private readonly catalog: CatalogService) {}
+  constructor(
+    private readonly catalog: CatalogService,
+    private readonly priceList: PriceListService,
+  ) {}
+
+  @Post('price-list/preview')
+  @HttpCode(200)
+  @RequirePermissions(P.catalogManage)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024, files: 1 } }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', required: ['file', 'division'], properties: { file: { type: 'string', format: 'binary' }, division: { type: 'string' } } } })
+  @ApiOperation({ summary: 'Read a price list (.xlsx or .csv) and show what would change. Nothing is saved' })
+  previewPriceList(@CurrentUser() user: AuthUser, @Body('division') division: string, @UploadedFile() file?: { buffer: Buffer; originalname: string }) {
+    return this.priceList.preview(user, division, file);
+  }
+
+  @Post('price-list/apply')
+  @HttpCode(200)
+  @RequirePermissions(P.catalogManage)
+  @ApiOperation({ summary: 'Apply the ticked rows of a previewed price list. Prices go live at once' })
+  applyPriceList(@CurrentUser() user: AuthUser, @Body() dto: ApplyPriceListDto) {
+    return this.priceList.apply(user, dto);
+  }
 
   @Patch('divisions/:division/display')
   @RequirePermissions(P.catalogManage)
