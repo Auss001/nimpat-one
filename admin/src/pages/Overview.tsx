@@ -142,7 +142,7 @@ function AtAGlance({ r }: { r: Report }) {
 
 const TILES = (c: Counts): { to: string; label: string; sub: string; img?: string; corner?: string }[] => [
   { to: '/drinks', label: 'Water, Drinks & Wines', sub: `${c.drinks} products`, img: '/media/assets/drinks-stock-4.jpg' },
-  { to: '/pharmacy', label: 'Pharmacy & Laboratory', sub: `${c.pharmacy} products`, corner: 'Awaiting pharmacist' },
+  { to: '/pharmacy', label: 'Pharmacy & Laboratory', sub: `${c.pharmacy} products`, img: '/pharmacy-lab.webp', corner: 'Awaiting pharmacist' },
   { to: '/apartments', label: 'Luxury Apartments', sub: `${c.units} units`, img: '/media/images/mabushi/flat-1/living-room-tv.jpg' },
   { to: '/spa', label: 'Spa & Wellness', sub: `${c.spa} treatments`, img: '/media/assets/spa-wellness.jpg', corner: c.therapists ? undefined : 'No therapists' },
   { to: '/vehicles', label: 'Automobiles', sub: `${c.vehicles} vehicles`, img: '/media/assets/car-stand-0.jpg' },
@@ -274,14 +274,7 @@ export function OverviewPage() {
               )}
               {can(TILE_ACCESS['/vehicles']) && <WallTile to="/vehicles" delay={1800} big={String(c.vehicles)} label="cars available" images={['/media/assets/car-stand-0.jpg', '/media/assets/car-stand-1.jpg', '/media/assets/car-stand-2.jpg']} />}
               {can(TILE_ACCESS['/drinks']) && <WallTile to="/drinks" delay={3400} big={String(c.drinks)} label="water and drinks" images={['/media/assets/drinks-stock-1.jpg', '/media/assets/drinks-stock-4.jpg', '/media/assets/drinks-stock-7.jpg']} />}
-              {can(TILE_ACCESS['/pharmacy']) && (
-                <Link to="/pharmacy" className="wall-tile mint">
-                  <Pill size={92} aria-hidden="true" />
-                  <em>Awaiting pharmacist</em>
-                  <strong>{c.pharmacy}</strong>
-                  <span>pharmacy products</span>
-                </Link>
-              )}
+              {can(TILE_ACCESS['/pharmacy']) && <WallTile to="/pharmacy" delay={4200} big={String(c.pharmacy)} label="pharmacy products, awaiting pharmacist" images={['/pharmacy-lab.webp']} />}
               {can(TILE_ACCESS['/spa']) && <WallTile to="/spa" delay={5000} big={String(c.spa)} label={c.therapists ? 'spa treatments' : 'spa treatments, no therapists yet'} images={['/media/assets/spa-wellness.jpg', '/media/assets/royalty-spa-clean.webp']} />}
             </div>
           </div>
