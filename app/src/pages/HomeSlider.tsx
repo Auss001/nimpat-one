@@ -36,10 +36,9 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
   // The apartments slide waits until a flat with a photo has loaded.
   const managed = (loaded.data ?? []).filter((s) => s.kind !== 'APARTMENTS' || stay);
   // Our own water, Venida, always has a blue card, second in line.
-  const venidaPic = venida.find((p) => p.images?.length);
-  const venidaPrices = venida.map((p) => p.priceFromMinor).filter((x) => x != null);
+    const venidaPrices = venida.map((p) => p.priceFromMinor).filter((x) => x != null);
   const venidaSlide: Slide | null = venida.length
-    ? { id: 'venida', kind: 'VENIDA', title: 'Venida Water', subtitle: 'Our own brand', buttonText: 'Shop Venida', imageUrl: venidaPic?.images[0].url ?? null, linkTo: '/shop/water-drinks-wines?q=Venida', tone: 'blue' }
+    ? { id: 'venida', kind: 'VENIDA', title: 'Venida Water', subtitle: 'Our own brand', buttonText: 'Shop Venida', imageUrl: '/venida-slide.webp', linkTo: '/shop/water-drinks-wines?q=Venida', tone: 'blue' }
     : null;
   const slides = venidaSlide ? [...managed.slice(0, 1), venidaSlide, ...managed.slice(1)] : managed;
   const count = slides.length;
@@ -98,14 +97,9 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
         {slides.map((s) => {
           if (s.kind === 'VENIDA') {
             return (
-              <Link key={s.id} to={s.linkTo!} className="slide venida-slide">
-                <span className="slide-text">
-                  <small>{s.subtitle}</small>
-                  <b>{s.title}</b>
-                  {venidaPrices.length > 0 && <span className="slide-price">From {formatNaira(Math.min(...venidaPrices))}</span>}
-                  <Go text={s.buttonText!} />
-                </span>
-                {s.imageUrl && <span className="venida-pic"><img src={s.imageUrl} alt="" loading="lazy" /></span>}
+              <Link key={s.id} to={s.linkTo!} className="slide flyer venida-slide" aria-label="Venida Water, our own brand. Shop Venida">
+                <img src="/venida-slide.webp" alt="" loading="lazy" />
+                <Go text={venidaPrices.length ? `Shop Venida from ${formatNaira(Math.min(...venidaPrices))}` : 'Shop Venida'} className="flyer-go" />
               </Link>
             );
           }
