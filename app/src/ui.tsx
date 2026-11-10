@@ -311,7 +311,7 @@ function sizeOf(name: string) {
 /** A clean tile with the product's name, for products without a photo. No made-up packaging. */
 export function NameTile({ name, category }: { name: string; category?: { slug?: string; name?: string } | null }) {
   const size = sizeOf(name);
-  const words = name.replace(size ?? '', '').replace(/s+/g, ' ').trim();
+  const words = name.replace(size ?? '', '').replace(/ +/g, ' ').trim();
   const [brand, ...rest] = words.split(' ');
   return (
     <div className={`name-tile ${TILE_TONE[category?.slug ?? ''] ?? 'green'}`} role="img" aria-label={name}>
