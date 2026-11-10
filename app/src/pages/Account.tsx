@@ -690,14 +690,14 @@ export function RoyaltyPage() {
         )}
         <div className="rc-foot">
           <span>{member ? [m.firstName, m.lastName].filter(Boolean).join(' ') : 'Your name here'}</span>
-          <span>{member ? (m.loyalty?.tier ?? 'GREEN') : 'Free to join'}</span>
+          {member && <span>{m.loyalty?.tier ?? 'GREEN'}</span>}
         </div>
       </section>
 
       <section className="panel">
         <h2>How it works</h2>
         <ol className="rc-steps">
-          <li><b>Join free</b><small>Create an account with your email and a password.</small></li>
+          <li><b>Join</b><small>Create an account with your email and a password.</small></li>
           <li><b>Pay for orders and bookings</b><small>Water and drinks, apartments, the spa, cars and more.</small></li>
           <li><b>Collect points</b><small>They are added as soon as your payment is confirmed.</small></li>
         </ol>
