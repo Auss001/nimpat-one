@@ -73,8 +73,12 @@ interface CartState {
   /** Adds to the basket kept on this device, for a visitor who has not given their details yet. */
   addLocal: (product: any, variantId: string, quantity: number) => void;
   setLocalQty: (variantId: string, quantity: number) => void;
+  /** Empties one store's basket on this device. */
+  clearLocal: (division: string) => void;
+  /** How many of this size or pack are already in the basket. */
+  inBasket: (variantId?: string) => number;
 }
-const CartCtx = createContext<CartState>({ count: 0, totalMinor: 0, carts: [], refresh: async () => undefined, addLocal: () => undefined, setLocalQty: () => undefined });
+const CartCtx = createContext<CartState>({ count: 0, totalMinor: 0, carts: [], refresh: async () => undefined, addLocal: () => undefined, setLocalQty: () => undefined, clearLocal: () => undefined, inBasket: () => 0 });
 export const useCart = () => useContext(CartCtx);
 
 /** A visitor's basket lives on the device until they give their details or sign in; then it moves to their account. */
@@ -148,10 +152,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     writeLocal(lines);
     setCarts(localCarts(lines));
   }, []);
+  const clearLocal = useCallback((division: string) => {
+    const lines = readLocal().filter((l) => l.division.slug !== division);
+    writeLocal(lines);
+    setCarts(localCarts(lines));
+  }, []);
+  const inBasket = useCallback((variantId?: string) => {
+    if (!variantId) return 0;
+    for (const c of carts) for (const l of c.lines) if (l.variantId === variantId) return l.quantity;
+    return 0;
+  }, [carts]);
   useEffect(() => {
     void refresh();
   }, [refresh, session?.email]);
-  const value = useMemo(() => ({ carts, refresh, addLocal, setLocalQty, count: carts.reduce((n, c) => n + c.itemCount, 0), totalMinor: carts.reduce((n, c) => n + Number(c.subtotalMinor), 0) }), [carts, refresh, addLocal, setLocalQty]);
+  const value = useMemo(() => ({ carts, refresh, addLocal, setLocalQty, clearLocal, inBasket, count: carts.reduce((n, c) => n + c.itemCount, 0), totalMinor: carts.reduce((n, c) => n + Number(c.subtotalMinor), 0) }), [carts, refresh, addLocal, setLocalQty, clearLocal, inBasket]);
   return <CartCtx.Provider value={value}>{children}</CartCtx.Provider>;
 }
 

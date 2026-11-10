@@ -597,3 +597,42 @@ body { background: var(--bg); }
 .benefit svg { flex: none; color: var(--green); margin-top: 2px; }
 .benefit span { display: flex; flex-direction: column; gap: 2px; }
 a.reward { text-decoration: none; }
+
+/* Royalty: a gold membership card. */
+.royalty-card { position: relative; overflow: hidden; display: grid; gap: 6px; padding: 20px 20px 18px; min-height: 196px; border-radius: 18px; color: #fff7e0; background: radial-gradient(120% 90% at 100% 0%, rgb(245 179 38 / 30%), transparent 55%), linear-gradient(150deg, #1c1a14 0%, #2b2516 55%, #0c3b28 140%); box-shadow: 0 16px 32px rgb(20 16 4 / 32%); border: 1px solid rgb(245 179 38 / 35%); }
+.royalty-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 9%) 50%, transparent 60%); pointer-events: none; }
+.rc-top { display: flex; justify-content: space-between; align-items: center; }
+.rc-top svg { color: #f5b326; }
+.rc-brand { font-weight: 800; letter-spacing: .18em; font-size: 12px; color: #e8c766; }
+.rc-label { font-size: 22px; font-weight: 800; letter-spacing: -.01em; background: linear-gradient(90deg, #f7d77a, #f5b326, #fbe7a6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rc-points { margin: 4px 0 0; color: #f4e6bd; }
+.rc-points b { font-size: 34px; color: #fff; margin-right: 4px; }
+.rc-pitch { margin: 2px 0 0; color: #f0e3bf; line-height: 1.45; max-width: 30ch; }
+.rc-foot { margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #e8c766; }
+.rc-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: grid; gap: 12px; }
+.rc-steps li { counter-increment: step; display: grid; grid-template-columns: 30px 1fr; column-gap: 12px; }
+.rc-steps li::before { content: counter(step); grid-row: span 2; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #2b2516; background: linear-gradient(145deg, #f7d77a, #f5b326); }
+.rc-steps small { color: var(--muted, #5b6b62); }
+
+/* Basket clarity. */
+.in-basket { display: inline-flex; align-items: center; gap: 4px; color: var(--green); font-weight: 700; }
+.buy-box { display: grid; gap: 10px; }
+.buy-label { font-weight: 700; font-size: 14px; }
+.in-basket-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--mint); color: var(--forest); font-weight: 700; font-size: 14px; text-decoration: none; }
+.in-basket-row span { margin-left: auto; color: var(--green); }
+.delivery-hint { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13.5px; font-weight: 600; }
+.delivery-hint span { display: inline-flex; align-items: center; gap: 6px; }
+.delivery-hint small { flex-basis: 100%; color: var(--muted, #5b6b62); font-weight: 500; }
+
+/* Venida: our own water, up front on the home screen. */
+.venida-box { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 18px; border-radius: var(--radius); text-decoration: none; color: #fff; background: radial-gradient(90% 120% at 100% 100%, rgb(120 200 255 / 35%), transparent 60%), linear-gradient(145deg, #0e5fa8, #093a6b); box-shadow: 0 14px 28px rgb(9 58 107 / 28%); }
+.venida-text { display: grid; gap: 4px; min-width: 0; }
+.venida-kicker { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #bfe0ff; }
+.venida-box h2 { margin: 0; font-size: 22px; color: #fff; }
+.venida-box p { margin: 0; color: #dcecff; font-size: 14px; line-height: 1.4; }
+.venida-go { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; justify-self: start; padding: 8px 14px; border-radius: 20px; background: #fff; color: #0b4f8f; font-weight: 800; font-size: 14px; }
+.venida-pics { display: flex; }
+.venida-pics .photo { width: 64px; height: 92px; margin-left: -18px; background: transparent; }
+.venida-pics .photo:first-child { margin-left: 0; }
+.venida-pics img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 10px rgb(0 0 0 / 30%)); }
+@media (max-width: 380px) { .venida-pics .photo { width: 48px; height: 72px; } }

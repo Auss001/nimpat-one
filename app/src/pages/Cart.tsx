@@ -14,7 +14,7 @@ const DIVISION_NAME: Record<string, string> = {
 
 export function CartPage() {
   const session = getSession();
-  const { carts, refresh, setLocalQty } = useCart();
+  const { carts, refresh, setLocalQty, clearLocal } = useCart();
   const toast = useToast();
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -34,6 +34,21 @@ export function CartPage() {
     }
   };
 
+  const clear = async (slug: string, name: string) => {
+    if (!window.confirm(`Remove everything from your ${name} basket?`)) return;
+    if (!session) {
+      clearLocal(slug);
+      return;
+    }
+    try {
+      await del(`/carts/${slug}`);
+      await refresh();
+      toast('Basket cleared');
+    } catch (e) {
+      toast((e as Error).message, 'error');
+    }
+  };
+
   return (
     <>
       <PageTitle title="Basket" back={false} sub={carts.length > 1 ? 'Each Nimpat store checks out separately.' : undefined} />
@@ -41,10 +56,14 @@ export function CartPage() {
       {ready && carts.length === 0 && <Empty title="Your basket is empty" action={<Link className="btn primary" to="/">Start shopping</Link>} />}
       {carts.map((cart) => {
         const slug = cart.division?.slug ?? cart.division;
+        const name = DIVISION_NAME[slug] ?? cart.division?.name ?? 'Basket';
         return (
           <div key={cart.cartId} className="basket-store">
             <section className="panel">
-              <h2>{DIVISION_NAME[slug] ?? cart.division?.name ?? 'Basket'}</h2>
+              <div className="panel-head">
+                <h2>{name}</h2>
+                <button className="text-link danger" onClick={() => void clear(slug, name)}><Trash2 size={15} aria-hidden="true" /> Clear</button>
+              </div>
               {cart.lines.map((l: any) => (
                 <div key={l.itemId} className="line">
                   <Link to={`/product/${l.productSlug}`} className="line-photo"><Photo src={l.image?.url ?? l.image} alt={l.productName} fit="contain" /></Link>
@@ -227,7 +246,9 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
           <>
             <div className="sum"><span>Items</span><span>{formatNaira(q.subtotalMinor)}</span></div>
             {needsAddress && <div className="sum"><span>Delivery</span><span>{q.deliveryFeeMinor === null || q.deliveryFeeMinor === undefined ? 'To be confirmed' : formatNaira(q.deliveryFeeMinor)}</span></div>}
+            {!needsAddress && <div className="sum"><span>Delivery</span><span>Free (pick up)</span></div>}
             <div className="sum total"><span>Total</span><b>{formatNaira(q.totalMinor)}</b></div>
+            <small className="muted-text">No extra tax is added. The total is what you pay.</small>
           </>
         )}
         <button className="btn primary full" disabled={busy || !q || !option || !ready || q.canCheckout === false} onClick={place}>{busy ? 'Placing your order…' : 'Place order'}</button>

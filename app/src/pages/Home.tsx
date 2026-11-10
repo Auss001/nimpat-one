@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Car, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Ticket, Truck, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Building2, Car, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Ticket, Truck, type LucideIcon } from 'lucide-react';
 import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
@@ -33,15 +33,16 @@ const SHORT_NAME: Record<string, string> = {
 export function HomePage() {
   const home = useLoad(async () => {
     const none = { data: [] as any[] };
-    const [drinks, pharmacy, supplies, stays, cars, spa] = await Promise.all([
+    const [drinks, pharmacy, supplies, stays, cars, spa, venida] = await Promise.all([
       get('/catalog/products?division=water-drinks-wines&pageSize=100').catch(() => none),
       get('/catalog/products?division=pharmacy-laboratory&pageSize=12').catch(() => none),
       get('/catalog/products?division=retail-general-supplies&pageSize=12').catch(() => none),
       loadStays().catch(() => [] as any[]),
       get('/vehicles?pageSize=10').catch(() => none),
       get('/spa/treatments?pageSize=10').catch(() => none),
+      get('/catalog/products?division=water-drinks-wines&q=Venida&pageSize=12').catch(() => none),
     ]);
-    return { drinks: rows(drinks), pharmacy: rows(pharmacy), supplies: rows(supplies), stays, cars: rows(cars), spa: rows(spa).slice(0, 10) };
+    return { venida: rows(venida).filter((p: any) => /venida/i.test(`${p.brand ?? ''} ${p.name}`)), drinks: rows(drinks), pharmacy: rows(pharmacy), supplies: rows(supplies), stays, cars: rows(cars), spa: rows(spa).slice(0, 10) };
   });
   const d = home.data;
   const empty = d && !d.drinks.length && !d.pharmacy.length && !d.stays.length && !d.cars.length && !d.spa.length;
@@ -79,6 +80,8 @@ export function HomePage() {
       </nav>
 
       <HomeSlider stays={d?.stays ?? []} />
+
+      {d && d.venida.length > 0 && <VenidaBox products={d.venida} />}
 
       {home.loading && !d && <Skeletons />}
       {empty && <div className="getting-ready"><h2>Coming soon</h2></div>}
@@ -146,5 +149,24 @@ export function HomePage() {
       )}
       <LegalLinks />
     </div>
+  );
+}
+
+/** Our own water brand, up front: a box that opens every Venida product. */
+function VenidaBox({ products }: { products: any[] }) {
+  const pics = products.filter((p) => p.images?.length).slice(0, 3);
+  const prices = products.map((p) => p.priceFromMinor).filter((x) => x != null);
+  return (
+    <Link to="/shop/water-drinks-wines?q=Venida" className="venida-box">
+      <div className="venida-text">
+        <span className="venida-kicker">Our own brand</span>
+        <h2>Venida Water</h2>
+        <p>Pure table water from Nimpat: bottles, sachets and dispenser water for home, office and events.</p>
+        <span className="venida-go">Shop Venida{prices.length ? ` from ${formatNaira(Math.min(...prices))}` : ''} <ArrowRight size={15} aria-hidden="true" /></span>
+      </div>
+      <div className="venida-pics" aria-hidden="true">
+        {pics.map((p) => <Photo key={p.id} src={p.images[0].url} alt="" fit="contain" />)}
+      </div>
+    </Link>
   );
 }

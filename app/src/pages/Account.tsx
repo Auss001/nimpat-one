@@ -677,12 +677,30 @@ export function RoyaltyPage() {
   return (
     <>
       <PageTitle title="Royalty Member" />
-      <section className="royalty-hero">
-        <Crown size={34} aria-hidden="true" />
-        <h2>Every naira you spend with Nimpat earns you points.</h2>
-        {member && m.loyalty
-          ? <p className="royalty-balance"><b>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')}</b> points</p>
-          : <p>Join free, then collect points across water and drinks, apartments, the spa, cars and more.</p>}
+      <section className="royalty-card" aria-label="Royalty membership card">
+        <div className="rc-top">
+          <span className="rc-brand">NIMPAT ONE</span>
+          <Crown size={28} aria-hidden="true" />
+        </div>
+        <span className="rc-label">Royalty Member</span>
+        {member && m.loyalty ? (
+          <p className="rc-points"><b>{Number(m.loyalty.pointsBalance).toLocaleString('en-NG')}</b> points</p>
+        ) : (
+          <p className="rc-pitch">Every naira you spend with Nimpat earns you points.</p>
+        )}
+        <div className="rc-foot">
+          <span>{member ? [m.firstName, m.lastName].filter(Boolean).join(' ') : 'Your name here'}</span>
+          <span>{member ? (m.loyalty?.tier ?? 'GREEN') : 'Free to join'}</span>
+        </div>
+      </section>
+
+      <section className="panel">
+        <h2>How it works</h2>
+        <ol className="rc-steps">
+          <li><b>Join free</b><small>Create an account with your email and a password.</small></li>
+          <li><b>Pay for orders and bookings</b><small>Water and drinks, apartments, the spa, cars and more.</small></li>
+          <li><b>Collect points</b><small>They are added as soon as your payment is confirmed.</small></li>
+        </ol>
       </section>
 
       <section className="panel royalty-benefits">

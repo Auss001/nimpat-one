@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { CalendarCheck, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, Stethoscope } from 'lucide-react';
+import { CalendarCheck, Check, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, ShoppingBasket, Stethoscope, Store, Truck } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
 
@@ -31,7 +31,7 @@ function useAddToBasket() {
     try {
       await post('/carts/items', { variantId, quantity });
       await refresh();
-      toast(`${name} added to your basket`);
+      toast(`${quantity} × ${name} added to your basket`);
     } catch (e) {
       toast((e as Error).message, 'error');
     } finally {
@@ -44,7 +44,7 @@ function useAddToBasket() {
       if (getSession()) void add(variantId, quantity, product.name);
       else {
         addLocal(product, variantId, quantity);
-        toast(`${product.name} added to your basket`);
+        toast(`${quantity} × ${product.name} added to your basket`);
       }
     };
     if (product.isAgeRestricted && !ageConfirmed()) {
@@ -73,8 +73,10 @@ function priceLabel(p: any) {
 
 export function ProductCard({ product: p }: { product: any }) {
   const { request, dialog, busy } = useAddToBasket();
+  const { inBasket } = useCart();
   const variant = p.variants?.find((v: any) => v.purchasable);
   const single = p.variants?.length === 1;
+  const had = single ? inBasket(variant?.id) : 0;
   return (
     <article className="card">
       <Link to={`/product/${p.slug}`} className="card-link" aria-label={p.name}>
@@ -84,6 +86,7 @@ export function ProductCard({ product: p }: { product: any }) {
           <small>{p.variants?.[0]?.name !== 'As listed' ? p.variants?.[0]?.name : p.category?.name}</small>
           {priceLabel(p)}
           {!p.inStock && <small className="out">Out of stock</small>}
+          {had > 0 && <small className="in-basket"><Check size={13} aria-hidden="true" /> {had} in basket</small>}
         </div>
       </Link>
       <FavButton kind="PRODUCT" slug={p.slug} />
@@ -125,10 +128,10 @@ function useProducts(query: string) {
   return { products: pages, meta, loading, error, more: () => meta && void load(meta.page + 1) };
 }
 
-function ProductList({ division, extra, emptyText, initialCategory = '' }: { division: string; extra?: React.ReactNode; emptyText: string; initialCategory?: string }) {
+function ProductList({ division, extra, emptyText, initialCategory = '', initialQ = '' }: { division: string; extra?: React.ReactNode; emptyText: string; initialCategory?: string; initialQ?: string }) {
   const [category, setCategory] = useState(initialCategory);
-  const [text, setText] = useState('');
-  const [q, setQ] = useState('');
+  const [text, setText] = useState(initialQ);
+  const [q, setQ] = useState(initialQ);
   useEffect(() => {
     const t = setTimeout(() => setQ(text.trim()), 300);
     return () => clearTimeout(t);
@@ -161,11 +164,29 @@ export function ShopPage() {
   const info = DIVISION_TITLE[division] ?? { title: 'Shop', sub: '' };
   const [params] = useSearchParams();
   const initialCategory = params.get('category') ?? '';
+  const initialQ = params.get('q') ?? '';
   return (
     <>
       <PageTitle title={info.title} sub={info.sub} />
-      <ProductList key={`${division}-${initialCategory}`} division={division} initialCategory={initialCategory} emptyText="Our team is confirming these products and prices." />
+      <ProductList key={`${division}-${initialCategory}-${initialQ}`} division={division} initialCategory={initialCategory} initialQ={initialQ} emptyText="Our team is confirming these products and prices." />
     </>
+  );
+}
+
+/** What delivery costs, before the customer reaches checkout. */
+function DeliveryHint({ division }: { division?: string }) {
+  const zones = useLoad(() => (division ? get(`/delivery/zones?division=${division}`).then(rows).catch(() => [] as any[]) : Promise.resolve([] as any[])), [division]);
+  const z = (zones.data ?? []).filter((x: any) => x.isActive);
+  if (!z.length) return null;
+  const fees = z.map((x: any) => Number(x.feeMinor));
+  const low = Math.min(...fees);
+  const where = z.length === 1 ? `in ${z[0].name}` : `from ${formatNaira(low)}`;
+  return (
+    <div className="delivery-hint">
+      <span><Truck size={15} aria-hidden="true" /> Delivery {z.length === 1 ? `${formatNaira(low)} ${where}` : where}</span>
+      <span><Store size={15} aria-hidden="true" /> Pick up free</span>
+      <small>No extra tax is added at checkout. The total you see is what you pay.</small>
+    </div>
   );
 }
 
@@ -187,6 +208,7 @@ export function ProductPage() {
   const { slug = '' } = useParams();
   const product = useLoad(() => get(`/catalog/products/${slug}`), [slug]);
   const { request, dialog, busy } = useAddToBasket();
+  const { inBasket } = useCart();
   const [variantId, setVariantId] = useState('');
   const [qty, setQty] = useState(1);
   const [photo, setPhoto] = useState(0);
@@ -203,6 +225,8 @@ export function ProductPage() {
   const needsPrescription = p.prescriptionStatus === 'REQUIRED' || p.prescriptionStatus === 'RESTRICTED';
   const images = p.images.filter((i: any) => !i.variantId || i.variantId === v?.id);
   const shown = images[photo] ?? images[0];
+  const had = inBasket(v?.id);
+  const packWord = v?.unitsPerPack > 1 ? (qty === 1 ? 'pack' : 'packs') : '';
   return (
     <article className="detail">
       <PageTitle title={p.name} sub={[p.brand, p.category?.name].filter(Boolean).join(' · ')} action={<FavButton kind="PRODUCT" slug={p.slug} inline />} />
@@ -222,17 +246,24 @@ export function ProductPage() {
           {p.variants.length === 1 && v?.name !== 'As listed' && <p className="pack">{v?.name}</p>}
           <p className="big-price">{v?.unitPriceMinor !== null && v?.unitPriceMinor !== undefined ? formatNaira(v.unitPriceMinor) : 'Contact for price'}</p>
           {v?.unitPriceMinor != null && v.unitsPerPack > 1 && <p className="muted-text">About {formatNaira(Math.round(v.unitPriceMinor / v.unitsPerPack))} each</p>}
-          <p className={p.inStock ? 'stock ok' : 'stock out'}>{p.inStock ? 'In stock' : 'Out of stock'}</p>
+          <p className={p.inStock ? 'stock ok' : 'stock out'}>{p.inStock ? 'In stock: available to order now' : 'Out of stock right now'}</p>
           {p.isAgeRestricted && <Note tone="warn">Contains alcohol. Only sold to adults aged 18 and over.</Note>}
           {needsPrescription && <Note tone="warn"><ShieldCheck size={16} aria-hidden="true" /> This medicine needs a pharmacist and prescription review, so it cannot be bought online.</Note>}
           {v?.purchasable ? (
-            <div className="buy-row">
-              <div className="qty">
-                <button aria-label="Fewer" disabled={qty <= (v.minOrderQty ?? 1)} onClick={() => setQty((n) => n - 1)}><Minus size={16} /></button>
-                <span aria-live="polite">{qty}</span>
-                <button aria-label="More" disabled={v.maxOrderQty ? qty >= v.maxOrderQty : false} onClick={() => setQty((n) => n + 1)}><Plus size={16} /></button>
+            <div className="buy-box">
+              <span className="buy-label">How many {v.unitsPerPack > 1 ? `packs (${v.unitsPerPack} in each)` : ''}?</span>
+              <div className="buy-row">
+                <div className="qty">
+                  <button aria-label="Fewer" disabled={qty <= (v.minOrderQty ?? 1)} onClick={() => setQty((n) => n - 1)}><Minus size={16} /></button>
+                  <span aria-live="polite">{qty}</span>
+                  <button aria-label="More" disabled={v.maxOrderQty ? qty >= v.maxOrderQty : false} onClick={() => setQty((n) => n + 1)}><Plus size={16} /></button>
+                </div>
+                <button className="btn primary grow" disabled={busy} onClick={() => { request(p, v.id, qty); setQty(v.minOrderQty ?? 1); }}>
+                  {busy ? 'Adding…' : <>Add {qty} {packWord || 'to basket'}{v.unitPriceMinor != null ? ` · ${formatNaira(v.unitPriceMinor * qty)}` : ''}</>}
+                </button>
               </div>
-              <button className="btn primary grow" disabled={busy} onClick={() => request(p, v.id, qty)}>Add to basket</button>
+              {had > 0 && <Link to="/cart" className="in-basket-row"><ShoppingBasket size={16} aria-hidden="true" /> {had} {v.unitsPerPack > 1 ? (had === 1 ? 'pack' : 'packs') : ''} already in your basket <span>View basket</span></Link>}
+              <DeliveryHint division={p.division?.slug} />
             </div>
           ) : (
             <>
