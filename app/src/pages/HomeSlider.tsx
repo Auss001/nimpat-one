@@ -6,7 +6,7 @@ import { useLoad } from '../ui';
 
 interface Slide {
   id: string;
-  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS' | 'VENIDA';
+  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS' | 'VENIDA' | 'CARS';
   title: string | null;
   subtitle: string | null;
   buttonText: string | null;
@@ -39,7 +39,10 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
   const venidaSlide: Slide | null = venida.length
     ? { id: 'venida', kind: 'VENIDA', title: 'Venida Water', subtitle: 'Our own brand', buttonText: 'Shop Venida', imageUrl: '/venida-slide.webp', linkTo: '/shop/water-drinks-wines?q=Venida', tone: 'blue' }
     : null;
-  const slides = venidaSlide ? [...managed.slice(0, 1), venidaSlide, ...managed.slice(1)] : managed;
+  // Nimpat Automobiles always has its own picture card, after Venida.
+  const carsSlide: Slide = { id: 'cars', kind: 'CARS', title: 'Nimpat Automobiles', subtitle: 'Drive in style', buttonText: 'Explore Cars', imageUrl: '/cars-slide.webp', linkTo: '/cars', tone: 'dark' };
+  const own = [venidaSlide, carsSlide].filter((x): x is Slide => !!x);
+  const slides = [...managed.slice(0, 1), ...own, ...managed.slice(1)];
   const count = slides.length;
 
   const track = useRef<HTMLDivElement>(null);
@@ -94,6 +97,13 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
       <span className="slider-glows" aria-hidden="true"><span className="slider-glow one" /><span className="slider-glow two" /></span>
       <div className="slider-track" ref={track} onScroll={onScroll}>
         {slides.map((s) => {
+          if (s.kind === 'CARS') {
+            return (
+              <Link key={s.id} to="/cars" className="slide flyer cars-slide" aria-label="Nimpat Automobiles: drive in style. Explore cars">
+                <img src="/cars-slide.webp" alt="" loading="lazy" />
+              </Link>
+            );
+          }
           if (s.kind === 'VENIDA') {
             return (
               <Link key={s.id} to={s.linkTo!} className="slide flyer venida-slide" aria-label="Venida Water: table water, alkaline, sachet and dispenser jars. Shop Venida">

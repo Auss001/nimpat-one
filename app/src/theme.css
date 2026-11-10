@@ -709,3 +709,5 @@ a.reward { text-decoration: none; }
 .track-steps li:not(.done):not(.now) .txt b { color: var(--muted, #8a9a91); font-weight: 600; }
 .receiver { margin: 2px 0 4px; font-size: 14px; color: var(--muted, #5b6b62); }
 .receiver b { color: var(--ink, #10291e); }
+.cars-slide { background: #050608; }
+.cars-slide > img { width: 100%; height: 100%; object-fit: cover; }
