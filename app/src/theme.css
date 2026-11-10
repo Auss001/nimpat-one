@@ -628,3 +628,21 @@ a.reward { text-decoration: none; }
 .venida-slide { background: #0d6fd6; }
 .venida-slide > img { width: 100%; height: 100%; object-fit: cover; }
 .venida-slide .flyer-go { top: 12px; left: 12px; right: auto; bottom: auto; color: #0b4f8f; }
+
+/* Name tiles: products without a photo show their name, coloured by category. */
+.name-tile { --t1: #e3f4ea; --t2: #c9ead6; --tx: #0c3b28; --ac: #0b6b3a; position: relative; width: 100%; height: 100%; min-height: 90px; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 12% 10%; border-radius: inherit; background: radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 55%), transparent 55%), linear-gradient(150deg, var(--t1), var(--t2)); color: var(--tx); overflow: hidden; container-type: inline-size; }
+.name-tile::after { content: ''; position: absolute; right: -14%; bottom: -14%; width: 52%; aspect-ratio: 1; border-radius: 50%; border: 10px solid rgb(255 255 255 / 45%); }
+.nt-cat { font-size: max(9px, 6.5cqw); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ac); opacity: .85; }
+.nt-brand { font-size: max(15px, 13cqw); line-height: 1.05; font-weight: 800; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.nt-rest { font-size: max(11px, 8cqw); line-height: 1.2; font-weight: 600; opacity: .8; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.nt-size { align-self: flex-start; margin-top: 6px; padding: 3px 9px; border-radius: 999px; background: var(--ac); color: #fff; font-size: max(10px, 7cqw); font-weight: 800; }
+.name-tile.blue { --t1: #e3eefc; --t2: #c8dcf7; --tx: #0b2f5c; --ac: #1668b8; }
+.name-tile.sky { --t1: #e1f5fb; --t2: #c3e7f4; --tx: #083b4c; --ac: #0c7fa3; }
+.name-tile.teal { --t1: #dff5f2; --t2: #bfe9e3; --tx: #073f39; --ac: #0d8073; }
+.name-tile.violet { --t1: #ece7fb; --t2: #d8cff5; --tx: #2c1c63; --ac: #6247c4; }
+.name-tile.amber { --t1: #fdf1d9; --t2: #f8e0ad; --tx: #4a3104; --ac: #b07408; }
+.name-tile.orange { --t1: #fdeadc; --t2: #f9d2b5; --tx: #4d2207; --ac: #c25a14; }
+.name-tile.rose { --t1: #fce5e8; --t2: #f6c9d0; --tx: #5a1220; --ac: #c0354f; }
+.name-tile.pink { --t1: #fbe6f2; --t2: #f3cbe2; --tx: #561540; --ac: #b23c88; }
+.name-tile.slate { --t1: #e9eef2; --t2: #d3dde5; --tx: #1d2b36; --ac: #4b6476; }
+.detail-photo .name-tile { padding: 14%; }

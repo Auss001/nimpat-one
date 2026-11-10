@@ -80,7 +80,7 @@ export function ProductCard({ product: p }: { product: any }) {
   return (
     <article className="card">
       <Link to={`/product/${p.slug}`} className="card-link" aria-label={p.name}>
-        <div className="card-photo square"><Photo src={p.images?.[0]?.url} alt={p.name} fit="contain" /></div>
+        <div className="card-photo square"><Photo src={p.images?.[0]?.url} alt={p.name} fit="contain" tile={{ name: p.name, category: p.category }} /></div>
         <div className="card-body">
           <strong>{p.name}</strong>
           <small>{p.variants?.[0]?.name !== 'As listed' ? p.variants?.[0]?.name : p.category?.name}</small>
@@ -235,7 +235,7 @@ export function ProductPage() {
       <PageTitle title={p.name} sub={[p.brand, p.category?.name].filter(Boolean).join(' · ')} action={<FavButton kind="PRODUCT" slug={p.slug} inline />} />
       <div className="detail-grid">
         <div>
-          <div className="detail-photo square"><Photo src={shown?.url} alt={p.name} fit="contain" /></div>
+          <div className="detail-photo square"><Photo src={shown?.url} alt={p.name} fit="contain" tile={{ name: p.name, category: p.category }} /></div>
           {images.length > 1 && (
             <div className="thumbs">{images.map((i: any, n: number) => <button key={i.id} className={n === photo ? 'on' : ''} aria-label={`Photo ${n + 1}`} onClick={() => setPhoto(n)}><img src={i.url} alt="" /></button>)}</div>
           )}

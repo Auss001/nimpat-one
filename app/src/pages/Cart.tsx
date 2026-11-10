@@ -66,7 +66,7 @@ export function CartPage() {
               </div>
               {cart.lines.map((l: any) => (
                 <div key={l.itemId} className="line">
-                  <Link to={`/product/${l.productSlug}`} className="line-photo"><Photo src={l.image?.url ?? l.image} alt={l.productName} fit="contain" /></Link>
+                  <Link to={`/product/${l.productSlug}`} className="line-photo"><Photo src={l.image?.url ?? l.image} alt={l.productName} fit="contain" tile={{ name: l.productName }} /></Link>
                   <div className="line-body">
                     <Link to={`/product/${l.productSlug}`}><b>{l.productName}</b></Link>
                     {l.variantName !== 'As listed' && <small>{l.variantName}</small>}

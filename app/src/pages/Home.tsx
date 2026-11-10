@@ -87,7 +87,7 @@ export function HomePage() {
         <Rail title="Recently viewed" to="/search">
           {viewed.map((p) => (
             <Link key={p.slug} to={`/product/${p.slug}`} className="card">
-              <div className="card-photo square"><Photo src={p.image} alt={p.name} fit="contain" /></div>
+              <div className="card-photo square"><Photo src={p.image} alt={p.name} fit="contain" tile={{ name: p.name }} /></div>
               <div className="card-body"><strong>{p.name}</strong></div>
             </Link>
           ))}

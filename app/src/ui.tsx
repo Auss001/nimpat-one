@@ -296,8 +296,36 @@ export const forgetSearches = () => {
 // ---------------------------------------------------------------- small parts
 
 /** A product or place photo. When there is none, it says so rather than showing something similar. */
-export function Photo({ src, alt, fit = 'cover' }: { src?: string | null; alt: string; fit?: 'cover' | 'contain' }) {
+/** Colours for name tiles, by product category. */
+const TILE_TONE: Record<string, string> = {
+  analgesics: 'blue', 'anti-cold': 'sky', 'anti-malaria': 'teal', antibiotics: 'violet', 'antacid-anti-ulcer': 'amber',
+  'antidiabetics-antihypertensives': 'rose', 'mineral-vitamin-supplements': 'green', 'syrups-anti-suspension': 'orange',
+  'eye-ear-drops': 'sky', injections: 'violet', ointments: 'pink', 'feminine-vaginal-health': 'pink', 'sexual-health': 'rose',
+  'medical-tools-equipment': 'slate', toiletries: 'teal',
+};
+/** Strength, size or pack count from a name, such as "500mg", "100ml" or "x30". */
+function sizeOf(name: string) {
+  return name.match(/(?<![0-9.])[0-9]+(?:[.][0-9]+)? ?(?:mg|ml|mcg|g|iu|l|cl)(?![a-z])/i)?.[0] ?? name.match(/[x×] ?[0-9]+(?![0-9])/i)?.[0].replace('×', 'x') ?? null;
+}
+
+/** A clean tile with the product's name, for products without a photo. No made-up packaging. */
+export function NameTile({ name, category }: { name: string; category?: { slug?: string; name?: string } | null }) {
+  const size = sizeOf(name);
+  const words = name.replace(size ?? '', '').replace(/s+/g, ' ').trim();
+  const [brand, ...rest] = words.split(' ');
+  return (
+    <div className={`name-tile ${TILE_TONE[category?.slug ?? ''] ?? 'green'}`} role="img" aria-label={name}>
+      {category?.name && <span className="nt-cat">{category.name}</span>}
+      <b className="nt-brand">{brand}</b>
+      {rest.length > 0 && <span className="nt-rest">{rest.join(' ')}</span>}
+      {size && <span className="nt-size">{size}</span>}
+    </div>
+  );
+}
+
+export function Photo({ src, alt, fit = 'cover', tile }: { src?: string | null; alt: string; fit?: 'cover' | 'contain'; tile?: { name: string; category?: { slug?: string; name?: string } | null } }) {
   const [failed, setFailed] = useState(false);
+  if ((!src || failed) && tile) return <NameTile name={tile.name} category={tile.category} />;
   if (!src || failed) {
     return (
       <div className="photo pending" role="img" aria-label={`${alt}: image pending`}>
