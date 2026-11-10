@@ -13,7 +13,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { readSpreadsheet, SpreadsheetError } from '../../common/utils/spreadsheet';
 import { ApiOperation, ApiProperty, ApiPropertyOptional, ApiTags, PartialType } from '@nestjs/swagger';
 import { DivisionCode, InquiryStatus, InquiryType, Payment, PaymentPurpose, PaymentStatus, Prisma, RecordVerification, VehicleCondition, VehicleStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -183,6 +187,59 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
     return updated;
   }
 
+  /**
+   * Fills in car details from a spreadsheet. The "Web address" (or "Slug") column finds the car;
+   * Trim, Body type, Transmission, Fuel, Colour and Description fill those fields, and any other
+   * column (Engine, Drive, Seats, Power…) is shown as a feature. Empty cells change nothing.
+   */
+  async importDetails(user: AuthUser, file?: { buffer: Buffer; originalname: string }) {
+    const d = await this.divisions.byCode(DivisionCode.AUTOMOBILES);
+    user.assertCan(P.listingsManage, d.id);
+    if (!file?.buffer?.length) throw new BadRequestException('Choose a spreadsheet to upload.');
+    let sheets;
+    try {
+      sheets = readSpreadsheet(file.buffer, file.originalname ?? '');
+    } catch (e) {
+      throw new BadRequestException(e instanceof SpreadsheetError ? e.message : 'This file could not be read. Please save it as .xlsx or .csv.');
+    }
+    const FIELDS: Record<string, 'trim' | 'bodyType' | 'transmission' | 'fuelType' | 'colour' | 'description'> = {
+      TRIM: 'trim', 'BODY TYPE': 'bodyType', BODY: 'bodyType', TRANSMISSION: 'transmission', GEARBOX: 'transmission', FUEL: 'fuelType', 'FUEL TYPE': 'fuelType',
+      COLOUR: 'colour', COLOR: 'colour', DESCRIPTION: 'description',
+    };
+    const SKIP = new Set(['WEB ADDRESS', 'SLUG', 'CAR', 'MAKE', 'MODEL', 'YEAR', 'PRICE', 'NOTES', 'NOTE']);
+    let updated = 0;
+    const notFound: string[] = [];
+    for (const sheet of sheets) {
+      const head = (sheet.rows[0] ?? []).map((h) => String(h).toUpperCase().trim());
+      const slugCol = head.findIndex((h) => h === 'WEB ADDRESS' || h === 'SLUG');
+      if (slugCol < 0) continue;
+      for (const row of sheet.rows.slice(1)) {
+        const slug = String(row[slugCol] ?? '').trim().toLowerCase().replace(/^.*\/cars\//, '');
+        if (!slug) continue;
+        const v = await this.prisma.vehicle.findFirst({ where: { slug, divisionId: d.id } });
+        if (!v) {
+          notFound.push(slug);
+          continue;
+        }
+        const data: Prisma.VehicleUpdateInput = {};
+        const specs: Record<string, string> = { ...((v.specs && typeof v.specs === 'object' && !Array.isArray(v.specs) ? v.specs : {}) as Record<string, string>) };
+        head.forEach((h, i) => {
+          const value = String(row[i] ?? '').trim();
+          if (!value || i === slugCol || SKIP.has(h)) return;
+          const field = FIELDS[h];
+          if (field) (data as Record<string, string>)[field] = value.slice(0, field === 'description' ? 5000 : 120);
+          else specs[sheet.rows[0][i].trim().slice(0, 40)] = value.slice(0, 120);
+        });
+        data.specs = specs;
+        await this.prisma.vehicle.update({ where: { id: v.id }, data });
+        await this.audit.record({ actorId: user.id, action: 'vehicle.details_import', entityType: 'vehicle', entityId: v.id, divisionId: v.divisionId, changes: { file: file.originalname, ...data } as Record<string, unknown> });
+        updated++;
+      }
+    }
+    if (!updated && !notFound.length) throw new BadRequestException('No cars were found. The first row needs a "Web address" column, for example toyota-camry-2013-r8.');
+    return { updated, notFound };
+  }
+
   async adminInquiries(user: AuthUser, q: InquiryQueryDto) {
     const d = await this.divisions.byCode(DivisionCode.AUTOMOBILES);
     user.assertCan(P.inquiriesManage, d.id);
@@ -315,6 +372,13 @@ export class AdminVehiclesController {
   @Patch(':id') @RequirePermissions(P.listingsManage)
   update(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateVehicleDto) {
     return this.vehicles.update(user, id, dto);
+  }
+
+  @Post('details-import') @RequirePermissions(P.listingsManage)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024, files: 1 } }))
+  @ApiOperation({ summary: 'Fill in car details (trim, transmission, fuel, colour, description, features) from a spreadsheet' })
+  importDetails(@CurrentUser() user: AuthUser, @UploadedFile() file?: { buffer: Buffer; originalname: string }) {
+    return this.vehicles.importDetails(user, file);
   }
 
   @Get('inquiries/all') @RequirePermissions(P.inquiriesManage)

@@ -145,7 +145,7 @@ interface BulkRow {
 }
 
 /** Uploads a whole folder of product photos. Each file name decides which product it belongs to. */
-export function BulkPhotoUpload({ onClose, onChanged }: { onClose: () => void; onChanged: () => void }) {
+export function BulkPhotoUpload({ onClose, onChanged, cars = false }: { onClose: () => void; onChanged: () => void; cars?: boolean }) {
   const [rows, setRows] = useState<BulkRow[]>([]);
   const [running, setRunning] = useState(false);
   const input = useRef<HTMLInputElement>(null);
@@ -161,8 +161,14 @@ export function BulkPhotoUpload({ onClose, onChanged }: { onClose: () => void; o
     for (const [i, file] of files.entries()) {
       let next: Partial<BulkRow>;
       try {
-        const r = await upload<{ product: string; action: string; url: string; warning?: string }>('/admin/photos/by-sku', file);
-        next = { state: 'done', url: r.url, message: `${r.action === 'replaced' ? 'Replaced photo on' : 'Added to'} ${r.product}${r.warning ? `. ${r.warning}` : ''}` };
+        if (cars && /\.(csv|xlsx)$/i.test(file.name)) {
+          // The car details sheet: trim, transmission, fuel, colour, description and features.
+          const d = await upload<{ updated: number; notFound: string[] }>('/admin/vehicles/details-import', file);
+          next = { state: d.notFound.length ? 'failed' : 'done', message: `Details filled in for ${d.updated} cars${d.notFound.length ? `. Not found: ${d.notFound.join(', ')}` : ''}` };
+        } else {
+          const r = await upload<{ product: string; action: string; url: string; warning?: string }>('/admin/photos/by-sku', file);
+          next = { state: 'done', url: r.url, message: `${r.action === 'replaced' ? 'Replaced photos on' : 'Added to'} ${r.product}${r.warning ? `. ${r.warning}` : ''}` };
+        }
       } catch (err) {
         next = { state: 'failed', message: (err as Error).message };
       }
@@ -174,21 +180,34 @@ export function BulkPhotoUpload({ onClose, onChanged }: { onClose: () => void; o
 
   return (
     <Modal
-      title="Upload product photos in bulk"
+      title={cars ? 'Upload car photos and details' : 'Upload product photos in bulk'}
       onClose={() => { if (!running) onClose(); }}
       wide
       footer={<button className="btn primary" disabled={running} onClick={onClose}>Done</button>}
     >
-      <p style={{ marginTop: 0 }}>Name each file after the product's SKU, then choose them all together.</p>
-      <ul className="muted small" style={{ marginTop: 0 }}>
-        <li><span className="mono">NMP-WTR-002.png</span> replaces that product's photo.</li>
-        <li><span className="mono">NMP-WTR-002-2.png</span> adds a second photo to it.</li>
-      </ul>
+      {cars ? (
+        <>
+          <p style={{ marginTop: 0 }}>Name each photo after the car's web address and its place in the gallery, then choose them all together, with the details sheet if you have one.</p>
+          <ul className="muted small" style={{ marginTop: 0 }}>
+            <li><span className="mono">toyota-camry-2013-r8-01.jpg</span> becomes that car's first photo and replaces its old ones.</li>
+            <li><span className="mono">toyota-camry-2013-r8-02.jpg</span>, <span className="mono">-03</span>… are added after it.</li>
+            <li><span className="mono">car-details.csv</span> (or .xlsx) fills in trim, transmission, fuel, colour, description and features.</li>
+          </ul>
+        </>
+      ) : (
+        <>
+          <p style={{ marginTop: 0 }}>Name each file after the product's SKU, then choose them all together.</p>
+          <ul className="muted small" style={{ marginTop: 0 }}>
+            <li><span className="mono">NMP-WTR-002.png</span> replaces that product's photo.</li>
+            <li><span className="mono">NMP-WTR-002-2.png</span> adds a second photo to it.</li>
+          </ul>
+        </>
+      )}
       <div className="toolbar">
-        <button className="btn primary" disabled={running} onClick={() => input.current?.click()}>Choose photos</button>
+        <button className="btn primary" disabled={running} onClick={() => input.current?.click()}>{cars ? 'Choose photos and sheet' : 'Choose photos'}</button>
         {rows.length > 0 && <span className="muted small" role="status">{done} done{failed ? `, ${failed} failed` : ''}, of {rows.length}</span>}
       </div>
-      <input ref={input} type="file" hidden multiple accept={ACCEPT} onChange={(e) => void start(e)} />
+      <input ref={input} type="file" hidden multiple accept={cars ? `${ACCEPT},.csv,.xlsx` : ACCEPT} onChange={(e) => void start(e)} />
       {rows.length > 0 && (
         <div className="table-wrap" style={{ maxHeight: 340, overflow: 'auto' }}>
           <table>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { get, patch, post } from '../api';
-import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
+import { BulkPhotoUpload, PhotoManager, type PhotoTarget } from '../components/PhotoManager';
 import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, useAction, useLoad } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
@@ -29,6 +29,7 @@ const CONDITION = { BRAND_NEW: 'Brand new', FOREIGN_USED: 'Foreign used', NIGERI
 export function VehiclesPage() {
   const vehicles = useLoad(() => get<{ data: Vehicle[] }>('/admin/vehicles?pageSize=100').then((r) => r.data.filter((v) => v.make !== 'DevSample' && v.status !== 'ARCHIVED')));
   const [editing, setEditing] = useState<Vehicle | 'new' | null>(null);
+  const [bulk, setBulk] = useState(false);
   const [photos, setPhotos] = useState<PhotoTarget | null>(null);
   const { run } = useAction();
 
@@ -43,9 +44,10 @@ export function VehiclesPage() {
       <PageHead
         title="Automobiles"
         subtitle="Showroom vehicles. Customers book inspections or test drives; set a deposit to allow an online deposit hold."
-        actions={<button className="btn primary" onClick={() => setEditing('new')}>+ Add vehicle</button>}
+        actions={<><button className="btn" onClick={() => setBulk(true)}>Upload photos & details</button><button className="btn primary" onClick={() => setEditing('new')}>+ Add vehicle</button></>}
       />
       <Loading error={vehicles.error} loading={vehicles.loading && !vehicles.data} />
+      {bulk && <BulkPhotoUpload cars onClose={() => setBulk(false)} onChanged={() => void vehicles.reload()} />}
       {vehicles.data && (
         <div className="card table-wrap">
           <table>

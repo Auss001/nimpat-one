@@ -244,7 +244,11 @@ export class PhotosService {
       variant = await this.prisma.productVariant.findUnique({ where: { sku: base.replace(/-\d{1,2}$/, '') }, select });
       extra = !!variant;
     }
-    if (!variant) throw new NotFoundException(`No product has the SKU ${base}`);
+    if (!variant) {
+      const car = await this.uploadForVehicle(user, base.toLowerCase(), file);
+      if (car) return car;
+      throw new NotFoundException(`No product has the SKU ${base}, and no car has that web address`);
+    }
     if (!user.can(P.catalogManage, variant.product.divisionId)) throw new ForbiddenException('You cannot change this product');
 
     // A product with several sizes keeps a photo per size; otherwise the photo is for the whole product.
@@ -265,6 +269,34 @@ export class PhotosService {
       for (const p of old) await this.removeFileIfUnused(p.url);
       await this.record(user, gallery, 'product', variant.productId, old.length ? 'replace' : 'add', { url, sku: variant.sku, replaced: old.map((p) => p.url) });
       return { sku: variant.sku, product: variant.product.name, action: old.length ? 'replaced' : 'added', url: photo.url, warning };
+    } catch (e) {
+      await this.storage.remove(url);
+      throw e;
+    }
+  }
+
+  /**
+   * Car photos in bulk: "toyota-camry-2013-r8-01.jpg" is photo 1 of the car at /cars/toyota-camry-2013-r8.
+   * Photo 01 starts the gallery afresh; later numbers are added in order.
+   */
+  private async uploadForVehicle(user: AuthUser, name: string, file: UploadedPhoto) {
+    const m = name.match(/^([a-z0-9-]+)-([0-9]{1,2})$/);
+    if (!m) return null;
+    const vehicle = await this.prisma.vehicle.findUnique({ where: { slug: m[1] }, select: { id: true, slug: true, make: true, model: true, year: true, divisionId: true } });
+    if (!vehicle) return null;
+    if (!user.can(P.listingsManage, vehicle.divisionId)) throw new ForbiddenException('You cannot change this car');
+    const order = Number(m[2]);
+    const gallery = await this.gallery('vehicle', vehicle.id);
+    const { url, warning } = await this.storage.save(file.buffer, 'scene');
+    try {
+      const existing = await gallery.list();
+      const old = order <= 1 ? existing : [];
+      for (const ph of old) await gallery.remove(ph.id);
+      const photo = await gallery.add(url, Math.max(0, order - 1), {});
+      for (const ph of old) await this.removeFileIfUnused(ph.url);
+      const label = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+      await this.record(user, gallery, 'vehicle', vehicle.id, old.length ? 'replace' : 'add', { url, slug: vehicle.slug, order, replaced: old.map((ph) => ph.url) });
+      return { sku: vehicle.slug, product: label, action: old.length ? 'replaced' : 'added', url: photo.url, warning };
     } catch (e) {
       await this.storage.remove(url);
       throw e;
