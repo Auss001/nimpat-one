@@ -185,18 +185,17 @@ export function BulkPhotoUpload({ onClose, onChanged, cars = false }: { onClose:
   const done = rows.filter((r) => r.state === 'done').length;
   const failed = rows.filter((r) => r.state === 'failed').length;
 
-  // Car photos prepared from the stand manager's chat, shipped with the dashboard for a one-time upload.
+  // Photos prepared outside the dashboard (car stand chat, water bottles), shipped with it for a one-time upload.
   const [prepared, setPrepared] = useState<string[]>([]);
   useEffect(() => {
-    if (!cars) return;
-    fetch('/prepared/cars/manifest.json').then((r) => (r.ok ? r.json() : null)).then((m) => setPrepared(m?.files ?? [])).catch(() => setPrepared([]));
+    fetch(`/prepared/${cars ? 'cars' : 'products'}/manifest.json`).then((r) => (r.ok ? r.json() : null)).then((m) => setPrepared(m?.files ?? [])).catch(() => setPrepared([]));
   }, [cars]);
   const startPrepared = async () => {
     setRunning(true);
     const files: File[] = [];
     for (const name of prepared) {
-      const r = await fetch(`/prepared/cars/${name}`);
-      if (r.ok) files.push(new File([await r.blob()], name, { type: name.endsWith('.csv') ? 'text/csv' : 'image/jpeg' }));
+      const r = await fetch(`/prepared/${cars ? 'cars' : 'products'}/${name}`);
+      if (r.ok) files.push(new File([await r.blob()], name, { type: name.endsWith('.csv') ? 'text/csv' : name.endsWith('.webp') ? 'image/webp' : 'image/jpeg' }));
     }
     await run(files);
   };
@@ -267,8 +266,8 @@ export function BulkPhotoUpload({ onClose, onChanged, cars = false }: { onClose:
         onFiles={(files) => void run(files)}
       />
       <div className="toolbar" style={{ marginTop: 12 }}>
-        {cars && prepared.length > 0 && <button className="btn primary" disabled={running} onClick={() => void startPrepared()}>Upload the prepared car photos ({prepared.length} files)</button>}
-        <button className={`btn ${cars && prepared.length > 0 ? '' : 'primary'}`} disabled={running} onClick={() => input.current?.click()}>{cars ? 'Choose photos and sheet' : 'Choose photos'}</button>
+        {prepared.length > 0 && <button className="btn primary" disabled={running} onClick={() => void startPrepared()}>Upload the prepared {cars ? 'car' : 'product'} photos ({prepared.length} files)</button>}
+        <button className={`btn ${prepared.length > 0 ? '' : 'primary'}`} disabled={running} onClick={() => input.current?.click()}>{cars ? 'Choose photos and sheet' : 'Choose photos'}</button>
         {rows.length > 0 && <span className="muted small" role="status">{done} done{failed ? `, ${failed} failed` : ''}, of {rows.length}</span>}
       </div>
       <input ref={input} type="file" hidden multiple accept={cars ? `${ACCEPT},.csv,.xlsx` : ACCEPT} onChange={(e) => void start(e)} />
