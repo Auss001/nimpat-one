@@ -360,18 +360,57 @@ export const addressLine = (a: any) => [a.line1, a.line2, a.landmark, a.city, a.
 
 const STATES = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'];
 
+const ELSEWHERE = '__elsewhere__';
+
+/**
+ * Where to deliver, kept short: the Abuja area (each with its fee), the street, and an optional
+ * landmark. The receiver's name and phone come from the account and can be changed.
+ */
 export function AddressForm({ address, onSaved, onCancel }: { address?: any; onSaved: (a: any) => void | Promise<void>; onCancel?: () => void }) {
   const toast = useToast();
+  const session = useSession();
+  const me = useLoad(() => (session ? get('/auth/me') : Promise.resolve(null)), [session?.email]);
+  const areas = useLoad(() => get<{ area: string; ring: string; feeMinor: number | null }[]>('/delivery/areas?division=water-drinks-wines').catch(() => []), []);
+  const known = (city: string) => (areas.data ?? []).some((a) => a.area.toLowerCase() === city.trim().toLowerCase());
   const [f, setF] = useState({
     recipientName: address?.recipientName ?? '', phone: address?.phone ?? '', line1: address?.line1 ?? '', landmark: address?.landmark ?? '',
     city: address?.city ?? '', state: address?.state ?? 'FCT', label: address?.label ?? '',
   });
+  const [area, setArea] = useState<string>('');
+  const [who, setWho] = useState(!!address);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
+
+  // Fill in the area for an address being edited, and the receiver from the account.
+  useEffect(() => {
+    if (!areas.data || area) return;
+    if (!address) return;
+    setArea(known(address.city ?? '') ? (areas.data.find((a) => a.area.toLowerCase() === address.city.trim().toLowerCase())?.area ?? '') : ELSEWHERE);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [areas.data]);
+  useEffect(() => {
+    const m = me.data;
+    if (!m || address) return;
+    const name = [m.customerProfile?.firstName, m.customerProfile?.lastName].filter(Boolean).join(' ');
+    setF((x) => ({ ...x, recipientName: x.recipientName || name, phone: x.phone || (m.phone ?? '') }));
+    if (!name || !m.phone) setWho(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [me.data]);
+
+  const elsewhere = area === ELSEWHERE;
+  const chooseArea = (v: string) => {
+    setArea(v);
+    if (v !== ELSEWHERE) setF((x) => ({ ...x, city: v, state: 'FCT' }));
+    else setF((x) => ({ ...x, city: known(x.city) ? '' : x.city }));
+  };
+  const rings = [...new Set((areas.data ?? []).map((a) => a.ring))];
+  const fee = (n: number | null) => (n === null ? '' : n === 0 ? ' · free delivery' : ` · ${formatNaira(n)}`);
+  const ready = f.recipientName.trim() && f.phone.trim() && f.line1.trim() && f.city.trim() && area;
+
   const submit = async () => {
     setBusy(true);
     try {
-      const body = Object.fromEntries(Object.entries(f).map(([k, v]) => [k, v.trim()]).filter(([, v]) => v));
+      const body = Object.fromEntries(Object.entries({ ...f, label: f.label || (elsewhere ? '' : f.city) }).map(([k, v]) => [k, v.trim()]).filter(([, v]) => v));
       await onSaved(address ? await patch(`/me/addresses/${address.id}`, body) : await post('/me/addresses', body));
     } catch (e) {
       toast((e as Error).message, 'error');
@@ -381,18 +420,36 @@ export function AddressForm({ address, onSaved, onCancel }: { address?: any; onS
   };
   return (
     <div className="address-form">
-      <Field label="Who receives it?"><input autoComplete="name" value={f.recipientName} onChange={set('recipientName')} /></Field>
-      <Field label="Their phone" hint="E.g. 0803 123 4567, or +44… if abroad"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
-      <Field label="Address"><input autoComplete="street-address" value={f.line1} onChange={set('line1')} /></Field>
-      <Field label="Landmark (optional)"><input value={f.landmark} onChange={set('landmark')} /></Field>
-      <div className="date-pair">
-        <Field label="City or area"><input autoComplete="address-level2" value={f.city} onChange={set('city')} /></Field>
-        <Field label="State"><select value={f.state} onChange={set('state')}>{STATES.map((s) => <option key={s}>{s}</option>)}</select></Field>
-      </div>
-      <Field label="Name this address (optional)" hint="Home, Office…"><input value={f.label} onChange={set('label')} /></Field>
+      <Field label="Area">
+        <select value={area} onChange={(e) => chooseArea(e.target.value)}>
+          <option value="" disabled>Choose your area in Abuja</option>
+          {rings.map((r) => (
+            <optgroup key={r} label={r.replace(/^Abuja: /, '').replace(/ \(.*\)$/, '')}>
+              {(areas.data ?? []).filter((a) => a.ring === r).map((a) => <option key={a.area} value={a.area}>{a.area}{fee(a.feeMinor)}</option>)}
+            </optgroup>
+          ))}
+          <option value={ELSEWHERE}>Somewhere else</option>
+        </select>
+      </Field>
+      {elsewhere && (
+        <div className="date-pair">
+          <Field label="Town or area"><input autoComplete="address-level2" value={f.city} onChange={set('city')} /></Field>
+          <Field label="State"><select value={f.state} onChange={set('state')}>{STATES.map((st) => <option key={st}>{st}</option>)}</select></Field>
+        </div>
+      )}
+      <Field label="Street and house number"><input autoComplete="street-address" placeholder="e.g. 12 Jesse Jackson Street" value={f.line1} onChange={set('line1')} /></Field>
+      <Field label="Landmark (optional)"><input placeholder="e.g. opposite the filling station" value={f.landmark} onChange={set('landmark')} /></Field>
+      {who ? (
+        <div className="date-pair">
+          <Field label="Receiver's name"><input autoComplete="name" value={f.recipientName} onChange={set('recipientName')} /></Field>
+          <Field label="Receiver's phone"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
+        </div>
+      ) : (
+        <p className="receiver">Receiver: <b>{f.recipientName}</b> · {f.phone} <button type="button" className="text-link" onClick={() => setWho(true)}>Change</button></p>
+      )}
       <div className="row">
         {onCancel && <button type="button" className="btn ghost" onClick={onCancel}>Cancel</button>}
-        <button type="button" className="btn primary grow" disabled={busy || !f.recipientName.trim() || !f.phone.trim() || !f.line1.trim() || !f.city.trim()} onClick={submit}>{busy ? 'Saving…' : 'Save address'}</button>
+        <button type="button" className="btn primary grow" disabled={busy || !ready} onClick={submit}>{busy ? 'Saving…' : 'Save address'}</button>
       </div>
     </div>
   );

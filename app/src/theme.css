@@ -707,3 +707,5 @@ a.reward { text-decoration: none; }
 .track-steps li.now .dot { box-shadow: 0 0 0 5px rgb(11 107 58 / 18%); }
 .track-steps .txt { display: flex; flex-direction: column; }
 .track-steps li:not(.done):not(.now) .txt b { color: var(--muted, #8a9a91); font-weight: 600; }
+.receiver { margin: 2px 0 4px; font-size: 14px; color: var(--muted, #5b6b62); }
+.receiver b { color: var(--ink, #10291e); }

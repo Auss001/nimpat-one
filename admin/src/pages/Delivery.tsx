@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { get, patch, post } from '../api';
-import { Field, Loading, Modal, MoneyInput, PageHead, StatusPill, useAction, useLoad } from '../components/ui';
+import { Field, Loading, Modal, MoneyInput, PageHead, StatusPill, useAction, useConfirm, useLoad } from '../components/ui';
 import { formatNaira } from '../money';
 
 interface Zone {
@@ -21,13 +21,27 @@ const DIVISION = 'water-drinks-wines';
 export function DeliveryPage() {
   const zones = useLoad(() => get<Zone[]>(`/admin/delivery/zones?division=${DIVISION}`));
   const [editing, setEditing] = useState<Zone | 'new' | null>(null);
+  const { run, busy } = useAction();
+  const { ask, dialog } = useConfirm();
+  // Every shop that delivers gets the same rings; a shop this person cannot manage is skipped.
+  const rings = () =>
+    ask(
+      'Set Abuja delivery fees in rings around Wuye for every shop? Wuye and Utako free; central areas ₦5,000; the middle ring ₦7,500; Gwarinpa, Kubwa and the far edges ₦10,000. Abuja areas not on the list pay ₦10,000. You can change any zone afterwards.',
+      () => void run(async () => {
+        const shops = ['water-drinks-wines', 'pharmacy-laboratory', 'retail-general-supplies'];
+        const results = await Promise.allSettled(shops.map((division) => post('/admin/delivery/abuja-rings', { division })));
+        if (results.every((r) => r.status === 'rejected')) throw (results[0] as PromiseRejectedResult).reason;
+        await zones.reload();
+      }, 'Abuja ring fees are set and live'),
+      'Set ring fees',
+    );
 
   return (
     <>
       <PageHead
         title="Delivery fees"
         subtitle="Water, Drinks & Wines delivery areas. A zone that lists cities is used before a whole-state zone."
-        actions={<button className="btn primary" onClick={() => setEditing('new')}>+ Add zone</button>}
+        actions={<><button className="btn" disabled={busy} onClick={rings}>Set Abuja ring fees</button><button className="btn primary" onClick={() => setEditing('new')}>+ Add zone</button></>}
       />
       <Loading error={zones.error} loading={zones.loading && !zones.data} />
       {zones.data && (
@@ -55,6 +69,7 @@ export function DeliveryPage() {
           </table>
         </div>
       )}
+      {dialog}
       {editing && <ZoneForm zone={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); void zones.reload(); }} />}
     </>
   );

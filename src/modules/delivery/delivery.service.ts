@@ -6,6 +6,7 @@ import { AuthUser } from '../access/auth-user';
 import { P } from '../access/permissions';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { ABUJA_AREAS, ABUJA_FALLBACK_FEE, ABUJA_RINGS } from './abuja-areas';
 
 export interface DeliveryQuote {
   zoneId: string;
@@ -59,6 +60,43 @@ export class DeliveryService {
       freeAboveMinor: zone.freeAboveMinor,
       estimatedHours: zone.estimatedHours,
     };
+  }
+
+  /** Abuja areas for the address form, each with this shop's fee (null when not yet set). */
+  async abujaAreas(divisionId: string) {
+    const zones = (await this.prisma.deliveryZone.findMany({ where: { divisionId, isActive: true, verification: 'VERIFIED' } })).filter((z) => norm(z.state) === 'fct');
+    const fallback = zones.find((z) => z.cities.length === 0);
+    return ABUJA_AREAS.map(({ area, ring }) => {
+      const zone = zones.find((z) => z.cities.map(norm).includes(norm(area))) ?? fallback;
+      return { area, ring, feeMinor: zone ? zone.feeMinor : null };
+    });
+  }
+
+  /**
+   * Sets this shop's Abuja fees in rings around Wuye: one zone per ring, confirmed by the
+   * person who presses the button. Abuja addresses outside the list pay the outer-ring fee.
+   * Running it again puts the standard rings back.
+   */
+  async setupAbujaRings(user: AuthUser, divisionId: string) {
+    user.assertCan(P.deliveriesManage, divisionId);
+    const now = new Date();
+    const existing = await this.prisma.deliveryZone.findMany({ where: { divisionId } });
+    const wide = existing.filter((z) => norm(z.state) === 'fct' && z.cities.length === 0);
+    const payOnDelivery = wide.some((z) => z.payOnDeliveryEnabled);
+    const confirmed = { verification: 'VERIFIED' as const, verifiedAt: now, verifiedById: user.id, isActive: true };
+    await this.prisma.$transaction(async (tx) => {
+      for (const ring of ABUJA_RINGS) {
+        const data = { state: 'FCT', cities: ring.areas.map(norm), feeMinor: ring.feeMinor, freeAboveMinor: null, payOnDeliveryEnabled: payOnDelivery, ...confirmed };
+        await tx.deliveryZone.upsert({ where: { divisionId_name: { divisionId, name: ring.name } }, create: { divisionId, name: ring.name, ...data }, update: data });
+      }
+      if (wide.length) await tx.deliveryZone.updateMany({ where: { id: { in: wide.map((z) => z.id) } }, data: { feeMinor: ABUJA_FALLBACK_FEE, freeAboveMinor: null, ...confirmed } });
+      else await tx.deliveryZone.create({ data: { divisionId, name: 'Abuja: other areas', state: 'FCT', cities: [], feeMinor: ABUJA_FALLBACK_FEE, payOnDeliveryEnabled: payOnDelivery, ...confirmed } });
+      await this.audit.record(
+        { actorId: user.id, action: 'delivery_zone.abuja_rings', entityType: 'division', entityId: divisionId, divisionId, changes: { rings: ABUJA_RINGS.map((r) => ({ name: r.name, feeMinor: String(r.feeMinor), areas: r.areas.length })), otherAreasFeeMinor: String(ABUJA_FALLBACK_FEE) } },
+        tx,
+      );
+    });
+    return this.listZones(divisionId, true);
   }
 
   listZones(divisionId: string, includeInactive = false) {

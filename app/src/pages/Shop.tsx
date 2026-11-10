@@ -183,10 +183,11 @@ function DeliveryHint({ division }: { division?: string }) {
   if (!z.length) return null;
   const fees = z.map((x: any) => Number(x.feeMinor));
   const low = Math.min(...fees);
-  const where = z.length === 1 ? `in ${z[0].name}` : `from ${formatNaira(low)}`;
+  const high = Math.max(...fees);
+  const where = z.length === 1 ? `${formatNaira(low)} in ${z[0].name}` : low === 0 ? `free in Wuye and Utako, up to ${formatNaira(high)} across Abuja` : `from ${formatNaira(low)}`;
   return (
     <div className="delivery-hint">
-      <span><Truck size={15} aria-hidden="true" /> Delivery {z.length === 1 ? `${formatNaira(low)} ${where}` : where}</span>
+      <span><Truck size={15} aria-hidden="true" /> Delivery {where}</span>
       <span><Store size={15} aria-hidden="true" /> Pick up free</span>
       <small>{VAT_DIVISIONS.has(division ?? '') ? 'Prices exclude 7.5% VAT, which is added at checkout.' : 'No extra tax is added at checkout. The total you see is what you pay.'}</small>
     </div>

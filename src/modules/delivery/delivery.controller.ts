@@ -62,6 +62,14 @@ export class DeliveryController {
   }
 
   @Public()
+  @Get('areas')
+  @ApiOperation({ summary: 'Abuja areas for the address form, with this shop\'s delivery fee for each' })
+  async areas(@Query('division') division: string) {
+    const d = await this.divisions.resolve(division ?? 'water-drinks-wines');
+    return this.delivery.abujaAreas(d.id);
+  }
+
+  @Public()
   @Get('quote')
   @ApiOperation({ summary: 'Delivery charge for a location (calculated on the server)' })
   async quote(@Query() q: DeliveryQuoteQueryDto) {
@@ -84,6 +92,14 @@ export class AdminDeliveryController {
     const d = await this.divisions.resolve(division ?? 'water-drinks-wines');
     user.assertCan(P.deliveriesManage, d.id);
     return this.delivery.listZones(d.id, true);
+  }
+
+  @Post('abuja-rings')
+  @RequirePermissions(P.deliveriesManage)
+  @ApiOperation({ summary: 'Set this shop\'s Abuja fees in rings around Wuye (free, ₦5,000, ₦7,500, ₦10,000)' })
+  async abujaRings(@CurrentUser() user: AuthUser, @Body('division') division: string) {
+    const d = await this.divisions.resolve(division);
+    return this.delivery.setupAbujaRings(user, d.id);
   }
 
   @Post('zones')
