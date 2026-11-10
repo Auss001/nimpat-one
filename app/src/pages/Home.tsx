@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Car, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Truck, type LucideIcon } from 'lucide-react';
+import { Building2, Car, ChevronLeft, ChevronRight, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Truck, type LucideIcon } from 'lucide-react';
 import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
@@ -69,14 +69,14 @@ export function HomePage() {
     <div className="home">
       <Link to="/search" className="search-entry"><Search size={18} aria-hidden="true" /> What do you need?</Link>
 
-      <nav className="worlds" aria-label="Everything on Nimpat One">
+      <ScrollRow label="Everything on Nimpat One">
         {WORLDS.map(({ to, label, icon: Icon, tone }) => (
           <Link key={to} to={to} className="world">
             <span className={`bubble ${tone}`}><Icon size={24} aria-hidden="true" /></span>
             {label}
           </Link>
         ))}
-      </nav>
+      </ScrollRow>
 
       <HomeSlider stays={d?.stays ?? []} venida={d?.venida ?? []} />
 
@@ -149,3 +149,27 @@ export function HomePage() {
   );
 }
 
+
+/** A sideways row with arrow buttons, shown only while there is more to scroll that way. */
+function ScrollRow({ label, children }: { label: string; children: ReactNode }) {
+  const row = useRef<HTMLElement>(null);
+  const [edge, setEdge] = useState({ left: false, right: false });
+  const check = () => {
+    const el = row.current;
+    if (!el) return;
+    setEdge({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  };
+  useEffect(() => {
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  const go = (dir: number) => row.current?.scrollBy({ left: dir * row.current.clientWidth * 0.8, behavior: 'smooth' });
+  return (
+    <div className="scroll-row">
+      {edge.left && <button className="row-arrow left" aria-label="Show earlier" onClick={() => go(-1)}><ChevronLeft size={20} /></button>}
+      <nav className="worlds" aria-label={label} ref={row} onScroll={check}>{children}</nav>
+      {edge.right && <button className="row-arrow right" aria-label="Show more" onClick={() => go(1)}><ChevronRight size={20} /></button>}
+    </div>
+  );
+}

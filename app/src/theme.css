@@ -627,7 +627,6 @@ a.reward { text-decoration: none; }
 /* Venida: our own water, a picture card in the home slider. */
 .venida-slide { background: #0d6fd6; }
 .venida-slide > img { width: 100%; height: 100%; object-fit: cover; }
-.venida-slide .flyer-go { top: 12px; left: 12px; right: auto; bottom: auto; color: #0b4f8f; }
 
 /* Name tiles: products without a photo show their name, coloured by category. */
 .name-tile { --t1: #e3f4ea; --t2: #c9ead6; --tx: #0c3b28; --ac: #0b6b3a; position: relative; width: 100%; height: 100%; min-height: 90px; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 12% 10%; border-radius: inherit; background: radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 55%), transparent 55%), linear-gradient(150deg, var(--t1), var(--t2)); color: var(--tx); overflow: hidden; container-type: inline-size; }
@@ -651,3 +650,60 @@ a.reward { text-decoration: none; }
 .card .name-tile { min-height: 0; padding: 8% 10%; }
 .card .nt-cat { display: none; }
 .card .nt-brand { font-size: max(14px, 11cqw); }
+
+/* WhatsApp: a round button above the tab bar, lifted when the basket bar shows. */
+.wa-float { position: fixed; z-index: 19; right: 16px; bottom: calc(var(--tabs) + 22px + env(safe-area-inset-bottom)); width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: #25d366; color: #fff; box-shadow: 0 10px 24px rgb(18 140 70 / 38%); transition: bottom .2s; }
+.wa-float.raised { bottom: calc(var(--tabs) + 82px + env(safe-area-inset-bottom)); }
+.wa-float:active { transform: scale(.95); }
+@media (min-width: 900px) { .wa-float { bottom: 24px; right: 24px; } .wa-float.raised { bottom: 88px; } }
+.btn.wa { background: #25d366; color: #fff; border: 0; }
+
+/* Home icon row: arrows show there is more to either side. */
+.scroll-row { position: relative; }
+.row-arrow { position: absolute; z-index: 2; top: 17px; width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 1px solid rgb(12 59 40 / 8%); display: grid; place-items: center; background: rgb(255 255 255 / 86%); color: rgb(12 59 40 / 70%); box-shadow: 0 2px 8px rgb(30 60 45 / 12%); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); cursor: pointer; transition: opacity .2s, background .2s; }
+.row-arrow:hover { background: #fff; color: var(--forest); }
+.row-arrow svg { width: 15px; height: 15px; }
+.row-arrow.left { left: 2px; }
+.row-arrow.right { right: 2px; }
+
+/* Passwords with an eye to show what is typed. */
+.pw-box { position: relative; display: block; }
+.pw-box input { width: 100%; padding-right: 48px; }
+.pw-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; background: none; color: var(--muted, #5b6b62); display: grid; place-items: center; cursor: pointer; border-radius: 10px; }
+.stack { display: grid; gap: 12px; }
+
+/* Royalty invite on the Account screen: just a card and a button. */
+.guest-card { align-items: center; flex-wrap: wrap; }
+.guest-card > svg { color: #f5b326; }
+.btn.gold { background: linear-gradient(145deg, #f7d77a, #f5b326); color: #2b2516; border: 0; font-weight: 800; }
+
+/* Help & FAQ. */
+.contact-panel { display: grid; gap: 4px; }
+.contact-row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; text-decoration: none; color: inherit; border-bottom: 1px solid var(--line); }
+.contact-row:last-child { border-bottom: 0; }
+.contact-row span { display: flex; flex-direction: column; flex: 1; }
+.contact-row.wa > svg:first-child { color: #25d366; }
+.faq-item { border-bottom: 1px solid var(--line); }
+.faq-item:last-child { border-bottom: 0; }
+.faq-item button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 2px; border: 0; background: none; font: inherit; font-weight: 700; text-align: left; color: inherit; cursor: pointer; }
+.faq-item button svg { flex: none; transition: transform .2s; }
+.faq-item.open button svg { transform: rotate(180deg); }
+.faq-item p { margin: 0 2px 14px; line-height: 1.5; color: var(--muted, #5b6b62); }
+
+/* Order tracking. */
+.track { display: grid; gap: 14px; }
+.track-now { display: flex; align-items: center; gap: 12px; }
+.track-now > svg { flex: none; color: var(--green); }
+.track-now div { display: flex; flex-direction: column; flex: 1; }
+.track-now b { font-size: 18px; }
+.track-steps { list-style: none; margin: 0; padding: 0; display: grid; }
+.track-steps li { position: relative; display: flex; gap: 12px; padding-bottom: 18px; }
+.track-steps li:last-child { padding-bottom: 0; }
+.track-steps li::before { content: ''; position: absolute; left: 11px; top: 24px; bottom: 0; width: 2px; background: var(--line); }
+.track-steps li:last-child::before { display: none; }
+.track-steps li.done::before { background: var(--green); }
+.track-steps .dot { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--card); display: grid; place-items: center; color: #fff; z-index: 1; }
+.track-steps li.done .dot, .track-steps li.now .dot { background: var(--green); border-color: var(--green); }
+.track-steps li.now .dot { box-shadow: 0 0 0 5px rgb(11 107 58 / 18%); }
+.track-steps .txt { display: flex; flex-direction: column; }
+.track-steps li:not(.done):not(.now) .txt b { color: var(--muted, #8a9a91); font-weight: 600; }

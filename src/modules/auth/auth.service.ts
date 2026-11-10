@@ -17,7 +17,10 @@ import { AuthUser } from '../access/auth-user';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../notifications/mail.service';
 import { ChangePasswordDto, GuestDto, LoginDto, RegisterDto, ResetPasswordDto, TokenResponseDto, UpgradeGuestDto } from './dto/auth.dto';
-import { randomUUID } from 'node:crypto';
+import { randomInt, randomUUID } from 'node:crypto';
+
+const CODE_TTL_MS = 30 * 60_000;
+const CODE_MAX_TRIES = 5;
 
 const MAX_FAILED_LOGINS = 5;
 const LOCK_MINUTES = 15;
@@ -222,6 +225,32 @@ export class AuthService {
     return { ok: true };
   }
 
+  /**
+   * Confirms the signed-in person's email with the 6-digit code from their email.
+   * Five wrong tries cancel the code, so it cannot be guessed; they then ask for a new one.
+   */
+  async verifyEmailCode(user: AuthUser, code: string) {
+    const now = new Date();
+    const live = { userId: user.id, purpose: TokenPurpose.EMAIL_VERIFICATION, usedAt: null, expiresAt: { gt: now } };
+    const record = await this.prisma.verificationToken.findFirst({ where: { ...live, tokenHash: sha256(`code:${user.id}:${code}`) } });
+    if (!record) {
+      const since = new Date(now.getTime() - CODE_TTL_MS);
+      const misses = await this.prisma.auditLog.count({ where: { actorId: user.id, action: 'auth.email_code_failed', createdAt: { gt: since } } });
+      await this.audit.record({ actorId: user.id, action: 'auth.email_code_failed', entityType: 'user', entityId: user.id });
+      if (misses + 1 >= CODE_MAX_TRIES) {
+        await this.prisma.verificationToken.updateMany({ where: live, data: { usedAt: now } });
+        throw new BadRequestException('Too many wrong codes. Please ask for a new code.');
+      }
+      throw new BadRequestException('That code is not right, or it has expired. Please check your email and try again.');
+    }
+    const used = await this.prisma.verificationToken.updateMany({ where: { id: record.id, usedAt: null }, data: { usedAt: now } });
+    if (used.count !== 1) throw new BadRequestException('That code has already been used.');
+    await this.prisma.user.update({ where: { id: user.id }, data: { emailVerifiedAt: now } });
+    this.access.invalidate(user.id);
+    await this.audit.record({ actorId: user.id, action: 'auth.email_verified', entityType: 'user', entityId: user.id, changes: { by: 'code' } });
+    return { ok: true };
+  }
+
   async resendVerification(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (user && !user.emailVerifiedAt && user.status === UserStatus.ACTIVE) {
@@ -354,11 +383,16 @@ export class AuthService {
     const hours = this.config.get('EMAIL_VERIFICATION_TTL_HOURS');
     const token = await this.createToken(user.id, TokenPurpose.EMAIL_VERIFICATION, hours * 3600_000);
     const link = `${this.config.get('APP_PUBLIC_URL')}/verify-email?token=${token}`;
+    // A short code as well as the link, for typing straight into the app. It lasts 30 minutes.
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    await this.prisma.verificationToken.create({
+      data: { userId: user.id, purpose: TokenPurpose.EMAIL_VERIFICATION, tokenHash: sha256(`code:${user.id}:${code}`), expiresAt: new Date(Date.now() + CODE_TTL_MS) },
+    });
     await this.mail.send({
       to: user.email,
-      subject: 'Verify your Nimpat One email address',
-      text: `Welcome to Nimpat One. Confirm your email address within ${hours} hours: ${link}`,
-      devOnlyDetail: `verification link: ${link}`,
+      subject: `${code} is your Nimpat One code`,
+      text: `Welcome to Nimpat One.\n\nYour code is ${code}. Enter it in the app within 30 minutes to confirm your email address.\n\nOr confirm with this link within ${hours} hours: ${link}\n\nIf you did not create an account, you can ignore this email.`,
+      devOnlyDetail: `verification link: ${link} code: ${code}`,
     });
   }
 

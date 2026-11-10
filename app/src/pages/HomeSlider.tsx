@@ -36,7 +36,6 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
   // The apartments slide waits until a flat with a photo has loaded.
   const managed = (loaded.data ?? []).filter((s) => s.kind !== 'APARTMENTS' || stay);
   // Our own water, Venida, always has a blue card, second in line.
-    const venidaPrices = venida.map((p) => p.priceFromMinor).filter((x) => x != null);
   const venidaSlide: Slide | null = venida.length
     ? { id: 'venida', kind: 'VENIDA', title: 'Venida Water', subtitle: 'Our own brand', buttonText: 'Shop Venida', imageUrl: '/venida-slide.webp', linkTo: '/shop/water-drinks-wines?q=Venida', tone: 'blue' }
     : null;
@@ -97,9 +96,8 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
         {slides.map((s) => {
           if (s.kind === 'VENIDA') {
             return (
-              <Link key={s.id} to={s.linkTo!} className="slide flyer venida-slide" aria-label="Venida Water, our own brand. Shop Venida">
+              <Link key={s.id} to={s.linkTo!} className="slide flyer venida-slide" aria-label="Venida Water: table water, alkaline, sachet and dispenser jars. Shop Venida">
                 <img src="/venida-slide.webp" alt="" loading="lazy" />
-                <Go text={venidaPrices.length ? `Shop Venida from ${formatNaira(Math.min(...venidaPrices))}` : 'Shop Venida'} className="flyer-go" />
               </Link>
             );
           }

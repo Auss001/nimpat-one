@@ -6,6 +6,7 @@ import { AuthUser } from '../access/auth-user';
 import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
+  VerifyEmailCodeDto,
   EmailOnlyDto,
   GuestDto,
   LoginDto,
@@ -91,6 +92,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Confirm an email address with the emailed token' })
   verifyEmail(@Body() dto: VerifyEmailDto) {
     return this.auth.verifyEmail(dto.token);
+  }
+
+  @Authenticated() @AuthThrottle()
+  @Post('verify-email-code')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Confirm my email address with the 6-digit code from the email' })
+  verifyEmailCode(@CurrentUser() user: AuthUser, @Body() dto: VerifyEmailCodeDto) {
+    return this.auth.verifyEmailCode(user, dto.code);
   }
 
   @Public() @AuthThrottle()

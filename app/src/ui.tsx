@@ -1,7 +1,7 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, InputHTMLAttributes, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Phone, X } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Eye, EyeOff, Heart, Phone, X } from 'lucide-react';
 import { del, get, getSession, PHONE, PHONE_LABEL, post, rows, SHOP_DIVISIONS } from './api';
 
 // ---------------------------------------------------------------- data loading
@@ -335,6 +335,19 @@ export function Photo({ src, alt, fit = 'cover', tile }: { src?: string | null; 
     );
   }
   return <img className={`photo ${fit}`} src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} />;
+}
+
+/** A password box with an eye button to show or hide what is typed. */
+export function PasswordInput(props: InputHTMLAttributes<HTMLInputElement>) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="pw-box">
+      <input {...props} type={show ? 'text' : 'password'} />
+      <button type="button" className="pw-eye" aria-label={show ? 'Hide password' : 'Show password'} aria-pressed={show} onClick={() => setShow((s) => !s)}>
+        {show ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+      </button>
+    </div>
+  );
 }
 
 export function Loader({ label = 'Loading' }: { label?: string }) {

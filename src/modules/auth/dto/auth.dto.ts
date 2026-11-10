@@ -75,6 +75,11 @@ export class RefreshDto {
   refreshToken: string;
 }
 
+export class VerifyEmailCodeDto {
+  @ApiProperty({ example: '123456' }) @IsString() @Matches(/^[0-9]{6}$/, { message: 'The code is 6 digits' })
+  code: string;
+}
+
 export class VerifyEmailDto {
   @ApiProperty() @IsString() @MinLength(20) @MaxLength(200)
   token: string;

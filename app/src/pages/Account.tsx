@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Award, CalendarCheck, Check, ChevronRight, Crown, FileText, Gift, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, ShieldCheck, Smartphone, Trash2 } from 'lucide-react';
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Award, CalendarCheck, Check, ChevronRight, Crown, Gift, Heart, LogOut, MailCheck, MapPin, Pencil, RotateCcw, Smartphone, Trash2, Truck } from 'lucide-react';
 import { del, endSession, formatNaira, get, getSession, login, logout, patch, post, register, rows, startGuest, upgradeGuest } from '../api';
-import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
+import { CallLink, dateTime, Empty, Field, Loader, Note, PageTitle, PasswordInput, Sheet, shortDate, Status, useCart, useLoad, useSession, useToast } from '../ui';
+import { HelpLinks } from './Help';
 
 /** Only a path inside the app may be a return address after sign-in. */
 const safeNext = (n: string | null) => (n && n.startsWith('/') && !n.startsWith('//') ? n : '/');
@@ -43,7 +44,7 @@ export function LoginPage() {
       <form className="panel" onSubmit={submit}>
         {error && <Note tone="error">{error}</Note>}
         <Field label="Email"><input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
-        <Field label="Password"><input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
+        <Field label="Password"><PasswordInput required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
         <button className="btn primary full" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
         <Link className="text-link" to="/forgot-password">Forgot your password?</Link>
       </form>
@@ -90,17 +91,26 @@ export function DetailsForm({ onDone, title = 'Your details' }: { onDone: () => 
 /** Someone who ordered with just their details can add a password and keep their orders. */
 function GuestUpgrade({ onDone }: { onDone: () => void }) {
   const toast = useToast();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
   const [password, setPassword] = useState('');
+  const [again, setAgain] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (password !== again) {
+      setError('The two passwords are not the same.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
       await upgradeGuest(password);
-      toast('Welcome! Your account is ready. Please check your email to confirm it.');
+      toast('Welcome, Royalty Member! We have emailed you a code to confirm your address.');
+      setOpen(false);
       onDone();
+      navigate('/verify-email');
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -108,16 +118,27 @@ function GuestUpgrade({ onDone }: { onDone: () => void }) {
     }
   };
   return (
-    <form className="reward guest-card" onSubmit={submit}>
-      <Award size={26} aria-hidden="true" />
-      <div className="guest-card-body">
-        <b>Become a Royalty Member</b>
-        <small>Add a password to join, and start earning points on what you pay for.</small>
-        {error && <Note tone="error">{error}</Note>}
-        <input type="password" required minLength={10} autoComplete="new-password" aria-label="Choose a password" placeholder="Choose a password (10+ characters, a letter and a number)" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button className="btn primary" disabled={busy}>{busy ? 'Joining…' : 'Join'}</button>
+    <>
+      <div className="reward guest-card">
+        <Crown size={26} aria-hidden="true" />
+        <div className="guest-card-body">
+          <b>Become a Royalty Member</b>
+          <small>Earn points on what you pay for, and see your orders on any device.</small>
+        </div>
+        <button className="btn gold" onClick={() => setOpen(true)}>Join now</button>
       </div>
-    </form>
+      {open && (
+        <Sheet title="Become a Royalty Member" onClose={() => setOpen(false)}>
+          <form onSubmit={submit} className="stack">
+            <p className="muted-text">Choose a password. Your name, email and phone are already saved.</p>
+            {error && <Note tone="error">{error}</Note>}
+            <Field label="Password" hint="At least 10 characters, with a letter and a number."><PasswordInput required minLength={10} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
+            <Field label="Type it again"><PasswordInput required minLength={10} autoComplete="new-password" value={again} onChange={(e) => setAgain(e.target.value)} /></Field>
+            <button className="btn primary full" disabled={busy}>{busy ? 'Joining…' : 'Join now'}</button>
+          </form>
+        </Sheet>
+      )}
+    </>
   );
 }
 
@@ -130,13 +151,11 @@ function AccountOptions() {
         <Link className="btn primary grow" to="/login?next=/account">Sign in</Link>
         <Link className="btn ghost grow" to="/register?next=/account">Create account</Link>
       </div>
-      <nav className="panel link-list" aria-label="Help and policies">
+      <nav className="panel link-list" aria-label="Membership and orders">
         <Link to="/royalty"><Crown size={19} aria-hidden="true" /> Royalty Member <ChevronRight size={18} aria-hidden="true" /></Link>
         <Link to="/bookings"><CalendarCheck size={19} aria-hidden="true" /> Orders and bookings <ChevronRight size={18} aria-hidden="true" /></Link>
-        <Link to="/privacy"><ShieldCheck size={19} aria-hidden="true" /> Privacy Policy <ChevronRight size={18} aria-hidden="true" /></Link>
-        <Link to="/terms"><FileText size={19} aria-hidden="true" /> Terms of Use <ChevronRight size={18} aria-hidden="true" /></Link>
       </nav>
-      <section className="panel"><h2>Help</h2><CallLink /></section>
+      <HelpLinks />
     </>
   );
 }
@@ -144,17 +163,21 @@ function AccountOptions() {
 export function RegisterPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const [f, setF] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+  const [f, setF] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '', again: '' });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (f.password !== f.again) {
+      setError('The two passwords are not the same.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
       await register({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), email: f.email.trim(), password: f.password, ...(f.phone.trim() ? { phone: f.phone.trim() } : {}) });
-      navigate(safeNext(params.get('next')), { replace: true });
+      navigate(`/verify-email?next=${encodeURIComponent(safeNext(params.get('next')))}`, { replace: true });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -170,9 +193,10 @@ export function RegisterPage() {
           <Field label="First name"><input required autoComplete="given-name" value={f.firstName} onChange={set('firstName')} /></Field>
           <Field label="Last name"><input required autoComplete="family-name" value={f.lastName} onChange={set('lastName')} /></Field>
         </div>
-        <Field label="Email" hint="We will send you a link to confirm it."><input type="email" required autoComplete="email" value={f.email} onChange={set('email')} /></Field>
+        <Field label="Email" hint="We will email you a 6-digit code to confirm it."><input type="email" required autoComplete="email" value={f.email} onChange={set('email')} /></Field>
         <Field label="Phone (optional)" hint="E.g. 0803 123 4567, or +44… if abroad"><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
-        <Field label="Password" hint="At least 10 characters, with a letter and a number."><input type="password" required minLength={10} autoComplete="new-password" value={f.password} onChange={set('password')} /></Field>
+        <Field label="Password" hint="At least 10 characters, with a letter and a number."><PasswordInput required minLength={10} autoComplete="new-password" value={f.password} onChange={set('password')} /></Field>
+        <Field label="Type your password again"><PasswordInput required minLength={10} autoComplete="new-password" value={f.again} onChange={set('again')} /></Field>
         <p className="legal-note">By creating an account, you agree to our <a href="/terms" target="_blank" rel="noreferrer">Terms of Use</a> and confirm you have read our <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.</p>
         <button className="btn primary full" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
       </form>
@@ -237,7 +261,7 @@ export function ResetPage() {
       {done ? <><Note tone="ok">Your password has been changed.</Note><Link className="btn primary full" to="/login">Sign in</Link></> : (
         <form className="panel" onSubmit={submit}>
           {error && <Note tone="error">{error}</Note>}
-          <Field label="New password" hint="At least 10 characters, with a letter and a number."><input type="password" required minLength={10} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
+          <Field label="New password" hint="At least 10 characters, with a letter and a number."><PasswordInput required minLength={10} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
           <button className="btn primary full" disabled={busy}>Save password</button>
         </form>
       )}
@@ -248,7 +272,65 @@ export function ResetPage() {
 export function VerifyEmailPage() {
   const [params] = useSearchParams();
   const token = params.get('token');
-  const result = useLoad(() => (token ? post('/auth/verify-email', { token }) : Promise.reject(new Error('This link is not complete.'))), [token]);
+  if (!token) return <VerifyCode next={safeNext(params.get('next'))} />;
+  return <VerifyLink token={token} />;
+}
+
+/** Straight after joining: type the 6-digit code from the email. */
+function VerifyCode({ next }: { next: string }) {
+  const session = useSession();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [code, setCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  if (!session) return <Navigate to="/login?next=/verify-email" replace />;
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await post('/auth/verify-email-code', { code });
+      toast('Your email is confirmed. Welcome!');
+      navigate(next, { replace: true });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const resend = async () => {
+    try {
+      await post('/auth/resend-verification', { email: session.email });
+      setCode('');
+      setError(null);
+      toast('A new code is on its way.');
+    } catch (err) {
+      toast((err as Error).message, 'error');
+    }
+  };
+  return (
+    <div className="auth">
+      <PageTitle title="Check your email" sub={`We sent a 6-digit code to ${session.email}.`} back={false} />
+      <form className="panel" onSubmit={submit}>
+        {error && <Note tone="error">{error}</Note>}
+        <Field label="Code">
+          <input className="code-input" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required autoFocus
+            value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))} placeholder="••••••" />
+        </Field>
+        <button className="btn primary full" disabled={busy || code.length !== 6}>{busy ? 'Checking…' : 'Confirm email'}</button>
+        <div className="row spread">
+          <button type="button" className="text-link" onClick={() => void resend()}>Send a new code</button>
+          <Link className="text-link" to={next}>Skip for now</Link>
+        </div>
+      </form>
+      <p className="auth-switch">Can't find it? Check your spam folder. The code lasts 30 minutes.</p>
+    </div>
+  );
+}
+
+function VerifyLink({ token }: { token: string }) {
+  const result = useLoad(() => post('/auth/verify-email', { token }), [token]);
   return (
     <div className="auth">
       <PageTitle title="Confirm your email" back={false} />
@@ -266,12 +348,12 @@ export function VerifyEmailNote() {
   const resend = async () => {
     try {
       await post('/auth/resend-verification', { email: session?.email });
-      toast('Link sent. Please check your inbox.');
+      toast('Code sent. Please check your inbox.');
     } catch (e) {
       toast((e as Error).message, 'error');
     }
   };
-  return <Note tone="warn"><MailCheck size={16} aria-hidden="true" /> Please confirm your email before you pay. <button className="text-link" onClick={resend}>Send the link again</button></Note>;
+  return <Note tone="warn"><MailCheck size={16} aria-hidden="true" /> Please confirm your email before you pay. <Link className="text-link" to="/verify-email" onClick={() => void resend()}>Get a code</Link></Note>;
 }
 
 export const addressLine = (a: any) => [a.line1, a.line2, a.landmark, a.city, a.state].filter(Boolean).join(', ');
@@ -361,9 +443,8 @@ export function AccountPage() {
       <nav className="panel link-list" aria-label="Your account">
         <Link to="/bookings"><CalendarCheck size={19} aria-hidden="true" /> Orders and bookings <ChevronRight size={18} aria-hidden="true" /></Link>
         <Link to="/favorites"><Heart size={19} aria-hidden="true" /> Favourites <ChevronRight size={18} aria-hidden="true" /></Link>
-        <Link to="/privacy"><ShieldCheck size={19} aria-hidden="true" /> Privacy Policy <ChevronRight size={18} aria-hidden="true" /></Link>
-        <Link to="/terms"><FileText size={19} aria-hidden="true" /> Terms of Use <ChevronRight size={18} aria-hidden="true" /></Link>
       </nav>
+      <HelpLinks />
       <section className="panel">
         <div className="panel-head"><h2>Your details</h2>{!profile && <button className="icon-btn" aria-label="Edit your details" onClick={() => setProfile({ firstName: m?.customerProfile?.firstName ?? '', lastName: m?.customerProfile?.lastName ?? '' })}><Pencil size={16} /></button>}</div>
         {profile ? (
@@ -426,7 +507,7 @@ function DeleteAccount({ onClose, guest }: { onClose: () => void; guest: boolean
     <Sheet title="Delete your account?" onClose={onClose}>
       <p>This signs you out everywhere and removes your name, email, phone and addresses. Past order and payment records stay, without those details. This cannot be undone. Any open order or booking must be finished or cancelled first.</p>
       {error && <Note tone="error">{error}</Note>}
-      {!guest && <Field label="Enter your password to confirm"><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>}
+      {!guest && <Field label="Enter your password to confirm"><PasswordInput autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>}
       <div className="row">
         <button className="btn ghost" onClick={onClose}>Keep my account</button>
         <button className="btn danger grow" disabled={busy || (!guest && !password)} onClick={submit}>{busy ? 'Deleting…' : 'Delete my account'}</button>
@@ -548,7 +629,7 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
         const payable = purpose && !closed && (r.owing ?? 0) > 0 && r.payable !== false && row.paymentStatus !== 'AWAITING_VERIFICATION';
         return (
           <article key={row.id} className="history">
-            <div className="history-head"><b>{r.title}</b><Status value={row.status} /></div>
+            <div className="history-head">{path === '/orders' ? <Link to={`/orders/${row.id}`}><b>{r.title}</b></Link> : <b>{r.title}</b>}<Status value={row.status} /></div>
             <small>{r.sub}</small>
             {r.details && <small>{r.details}</small>}
             {path === '/orders' && <OrderSteps status={row.status} />}
@@ -562,7 +643,7 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
                 {payable && <button className="btn primary grow" onClick={() => navigate(`/pay/${purpose}/${row.id}`)}>Pay {formatNaira(r.owing)}</button>}
               </div>
             )}
-            {path === '/orders' && row.items?.length > 0 && <div className="row"><OrderAgain order={row} /></div>}
+            {path === '/orders' && <div className="row"><Link className="btn primary grow" to={`/orders/${row.id}`}><Truck size={15} aria-hidden="true" /> Track order</Link>{row.items?.length > 0 && <OrderAgain order={row} />}</div>}
             {row.paymentStatus === 'PAID' && <small className="paid"><Check size={13} aria-hidden="true" /> Paid in full</small>}
           </article>
         );

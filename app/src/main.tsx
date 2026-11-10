@@ -14,6 +14,8 @@ import { ApartmentPage, ApartmentsPage } from './pages/Apartments';
 import { CarPage, CarsPage } from './pages/Cars';
 import { ServicesPage, SpaPage, TreatmentPage } from './pages/Bookable';
 import { AccountPage, RoyaltyPage, BookingsPage, ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage } from './pages/Account';
+import { HelpPage, WhatsAppButton } from './pages/Help';
+import { TrackOrderPage } from './pages/Track';
 import { formatNaira } from './api';
 import './theme.css';
 
@@ -62,6 +64,7 @@ function Shell() {
         </div>
       </header>
       <main className="main" key={pathname}><Outlet /></main>
+      <WhatsAppButton raised={count > 0 && pathname !== '/cart' && !pathname.startsWith('/checkout')} />
       {count > 0 && pathname !== '/cart' && !pathname.startsWith('/checkout') && (
         <Link to="/cart" className="float-basket"><span><b>{count}</b> View basket</span><span>{formatNaira(totalMinor)}</span></Link>
       )}
@@ -103,6 +106,8 @@ createRoot(document.getElementById('root')!).render(
               <Route path="pay/:purpose/:id" element={<PayPage />} />
               <Route path="payments/callback" element={<PaymentCallbackPage />} />
               <Route path="bookings" element={<BookingsPage />} />
+              <Route path="orders/:id" element={<TrackOrderPage />} />
+              <Route path="help" element={<HelpPage />} />
               <Route path="account" element={<AccountPage />} />
               <Route path="royalty" element={<RoyaltyPage />} />
               <Route path="privacy" element={<PrivacyPage />} />
