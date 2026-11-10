@@ -297,7 +297,6 @@ const SECTIONS: { to: string; label: string; words: string[]; key?: 'stays' | 'c
   { to: '/spa', label: 'Spa at home', words: ['home service', 'home massage', 'at home'] },
   { to: '/shop/water-drinks-wines', label: 'Drinks', words: ['drinks', 'drink', 'wine', 'wines', 'spirits', 'whisky', 'whiskey', 'champagne'] },
   { to: '/shop/water-drinks-wines?category=water', label: 'Water', words: ['water'] },
-  { to: '/shop/retail-general-supplies', label: 'Supplies', words: ['supplies', 'supply', 'retail'] },
 ];
 
 /** A section matches when the search is one of its words, or the start of one (at least three letters). */
@@ -334,7 +333,7 @@ export function SearchPage() {
     // Searching a section's name shows everything in it.
     const whole = new Set(sectionsFor(q).map((x) => x.key));
     return {
-      products: products.data,
+      products: products.data.filter((p: any) => p.division?.slug !== 'retail-general-supplies'),
       stays: rows(stays).filter((p: any) => whole.has('stays') || has(p.name, p.city, p.location)),
       cars: rows(cars).filter((v: any) => whole.has('cars') || has(v.make, v.model, String(v.year))),
       spa: rows(spa).filter((t: any) => whole.has('spa') || has(t.name, t.category, t.description)),

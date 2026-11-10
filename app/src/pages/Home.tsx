@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Car, ChevronLeft, ChevronRight, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Truck, type LucideIcon } from 'lucide-react';
+import { Building2, Car, ChevronLeft, ChevronRight, Clapperboard, Droplets, FlaskConical, HousePlus, Pill, Search, Sparkles, Truck, type LucideIcon } from 'lucide-react';
 import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
@@ -16,7 +16,6 @@ export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string
   { to: '/cars', label: 'Cars', icon: Car, tone: 'red' },
   { to: '/services/pharmacy-laboratory', label: 'Lab', icon: FlaskConical, tone: 'teal' },
   { to: '/services/transport-logistics', label: 'Logistics', icon: Truck, tone: 'blue' },
-  { to: '/shop/retail-general-supplies', label: 'Supplies', icon: Package, tone: 'yellow' },
   { to: '/services/media-events-rentals', label: 'Rentals', icon: Clapperboard, tone: 'violet' },
   { to: '/services/real-estate-interior-design', label: 'Property', icon: HousePlus, tone: 'brown' },
 ];
@@ -32,16 +31,15 @@ const SHORT_NAME: Record<string, string> = {
 export function HomePage() {
   const home = useLoad(async () => {
     const none = { data: [] as any[] };
-    const [drinks, pharmacy, supplies, stays, cars, spa, venida] = await Promise.all([
+    const [drinks, pharmacy, stays, cars, spa, venida] = await Promise.all([
       get('/catalog/products?division=water-drinks-wines&pageSize=100').catch(() => none),
       get('/catalog/products?division=pharmacy-laboratory&pageSize=12').catch(() => none),
-      get('/catalog/products?division=retail-general-supplies&pageSize=12').catch(() => none),
       loadStays().catch(() => [] as any[]),
       get('/vehicles?pageSize=10').catch(() => none),
       get('/spa/treatments?pageSize=10').catch(() => none),
       get('/catalog/products?division=water-drinks-wines&q=Venida&pageSize=12').catch(() => none),
     ]);
-    return { venida: rows(venida).filter((p: any) => /venida/i.test(`${p.brand ?? ''} ${p.name}`)), drinks: rows(drinks), pharmacy: rows(pharmacy), supplies: rows(supplies), stays, cars: rows(cars), spa: rows(spa).slice(0, 10) };
+    return { venida: rows(venida).filter((p: any) => /venida/i.test(`${p.brand ?? ''} ${p.name}`)), drinks: rows(drinks), pharmacy: rows(pharmacy), stays, cars: rows(cars), spa: rows(spa).slice(0, 10) };
   });
   const d = home.data;
   const empty = d && !d.drinks.length && !d.pharmacy.length && !d.stays.length && !d.cars.length && !d.spa.length;
@@ -110,7 +108,6 @@ export function HomePage() {
 
       {shelves.topShelf.length > 0 && <Rail title="Top shelf" to="/shop/water-drinks-wines">{shelves.topShelf.map((p: any) => <ProductCard key={p.id} product={p} />)}</Rail>}
 
-      {d && d.supplies.length > 0 && <Rail title="Supplies" to="/shop/retail-general-supplies">{d.supplies.map((p: any) => <ProductCard key={p.id} product={p} />)}</Rail>}
 
       {d && d.pharmacy.length > 0 && <Rail title="Pharmacy" to="/pharmacy">{d.pharmacy.map((p: any) => <ProductCard key={p.id} product={p} />)}</Rail>}
 
