@@ -6,7 +6,7 @@ import { useLoad } from '../ui';
 
 interface Slide {
   id: string;
-  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS';
+  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS' | 'VENIDA';
   title: string | null;
   subtitle: string | null;
   buttonText: string | null;
@@ -30,11 +30,18 @@ function Go({ text, className = '' }: { text: string; className?: string }) {
 }
 
 /** Promos and featured items, managed under Home promos in the dashboard. Prices are always live. */
-export function HomeSlider({ stays }: { stays: any[] }) {
+export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[] }) {
   const loaded = useLoad(() => get<Slide[]>('/home-slides'), []);
   const stay = stays.find((s) => s.image);
   // The apartments slide waits until a flat with a photo has loaded.
-  const slides = (loaded.data ?? []).filter((s) => s.kind !== 'APARTMENTS' || stay);
+  const managed = (loaded.data ?? []).filter((s) => s.kind !== 'APARTMENTS' || stay);
+  // Our own water, Venida, always has a blue card, second in line.
+  const venidaPic = venida.find((p) => p.images?.length);
+  const venidaPrices = venida.map((p) => p.priceFromMinor).filter((x) => x != null);
+  const venidaSlide: Slide | null = venida.length
+    ? { id: 'venida', kind: 'VENIDA', title: 'Venida Water', subtitle: 'Our own brand', buttonText: 'Shop Venida', imageUrl: venidaPic?.images[0].url ?? null, linkTo: '/shop/water-drinks-wines?q=Venida', tone: 'blue' }
+    : null;
+  const slides = venidaSlide ? [...managed.slice(0, 1), venidaSlide, ...managed.slice(1)] : managed;
   const count = slides.length;
 
   const track = useRef<HTMLDivElement>(null);
@@ -89,6 +96,19 @@ export function HomeSlider({ stays }: { stays: any[] }) {
       <span className="slider-glows" aria-hidden="true"><span className="slider-glow one" /><span className="slider-glow two" /></span>
       <div className="slider-track" ref={track} onScroll={onScroll}>
         {slides.map((s) => {
+          if (s.kind === 'VENIDA') {
+            return (
+              <Link key={s.id} to={s.linkTo!} className="slide venida-slide">
+                <span className="slide-text">
+                  <small>{s.subtitle}</small>
+                  <b>{s.title}</b>
+                  {venidaPrices.length > 0 && <span className="slide-price">From {formatNaira(Math.min(...venidaPrices))}</span>}
+                  <Go text={s.buttonText!} />
+                </span>
+                {s.imageUrl && <span className="venida-pic"><img src={s.imageUrl} alt="" loading="lazy" /></span>}
+              </Link>
+            );
+          }
           if (s.kind === 'PRODUCT' && s.product) {
             const p = s.product;
             const label = [s.subtitle, p.isAgeRestricted ? '18+' : null].filter(Boolean).join(' · ');
