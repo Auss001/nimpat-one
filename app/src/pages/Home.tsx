@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Car, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Ticket, Truck, type LucideIcon } from 'lucide-react';
+import { Building2, Car, Clapperboard, Droplets, FlaskConical, HousePlus, Package, Pill, Search, Sparkles, Truck, type LucideIcon } from 'lucide-react';
 import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
@@ -19,7 +19,6 @@ export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string
   { to: '/shop/retail-general-supplies', label: 'Supplies', icon: Package, tone: 'yellow' },
   { to: '/services/media-events-rentals', label: 'Rentals', icon: Clapperboard, tone: 'violet' },
   { to: '/services/real-estate-interior-design', label: 'Property', icon: HousePlus, tone: 'brown' },
-  { to: '/services/entertainment', label: 'Fun', icon: Ticket, tone: 'magenta' },
 ];
 
 const SHORT_NAME: Record<string, string> = {
