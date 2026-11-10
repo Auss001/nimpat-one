@@ -45,15 +45,14 @@ const PRESCRIPTION: Record<Prescription, string> = {
   REQUIRED: 'Prescription required',
   RESTRICTED: 'Restricted',
 };
-const shortDate = (s: string) => new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 /** Availability in plain terms. A list or an old count is never shown as live stock. */
 function StockCell({ product, variant }: { product: Product; variant: Variant }) {
-  if (product.listedAvailability === 'IN_STOCK') return <><Pill tone="green">In stock</Pill><div className="muted small">From list, not counted</div></>;
+  if (product.listedAvailability === 'IN_STOCK') return <><Pill tone="green">In stock</Pill><div className="muted small">Always available to order</div></>;
   if (product.listedAvailability === 'OUT_OF_STOCK') return <span className="pill red">Out of stock</span>;
-  if (variant.availableQuantity > 0) return <>{variant.availableQuantity}</>;
-  if (variant.recordedStockQty !== null) return <>{variant.recordedStockQty}<div className="muted small">On {variant.recordedStockAt ? shortDate(variant.recordedStockAt) : 'record'}, not live</div></>;
-  return <span className="pill red">Out of stock</span>;
+  // "Use the stock count": the counted number decides.
+  if (variant.availableQuantity > 0) return <>{variant.availableQuantity}<div className="muted small">Counted</div></>;
+  return <><span className="pill red">Out of stock</span><div className="muted small">Count is 0{variant.recordedStockQty !== null ? ` · list said ${variant.recordedStockQty} (guide only)` : ''}</div></>;
 }
 
 interface Category {
@@ -546,11 +545,11 @@ function ProductForm({
         <Field label="Age restriction">
           <label className="check"><input type="checkbox" checked={ageRestricted} onChange={(e) => setAgeRestricted(e.target.checked)} /> Alcoholic — 18+ only</label>
         </Field>
-        <Field label="Availability" hint="Use a list status only when there is no live count">
+        <Field label="Availability" hint="In stock: customers can always order it. Out of stock: they cannot. Use the stock count: only while the counted number allows.">
           <select value={listed} onChange={(e) => setListed(e.target.value)}>
-            <option value="">From the live stock count</option>
-            <option value="IN_STOCK">In stock (from a list)</option>
+            <option value="IN_STOCK">In stock (always available)</option>
             <option value="OUT_OF_STOCK">Out of stock</option>
+            <option value="">Use the stock count</option>
           </select>
         </Field>
         {!isPharmacy && (

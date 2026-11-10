@@ -1,7 +1,7 @@
 import { Controller, Get, Injectable, Query } from '@nestjs/common';
 import { ApiOperation, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
 import { Prisma, UserType } from '@prisma/client';
-import { IsOptional, IsString, Length } from 'class-validator';
+import { IsIn, IsOptional, IsString, Length } from 'class-validator';
 import { CurrentUser, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { PaginationQueryDto, pageArgs, paginate } from '../../common/dto/pagination.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -10,6 +10,8 @@ import { P } from '../access/permissions';
 
 class CustomerQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ description: 'Name, email or phone' }) @IsOptional() @IsString() @Length(1, 120) q?: string;
+  @ApiPropertyOptional({ enum: ['members', 'guests'], description: 'Royalty Members (account with a password) or guests (details only)' })
+  @IsOptional() @IsIn(['members', 'guests']) kind?: 'members' | 'guests';
 }
 
 @Injectable()
@@ -23,6 +25,7 @@ export class AdminCustomersService {
     const where: Prisma.UserWhereInput = {
       type: UserType.CUSTOMER,
       email: { not: { endsWith: '@deleted.invalid' } },
+      ...(q.kind ? { isGuest: q.kind === 'guests' } : {}),
       ...(scope ? { OR: [{ orders: { some: { divisionId: { in: scope } } } }, { reservations: { some: { unit: { property: { divisionId: { in: scope } } } } } }] } : {}),
       ...(term
         ? {
@@ -57,12 +60,15 @@ export class AdminCustomersService {
           emailVerifiedAt: true,
           createdAt: true,
           customerProfile: { select: { firstName: true, lastName: true } },
+          loyaltyAccount: { select: { pointsBalance: true, lifetimeEarned: true, tier: true } },
           _count: { select: { orders: true, reservations: true } },
         },
       }),
       this.prisma.user.count({ where }),
     ]);
-    return paginate(rows, total, q);
+    // How many Royalty Members there are in this view, whatever the filter.
+    const members = await this.prisma.user.count({ where: { ...where, isGuest: false } });
+    return { ...paginate(rows, total, q), members };
   }
 }
 

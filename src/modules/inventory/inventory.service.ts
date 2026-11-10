@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, StockMovementType } from '@prisma/client';
+import { Prisma, ProductAvailability, StockMovementType } from '@prisma/client';
 import { PrismaService, Tx } from '../../prisma/prisma.service';
 
 export interface StockLine {
@@ -24,6 +24,13 @@ export class InsufficientStockException extends ConflictException {
  *
  * Lifecycle: checkout → reserve; payment verified → commit (sale);
  * cancel/expire → release.
+ *
+ * Which items are counted (owner's rule, 10 November 2026; see docs/STOCK.md):
+ * - Availability "In stock": always sellable. No count is needed or changed.
+ * - Availability "Out of stock": never sellable.
+ * - Availability "Use the stock count" (no status set): sold only while the count allows.
+ * Later steps (commit, release, restock) touch only lines that this order actually
+ * reserved or sold, so changing an item's setting mid-order never breaks a payment.
  */
 @Injectable()
 export class InventoryService {
@@ -52,8 +59,26 @@ export class InventoryService {
     return this.availability(variantIds, loc?.id ?? null);
   }
 
-  /** Reserves all lines atomically or throws InsufficientStockException. Must run inside a transaction. */
-  async reserve(tx: Tx, locationId: string, lines: StockLine[], orderId: string): Promise<void> {
+  /** Each variant's availability setting: IN_STOCK, OUT_OF_STOCK, or null for "use the count". */
+  private async settings(tx: Tx | PrismaService, variantIds: string[]) {
+    const rows = await tx.productVariant.findMany({ where: { id: { in: variantIds } }, select: { id: true, product: { select: { listedAvailability: true } } } });
+    return new Map(rows.map((r) => [r.id, r.product.listedAvailability]));
+  }
+
+  /** The lines of this order that have a stock movement of this type, so only those are moved on. */
+  private async movedLines(tx: Tx, orderId: string, lines: StockLine[], type: StockMovementType) {
+    const moved = await tx.stockMovement.findMany({ where: { orderId, type, variantId: { in: lines.map((l) => l.variantId) } }, select: { variantId: true } });
+    const ids = new Set(moved.map((m) => m.variantId));
+    return lines.filter((l) => ids.has(l.variantId));
+  }
+
+  /** Reserves counted lines atomically or throws InsufficientStockException. Must run inside a transaction. */
+  async reserve(tx: Tx, locationId: string, all: StockLine[], orderId: string): Promise<void> {
+    const setting = await this.settings(tx, all.map((l) => l.variantId));
+    const blocked = all.filter((l) => setting.get(l.variantId) === ProductAvailability.OUT_OF_STOCK).map((l) => l.variantId);
+    if (blocked.length) throw new InsufficientStockException(blocked);
+    const lines = all.filter((l) => !setting.get(l.variantId));
+    if (!lines.length) return;
     const failed: string[] = [];
     // Lock rows in a stable order to avoid deadlocks between concurrent checkouts.
     for (const line of [...lines].sort((a, b) => a.variantId.localeCompare(b.variantId))) {
@@ -70,7 +95,9 @@ export class InventoryService {
   }
 
   /** Returns reserved units to available stock (order cancelled / expired). */
-  async release(tx: Tx, locationId: string, lines: StockLine[], orderId: string): Promise<void> {
+  async release(tx: Tx, locationId: string, all: StockLine[], orderId: string): Promise<void> {
+    const lines = await this.movedLines(tx, orderId, all, StockMovementType.RESERVATION);
+    if (!lines.length) return;
     for (const line of lines) {
       await tx.$executeRaw`
         UPDATE "stock_levels"
@@ -82,7 +109,9 @@ export class InventoryService {
   }
 
   /** Converts a reservation into a sale (payment verified). */
-  async commit(tx: Tx, locationId: string, lines: StockLine[], orderId: string): Promise<void> {
+  async commit(tx: Tx, locationId: string, all: StockLine[], orderId: string): Promise<void> {
+    const lines = await this.movedLines(tx, orderId, all, StockMovementType.RESERVATION);
+    if (!lines.length) return;
     for (const line of lines) {
       const updated = await tx.$executeRaw`
         UPDATE "stock_levels"
@@ -97,7 +126,9 @@ export class InventoryService {
   }
 
   /** Puts sold units back on hand (a paid order was cancelled before dispatch). */
-  async restock(tx: Tx, locationId: string, lines: StockLine[], orderId: string, actorId?: string): Promise<void> {
+  async restock(tx: Tx, locationId: string, all: StockLine[], orderId: string, actorId?: string): Promise<void> {
+    const lines = await this.movedLines(tx, orderId, all, StockMovementType.SALE);
+    if (!lines.length) return;
     for (const line of lines) {
       await tx.$executeRaw`
         UPDATE "stock_levels"

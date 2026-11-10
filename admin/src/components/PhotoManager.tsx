@@ -24,6 +24,35 @@ interface Gallery {
 
 const ACCEPT = 'image/jpeg,image/png,image/webp';
 
+/** A dashed area to drop files on. Clicking it opens the file picker too. */
+function DropZone({ onFiles, disabled, accept, label, hint }: { onFiles: (files: File[]) => void; disabled?: boolean; accept: string; label: string; hint?: string }) {
+  const [over, setOver] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
+  const allowed = (f: File) => accept.split(',').some((a) => (a.startsWith('.') ? f.name.toLowerCase().endsWith(a) : a === f.type));
+  return (
+    <div
+      className={`drop-zone ${over ? 'over' : ''} ${disabled ? 'off' : ''}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => !disabled && input.current?.click()}
+      onKeyDown={(e) => { if (!disabled && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); input.current?.click(); } }}
+      onDragOver={(e) => { e.preventDefault(); if (!disabled) setOver(true); }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        if (disabled) return;
+        const files = [...e.dataTransfer.files].filter(allowed);
+        if (files.length) onFiles(files);
+      }}
+    >
+      <b>{label}</b>
+      <span>{hint ?? 'or click to choose'}</span>
+      <input ref={input} type="file" hidden multiple accept={accept} onChange={(e) => { const files = [...(e.target.files ?? [])]; e.target.value = ''; if (files.length) onFiles(files); }} />
+    </div>
+  );
+}
+
 /** Upload, replace, remove and choose the main photo, for anything that shows photos. */
 export function PhotoManager({ owner, id, onClose, onChanged }: PhotoTarget & { onClose: () => void; onChanged?: () => void }) {
   const toast = useToast();
@@ -122,12 +151,16 @@ export function PhotoManager({ owner, id, onClose, onChanged }: PhotoTarget & { 
               </figure>
             ))}
           </div>
-          <div className="toolbar" style={{ marginTop: 14, marginBottom: 0 }}>
-            {(!g.single || !g.photos.length) && (
-              <button className="btn primary" disabled={!!busy} onClick={() => addInput.current?.click()}>{g.single ? 'Upload photo' : 'Add photos'}</button>
-            )}
-            {busy && <span className="muted small" role="status">{busy}</span>}
-          </div>
+          {(!g.single || !g.photos.length) && (
+            <DropZone
+              accept={ACCEPT}
+              disabled={!!busy}
+              label={g.single ? 'Drag a photo here' : 'Drag photos here to add them'}
+              hint={g.single ? 'or click to choose one' : 'several at once is fine, or click to choose'}
+              onFiles={(files) => void send(g.single ? files.slice(0, 1) : files)}
+            />
+          )}
+          {busy && <p className="muted small" role="status" style={{ marginBottom: 0 }}>{busy}</p>}
           <input ref={addInput} type="file" hidden accept={ACCEPT} multiple={!g.single} onChange={onAdd} />
           <input ref={replaceInput} type="file" hidden accept={ACCEPT} onChange={onReplace} />
         </>
@@ -226,7 +259,14 @@ export function BulkPhotoUpload({ onClose, onChanged, cars = false }: { onClose:
           </ul>
         </>
       )}
-      <div className="toolbar">
+      <DropZone
+        accept={cars ? `${ACCEPT},.csv,.xlsx` : ACCEPT}
+        disabled={running}
+        label={cars ? 'Drag the photos (and details sheet) here' : 'Drag the photos here'}
+        hint="a whole folder's files at once is fine, or click to choose"
+        onFiles={(files) => void run(files)}
+      />
+      <div className="toolbar" style={{ marginTop: 12 }}>
         {cars && prepared.length > 0 && <button className="btn primary" disabled={running} onClick={() => void startPrepared()}>Upload the prepared car photos ({prepared.length} files)</button>}
         <button className={`btn ${cars && prepared.length > 0 ? '' : 'primary'}`} disabled={running} onClick={() => input.current?.click()}>{cars ? 'Choose photos and sheet' : 'Choose photos'}</button>
         {rows.length > 0 && <span className="muted small" role="status">{done} done{failed ? `, ${failed} failed` : ''}, of {rows.length}</span>}

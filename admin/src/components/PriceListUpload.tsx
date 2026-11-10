@@ -122,6 +122,7 @@ export function PriceListUpload({ division, title, onClose, onChanged }: { divis
             <li>The first row should have headings, such as <b>Description</b>, <b>Sales price</b>, and optionally <b>Barcode</b>/<b>Stock code</b>, <b>Cost price</b> and <b>Quantity</b>. Every sheet is read.</li>
             <li>Rows are matched by barcode or stock code first, then by name. Codes are remembered, so the next upload matches exactly.</li>
             <li>Cost prices are only used to spot mistakes. Customers never see them.</li>
+            <li>A list is a guide, not an order: you choose which rows to apply. Quantities are kept for reference only and never change whether customers can buy an item; that is the Availability setting on each product.</li>
             {division === 'pharmacy-laboratory' && <li>New medicines are added awaiting pharmacist approval, so none can be bought until the pharmacist approves it.</li>}
             {division !== 'pharmacy-laboratory' && <li>New products are added as drafts, for you to check and publish.</li>}
           </ul>

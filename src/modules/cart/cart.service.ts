@@ -45,7 +45,8 @@ export class CartService {
       const issues: string[] = [];
       if (!v.isActive || v.product.status !== ProductStatus.ACTIVE || v.product.verification !== RecordVerification.VERIFIED) issues.push('UNAVAILABLE');
       else if (purchaseBlock(v.product, v)) issues.push('NOT_PURCHASABLE');
-      else if (available < i.quantity) issues.push(available === 0 ? 'OUT_OF_STOCK' : 'INSUFFICIENT_STOCK');
+      // "In stock" items sell without a count; only counted items are checked against it.
+      else if (!v.product.listedAvailability && available < i.quantity) issues.push(available === 0 ? 'OUT_OF_STOCK' : 'INSUFFICIENT_STOCK');
       if (i.quantity < v.minOrderQty) issues.push('BELOW_MIN_QTY');
       if (v.maxOrderQty && i.quantity > v.maxOrderQty) issues.push('ABOVE_MAX_QTY');
       return {
