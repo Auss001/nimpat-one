@@ -646,3 +646,8 @@ a.reward { text-decoration: none; }
 .name-tile.pink { --t1: #fbe6f2; --t2: #f3cbe2; --tx: #561540; --ac: #b23c88; }
 .name-tile.slate { --t1: #e9eef2; --t2: #d3dde5; --tx: #1d2b36; --ac: #4b6476; }
 .detail-photo .name-tile { padding: 14%; }
+/* Name tiles sit in shorter boxes than photos, so lists of medicines take less room. The card already names the category. */
+.card-photo.square:has(.name-tile) { aspect-ratio: 16 / 9; }
+.card .name-tile { min-height: 0; padding: 8% 10%; }
+.card .nt-cat { display: none; }
+.card .nt-brand { font-size: max(14px, 11cqw); }
