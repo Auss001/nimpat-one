@@ -1,3 +1,5 @@
+import { pharmacyAllowed } from './platform';
+
 /**
  * Client for the Nimpat One API. A 401 triggers one refresh-token rotation
  * before the customer is asked to sign in again.
@@ -167,6 +169,6 @@ export function formatNaira(minor: number | null | undefined): string {
   return `₦${whole}${kobo ? `.${String(kobo).padStart(2, '0')}` : ''}`;
 }
 
-export const SHOP_DIVISIONS = ['water-drinks-wines', 'pharmacy-laboratory', 'retail-general-supplies'];
+export const SHOP_DIVISIONS = ['water-drinks-wines', 'pharmacy-laboratory', 'retail-general-supplies'].filter(pharmacyAllowed);
 export const PHONE = '+2348188336209';
 export const PHONE_LABEL = '+234 818 833 6209';

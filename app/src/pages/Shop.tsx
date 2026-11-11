@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { CalendarCheck, Check, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, ShoppingBasket, Stethoscope, Store, Truck } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
+import { pharmacyAllowed } from '../platform';
 
 const DIVISION_TITLE: Record<string, { title: string; sub: string }> = {
   'water-drinks-wines': { title: 'Water & Drinks', sub: 'Water, soft drinks, juices, wines and spirits.' },
@@ -223,7 +224,7 @@ export function ProductPage() {
     rememberViewed({ slug: p.slug, name: p.name, image: p.images?.[0]?.url });
   }, [p]);
   if (product.loading && !p) return <Loader />;
-  if (!p) return <><PageTitle title="Not available" /><Empty title="This item is not available right now">It may be awaiting confirmation.</Empty></>;
+  if (!p || !pharmacyAllowed(p.division?.slug)) return <><PageTitle title="Not available" /><Empty title="This item is not available right now">It may be awaiting confirmation.</Empty></>;
   const v = p.variants.find((x: any) => x.id === variantId) ?? p.variants[0];
   const isPharmacy = p.prescriptionStatus !== null && p.prescriptionStatus !== undefined;
   const needsPrescription = p.prescriptionStatus === 'REQUIRED' || p.prescriptionStatus === 'RESTRICTED';
@@ -284,7 +285,8 @@ export function ProductPage() {
 }
 
 /** Words that mean a whole section of the app. */
-const SECTIONS: { to: string; label: string; words: string[]; key?: 'stays' | 'cars' | 'spa' }[] = [
+type SECTIONS_ALL = { to: string; label: string; words: string[]; key?: "stays" | "cars" | "spa" }[];
+const SECTIONS: { to: string; label: string; words: string[]; key?: 'stays' | 'cars' | 'spa' }[] = ([
   { to: '/spa', label: 'Spa & Wellness', words: ['spa', 'massage', 'facial', 'wellness', 'beauty', 'salon', 'saloon', 'nails', 'braces'], key: 'spa' },
   { to: '/apartments', label: 'Luxury Apartments', words: ['apartment', 'apartments', 'flat', 'flats', 'stay', 'shortlet', 'short let', 'hotel', 'room', 'rooms', 'mabushi'], key: 'stays' },
   { to: '/cars', label: 'Cars', words: ['car', 'cars', 'vehicle', 'vehicles', 'auto', 'automobile', 'automobiles'], key: 'cars' },
@@ -296,7 +298,7 @@ const SECTIONS: { to: string; label: string; words: string[]; key?: 'stays' | 'c
   { to: '/spa', label: 'Spa at home', words: ['home service', 'home massage', 'at home'] },
   { to: '/shop/water-drinks-wines', label: 'Drinks', words: ['drinks', 'drink', 'wine', 'wines', 'spirits', 'whisky', 'whiskey', 'champagne'] },
   { to: '/shop/water-drinks-wines?category=water', label: 'Water', words: ['water'] },
-];
+] as SECTIONS_ALL).filter((x) => pharmacyAllowed(x.to.includes("pharmacy") ? "pharmacy-laboratory" : null));
 
 /** A section matches when the search is one of its words, or the start of one (at least three letters). */
 function sectionsFor(q: string) {
@@ -332,7 +334,7 @@ export function SearchPage() {
     // Searching a section's name shows everything in it.
     const whole = new Set(sectionsFor(q).map((x) => x.key));
     return {
-      products: products.data.filter((p: any) => p.division?.slug !== 'retail-general-supplies'),
+      products: products.data.filter((p: any) => p.division?.slug !== 'retail-general-supplies' && pharmacyAllowed(p.division?.slug)),
       stays: rows(stays).filter((p: any) => whole.has('stays') || has(p.name, p.city, p.location)),
       cars: rows(cars).filter((v: any) => whole.has('cars') || has(v.make, v.model, String(v.year))),
       spa: rows(spa).filter((t: any) => whole.has('spa') || has(t.name, t.category, t.description)),

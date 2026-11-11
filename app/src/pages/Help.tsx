@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight, FileText, HelpCircle, MessageCircle, Phone, ShieldCheck } from 'lucide-react';
 import { PHONE, PHONE_LABEL } from '../api';
 import { PageTitle } from '../ui';
+import { HIDE_PHARMACY } from '../platform';
 
 /** WhatsApp chat with Nimpat's customer service line (the MTN line on the website). */
 export const WHATSAPP_NUMBER = '2348145537327';
@@ -20,7 +21,7 @@ export function WhatsAppButton({ raised }: { raised: boolean }) {
   );
 }
 
-const FAQ: { q: string; a: string }[] = [
+const FAQ: { q: string; a: string }[] = ([
   { q: 'Do I need an account to order?', a: 'No. Add what you need to your basket and give your name, email and phone once at checkout. An account lets you see your orders on any device and collect Royalty points.' },
   { q: 'Where do you deliver?', a: 'We deliver within Abuja. The delivery fee for your address is shown at checkout before you pay. You can also pick up from our store for free.' },
   { q: 'How can I pay?', a: 'Online by card, bank or USSD (Paystack), by bank transfer, or where offered, on delivery or in the store. The choices for your order are shown at checkout.' },
@@ -30,7 +31,7 @@ const FAQ: { q: string; a: string }[] = [
   { q: 'Why can I not buy some medicines?', a: 'Our pharmacist checks every medicine before it can be sold online. Prescription medicines need a pharmacist review, so you can book a pharmacist from the Pharmacy page instead.' },
   { q: 'Why am I asked my age for some drinks?', a: 'Alcohol is only sold to adults aged 18 and over. You may be asked for ID on delivery.' },
   { q: 'What are Royalty points?', a: 'Members earn points on payments for orders and bookings. Points are added once a payment is confirmed. See Royalty Member for the current rates.' },
-];
+] as { q: string; a: string }[]).filter((f) => !HIDE_PHARMACY || !/medicine|pharmac/i.test(f.q + f.a));
 
 export function HelpPage() {
   const [open, setOpen] = useState<number | null>(0);

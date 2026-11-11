@@ -7,8 +7,9 @@ import { ProductCard } from './Shop';
 import { FavButton, Photo, Rail, Skeletons, spaImage, useLoad, viewedProducts } from '../ui';
 import { HomeSlider } from './HomeSlider';
 import { LegalLinks } from './Legal';
+import { HIDE_PHARMACY } from '../platform';
 
-export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string }[] = [
+export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string }[] = ([
   { to: '/shop/water-drinks-wines', label: 'Drinks', icon: Droplets, tone: 'blue' },
   { to: '/pharmacy', label: 'Pharmacy', icon: Pill, tone: 'green' },
   { to: '/apartments', label: 'Luxury Apartments', icon: Building2, tone: 'orange' },
@@ -18,7 +19,7 @@ export const WORLDS: { to: string; label: string; icon: LucideIcon; tone: string
   { to: '/services/transport-logistics', label: 'Logistics', icon: Truck, tone: 'blue' },
   { to: '/services/media-events-rentals', label: 'Rentals', icon: Clapperboard, tone: 'violet' },
   { to: '/services/real-estate-interior-design', label: 'Property', icon: HousePlus, tone: 'brown' },
-];
+] as { to: string; label: string; icon: LucideIcon; tone: string }[]).filter((w) => !HIDE_PHARMACY || !/pharmacy/.test(w.to));
 
 const SHORT_NAME: Record<string, string> = {
   water: 'Water',
@@ -33,7 +34,7 @@ export function HomePage() {
     const none = { data: [] as any[] };
     const [drinks, pharmacy, stays, cars, spa, venida] = await Promise.all([
       get('/catalog/products?division=water-drinks-wines&pageSize=100').catch(() => none),
-      get('/catalog/products?division=pharmacy-laboratory&pageSize=12').catch(() => none),
+      HIDE_PHARMACY ? Promise.resolve(none) : get('/catalog/products?division=pharmacy-laboratory&pageSize=12').catch(() => none),
       loadStays().catch(() => [] as any[]),
       get('/vehicles?pageSize=10').catch(() => none),
       get('/spa/treatments?pageSize=10').catch(() => none),

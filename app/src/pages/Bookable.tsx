@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Clock, MapPin } from 'lucide-react';
 import { formatNaira, get, idempotency, post, rows } from '../api';
 import { useDetailsFirst, WhereChooser } from './Account';
 import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, PhotoGallery, Sheet, spaImage, useLoad, useToast } from '../ui';
+import { pharmacyAllowed } from '../platform';
 
 export function SpaPage() {
   const list = useLoad(() => get('/spa/treatments?pageSize=100').then(rows));
@@ -136,14 +137,16 @@ const priceText = (s: any) =>
 export function ServicesPage() {
   const { division = '' } = useParams();
   const [params, setParams] = useSearchParams();
+  const hidden = !pharmacyAllowed(division);
   const info = SERVICE_TITLE[division] ?? { title: 'Services', sub: '' };
-  const list = useLoad(() => get(`/services?division=${division}`).then(rows), [division]);
+  const list = useLoad(() => (hidden ? Promise.resolve([]) : get(`/services?division=${division}`).then(rows)), [division]);
   const [picked, setPicked] = useState<any>(null);
   const cats = useMemo(() => [...new Set((list.data ?? []).map((s: any) => s.category).filter(Boolean))] as string[], [list.data]);
   const wanted = params.get('category') ?? '';
   const category = cats.find((c) => c.toLowerCase() === wanted.toLowerCase()) ?? '';
   const choose = (c: string) => setParams(c ? { category: c } : {}, { replace: true });
   const shown = (list.data ?? []).filter((s: any) => !category || s.category === category);
+  if (hidden) return <Navigate to="/" replace />;
   return (
     <>
       <PageTitle title={category || info.title} sub={category ? info.title : info.sub} />

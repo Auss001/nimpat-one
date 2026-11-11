@@ -18,6 +18,7 @@ import { HelpPage, WhatsAppButton } from './pages/Help';
 import { TrackOrderPage } from './pages/Track';
 import { formatNaira } from './api';
 import './theme.css';
+import { HIDE_PHARMACY } from './platform';
 
 const TABS = [
   { to: '/', label: 'Home', icon: Home },
@@ -91,7 +92,7 @@ createRoot(document.getElementById('root')!).render(
               <Route index element={<HomePage />} />
               <Route path="search" element={<SearchPage />} />
               <Route path="shop/:division" element={<ShopPage />} />
-              <Route path="pharmacy" element={<PharmacyPage />} />
+              <Route path="pharmacy" element={HIDE_PHARMACY ? <Navigate to="/" replace /> : <PharmacyPage />} />
               <Route path="product/:slug" element={<ProductPage />} />
               <Route path="apartments" element={<ApartmentsPage />} />
               <Route path="apartments/:slug" element={<ApartmentPage />} />
