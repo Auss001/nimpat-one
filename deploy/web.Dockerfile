@@ -5,7 +5,9 @@ ARG APP_DIR=app
 ARG VITE_APP_URL=
 WORKDIR /web
 COPY ${APP_DIR}/package.json ${APP_DIR}/package-lock.json ./
-RUN npm ci
+# --ignore-scripts: sharp (pulled in by @capacitor/assets, an icon tool) downloads
+# libvips from GitHub on install, which times out in Docker; the web build never uses it.
+RUN npm ci --ignore-scripts
 COPY ${APP_DIR}/ ./
 RUN VITE_APP_URL=${VITE_APP_URL} npm run build
 
