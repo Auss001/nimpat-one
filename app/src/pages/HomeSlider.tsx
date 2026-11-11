@@ -6,7 +6,7 @@ import { useLoad } from '../ui';
 
 interface Slide {
   id: string;
-  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS' | 'VENIDA' | 'CARS';
+  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS' | 'VENIDA' | 'CARS' | 'SPA';
   title: string | null;
   subtitle: string | null;
   buttonText: string | null;
@@ -41,7 +41,8 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
     : null;
   // Nimpat Automobiles always has its own picture card, after Venida.
   const carsSlide: Slide = { id: 'cars', kind: 'CARS', title: 'Nimpat Automobiles', subtitle: 'Drive in style', buttonText: 'Explore Cars', imageUrl: '/cars-slide.webp', linkTo: '/cars', tone: 'dark' };
-  const own = [venidaSlide, carsSlide].filter((x): x is Slide => !!x);
+  const spaSlide: Slide = { id: 'spa', kind: 'SPA', title: 'Spa Packages', subtitle: 'Time to unwind', buttonText: 'Explore packages', imageUrl: '/spa-slide.webp', linkTo: '/spa?category=Spa%20packages', tone: 'violet' };
+  const own = [venidaSlide, carsSlide, spaSlide].filter((x): x is Slide => !!x);
   const slides = [...managed.slice(0, 1), ...own, ...managed.slice(1)];
   const count = slides.length;
 
@@ -97,6 +98,13 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
       <span className="slider-glows" aria-hidden="true"><span className="slider-glow one" /><span className="slider-glow two" /></span>
       <div className="slider-track" ref={track} onScroll={onScroll}>
         {slides.map((s) => {
+          if (s.kind === 'SPA') {
+            return (
+              <Link key={s.id} to={s.linkTo!} className="slide flyer spa-slide" aria-label="Spa packages: Silver, Gold, Diamond and Couples, from 35,000 naira. Explore packages">
+                <img src="/spa-slide.webp" alt="" loading="lazy" />
+              </Link>
+            );
+          }
           if (s.kind === 'CARS') {
             return (
               <Link key={s.id} to="/cars" className="slide flyer cars-slide" aria-label="Nimpat Automobiles: drive in style. Explore cars">

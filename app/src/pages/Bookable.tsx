@@ -7,8 +7,16 @@ import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, 
 
 export function SpaPage() {
   const list = useLoad(() => get('/spa/treatments?pageSize=100').then(rows));
-  const [category, setCategory] = useState('');
+  // ?category=Spa packages opens the page on that category (used by the home slider card).
+  const [params] = useSearchParams();
+  const [category, setCategory] = useState(params.get('category') ?? '');
   const cats = useMemo(() => [...new Set((list.data ?? []).map((t: any) => t.category).filter(Boolean))] as string[], [list.data]);
+  useEffect(() => {
+    if (!list.data || !category) return;
+    const match = cats.find((c) => c.toLowerCase() === category.toLowerCase());
+    if (match !== category) setCategory(match ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [list.data]);
   const shown = (list.data ?? []).filter((t: any) => !category || t.category === category);
   return (
     <>
