@@ -28,6 +28,11 @@ const productInclude = {
   images: { orderBy: { sortOrder: 'asc' } },
 } satisfies Prisma.ProductInclude;
 
+/** Pharmacy items show to customers only once they have a price; other shops are unaffected. */
+const PRICED_IF_PHARMACY: Prisma.ProductWhereInput = {
+  OR: [{ division: { code: { not: DivisionCode.PHARMACY } } }, { variants: { some: { isActive: true, unitPriceMinor: { not: null } } } }],
+};
+
 @Injectable()
 export class CatalogService {
   constructor(
@@ -56,6 +61,7 @@ export class CatalogService {
       ...(await this.productWhere(q, ProductStatus.ACTIVE)),
       verification: RecordVerification.VERIFIED,
       ...(hidden.length ? { id: { notIn: hidden } } : {}),
+      AND: [PRICED_IF_PHARMACY],
     };
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
@@ -76,7 +82,7 @@ export class CatalogService {
 
   async getProduct(slugOrId: string) {
     const product = await this.prisma.product.findFirst({
-      where: { status: ProductStatus.ACTIVE, verification: RecordVerification.VERIFIED, ...(isUuid(slugOrId) ? { id: slugOrId } : { slug: slugOrId }) },
+      where: { status: ProductStatus.ACTIVE, verification: RecordVerification.VERIFIED, AND: [PRICED_IF_PHARMACY], ...(isUuid(slugOrId) ? { id: slugOrId } : { slug: slugOrId }) },
       include: { ...productInclude, variants: { where: { isActive: true }, orderBy: [{ sortOrder: 'asc' }, { unitPriceMinor: 'asc' }] } },
     });
     if (!product) throw new NotFoundException('Product not found');

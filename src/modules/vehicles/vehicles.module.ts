@@ -119,6 +119,8 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
     const where: Prisma.VehicleWhereInput = {
       status,
       verification: includeUnverified ? undefined : RecordVerification.VERIFIED,
+      // Customers only see cars with photos; staff lists (includeUnverified) show every car.
+      images: includeUnverified ? undefined : { some: {} },
       make: q.make ? { equals: q.make, mode: 'insensitive' } : undefined,
       model: q.model ? { contains: q.model, mode: 'insensitive' } : undefined,
       condition: q.condition,
@@ -134,7 +136,7 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
 
   async get(slug: string) {
     const v = await this.prisma.vehicle.findFirst({
-      where: { slug, status: { in: [VehicleStatus.AVAILABLE, VehicleStatus.RESERVED] }, verification: RecordVerification.VERIFIED },
+      where: { slug, status: { in: [VehicleStatus.AVAILABLE, VehicleStatus.RESERVED] }, verification: RecordVerification.VERIFIED, images: { some: {} } },
       include: { images: { orderBy: { sortOrder: 'asc' } } },
     });
     if (!v) throw new NotFoundException('Vehicle not found');
