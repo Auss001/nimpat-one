@@ -4,7 +4,7 @@ import { Building2, Car, ChevronLeft, ChevronRight, Clapperboard, Droplets, Flas
 import { formatNaira, get, rows } from '../api';
 import { loadStays, StayCard } from './Apartments';
 import { ProductCard } from './Shop';
-import { FavButton, Photo, Rail, Skeletons, useLoad, viewedProducts } from '../ui';
+import { FavButton, Photo, Rail, Skeletons, spaImage, useLoad, viewedProducts } from '../ui';
 import { HomeSlider } from './HomeSlider';
 import { LegalLinks } from './Legal';
 
@@ -131,7 +131,7 @@ export function HomePage() {
           {d.spa.map((t: any) => (
             <Link key={t.id} to={`/spa/${t.slug}`} className="card wide">
               <FavButton kind="TREATMENT" slug={t.slug} />
-              <div className="card-photo"><Photo src={t.imageUrl} alt={t.name} /></div>
+              <div className="card-photo"><Photo src={spaImage(t)} alt={t.name} /></div>
               <div className="card-body">
                 <strong>{t.name}</strong>
                 <small>{t.durationMinutes} minutes</small>

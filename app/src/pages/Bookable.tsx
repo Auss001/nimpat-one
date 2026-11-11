@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Clock, MapPin } from 'lucide-react';
 import { formatNaira, get, idempotency, post, rows } from '../api';
 import { useDetailsFirst, WhereChooser } from './Account';
-import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, useLoad, useToast } from '../ui';
+import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, spaImage, useLoad, useToast } from '../ui';
 
 export function SpaPage() {
   const list = useLoad(() => get('/spa/treatments?pageSize=100').then(rows));
@@ -26,7 +26,7 @@ export function SpaPage() {
         {shown.map((t: any) => (
           <Link key={t.id} to={`/spa/${t.slug}`} className="card stay">
             <FavButton kind="TREATMENT" slug={t.slug} />
-            <div className="card-photo"><Photo src={t.imageUrl} alt={t.name} /></div>
+            <div className="card-photo"><Photo src={spaImage(t)} alt={t.name} /></div>
             <div className="card-body">
               <strong>{t.name}</strong>
               <small><Clock size={13} aria-hidden="true" /> {t.durationMinutes} minutes{t.homeService ? ' · at home too' : ''}</small>
@@ -72,7 +72,7 @@ export function TreatmentPage() {
     <article className="detail">
       <PageTitle title={t.name} sub={t.category} action={<FavButton kind="TREATMENT" slug={t.slug} inline />} />
       <div className="detail-grid">
-        <div className="stay-photo"><Photo src={t.imageUrl} alt={t.name} /></div>
+        <div className="stay-photo"><Photo src={spaImage(t)} alt={t.name} /></div>
         <div className="detail-side">
           <p className="big-price">{t.priceMinor === null ? 'Contact for price' : formatNaira(t.priceMinor)}</p>
           <p className="muted-text"><Clock size={14} aria-hidden="true" /> {t.durationMinutes} minutes{t.depositMinor > 0 ? `. Deposit ${formatNaira(t.depositMinor)}.` : ''}</p>

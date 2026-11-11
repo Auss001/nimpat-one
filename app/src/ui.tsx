@@ -296,6 +296,13 @@ export const forgetSearches = () => {
 // ---------------------------------------------------------------- small parts
 
 /** A product or place photo. When there is none, it says so rather than showing something similar. */
+/** A spa treatment's photo, or its category's picture until it has one of its own. */
+export function spaImage(t: { imageUrl?: string | null; category?: string | null }) {
+  if (t.imageUrl) return t.imageUrl;
+  const slug = (t.category ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return slug ? `/spa/${slug}.webp` : null;
+}
+
 /** Colours for name tiles, by product category. */
 const TILE_TONE: Record<string, string> = {
   analgesics: 'blue', 'anti-cold': 'sky', 'anti-malaria': 'teal', antibiotics: 'violet', 'antacid-anti-ulcer': 'amber',

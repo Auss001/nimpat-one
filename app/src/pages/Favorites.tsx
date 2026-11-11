@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { formatNaira, get, rows } from '../api';
 import { ProductCard } from './Shop';
-import { Empty, FavButton, localFavourites, Loader, Note, PageTitle, Photo, useLoad, useSession } from '../ui';
+import { Empty, FavButton, localFavourites, Loader, Note, PageTitle, Photo, spaImage, useLoad, useSession } from '../ui';
 
 const PATH: Record<string, (slug: string) => string> = {
   PRODUCT: (s) => `/catalog/products/${s}`,
@@ -38,7 +38,7 @@ export function FavoritesPage() {
             const flat = kind === 'PROPERTY' && unitId ? item.units?.find((u: any) => u.id === unitId) : null;
             const to = kind === 'PROPERTY' ? `/apartments/${propertySlug}${unitId ? `?unit=${unitId}` : ''}` : kind === 'VEHICLE' ? `/cars/${slug}` : `/spa/${slug}`;
             const name = flat?.name ?? (kind === 'VEHICLE' ? `${item.year} ${item.make} ${item.model}` : item.name);
-            const image = kind === 'PROPERTY' ? (flat?.images?.[0]?.url ?? item.images?.[0]?.url) : kind === 'VEHICLE' ? item.images?.[0]?.url : item.imageUrl;
+            const image = kind === 'PROPERTY' ? (flat?.images?.[0]?.url ?? item.images?.[0]?.url) : kind === 'VEHICLE' ? item.images?.[0]?.url : spaImage(item);
             return (
               <Link key={`${kind}-${slug}`} to={to} className="card stay">
                 <FavButton kind={kind} slug={slug} />
