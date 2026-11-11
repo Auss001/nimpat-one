@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { post, upload } from '../api';
 import { formatNaira } from '../money';
 import { Modal, Pill, Tabs, useToast } from './ui';
@@ -41,10 +41,23 @@ export function PriceListUpload({ division, title, onClose, onChanged }: { divis
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ updated: number; created: number } | null>(null);
 
+  // A price list prepared outside the dashboard for this store, shipped with it for one use.
+  const [prepared, setPrepared] = useState(false);
+  useEffect(() => {
+    fetch(`/prepared/pricelist/${division}.csv`, { method: 'HEAD' }).then((r) => setPrepared(r.ok && !(r.headers.get('content-type') ?? '').includes('html'))).catch(() => setPrepared(false));
+  }, [division]);
+  const usePrepared = async () => {
+    const r = await fetch(`/prepared/pricelist/${division}.csv`);
+    if (r.ok) await readFile(new File([await r.blob()], `${division}-price-list.csv`, { type: 'text/csv' }));
+  };
+
   const read = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = '';
-    if (!file) return;
+    if (file) await readFile(file);
+  };
+
+  const readFile = async (file: File) => {
     setBusy('reading');
     setError(null);
     setDone(null);
@@ -127,7 +140,8 @@ export function PriceListUpload({ division, title, onClose, onChanged }: { divis
             {division !== 'pharmacy-laboratory' && <li>New products are added as drafts, for you to check and publish.</li>}
           </ul>
           <div className="toolbar">
-            <button className="btn primary" disabled={!!busy} onClick={() => input.current?.click()}>{busy === 'reading' ? 'Reading…' : 'Choose spreadsheet'}</button>
+            {prepared && <button className="btn primary" disabled={!!busy} onClick={() => void usePrepared()}>Review the prepared price list</button>}
+            <button className={`btn ${prepared ? '' : 'primary'}`} disabled={!!busy} onClick={() => input.current?.click()}>{busy === 'reading' ? 'Reading…' : 'Choose spreadsheet'}</button>
           </div>
         </>
       )}
