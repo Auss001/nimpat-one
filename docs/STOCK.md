@@ -72,6 +72,25 @@ Set for every shop by the **Set Abuja delivery fees** button on the **Delivery**
 
 Areas the list did not name (Mabushi, Kado, Maitama, Life Camp, Kubwa, Karu, Nyanya and others) were placed with their nearest named area; change them on the Delivery page if needed. The list lives in `src/modules/delivery/abuja-areas.ts`.
 
+## What customers can see and book (owner, 11 November 2026)
+
+**Anything with a price and a photo shows to customers and can be bought or booked.** Staff no longer have to confirm it first. This applies to shop products, cars, spa treatments and services.
+
+- Items staff have confirmed still show as before, photo or not.
+- Archived products, switched-off items and development samples never show.
+- Pharmacy items show, but customers can't buy them until the pharmacist approves them.
+- New items from a price list arrive as drafts with no photo, so they stay hidden until a photo is added.
+
+## Bookings are requests that staff accept
+
+- **Spa:** customers can pick any time within opening hours (9:00 to 19:00) on any day. Therapist schedules don't limit it. The booking arrives in the dashboard under **Bookings → Spa** as a request; staff accept it, assign a therapist and let the customer know. Customers can pay online from their bookings, or at the spa. Unpaid spa requests are never cancelled automatically.
+- **Services:** unchanged. Customers send a request with an optional preferred time, and staff confirm the time and price.
+- **Apartments:** dates already booked can't be booked again, so the same room is never sold twice. Customers choose the whole flat or a number of rooms, and **several rooms are one booking with one total and one payment**. There's no guest count. Unpaid holds expire after 15 minutes.
+
+## Photos on car, flat and spa pages
+
+The photo area is wide. Tapping a photo opens it full screen; customers can swipe or use the arrows, and close it with X or Escape. Tall phone photos of flats and cars are shown whole on a soft blurred backdrop rather than cropped.
+
 ## For developers
 
 | Rule | Where it's implemented |
@@ -79,3 +98,7 @@ Areas the list did not name (Mabushi, Kado, Maitama, Life Camp, Kubwa, Karu, Nya
 | Stock (reserve, commit, release, restock) | `src/modules/inventory/inventory.service.ts`. Only lines a given order actually reserved or sold are moved on. Changing a product's setting mid-order can't break a payment or a cancellation. |
 | Basket stock check | `src/modules/cart/cart.service.ts`. It checks the count only for "Use the stock count" items. |
 | Customer-facing `inStock` and `purchasable` | `publicProduct` in `src/modules/catalog/catalog.service.ts` |
+| Who sees what (price and photo rule) | `src/modules/catalog/shown.ts` for products; `SHOWN_CAR`, `SHOWN_TREATMENT` and `SHOWN_SERVICE` in the vehicles, spa and services modules |
+| Spa requests | `book` and `slots` in `src/modules/spa/spa.module.ts` |
+| Rooms booked together | `groupLeadId` on reservations; `createReservation` and the payment context in `src/modules/apartments/apartments.service.ts` |
+| Photo gallery and zoom | `PhotoGallery` in `app/src/ui.tsx` |
