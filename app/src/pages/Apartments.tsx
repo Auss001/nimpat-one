@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { BedDouble, Bath, Clock, MapPin, Users } from 'lucide-react';
+import { BedDouble, Bath, MapPin, Users } from 'lucide-react';
 import { formatNaira, get, idempotency, post, rows } from '../api';
 import { useDetailsFirst } from './Account';
 import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, PhotoGallery, Sheet, useLoad, useToast } from '../ui';
@@ -77,8 +77,8 @@ export function ApartmentsPage() {
     <>
       <PageTitle title="Luxury Apartments" />
       <div className="date-pair">
-        <Field label="Check in"><input type="date" min={lagosDate()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} /></Field>
-        <Field label="Check out"><input type="date" min={checkIn || lagosDate(1)} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} /></Field>
+        <Field label="Arriving"><input type="date" min={lagosDate()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} /></Field>
+        <Field label="Leaving"><input type="date" min={checkIn || lagosDate(1)} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} /></Field>
       </div>
       {places.length > 1 && (
         <div className="chips" role="group" aria-label="Location">
@@ -114,7 +114,6 @@ export function ApartmentPage() {
         action={<FavButton kind="PROPERTY" slug={single ? `${p.slug}--${single.id}` : p.slug} inline />}
       />
       <PhotoGallery photos={photos.slice(0, 24)} alt={single?.name ?? p.name} />
-      <p className="muted-text"><Clock size={14} aria-hidden="true" /> Check in from {p.checkInTime}. Check out by {p.checkOutTime}.</p>
       {p.amenities?.length > 0 && <ul className="pills">{p.amenities.map((a: string) => <li key={a}>{a}</li>)}</ul>}
 
       {units.length === 0 && <Empty title="Nothing is open to book here yet" action={<CallLink />} />}
@@ -230,8 +229,8 @@ function ReserveSheet({ unit, onClose }: { unit: any; onClose: () => void }) {
         </div>
       )}
       <div className="date-pair">
-        <Field label="Check in"><input type="date" min={lagosDate()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} /></Field>
-        <Field label="Check out"><input type="date" min={checkIn} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} /></Field>
+        <Field label="Arriving"><input type="date" min={lagosDate()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} /></Field>
+        <Field label="Leaving"><input type="date" min={checkIn} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} /></Field>
       </div>
       {problem && <Note tone="warn">{problem}</Note>}
       {quote && (

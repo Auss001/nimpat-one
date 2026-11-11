@@ -86,7 +86,7 @@ const TERMS: Section[] = [
   ],
   [
     'Luxury Apartments',
-    'The nightly rate, refundable caution deposit and check-in and check-out times are shown before you pay. Your dates are held for a limited time until payment. You can cancel an unpaid hold in the app.',
+    'The nightly rate and refundable caution deposit are shown before you pay. Your dates tell us when you are arriving and leaving. Your dates are held for a limited time until payment. You can cancel an unpaid hold in the app.',
     'To cancel a paid booking, contact us. Any cancellation conditions will be given to you before you commit, and any charge must be reasonable and lawful. Guests must respect the property, its occupancy limit and its rules.',
   ],
   [

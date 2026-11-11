@@ -575,7 +575,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       userId: r.userId,
       type: 'reservation.confirmed',
       title: `Reservation ${r.reservationNumber} confirmed`,
-      body: `Your stay at ${r.unit.property.name} (${r.room ? `${r.room.name}, ` : ''}${r.unit.name}) from ${formatDateOnly(r.checkIn)} to ${formatDateOnly(r.checkOut)} is confirmed.${summary.outstandingMinor > 0n ? ` Balance due: ${formatNgn(summary.outstandingMinor)}.` : ''} Check-in from ${r.unit.property.checkInTime}.`,
+      body: `Your stay at ${r.unit.property.name} (${r.room ? `${r.room.name}, ` : ''}${r.unit.name}) from ${formatDateOnly(r.checkIn)} to ${formatDateOnly(r.checkOut)} is confirmed.${summary.outstandingMinor > 0n ? ` Balance due: ${formatNgn(summary.outstandingMinor)}.` : ''}`,
       data: { reservationId: r.id },
       email: true,
     }];
