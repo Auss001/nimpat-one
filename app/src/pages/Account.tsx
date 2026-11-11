@@ -370,7 +370,7 @@ export function AddressForm({ address, onSaved, onCancel }: { address?: any; onS
   const toast = useToast();
   const session = useSession();
   const me = useLoad(() => (session ? get('/auth/me') : Promise.resolve(null)), [session?.email]);
-  const areas = useLoad(() => get<{ area: string; ring: string; feeMinor: number | null }[]>('/delivery/areas?division=water-drinks-wines').catch(() => []), []);
+  const areas = useLoad(() => get<{ area: string; ring: string; feeMinor: number | null; bulkFeeMinor: number | null; bulkFromQty: number | null }[]>('/delivery/areas?division=water-drinks-wines').catch(() => []), []);
   const known = (city: string) => (areas.data ?? []).some((a) => a.area.toLowerCase() === city.trim().toLowerCase());
   const [f, setF] = useState({
     recipientName: address?.recipientName ?? '', phone: address?.phone ?? '', line1: address?.line1 ?? '', landmark: address?.landmark ?? '',
@@ -404,7 +404,8 @@ export function AddressForm({ address, onSaved, onCancel }: { address?: any; onS
     else setF((x) => ({ ...x, city: known(x.city) ? '' : x.city }));
   };
   const rings = [...new Set((areas.data ?? []).map((a) => a.ring))];
-  const fee = (n: number | null) => (n === null ? '' : n === 0 ? ' · free delivery' : ` · ${formatNaira(n)}`);
+  const fee = (a: { feeMinor: number | null; bulkFeeMinor: number | null }) =>
+    a.feeMinor === null ? '' : Number(a.feeMinor) === 0 ? ' · free delivery' : a.bulkFeeMinor ? ` · ${formatNaira(a.feeMinor)}–${formatNaira(a.bulkFeeMinor)}` : ` · ${formatNaira(a.feeMinor)}`;
   const ready = f.recipientName.trim() && f.phone.trim() && f.line1.trim() && f.city.trim() && area;
 
   const submit = async () => {
@@ -425,7 +426,7 @@ export function AddressForm({ address, onSaved, onCancel }: { address?: any; onS
           <option value="" disabled>Choose your area in Abuja</option>
           {rings.map((r) => (
             <optgroup key={r} label={r.replace(/^Abuja: /, '').replace(/ \(.*\)$/, '')}>
-              {(areas.data ?? []).filter((a) => a.ring === r).map((a) => <option key={a.area} value={a.area}>{a.area}{fee(a.feeMinor)}</option>)}
+              {(areas.data ?? []).filter((a) => a.ring === r).map((a) => <option key={a.area} value={a.area}>{a.area}{fee(a)}</option>)}
             </optgroup>
           ))}
           <option value={ELSEWHERE}>Somewhere else</option>

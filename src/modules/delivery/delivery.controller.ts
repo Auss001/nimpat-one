@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiProperty, ApiPropertyOptional, ApiTags, PartialType } from '@nestjs/swagger';
 import { DeliveryStatus } from '@prisma/client';
+import { Type } from 'class-transformer';
 import { ArrayMaxSize, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUUID, Length, Min } from 'class-validator';
 import { CurrentUser, Public, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { PaginationQueryDto } from '../../common/dto/pagination.dto';
@@ -16,6 +17,8 @@ class DeliveryQuoteQueryDto {
   @ApiProperty({ example: 'Wuye' }) @IsString() @Length(2, 80) city: string;
   @ApiPropertyOptional({ description: 'Basket subtotal in kobo, to evaluate free-delivery thresholds' })
   @IsOptional() @MinorAmount() @IsInt() @Min(0) subtotalMinor?: number;
+  @ApiPropertyOptional({ description: 'Number of items, for zones that charge larger orders differently' })
+  @IsOptional() @Type(() => Number) @IsInt() @Min(0) quantity?: number;
 }
 
 class CreateZoneDto {
@@ -27,6 +30,8 @@ class CreateZoneDto {
   @ApiProperty({ description: 'Fee in kobo' }) @MinorAmount() @IsInt() @Min(0) feeMinor: number;
   @ApiPropertyOptional({ description: 'Free delivery when subtotal ≥ this (kobo)' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) freeAboveMinor?: number;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(1) estimatedHours?: number;
+  @ApiPropertyOptional({ description: 'Fee for larger orders (kobo), charged from bulkFromQty items' }) @IsOptional() @MinorAmount() @IsInt() @Min(0) bulkFeeMinor?: number | null;
+  @ApiPropertyOptional({ description: 'Number of items from which the larger-order fee applies' }) @IsOptional() @IsInt() @Min(1) bulkFromQty?: number | null;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
   @ApiPropertyOptional({ description: 'Allow pay on delivery in this zone (the division payment policy must allow it too)' }) @IsOptional() @IsBoolean() payOnDeliveryEnabled?: boolean;
 }
@@ -74,7 +79,7 @@ export class DeliveryController {
   @ApiOperation({ summary: 'Delivery charge for a location (calculated on the server)' })
   async quote(@Query() q: DeliveryQuoteQueryDto) {
     const d = await this.divisions.resolve(q.division);
-    return this.delivery.quote(d.id, q, BigInt(q.subtotalMinor ?? 0));
+    return this.delivery.quote(d.id, q, BigInt(q.subtotalMinor ?? 0), q.quantity ?? 0);
   }
 }
 
@@ -107,22 +112,24 @@ export class AdminDeliveryController {
   @ApiOperation({ summary: 'Create a delivery zone with its fee' })
   async createZone(@CurrentUser() user: AuthUser, @Body() dto: CreateZoneDto) {
     const d = await this.divisions.resolve(dto.division);
-    const { division, feeMinor, freeAboveMinor, ...rest } = dto;
+    const { division, feeMinor, freeAboveMinor, bulkFeeMinor, ...rest } = dto;
     return this.delivery.createZone(user, d.id, {
       ...rest,
       feeMinor: BigInt(feeMinor),
       freeAboveMinor: freeAboveMinor !== undefined ? BigInt(freeAboveMinor) : undefined,
+      bulkFeeMinor: bulkFeeMinor === undefined ? undefined : bulkFeeMinor === null ? null : BigInt(bulkFeeMinor),
     });
   }
 
   @Patch('zones/:id')
   @RequirePermissions(P.deliveriesManage)
   updateZone(@CurrentUser() user: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateZoneDto) {
-    const { division, feeMinor, freeAboveMinor, ...rest } = dto;
+    const { division, feeMinor, freeAboveMinor, bulkFeeMinor, ...rest } = dto;
     return this.delivery.updateZone(user, id, {
       ...rest,
       feeMinor: feeMinor !== undefined ? BigInt(feeMinor) : undefined,
       freeAboveMinor: freeAboveMinor !== undefined ? BigInt(freeAboveMinor) : undefined,
+      bulkFeeMinor: bulkFeeMinor === undefined ? undefined : bulkFeeMinor === null ? null : BigInt(bulkFeeMinor),
     });
   }
 

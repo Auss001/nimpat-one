@@ -5,12 +5,14 @@ describe('Abuja delivery rings', () => {
     const names = ABUJA_AREAS.map((a) => a.area.toLowerCase());
     expect(new Set(names).size).toBe(names.length);
   });
-  it('is free at Wuye and Utako and rises outwards to ₦10,000', () => {
-    expect(ABUJA_RINGS[0].areas).toEqual(['Wuye', 'Utako']);
-    expect(ABUJA_RINGS[0].feeMinor).toBe(0n);
-    const fees = ABUJA_RINGS.map((r) => r.feeMinor);
-    expect([...fees].sort((a, b) => (a < b ? -1 : 1))).toEqual(fees);
-    expect(fees.at(-1)).toBe(1_000_000n);
-    expect(ABUJA_RINGS.at(-1)!.areas).toEqual(expect.arrayContaining(['Kubwa', 'Gwarinpa']));
+  it("matches the owner's list of 11 November 2026", () => {
+    const fee = (area: string) => ABUJA_RINGS.find((r) => r.areas.includes(area));
+    expect(fee('Wuye')!.feeMinor).toBe(0n);
+    expect(fee('Utako')!.feeMinor).toBe(0n);
+    for (const a of ['Jabi', 'Jahi', 'Garki', 'Wuse', 'Central Area']) expect(fee(a)!.feeMinor).toBe(500_000n);
+    for (const a of ['Gudu', 'Apo']) expect(fee(a)!.feeMinor).toBe(700_000n);
+    for (const a of ['Gwarinpa', 'Asokoro', 'Guzape']) expect(fee(a)).toEqual(expect.objectContaining({ feeMinor: 700_000n, bulk: { feeMinor: 1_000_000n, fromQty: 10 } }));
+    for (const a of ['Lugbe', 'Games Village', 'Galadimawa']) expect(fee(a)!.feeMinor).toBe(1_000_000n);
+    expect(fee('Airport')!.feeMinor).toBe(1_500_000n);
   });
 });

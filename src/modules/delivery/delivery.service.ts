@@ -15,6 +15,8 @@ export interface DeliveryQuote {
   standardFeeMinor: bigint;
   freeAboveMinor: bigint | null;
   estimatedHours: number | null;
+  bulkFeeMinor: bigint | null;
+  bulkFromQty: number | null;
 }
 
 const norm = (s: string) => s.trim().toLowerCase();
@@ -40,9 +42,10 @@ export class DeliveryService {
 
   /**
    * Server-side delivery charge. City-specific zones win over state-wide
-   * zones; orders above a zone's threshold ship free.
+   * zones; orders above a zone's threshold ship free; a zone can charge a
+   * different fee from a number of items (larger orders).
    */
-  async quote(divisionId: string, address: { state: string; city: string }, subtotalMinor: bigint, db: Tx | PrismaService = this.prisma): Promise<DeliveryQuote> {
+  async quote(divisionId: string, address: { state: string; city: string }, subtotalMinor: bigint, quantity = 0, db: Tx | PrismaService = this.prisma): Promise<DeliveryQuote> {
     // Only company-confirmed fees are ever charged.
     const zones = await db.deliveryZone.findMany({ where: { divisionId, isActive: true, verification: 'VERIFIED' } });
     const state = norm(address.state);
@@ -52,13 +55,17 @@ export class DeliveryService {
       inState.find((z) => z.cities.map(norm).includes(city)) ?? inState.find((z) => z.cities.length === 0);
     if (!zone) throw new UnprocessableEntityException(`Delivery is not yet available to ${address.city}, ${address.state}`);
     const free = zone.freeAboveMinor !== null && subtotalMinor >= zone.freeAboveMinor;
+    const bulk = zone.bulkFeeMinor !== null && zone.bulkFromQty !== null && quantity >= zone.bulkFromQty;
+    const fee = bulk ? zone.bulkFeeMinor! : zone.feeMinor;
     return {
       zoneId: zone.id,
       zoneName: zone.name,
-      feeMinor: free ? 0n : zone.feeMinor,
+      feeMinor: free ? 0n : fee,
       standardFeeMinor: zone.feeMinor,
       freeAboveMinor: zone.freeAboveMinor,
       estimatedHours: zone.estimatedHours,
+      bulkFeeMinor: zone.bulkFeeMinor,
+      bulkFromQty: zone.bulkFromQty,
     };
   }
 
@@ -68,7 +75,7 @@ export class DeliveryService {
     const fallback = zones.find((z) => z.cities.length === 0);
     return ABUJA_AREAS.map(({ area, ring }) => {
       const zone = zones.find((z) => z.cities.map(norm).includes(norm(area))) ?? fallback;
-      return { area, ring, feeMinor: zone ? zone.feeMinor : null };
+      return { area, ring, feeMinor: zone ? zone.feeMinor : null, bulkFeeMinor: zone?.bulkFeeMinor ?? null, bulkFromQty: zone?.bulkFromQty ?? null };
     });
   }
 
@@ -86,13 +93,16 @@ export class DeliveryService {
     const confirmed = { verification: 'VERIFIED' as const, verifiedAt: now, verifiedById: user.id, isActive: true };
     await this.prisma.$transaction(async (tx) => {
       for (const ring of ABUJA_RINGS) {
-        const data = { state: 'FCT', cities: ring.areas.map(norm), feeMinor: ring.feeMinor, freeAboveMinor: null, payOnDeliveryEnabled: payOnDelivery, ...confirmed };
+        const data = { state: 'FCT', cities: ring.areas.map(norm), feeMinor: ring.feeMinor, bulkFeeMinor: ring.bulk?.feeMinor ?? null, bulkFromQty: ring.bulk?.fromQty ?? null, freeAboveMinor: null, payOnDeliveryEnabled: payOnDelivery, ...confirmed };
         await tx.deliveryZone.upsert({ where: { divisionId_name: { divisionId, name: ring.name } }, create: { divisionId, name: ring.name, ...data }, update: data });
       }
+      const current = new Set(ABUJA_RINGS.map((r) => r.name));
+      const retired = existing.filter((z) => z.name.startsWith('Abuja: ') && z.cities.length > 0 && !current.has(z.name)).map((z) => z.id);
+      if (retired.length) await tx.deliveryZone.updateMany({ where: { id: { in: retired } }, data: { isActive: false } });
       if (wide.length) await tx.deliveryZone.updateMany({ where: { id: { in: wide.map((z) => z.id) } }, data: { feeMinor: ABUJA_FALLBACK_FEE, freeAboveMinor: null, ...confirmed } });
       else await tx.deliveryZone.create({ data: { divisionId, name: 'Abuja: other areas', state: 'FCT', cities: [], feeMinor: ABUJA_FALLBACK_FEE, payOnDeliveryEnabled: payOnDelivery, ...confirmed } });
       await this.audit.record(
-        { actorId: user.id, action: 'delivery_zone.abuja_rings', entityType: 'division', entityId: divisionId, divisionId, changes: { rings: ABUJA_RINGS.map((r) => ({ name: r.name, feeMinor: String(r.feeMinor), areas: r.areas.length })), otherAreasFeeMinor: String(ABUJA_FALLBACK_FEE) } },
+        { actorId: user.id, action: 'delivery_zone.abuja_rings', entityType: 'division', entityId: divisionId, divisionId, changes: { rings: ABUJA_RINGS.map((r) => ({ name: r.name, feeMinor: String(r.feeMinor), bulk: r.bulk ? { feeMinor: String(r.bulk.feeMinor), fromQty: r.bulk.fromQty } : null, areas: r.areas.length })), retired: retired.length, otherAreasFeeMinor: String(ABUJA_FALLBACK_FEE) } },
         tx,
       );
     });

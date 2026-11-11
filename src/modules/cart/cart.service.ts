@@ -133,7 +133,7 @@ export class CartService {
       if (!addressId) throw new BadRequestException('addressId is required for delivery');
       const address = await this.prisma.address.findFirst({ where: { id: addressId, userId: user.id, deletedAt: null } });
       if (!address) throw new NotFoundException('Address not found');
-      delivery = await this.delivery.quote(cart.division.id, address, cart.subtotalMinor);
+      delivery = await this.delivery.quote(cart.division.id, address, cart.subtotalMinor, cart.itemCount);
     }
     const deliveryFeeMinor = delivery?.feeMinor ?? 0n;
     const taxMinor = vatOn(cart.division.code, cart.subtotalMinor);

@@ -104,7 +104,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
     if (fulfilmentType === FulfilmentType.DELIVERY && addressId) {
       const address = await this.prisma.address.findFirst({ where: { id: addressId, userId: user.id, deletedAt: null } });
       if (!address) throw new NotFoundException('Delivery address not found');
-      const q = await this.delivery.quote(d.id, address, subtotal);
+      const q = await this.delivery.quote(d.id, address, subtotal, (cart?.items ?? []).reduce((n, i) => n + i.quantity, 0));
       zoneId = q.zoneId;
       fee = q.feeMinor;
     }
@@ -167,7 +167,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       if (!input.addressId) throw new BadRequestException('addressId is required for delivery');
       address = await this.prisma.address.findFirst({ where: { id: input.addressId, userId: user.id, deletedAt: null } });
       if (!address) throw new NotFoundException('Delivery address not found');
-      const q = await this.delivery.quote(division.id, address, subtotalMinor);
+      const q = await this.delivery.quote(division.id, address, subtotalMinor, lines.reduce((n, l) => n + l.quantity, 0));
       deliveryFeeMinor = q.feeMinor;
       zoneId = q.zoneId;
     }
@@ -276,7 +276,8 @@ export class OrdersService implements OnModuleInit, PayableHandler {
 
     const address = await this.prisma.address.findFirst({ where: { id: addressId, userId: user.id, deletedAt: null } });
     if (!address) throw new NotFoundException('Delivery address not found');
-    const q = await this.delivery.quote(order.divisionId, address, order.subtotalMinor);
+    const items = await this.prisma.orderItem.aggregate({ where: { orderId: id }, _sum: { quantity: true } });
+    const q = await this.delivery.quote(order.divisionId, address, order.subtotalMinor, items._sum.quantity ?? 0);
     const totalMinor = order.subtotalMinor + order.taxMinor + q.feeMinor;
     // The way the customer chose to pay must still be allowed at the new address (for example pay on delivery).
     const options = await this.policies.orderOptions(order.divisionId, { fulfilment: 'DELIVERY', zoneId: q.zoneId, orderValueMinor: totalMinor });

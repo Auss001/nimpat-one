@@ -53,19 +53,23 @@ The lists we receive (price lists, stock lists, the car stand records) are **gui
   - The specs we added are published figures for each model and year. Each description asks customers to confirm trim, mileage and papers.
 - **One car's photos:** open its Photos and drag pictures straight in.
 
-## Delivery fees
+## Delivery fees (owner's list, 11 November 2026)
 
-Abuja delivery is set in rings around Nimpat in Wuye, by the button on the **Delivery** page:
+Set for every shop by the **Set Abuja delivery fees** button on the **Delivery** page:
 
-| Ring | Fee |
+| Area | Fee |
 |---|---|
 | Wuye and Utako | Free |
-| Central areas | ₦5,000 |
-| Middle ring | ₦7,500 |
-| Gwarinpa, Kubwa and the far edges | ₦10,000 |
+| Jabi / Jahi, Wuse axis, Garki, Central Area | ₦5,000 |
+| Gudu / Apo | ₦7,000 |
+| Gwarinpa, Asokoro / Guzape | ₦7,000; **₦10,000 for orders of 10 items or more** |
+| Lugbe axis, Games Village / Galadimawa (and outer areas) | ₦10,000 |
+| Airport | ₦15,000 |
 | Abuja areas not on the list | ₦10,000 |
 
-Each ring is an ordinary delivery zone, so you can edit its fee or areas on that page. The area list lives in `src/modules/delivery/abuja-areas.ts`.
+**Larger orders:** "quantity matters", so a zone can have a **larger-order fee** and the number of items from which it applies. Gwarinpa and Asokoro/Guzape use ₦10,000 from 10 items. Any zone can be given one: Delivery → Edit zone → *Larger-order fee* and *Larger order means*. The customer sees the fee for their own basket at checkout; the area list shows a range such as ₦7,000–₦10,000.
+
+Areas the list did not name (Mabushi, Kado, Maitama, Life Camp, Kubwa, Karu, Nyanya and others) were placed with their nearest named area; change them on the Delivery page if needed. The list lives in `src/modules/delivery/abuja-areas.ts`.
 
 ## For developers
 

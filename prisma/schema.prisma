@@ -851,6 +851,9 @@ model DeliveryZone {
   cities               String[] // lower-cased; empty = whole state
   feeMinor             BigInt             @map("fee_minor")
   freeAboveMinor       BigInt?            @map("free_above_minor")
+  /// Fee for larger orders: from bulkFromQty items, bulkFeeMinor is charged instead of feeMinor.
+  bulkFeeMinor         BigInt?            @map("bulk_fee_minor")
+  bulkFromQty          Int?               @map("bulk_from_qty")
   estimatedHours       Int?               @map("estimated_hours")
   /// Pay on delivery allowed in this zone (the division policy must allow it too).
   payOnDeliveryEnabled Boolean            @default(false) @map("pay_on_delivery_enabled")
