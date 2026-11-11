@@ -399,3 +399,8 @@ th.num .sort-head { justify-content: flex-end; }
 .drop-zone:hover, .drop-zone:focus-visible { border-color: var(--brand, #0b6b3a); outline: none; }
 .drop-zone.over { border-color: var(--brand, #0b6b3a); background: var(--brand-soft, #e7f4ec); }
 .drop-zone.off { opacity: .55; cursor: default; }
+
+/* The side menu scrolls by itself, so every link stays reachable. */
+@media (min-width: 901px) {
+  .sidebar { max-height: calc(100vh - 32px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+}

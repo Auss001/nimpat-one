@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DivisionCode, PrescriptionStatus, ProductStatus } from '@prisma/client';
+import { DivisionCode, PrescriptionStatus, ProductAvailability, ProductStatus } from '@prisma/client';
 import { readSpreadsheet, SpreadsheetError } from '../../common/utils/spreadsheet';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../access/auth-user';
@@ -226,6 +226,8 @@ export class PriceListService {
                 ...(keepCode ? { stockCode: keepCode } : {}),
               },
             });
+            // On a list with a quantity means on the shelf: shown as In stock (owner, 11 November 2026).
+            if (item.quantity) await tx.product.update({ where: { id: v.productId }, data: { listedAvailability: ProductAvailability.IN_STOCK } });
             changes.push({ sku: v.sku, from: v.unitPriceMinor === null ? null : Number(v.unitPriceMinor), to: item.salePriceMinor ?? null });
             updated++;
           } else {
@@ -239,6 +241,7 @@ export class PriceListService {
                 // Pharmacy items wait for the pharmacist and cannot be bought until then.
                 // Other stores' new items stay drafts until staff publish them.
                 status: pharmacy ? ProductStatus.ACTIVE : ProductStatus.DRAFT,
+                ...(item.quantity ? { listedAvailability: ProductAvailability.IN_STOCK } : {}),
                 ...(pharmacy ? { prescriptionStatus: PrescriptionStatus.NOT_REVIEWED, purchaseEnabled: false, isDeliverable: false } : {}),
                 verificationNote: `Added from price list ${dto.fileName ?? ''}`.trim(),
                 variants: {

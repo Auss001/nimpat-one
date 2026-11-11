@@ -33,7 +33,8 @@ The lists we receive (price lists, stock lists, the car stand records) are **gui
   - You see a preview first and choose which rows to apply.
   - Rows that look wrong are left unticked: cost above the selling price, a price jump of more than 50%, or an uncertain name match.
   - Only selling prices go live. Cost prices are used only to spot mistakes, and customers never see them.
-  - Quantities are kept as a dated note ("list said 12 on 10 Nov, guide only"). They never change Availability.
+  - An item listed with a quantity is marked **In stock** (on the list means on the shelf; owner, 11 November 2026). The number itself is kept only as a dated note ("list said 12 on 10 Nov, guide only").
+  - Why pharmacy showed "Out of stock" before: those items were set to "Use the stock count", and nobody had counted them into Stock, so the count was 0. They are now In stock.
 - **New items in a list:**
   - Pharmacy items arrive awaiting the pharmacist and can't be bought until approved.
   - Other new items arrive as drafts for staff to check and publish.

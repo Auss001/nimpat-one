@@ -684,7 +684,10 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
       {list.data.map((row: any) => {
         const r = render(row);
         const closed = ['CANCELLED', 'EXPIRED', 'COMPLETED', 'NO_SHOW'].includes(row.status);
-        const payable = purpose && !closed && (r.owing ?? 0) > 0 && r.payable !== false && row.paymentStatus !== 'AWAITING_VERIFICATION';
+        const settled = ['AWAITING_VERIFICATION', 'REFUNDED', 'PAID'].includes(row.paymentStatus);
+        const payable = purpose && !closed && !settled && (r.owing ?? 0) > 0 && r.payable !== false;
+        const cancellable = !!(canCancel?.(row) && cancel) && row.paymentStatus !== 'REFUNDED';
+        const isOrder = path === '/orders';
         return (
           <article key={row.id} className="history">
             <div className="history-head">{path === '/orders' ? <Link to={`/orders/${row.id}`}><b>{r.title}</b></Link> : <b>{r.title}</b>}<Status value={row.status} /></div>
@@ -695,13 +698,14 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
               {r.amount !== null && r.amount !== undefined ? <span className="price">{formatNaira(r.amount)}</span> : <span />}
               {purpose && r.amount !== null && r.amount !== undefined && row.paymentStatus && <Status value={row.paymentStatus} />}
             </div>
-            {(payable || (canCancel?.(row) && cancel)) && (
-              <div className="row">
-                {canCancel?.(row) && cancel && <button className="btn ghost" onClick={() => setCancelling(row)}>Cancel</button>}
-                {payable && <button className="btn primary grow" onClick={() => navigate(`/pay/${purpose}/${row.id}`)}>Pay {formatNaira(r.owing)}</button>}
+            {(payable || cancellable || isOrder) && (
+              <div className="history-actions">
+                {payable && <button className="btn primary" onClick={() => navigate(`/pay/${purpose}/${row.id}`)}>Pay {formatNaira(r.owing)}</button>}
+                {isOrder && <Link className={`btn ${payable ? 'ghost' : 'primary'}`} to={`/orders/${row.id}`}><Truck size={15} aria-hidden="true" /> Track</Link>}
+                {isOrder && row.items?.length > 0 && <OrderAgain order={row} />}
+                {cancellable && <button className="text-link danger" onClick={() => setCancelling(row)}>Cancel</button>}
               </div>
             )}
-            {path === '/orders' && <div className="row"><Link className="btn primary grow" to={`/orders/${row.id}`}><Truck size={15} aria-hidden="true" /> Track order</Link>{row.items?.length > 0 && <OrderAgain order={row} />}</div>}
             {row.paymentStatus === 'PAID' && <small className="paid"><Check size={13} aria-hidden="true" /> Paid in full</small>}
           </article>
         );

@@ -711,3 +711,8 @@ a.reward { text-decoration: none; }
 .receiver b { color: var(--ink, #10291e); }
 .cars-slide { background: #050608; }
 .cars-slide > img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Order and booking cards: one calm row of actions. */
+.history-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+.history-actions .btn { min-height: 38px; padding: 0 16px; font-size: 14px; }
+.history-actions .text-link { margin-left: auto; padding: 6px 4px; }

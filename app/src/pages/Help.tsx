@@ -7,7 +7,7 @@ import { PageTitle } from '../ui';
 /** WhatsApp chat with Nimpat's customer service line (the MTN line on the website). */
 export const WHATSAPP_NUMBER = '2348145537327';
 export const WHATSAPP_LABEL = '0814 553 7327';
-export function whatsappLink(text = 'Hello Nimpat, I need help with Nimpat One.') {
+export function whatsappLink(text = 'Hello Nimpat, I need assistance.') {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
