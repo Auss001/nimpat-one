@@ -249,7 +249,6 @@ export function ProductPage() {
           )}
           {p.variants.length === 1 && v?.name !== 'As listed' && <p className="pack">{v?.name}</p>}
           <p className="big-price">{v?.unitPriceMinor !== null && v?.unitPriceMinor !== undefined ? formatNaira(v.unitPriceMinor) : 'Contact for price'}</p>
-          {v?.unitPriceMinor != null && v.unitsPerPack > 1 && <p className="muted-text">About {formatNaira(Math.round(v.unitPriceMinor / v.unitsPerPack / 100) * 100)} each</p>}
           <p className={p.inStock ? 'stock ok' : 'stock out'}>{p.inStock ? 'In stock: available to order now' : 'Out of stock right now'}</p>
           {p.isAgeRestricted && <Note tone="warn">Contains alcohol. Only sold to adults aged 18 and over.</Note>}
           {needsPrescription && <Note tone="warn"><ShieldCheck size={16} aria-hidden="true" /> This medicine needs a pharmacist and prescription review, so it cannot be bought online.</Note>}
