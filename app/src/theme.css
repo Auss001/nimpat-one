@@ -718,7 +718,8 @@ a.reward { text-decoration: none; }
 .history-actions .text-link { margin-left: auto; padding: 6px 4px; }
 .spa-slide { background: #e46aa3; }
 .apartments-slide { background: #3a3560; }
-.spa-slide > img, .apartments-slide > img { width: 100%; height: 100%; object-fit: cover; }
+.wines-slide { background: #f6ebe0; }
+.spa-slide > img, .apartments-slide > img, .wines-slide > img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Photo galleries on car, flat and spa pages: wide photo, tap to view full screen. */
 .gallery { min-width: 0; }
