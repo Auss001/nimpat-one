@@ -1345,6 +1345,8 @@ model Reservation {
   roomId               String?           @map("room_id") @db.Uuid
   /// Copy of the room's slot, used by the double-booking constraint.
   roomSlot             Int?              @map("room_slot")
+  /// Rooms booked together point at the first one (the lead), which carries the payment for all of them.
+  groupLeadId          String?           @map("group_lead_id") @db.Uuid
   userId               String            @map("user_id") @db.Uuid
   checkIn              DateTime          @map("check_in") @db.Date
   checkOut             DateTime          @map("check_out") @db.Date
@@ -1373,9 +1375,12 @@ model Reservation {
   room     ApartmentRoom? @relation(fields: [roomId], references: [id], onDelete: Restrict)
   user     User           @relation(fields: [userId], references: [id], onDelete: Restrict)
   payments Payment[]
+  groupLead  Reservation?  @relation("ReservationGroup", fields: [groupLeadId], references: [id], onDelete: Restrict)
+  companions Reservation[] @relation("ReservationGroup")
 
   @@unique([userId, idempotencyKey])
   @@index([roomId])
+  @@index([groupLeadId])
   @@index([unitId, checkIn])
   @@index([userId, createdAt])
   @@index([status, holdExpiresAt])

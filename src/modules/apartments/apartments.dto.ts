@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { ListingStatus, ReservationStatus, UnitReadiness } from '@prisma/client';
-import { ArrayMaxSize, IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, IsUUID, Length, Matches, Max, Min } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, IsUUID, Length, Matches, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationQueryDto } from '../../common/dto/pagination.dto';
 import { MinorAmount } from '../catalog/catalog.dto';
@@ -33,9 +33,10 @@ export class CalendarQueryDto {
 export class CreateReservationDto {
   @ApiProperty() @IsUUID() unitId: string;
   @ApiPropertyOptional({ description: 'Book one room; leave out to book the whole unit' }) @IsOptional() @IsUUID() roomId?: string;
+  @ApiPropertyOptional({ description: 'Book several rooms of the unit together, paid as one' }) @IsOptional() @IsArray() @ArrayMinSize(1) @ArrayMaxSize(10) @ArrayUnique() @IsUUID('all', { each: true }) roomIds?: string[];
   @ApiProperty({ example: '2026-12-20' }) @Matches(DATE) checkIn: string;
   @ApiProperty({ example: '2026-12-23' }) @Matches(DATE) checkOut: string;
-  @ApiProperty({ example: 2 }) @IsInt() @Min(1) @Max(30) guests: number;
+  @ApiPropertyOptional({ example: 2, description: 'Defaults to what the flat or rooms sleep' }) @IsOptional() @IsInt() @Min(1) @Max(30) guests?: number;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(1, 500) guestNote?: string;
 }
 

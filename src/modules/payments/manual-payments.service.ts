@@ -574,8 +574,8 @@ export class ManualPaymentsService {
         : [],
       !q.purpose || q.purpose === 'APARTMENT_RESERVATION'
         ? this.prisma.reservation.findMany({
-            where: { paymentStatus: states, status: { in: ['HOLD', 'CONFIRMED', 'CHECKED_IN'] }, unit: { property: { divisionId: inDiv } } },
-            select: { id: true, reservationNumber: true, status: true, paymentStatus: true, totalMinor: true, amountPaidMinor: true, depositRequiredMinor: true, checkIn: true, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true } } },
+            where: { paymentStatus: states, status: { in: ['HOLD', 'CONFIRMED', 'CHECKED_IN'] }, unit: { property: { divisionId: inDiv } }, groupLeadId: null },
+            select: { id: true, reservationNumber: true, status: true, paymentStatus: true, totalMinor: true, amountPaidMinor: true, depositRequiredMinor: true, checkIn: true, companions: { where: { status: { not: 'CANCELLED' } }, select: { totalMinor: true, depositRequiredMinor: true } }, user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true } } },
             orderBy: { checkIn: 'asc' },
             take,
           })
@@ -601,7 +601,7 @@ export class ManualPaymentsService {
     });
     return [
       ...orders.map((o) => row('ORDER', o.id, o.orderNumber, o.status, o.paymentStatus, o.totalMinor, o.amountPaidMinor, o.depositRequiredMinor, o.createdAt, o.user.email, { paymentOption: o.paymentOption })),
-      ...reservations.map((r) => row('APARTMENT_RESERVATION', r.id, r.reservationNumber, r.status, r.paymentStatus, r.totalMinor, r.amountPaidMinor, r.depositRequiredMinor, r.checkIn, r.user.email)),
+      ...reservations.map((r) => row('APARTMENT_RESERVATION', r.id, r.reservationNumber, r.status, r.paymentStatus, r.companions.reduce((n, c) => n + c.totalMinor, r.totalMinor), r.amountPaidMinor, r.companions.reduce((n, c) => n + c.depositRequiredMinor, r.depositRequiredMinor), r.checkIn, r.user.email)),
       ...bookings.map((b) => row('SERVICE_BOOKING', b.id, b.bookingNumber, b.status, b.paymentStatus, b.priceMinor ?? 0n, b.amountPaidMinor, b.depositRequiredMinor, b.scheduledStart, b.user.email)),
       ...spa.map((a) => row('SPA_APPOINTMENT', a.id, a.appointmentNumber, a.status, a.paymentStatus, a.priceMinor, a.amountPaidMinor, a.depositRequiredMinor, a.startsAt, a.user.email)),
     ];

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Clock, MapPin } from 'lucide-react';
 import { formatNaira, get, idempotency, post, rows } from '../api';
 import { useDetailsFirst, WhereChooser } from './Account';
-import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, Sheet, spaImage, useLoad, useToast } from '../ui';
+import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, PhotoGallery, Sheet, spaImage, useLoad, useToast } from '../ui';
 
 export function SpaPage() {
   const list = useLoad(() => get('/spa/treatments?pageSize=100').then(rows));
@@ -79,8 +79,8 @@ export function TreatmentPage() {
   return (
     <article className="detail">
       <PageTitle title={t.name} sub={t.category} action={<FavButton kind="TREATMENT" slug={t.slug} inline />} />
-      <div className="detail-grid">
-        <div className="stay-photo"><Photo src={spaImage(t)} alt={t.name} /></div>
+      <div className="detail-grid media">
+        <PhotoGallery photos={spaImage(t) ? [{ url: spaImage(t)! }] : []} alt={t.name} />
         <div className="detail-side">
           <p className="big-price">{t.priceMinor === null ? 'Contact for price' : formatNaira(t.priceMinor)}</p>
           <p className="muted-text"><Clock size={14} aria-hidden="true" /> {t.durationMinutes} minutes{t.depositMinor > 0 ? `. Deposit ${formatNaira(t.depositMinor)}.` : ''}</p>

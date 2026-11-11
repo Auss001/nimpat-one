@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { DivisionCode, ListingStatus, Payment, PaymentPurpose, PaymentStatus, Prisma, RecordVerification, ReservationStatus, UnitReadiness } from '@prisma/client';
+import { DivisionCode, ListingStatus, Payment, PayableState, PaymentPurpose, PaymentStatus, Prisma, RecordVerification, ReservationStatus, UnitReadiness } from '@prisma/client';
 import { AppConfig } from '../../config/app-config.service';
 import { pageArgs, paginate } from '../../common/dto/pagination.dto';
 import { isExclusionViolation } from '../../common/filters/prisma-exception.filter';
@@ -207,9 +207,13 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
       if (prior) return this.getForCustomer(user, prior.id);
     }
     const unit = await this.activeUnit(dto.unitId);
-    const room = dto.roomId ? await this.activeRoom(unit.id, dto.roomId) : null;
+    // Several rooms booked together are held as one booking: the first room leads and carries the payment.
+    const roomIds = dto.roomIds?.length ? dto.roomIds : dto.roomId ? [dto.roomId] : [];
+    const rooms = await Promise.all(roomIds.map((id) => this.activeRoom(unit.id, id)));
     const { checkIn, checkOut, nights } = this.parseStay(dto.checkIn, dto.checkOut);
-    this.assertStayRules({ minNights: unit.minNights, maxNights: unit.maxNights, maxGuests: room?.maxGuests ?? unit.maxGuests }, nights, dto.guests);
+    const sleeps = rooms.length ? rooms.reduce((n, r) => n + r.maxGuests, 0) : unit.maxGuests;
+    this.assertStayRules({ minNights: unit.minNights, maxNights: unit.maxNights, maxGuests: sleeps }, nights, dto.guests);
+    const guests = dto.guests ?? sleeps;
 
     const blackout = await this.prisma.unitBlackout.findFirst({ where: { unitId: unit.id, startDate: { lt: checkOut }, endDate: { gt: checkIn } } });
     if (blackout) throw new ConflictException('The apartment is unavailable for some of these dates');
@@ -217,39 +221,44 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
     // Free up expired holds on this unit so they do not block the new booking.
     await this.expireHolds({ unitId: unit.id });
 
-    const quote = this.price(unit, room, checkIn, checkOut, nights);
     const policy = await this.policies.get(unit.property.divisionId, PaymentPurpose.APARTMENT_RESERVATION);
-    const depositRequiredMinor = this.policies.depositFor(policy, quote.totalMinor);
     const holdExpiresAt = addMinutes(new Date(), this.config.get('APARTMENT_HOLD_TTL_MINUTES'));
+    const stays = (rooms.length ? rooms : [null]).map((room) => ({ room, quote: this.price(unit, room, checkIn, checkOut, nights) }));
+    const data = (s: (typeof stays)[number], i: number, groupLeadId?: string): Prisma.ReservationUncheckedCreateInput => ({
+      reservationNumber: businessNumber(DivisionCode.LUXURY_APARTMENTS),
+      unitId: unit.id,
+      roomId: s.room?.id,
+      roomSlot: s.room?.slot,
+      groupLeadId,
+      userId: user.id,
+      checkIn,
+      checkOut,
+      nights,
+      guests: stays.length === 1 ? guests : Math.max(1, Math.min(s.room?.maxGuests ?? guests, Math.ceil(guests / stays.length))),
+      status: ReservationStatus.HOLD,
+      holdExpiresAt,
+      nightlyRateMinor: s.quote.nightlyRateMinor,
+      accommodationMinor: s.quote.accommodationMinor,
+      cleaningFeeMinor: s.quote.cleaningFeeMinor,
+      cautionDepositMinor: s.quote.cautionDepositMinor,
+      totalMinor: s.quote.totalMinor,
+      depositRequiredMinor: this.policies.depositFor(policy, s.quote.totalMinor),
+      guestNote: i === 0 ? dto.guestNote : undefined,
+      idempotencyKey: i === 0 ? idempotencyKey : undefined,
+    });
     try {
+      // All or nothing: if any room was just taken, none of them is held.
       const reservation = await withUniqueRetry(() =>
-        this.prisma.reservation.create({
-          data: {
-            reservationNumber: businessNumber(DivisionCode.LUXURY_APARTMENTS),
-            unitId: unit.id,
-            roomId: room?.id,
-            roomSlot: room?.slot,
-            userId: user.id,
-            checkIn,
-            checkOut,
-            nights,
-            guests: dto.guests,
-            status: ReservationStatus.HOLD,
-            holdExpiresAt,
-            nightlyRateMinor: quote.nightlyRateMinor,
-            accommodationMinor: quote.accommodationMinor,
-            cleaningFeeMinor: quote.cleaningFeeMinor,
-            cautionDepositMinor: quote.cautionDepositMinor,
-            totalMinor: quote.totalMinor,
-            depositRequiredMinor,
-            guestNote: dto.guestNote,
-            idempotencyKey,
-          },
+        this.prisma.$transaction(async (tx) => {
+          const lead = await tx.reservation.create({ data: data(stays[0], 0) });
+          for (let i = 1; i < stays.length; i++) await tx.reservation.create({ data: data(stays[i], i, lead.id) });
+          return lead;
         }),
       );
+      const totalMinor = stays.reduce((n, s) => n + s.quote.totalMinor, 0n);
       await this.audit.record({
         actorId: user.id, action: 'reservation.hold', entityType: 'reservation', entityId: reservation.id,
-        divisionId: unit.property.divisionId, changes: { checkIn: dto.checkIn, checkOut: dto.checkOut, roomId: room?.id, totalMinor: quote.totalMinor },
+        divisionId: unit.property.divisionId, changes: { checkIn: dto.checkIn, checkOut: dto.checkOut, roomIds: roomIds.length ? roomIds : undefined, totalMinor },
       });
       return this.getForCustomer(user, reservation.id);
     } catch (e) {
@@ -259,7 +268,8 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   }
 
   async listForCustomer(user: AuthUser, q: ReservationQueryDto) {
-    const where: Prisma.ReservationWhereInput = { userId: user.id, status: q.status };
+    // Rooms booked together show once, under the lead room.
+    const where: Prisma.ReservationWhereInput = { userId: user.id, status: q.status, groupLeadId: null };
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.reservation.findMany({ where, orderBy: { checkIn: 'desc' }, ...pageArgs(q), include: reservationInclude }),
       this.prisma.reservation.count({ where }),
@@ -274,14 +284,17 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   }
 
   async cancelByCustomer(user: AuthUser, id: string, reason?: string) {
-    const r = await this.prisma.reservation.findFirst({ where: { id, userId: user.id }, include: { unit: { include: { property: true } } } });
-    if (!r) throw new NotFoundException('Reservation not found');
+    const found = await this.prisma.reservation.findFirst({ where: { id, userId: user.id } });
+    if (!found) throw new NotFoundException('Reservation not found');
+    // Rooms booked together are cancelled together, through the lead room.
+    const r = await this.prisma.reservation.findFirstOrThrow({ where: { id: found.groupLeadId ?? found.id }, include: { companions: true } });
     if (r.status === ReservationStatus.HOLD && r.amountPaidMinor > 0n) {
       throw new BadRequestException('A payment has been received for this hold. Please contact Nimpat Luxury Apartments to cancel.');
     }
     if (r.status === ReservationStatus.HOLD) {
       await this.transition(r.id, ReservationStatus.HOLD, ReservationStatus.CANCELLED, user.id, reason ?? 'Cancelled by guest');
-      return this.getForCustomer(user, id);
+      for (const c of r.companions) await this.transition(c.id, ReservationStatus.HOLD, ReservationStatus.CANCELLED, user.id, reason ?? 'Cancelled by guest');
+      return this.getForCustomer(user, r.id);
     }
     if (r.status === ReservationStatus.CONFIRMED) {
       // Paid stays need the refund policy applied by staff (not yet automated).
@@ -438,12 +451,13 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   async expireHolds(filter: { unitId?: string } = {}): Promise<number> {
     const stale = await this.prisma.reservation.findMany({
       where: { ...filter, status: ReservationStatus.HOLD, holdExpiresAt: { lt: new Date() } },
-      select: { id: true },
+      select: { id: true, groupLeadId: true },
       take: 500,
     });
     let count = 0;
     for (const r of stale) {
-      const busy = await this.prisma.payment.count({ where: { reservationId: r.id, status: { in: [PaymentStatus.SUCCESS, PaymentStatus.AWAITING_VERIFICATION] } } });
+      // A room booked with others is paid through its lead room.
+      const busy = await this.prisma.payment.count({ where: { reservationId: r.groupLeadId ?? r.id, status: { in: [PaymentStatus.SUCCESS, PaymentStatus.AWAITING_VERIFICATION] } } });
       if (busy) continue;
       if (await this.transition(r.id, ReservationStatus.HOLD, ReservationStatus.EXPIRED, null, 'Hold expired without payment')) count++;
     }
@@ -451,35 +465,41 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   }
 
   async resolve(reservationId: string, user: AuthUser): Promise<PayableContext> {
-    const r = await this.prisma.reservation.findFirst({ where: { id: reservationId, userId: user.id }, include: { room: true, unit: { include: { property: true } } } });
+    const r = await this.prisma.reservation.findFirst({ where: { id: reservationId, userId: user.id }, include: payableInclude });
     if (!r) throw new NotFoundException('Reservation not found');
     return this.context(r);
   }
 
   async load(db: Tx | PrismaService, reservationId: string): Promise<PayableContext> {
-    const r = await db.reservation.findUnique({ where: { id: reservationId }, include: { room: true, unit: { include: { property: true } } } });
+    const r = await db.reservation.findUnique({ where: { id: reservationId }, include: payableInclude });
     if (!r) throw new NotFoundException('Reservation not found');
     return this.context(r);
   }
 
-  private context(r: Prisma.ReservationGetPayload<{ include: { room: true; unit: { include: { property: true } } } }>): PayableContext {
+  /** A lead room is paid for together with the rooms booked alongside it. */
+  private context(r: Prisma.ReservationGetPayload<{ include: typeof payableInclude }>): PayableContext {
     let acceptsPayments = true;
     let closedReason: string | undefined;
-    if (r.status === ReservationStatus.HOLD && r.holdExpiresAt && r.holdExpiresAt < new Date() && r.amountPaidMinor === 0n) {
+    if (r.groupLeadId) {
+      acceptsPayments = false;
+      closedReason = 'This room is paid for together with the rest of its booking.';
+    } else if (r.status === ReservationStatus.HOLD && r.holdExpiresAt && r.holdExpiresAt < new Date() && r.amountPaidMinor === 0n) {
       acceptsPayments = false;
       closedReason = 'Your hold has expired. Please make a new reservation.';
     } else if (r.status === ReservationStatus.CANCELLED || r.status === ReservationStatus.EXPIRED || r.status === ReservationStatus.COMPLETED) {
       acceptsPayments = false;
       closedReason = `Reservation is ${r.status.toLowerCase()}`;
     }
+    const group = [r, ...r.companions.filter((c) => c.status !== ReservationStatus.CANCELLED)];
+    const rooms = group.map((x) => x.room?.name).filter(Boolean).join(', ');
     return {
-      totalDueMinor: r.totalMinor,
-      depositRequiredMinor: r.depositRequiredMinor,
+      totalDueMinor: group.reduce((n, x) => n + x.totalMinor, 0n),
+      depositRequiredMinor: group.reduce((n, x) => n + x.depositRequiredMinor, 0n),
       currency: r.currency,
       divisionId: r.unit.property.divisionId,
       userId: r.userId,
       label: r.reservationNumber,
-      description: `Reservation ${r.reservationNumber} — ${r.unit.property.name}${r.room ? `, ${r.room.name}` : ''}, ${r.nights} night(s)`,
+      description: `Reservation ${r.reservationNumber} — ${r.unit.property.name}${rooms ? `, ${rooms}` : ''}, ${r.nights} night(s)`,
       payBy: r.status === ReservationStatus.HOLD ? r.holdExpiresAt : null,
       acceptsPayments,
       closedReason,
@@ -488,7 +508,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
 
   /** Keep the dates held while a bank transfer is waiting for verification. */
   async onBankTransferStarted(tx: Tx, reservationId: string, payBy: Date): Promise<void> {
-    await tx.reservation.updateMany({ where: { id: reservationId, status: ReservationStatus.HOLD, OR: [{ holdExpiresAt: null }, { holdExpiresAt: { lt: payBy } }] }, data: { holdExpiresAt: payBy } });
+    await tx.reservation.updateMany({ where: { OR: [{ id: reservationId }, { groupLeadId: reservationId }], status: ReservationStatus.HOLD, AND: [{ OR: [{ holdExpiresAt: null }, { holdExpiresAt: { lt: payBy } }] }] }, data: { holdExpiresAt: payBy } });
   }
 
   /**
@@ -497,8 +517,14 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
    * STAFF_APPROVAL → never automatically (staff confirm in the dashboard).
    */
   async onPaymentStateChanged(tx: Tx, reservationId: string, summary: PaymentSummary, trigger: Payment): Promise<NotifyInput[]> {
-    const r = await tx.reservation.findUniqueOrThrow({ where: { id: reservationId }, include: { room: true, unit: { include: { property: true } } } });
+    const r = await tx.reservation.findUniqueOrThrow({ where: { id: reservationId }, include: { room: true, unit: { include: { property: true } }, companions: { select: { id: true } } } });
     if (trigger.status !== PaymentStatus.SUCCESS) return [];
+    // Rooms booked with this one follow its payment state.
+    const companionIds = r.companions.map((c) => c.id);
+    if (companionIds.length) {
+      const state = summary.paidMinor >= summary.totalDueMinor ? PayableState.PAID : summary.paidMinor > 0n ? PayableState.PARTIALLY_PAID : undefined;
+      if (state) await tx.reservation.updateMany({ where: { id: { in: companionIds } }, data: { paymentStatus: state } });
+    }
     const policy = await this.policies.get(r.unit.property.divisionId, PaymentPurpose.APARTMENT_RESERVATION, tx);
     const received: NotifyInput = {
       userId: r.userId,
@@ -510,7 +536,7 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
     if (r.status === ReservationStatus.CONFIRMED || r.status === ReservationStatus.CHECKED_IN || r.status === ReservationStatus.COMPLETED) return [received];
     if (!this.policies.confirmationMet(policy, summary)) {
       // Keep the hold while a partial/deposit payment is in hand.
-      if (r.status === ReservationStatus.HOLD) await tx.reservation.update({ where: { id: r.id }, data: { holdExpiresAt: null } });
+      if (r.status === ReservationStatus.HOLD) await tx.reservation.updateMany({ where: { id: { in: [r.id, ...companionIds] }, status: ReservationStatus.HOLD }, data: { holdExpiresAt: null } });
       return [received];
     }
 
@@ -522,6 +548,13 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
           where: { id: r.id },
           data: { status: ReservationStatus.CONFIRMED, confirmedAt: new Date(), holdExpiresAt: null, cancelledAt: null },
         });
+        // Confirm the rooms booked alongside (a guest-cancelled room stays cancelled).
+        for (const id of companionIds) {
+          await tx.reservation.updateMany({
+            where: { id, status: { in: [ReservationStatus.HOLD, ReservationStatus.EXPIRED] } },
+            data: { status: ReservationStatus.CONFIRMED, confirmedAt: new Date(), holdExpiresAt: null, cancelledAt: null },
+          });
+        }
         await tx.$executeRaw`RELEASE SAVEPOINT confirm_stay`;
       } catch (e) {
         await tx.$executeRaw`ROLLBACK TO SAVEPOINT confirm_stay`;
@@ -677,6 +710,14 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
 const reservationInclude = {
   room: { select: { id: true, name: true } },
   unit: { select: { id: true, code: true, name: true, property: { select: { id: true, name: true, slug: true, city: true, addressLine: true, checkInTime: true, checkOutTime: true } } } },
+  /** Rooms booked together with this one. */
+  companions: { select: { id: true, reservationNumber: true, status: true, totalMinor: true, room: { select: { id: true, name: true } } }, orderBy: { createdAt: 'asc' } },
+} satisfies Prisma.ReservationInclude;
+
+const payableInclude = {
+  room: true,
+  unit: { include: { property: true } },
+  companions: { include: { room: true } },
 } satisfies Prisma.ReservationInclude;
 
 const paymentSelect = {

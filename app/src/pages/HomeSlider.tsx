@@ -33,15 +33,14 @@ function Go({ text, className = '' }: { text: string; className?: string }) {
 export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[] }) {
   const loaded = useLoad(() => get<Slide[]>('/home-slides'), []);
   const stay = stays.find((s) => s.image);
-  // The apartments slide waits until a flat with a photo has loaded.
-  const managed = (loaded.data ?? []).filter((s) => s.kind !== 'APARTMENTS' || stay);
+  const managed = loaded.data ?? [];
   // Our own water, Venida, always has a blue card, second in line.
   const venidaSlide: Slide | null = venida.length
     ? { id: 'venida', kind: 'VENIDA', title: 'Venida Water', subtitle: 'Our own brand', buttonText: 'Shop Venida', imageUrl: '/venida-slide.webp', linkTo: '/shop/water-drinks-wines?q=Venida', tone: 'blue' }
     : null;
   // Nimpat Automobiles always has its own picture card, after Venida.
   const carsSlide: Slide = { id: 'cars', kind: 'CARS', title: 'Nimpat Automobiles', subtitle: 'Drive in style', buttonText: 'Explore Cars', imageUrl: '/cars-slide.webp', linkTo: '/cars', tone: 'dark' };
-  const spaSlide: Slide = { id: 'spa', kind: 'SPA', title: 'Spa Packages', subtitle: 'Time to unwind', buttonText: 'Explore packages', imageUrl: '/spa-slide.webp', linkTo: '/spa?category=Spa%20packages', tone: 'violet' };
+  const spaSlide: Slide = { id: 'spa', kind: 'SPA', title: 'Beauty, Spa & Saloon', subtitle: 'Relax. Renew. Glow.', buttonText: 'Book a Session', imageUrl: '/spa-card.webp', linkTo: '/spa', tone: 'pink' };
   const own = [venidaSlide, carsSlide, spaSlide].filter((x): x is Slide => !!x);
   const slides = [...managed.slice(0, 1), ...own, ...managed.slice(1)];
   const count = slides.length;
@@ -100,8 +99,8 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
         {slides.map((s) => {
           if (s.kind === 'SPA') {
             return (
-              <Link key={s.id} to={s.linkTo!} className="slide flyer spa-slide" aria-label="Spa packages: Silver, Gold, Diamond and Couples, from 35,000 naira. Explore packages">
-                <img src="/spa-slide.webp" alt="" loading="lazy" />
+              <Link key={s.id} to={s.linkTo!} className="slide flyer spa-slide" aria-label="Beauty, Spa and Saloon: relax, renew, glow. Book a session">
+                <img src="/spa-card.webp" alt="" loading="lazy" />
               </Link>
             );
           }
@@ -136,14 +135,8 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
           }
           if (s.kind === 'APARTMENTS') {
             return (
-              <Link key={s.id} to="/apartments" className="slide photo-slide">
-                <img src={stay.image} alt="" loading="lazy" />
-                <span className="slide-text">
-                  <small>{s.subtitle ?? stay.place}</small>
-                  <b>{s.title ?? 'Luxury Apartments'}</b>
-                  <span className="slide-price">{formatNaira(stay.unit.nightlyRateMinor)} a night</span>
-                  <Go text="Book now" />
-                </span>
+              <Link key={s.id} to="/apartments" className="slide flyer apartments-slide" aria-label={`Luxury Apartments: stay beautifully, feel at home.${stay ? ` From ${formatNaira(stay.unit.nightlyRateMinor)} a night.` : ''} Explore stays`}>
+                <img src="/apartments-card.webp" alt="" loading="lazy" />
               </Link>
             );
           }

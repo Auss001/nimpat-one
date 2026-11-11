@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Check, HandCoins, KeyRound, Truck, Wrench } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { useDetailsFirst } from './Account';
-import { CallLink, Empty, FavButton, Field, Loader, Note, PageTitle, Photo, useLoad, useToast } from '../ui';
+import { CallLink, Empty, FavButton, Field, Loader, Note, PageTitle, Photo, PhotoGallery, useLoad, useToast } from '../ui';
 
 const CONDITION: Record<string, string> = { BRAND_NEW: 'Brand new', FOREIGN_USED: 'Foreign used', NIGERIAN_USED: 'Nigerian used', CERTIFIED_PRE_OWNED: 'Certified pre-owned' };
 const INQUIRY = [
@@ -64,7 +64,7 @@ export function CarsPage() {
 export function CarPage() {
   const { slug = '' } = useParams();
   const car = useLoad(() => get(`/vehicles/${slug}`), [slug]);
-  const [photo, setPhoto] = useState(0);
+
   const v = car.data;
   if (car.loading && !v) return <Loader />;
   if (!v) return <><PageTitle title="Not available" /><Empty title="This car is not available right now" /></>;
@@ -78,15 +78,12 @@ export function CarPage() {
     ['Customs', v.customsCleared ? 'Cleared' : null],
     ...(v.specs && typeof v.specs === 'object' && !Array.isArray(v.specs) ? (Object.entries(v.specs).filter(([, x]) => typeof x === 'string' || typeof x === 'number') as [string, unknown][]) : []),
   ];
-  const main = v.images?.[photo] ?? v.images?.[0];
+
   return (
     <article className="detail">
       <PageTitle title={carName(v)} sub={v.trim} action={<FavButton kind="VEHICLE" slug={v.slug} inline />} />
-      <div className="detail-grid">
-        <div>
-          <div className="stay-photo"><Photo src={main?.url} alt={carName(v)} /></div>
-          {v.images?.length > 1 && <div className="thumbs wide">{v.images.map((i: any, n: number) => <button key={i.id ?? n} className={n === photo ? 'on' : ''} aria-label={`Photo ${n + 1}`} onClick={() => setPhoto(n)}><img src={i.url} alt="" loading="lazy" /></button>)}</div>}
-        </div>
+      <div className="detail-grid media">
+        <PhotoGallery photos={v.images ?? []} alt={carName(v)} />
         <div className="detail-side">
           <p className="big-price">{v.priceMinor === null ? 'Contact for price' : formatNaira(v.priceMinor)}</p>
           {v.status && v.status !== 'AVAILABLE' && <Note tone="warn">This car is currently {String(v.status).toLowerCase().replace(/_/g, ' ')}.</Note>}

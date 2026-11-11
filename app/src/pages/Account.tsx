@@ -599,7 +599,7 @@ export function BookingsPage() {
         title: o.orderNumber, sub: `${o.items?.length ?? 0} ${o.items?.length === 1 ? 'item' : 'items'}${o.division?.name ? ` · ${o.division.name}` : ''} · ${shortDate(o.createdAt)}`, amount: o.totalMinor, owing: o.outstandingMinor, details: o.items?.map((i: any) => `${i.quantity} × ${i.productName}`).join(', '),
       })} />}
       {tab === 'stays' && <History path="/apartments/reservations" cancel={(r) => `/apartments/reservations/${r.id}/cancel`} canCancel={(r) => ['HOLD', 'CONFIRMED'].includes(r.status)} purpose="APARTMENT_RESERVATION" empty="No apartment bookings yet." render={(r) => ({
-        title: r.unit?.property?.name ?? r.reservationNumber, sub: `${r.room?.name ?? r.unit?.name} · ${shortDate(r.checkIn)} to ${shortDate(r.checkOut)}`, amount: r.totalMinor, owing: Number(r.totalMinor) - Number(r.amountPaidMinor), details: r.status === 'HOLD' && r.holdExpiresAt ? `Held until ${dateTime(r.holdExpiresAt)}` : r.reservationNumber,
+        title: r.unit?.property?.name ?? r.reservationNumber, sub: `${stayRooms(r)} · ${shortDate(r.checkIn)} to ${shortDate(r.checkOut)}`, amount: stayTotal(r), owing: stayTotal(r) - Number(r.amountPaidMinor), details: r.status === 'HOLD' && r.holdExpiresAt ? `Held until ${dateTime(r.holdExpiresAt)}` : r.reservationNumber,
       })} />}
       {tab === 'spa' && <History path="/spa/appointments" cancel={(a) => `/spa/appointments/${a.id}/cancel`} canCancel={(a) => ['REQUESTED', 'PENDING', 'CONFIRMED'].includes(a.status)} purpose="SPA_APPOINTMENT" empty="No spa appointments yet." render={(a) => ({
         title: a.treatment?.name ?? a.appointmentNumber, sub: dateTime(a.startsAt), amount: a.priceMinor, owing: Number(a.priceMinor) - Number(a.amountPaidMinor), details: a.practitioner?.displayName,
@@ -613,6 +613,11 @@ export function BookingsPage() {
     </>
   );
 }
+
+/** Rooms booked together show as one booking with one total. */
+const stayGroup = (r: any) => [r, ...(r.companions ?? []).filter((c: any) => c.status !== 'CANCELLED')];
+const stayRooms = (r: any) => (r.room ? stayGroup(r).map((x: any) => x.room?.name).filter(Boolean).join(', ') : r.unit?.name);
+const stayTotal = (r: any) => stayGroup(r).reduce((n: number, x: any) => n + Number(x.totalMinor), 0);
 
 interface Rendered {
   title: string;

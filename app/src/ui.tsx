@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Eye, EyeOff, Heart, Phone, X } from 'lucide-react';
 import { del, get, getSession, PHONE, PHONE_LABEL, post, rows, SHOP_DIVISIONS } from './api';
+import { SPA_PHOTOS } from './spa-photos';
 
 // ---------------------------------------------------------------- data loading
 
@@ -297,8 +298,9 @@ export const forgetSearches = () => {
 
 /** A product or place photo. When there is none, it says so rather than showing something similar. */
 /** A spa treatment's photo, or its category's picture until it has one of its own. */
-export function spaImage(t: { imageUrl?: string | null; category?: string | null }) {
+export function spaImage(t: { imageUrl?: string | null; category?: string | null; slug?: string | null }) {
   if (t.imageUrl) return t.imageUrl;
+  if (t.slug && SPA_PHOTOS.has(t.slug)) return `/spa/t/${t.slug}.webp`;
   const slug = (t.category ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   return slug ? `/spa/${slug}.webp` : null;
 }
@@ -471,4 +473,87 @@ export const dateTime = (s: string) => new Date(s).toLocaleString('en-GB', { day
 export function lagosDate(offset = 0): string {
   const d = new Date(Date.now() + offset * 86_400_000);
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Lagos' }).format(d);
+}
+
+/**
+ * The big photo on a car, flat or spa page, with thumbnails under it.
+ * Tapping the photo opens it full screen; arrows, swipe or the keyboard move between photos, and X or Escape closes it.
+ */
+export function PhotoGallery({ photos, alt }: { photos: { url: string; id?: string }[]; alt: string }) {
+  const [shown, setShown] = useState(0);
+  const [open, setOpen] = useState(false);
+  const count = photos.length;
+  const current = photos[shown] ?? photos[0];
+  useEffect(() => setShown(0), [photos.length, photos[0]?.url]);
+  return (
+    <div className="gallery">
+      {current ? (
+        <button type="button" className="stay-photo zoomable" aria-label={`${alt}: view larger`} onClick={() => setOpen(true)}>
+          <Photo src={current.url} alt={alt} />
+          {count > 1 && <span className="gallery-count">{shown + 1} / {count}</span>}
+        </button>
+      ) : (
+        <div className="stay-photo"><Photo src={null} alt={alt} /></div>
+      )}
+      {count > 1 && (
+        <div className="thumbs wide">
+          {photos.map((p, n) => (
+            <button key={p.id ?? n} className={n === shown ? 'on' : ''} aria-label={`Photo ${n + 1}`} aria-current={n === shown} onClick={() => setShown(n)}>
+              <img src={p.url} alt="" loading="lazy" />
+            </button>
+          ))}
+        </div>
+      )}
+      {open && current && <Lightbox photos={photos} start={shown} alt={alt} onClose={(at) => { setShown(at); setOpen(false); }} />}
+    </div>
+  );
+}
+
+function Lightbox({ photos, start, alt, onClose }: { photos: { url: string }[]; start: number; alt: string; onClose: (at: number) => void }) {
+  const [at, setAt] = useState(start);
+  const touch = useRef<number | null>(null);
+  const count = photos.length;
+  const go = (step: number) => setAt((n) => (n + step + count) % count);
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose(at);
+      if (e.key === 'ArrowRight' && count > 1) go(1);
+      if (e.key === 'ArrowLeft' && count > 1) go(-1);
+    };
+    window.addEventListener('keydown', key);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', key);
+      document.body.style.overflow = overflow;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [at, count]);
+  return createPortal(
+    <div
+      className="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${alt}, photo ${at + 1} of ${count}`}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(at); }}
+      onTouchStart={(e) => { touch.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => {
+        if (touch.current === null || count < 2) return;
+        const dx = e.changedTouches[0].clientX - touch.current;
+        touch.current = null;
+        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+      }}
+    >
+      <img src={photos[at].url} alt={alt} />
+      <button type="button" className="lightbox-close" aria-label="Close" autoFocus onClick={() => onClose(at)}><X size={22} aria-hidden="true" /></button>
+      {count > 1 && (
+        <>
+          <button type="button" className="lightbox-nav prev" aria-label="Previous photo" onClick={() => go(-1)}><ChevronLeft size={26} aria-hidden="true" /></button>
+          <button type="button" className="lightbox-nav next" aria-label="Next photo" onClick={() => go(1)}><ChevronRight size={26} aria-hidden="true" /></button>
+          <span className="lightbox-count">{at + 1} / {count}</span>
+        </>
+      )}
+    </div>,
+    document.body,
+  );
 }

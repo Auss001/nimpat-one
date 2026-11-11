@@ -70,6 +70,37 @@ export function PhotoManager({ owner, id, onClose, onChanged }: PhotoTarget & { 
     onChanged?.();
   };
 
+  // A photo set prepared outside the dashboard for this flat, shipped with it for a one-time upload.
+  const [prepared, setPrepared] = useState<{ label: string; files: string[] } | null>(null);
+  useEffect(() => {
+    if (owner !== 'unit') return;
+    fetch(`/prepared/units/${id}/manifest.json`)
+      .then((r) => (r.ok && !(r.headers.get('content-type') ?? '').includes('html') ? r.json() : null))
+      .then(setPrepared)
+      .catch(() => setPrepared(null));
+  }, [owner, id]);
+  const usePrepared = async () => {
+    if (!prepared || !g) return;
+    try {
+      const files: File[] = [];
+      for (const name of prepared.files) {
+        const r = await fetch(`/prepared/units/${id}/${name}`);
+        if (!r.ok) throw new Error(`${name} could not be loaded`);
+        files.push(new File([await r.blob()], name, { type: 'image/jpeg' }));
+      }
+      // The prepared set replaces what is there, in its own order.
+      for (const [i, p] of g.photos.entries()) {
+        setBusy(`Removing old photo ${i + 1} of ${g.photos.length}…`);
+        await del(`${base}/${p.id}`);
+      }
+      await send(files);
+    } catch (e) {
+      setBusy('');
+      toast((e as Error).message, 'error');
+      await refresh();
+    }
+  };
+
   const send = async (files: File[], replaceId?: string) => {
     let ok = 0;
     for (const [i, file] of files.entries()) {
@@ -124,6 +155,12 @@ export function PhotoManager({ owner, id, onClose, onChanged }: PhotoTarget & { 
               : 'Each photo is cropped to the same landscape shape, keeping the most important part in view.'}
             {' '}JPG, PNG or WebP, up to 15 MB. What you see below is what customers will see.
           </p>
+          {prepared && (
+            <div className="note" style={{ marginBottom: 12 }}>
+              <p style={{ marginTop: 0 }}>{prepared.files.length} prepared photos are ready for {prepared.label}. They replace the photos below, the first one becoming the main photo.</p>
+              <button className="btn primary" disabled={!!busy} onClick={() => ask(`Replace these ${g.photos.length} photos with the ${prepared.files.length} prepared ones?`, () => void usePrepared(), 'Use prepared photos')}>Use the prepared photos ({prepared.files.length})</button>
+            </div>
+          )}
           {!g.photos.length && <div className="empty">No photo yet.</div>}
           <div className="photo-grid">
             {g.photos.map((p, i) => (
