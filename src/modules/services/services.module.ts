@@ -34,6 +34,9 @@ import { PayableContext, PayableHandler, PayableRegistry } from '../payments/pay
 import { PaymentSummary } from '../payments/payment-ledger.service';
 import { PaymentPolicyService } from '../payments/payment-policy.service';
 
+/** Services customers see: confirmed ones, or any with a price and a photo (owner, 11 November 2026). Never development samples. */
+const SHOWN_SERVICE: Prisma.ServiceOfferingWhereInput[] = [{ verification: RecordVerification.VERIFIED }, { verification: { not: RecordVerification.DEV_SAMPLE }, basePriceMinor: { not: null }, imageUrl: { not: null } }];
+
 class CreateOfferingDto {
   @ApiProperty({ example: 'automobiles' }) @IsString() division: string;
   @ApiProperty({ example: 'AUT-SERVICE-MINOR' }) @Matches(/^[A-Z0-9][A-Z0-9-]{2,47}$/) code: string;
@@ -125,7 +128,7 @@ export class ServicesService implements OnModuleInit, PayableHandler {
   }
 
   async listOfferings(division?: string) {
-    const where: Prisma.ServiceOfferingWhereInput = { isActive: true, verification: RecordVerification.VERIFIED };
+    const where: Prisma.ServiceOfferingWhereInput = { isActive: true, OR: SHOWN_SERVICE };
     if (division) where.divisionId = (await this.divisions.resolve(division)).id;
     return this.prisma.serviceOffering.findMany({
       where,
@@ -135,7 +138,7 @@ export class ServicesService implements OnModuleInit, PayableHandler {
   }
 
   async book(user: AuthUser, dto: CreateBookingDto) {
-    const offering = await this.prisma.serviceOffering.findFirst({ where: { id: dto.offeringId, isActive: true, verification: RecordVerification.VERIFIED } });
+    const offering = await this.prisma.serviceOffering.findFirst({ where: { id: dto.offeringId, isActive: true, OR: SHOWN_SERVICE } });
     if (!offering) throw new NotFoundException('Service not found');
     const start = dto.scheduledStart ? new Date(dto.scheduledStart) : undefined;
     if (start && start < new Date()) throw new BadRequestException('scheduledStart must be in the future');

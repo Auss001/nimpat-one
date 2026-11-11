@@ -8,6 +8,7 @@ import { DeliveryService } from '../delivery/delivery.service';
 import { DivisionsService } from '../divisions/divisions.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { purchaseBlock } from '../catalog/purchase-rules';
+import { shownProductIds } from '../catalog/shown';
 
 const MAX_LINES = 50;
 
@@ -38,12 +39,13 @@ export class CartService {
     });
     const items = cart?.items ?? [];
     const availability = await this.inventory.availabilityForDivision(d.id, items.map((i) => i.variantId));
+    const shown = await shownProductIds(this.prisma, items.map((i) => i.variant.product.id));
 
     const lines = items.map((i) => {
       const v = i.variant;
       const available = availability.get(v.id) ?? 0;
       const issues: string[] = [];
-      if (!v.isActive || v.product.status !== ProductStatus.ACTIVE || v.product.verification !== RecordVerification.VERIFIED) issues.push('UNAVAILABLE');
+      if (!v.isActive || !shown.has(v.product.id)) issues.push('UNAVAILABLE');
       else if (purchaseBlock(v.product, v)) issues.push('NOT_PURCHASABLE');
       // "In stock" items sell without a count; only counted items are checked against it.
       else if (!v.product.listedAvailability && available < i.quantity) issues.push(available === 0 ? 'OUT_OF_STOCK' : 'INSUFFICIENT_STOCK');
@@ -148,11 +150,8 @@ export class CartService {
 
   private async loadPurchasableVariant(variantId: string) {
     const variant = await this.prisma.productVariant.findUnique({ where: { id: variantId }, include: { product: true } });
-    if (!variant || !variant.isActive || variant.product.status !== ProductStatus.ACTIVE) {
+    if (!variant || !variant.isActive || !(await shownProductIds(this.prisma, [variant.productId])).has(variant.productId)) {
       throw new NotFoundException('This product is not available');
-    }
-    if (variant.product.verification !== RecordVerification.VERIFIED) {
-      throw new ConflictException('This product is awaiting confirmation by Nimpat and cannot be sold yet');
     }
     const blocked = purchaseBlock(variant.product, variant);
     if (blocked) throw new ConflictException(blocked);

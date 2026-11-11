@@ -21,6 +21,7 @@ import {
   VariantInputDto,
 } from './catalog.dto';
 import { purchaseBlock } from './purchase-rules';
+import { SHOWN_PRODUCT } from './shown';
 
 const productInclude = {
   category: { select: { id: true, name: true, slug: true } },
@@ -58,10 +59,9 @@ export class CatalogService {
   async listProducts(q: ProductQueryDto) {
     const hidden = await this.hiddenOutOfStock();
     const where: Prisma.ProductWhereInput = {
-      ...(await this.productWhere(q, ProductStatus.ACTIVE)),
-      verification: RecordVerification.VERIFIED,
+      ...(await this.productWhere(q)),
       ...(hidden.length ? { id: { notIn: hidden } } : {}),
-      AND: [PRICED_IF_PHARMACY],
+      AND: [PRICED_IF_PHARMACY, SHOWN_PRODUCT],
     };
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
@@ -82,7 +82,7 @@ export class CatalogService {
 
   async getProduct(slugOrId: string) {
     const product = await this.prisma.product.findFirst({
-      where: { status: ProductStatus.ACTIVE, verification: RecordVerification.VERIFIED, AND: [PRICED_IF_PHARMACY], ...(isUuid(slugOrId) ? { id: slugOrId } : { slug: slugOrId }) },
+      where: { AND: [PRICED_IF_PHARMACY, SHOWN_PRODUCT], ...(isUuid(slugOrId) ? { id: slugOrId } : { slug: slugOrId }) },
       include: { ...productInclude, variants: { where: { isActive: true }, orderBy: [{ sortOrder: 'asc' }, { unitPriceMinor: 'asc' }] } },
     });
     if (!product) throw new NotFoundException('Product not found');
@@ -93,7 +93,7 @@ export class CatalogService {
   /** Live availability for a set of variants (used by product pages before add-to-cart). */
   async variantAvailability(variantIds: string[]) {
     const variants = await this.prisma.productVariant.findMany({
-      where: { id: { in: variantIds }, isActive: true, product: { status: ProductStatus.ACTIVE, verification: RecordVerification.VERIFIED } },
+      where: { id: { in: variantIds }, isActive: true, product: SHOWN_PRODUCT },
       select: { id: true, sku: true, product: { select: { divisionId: true } } },
     });
     const out: { variantId: string; sku: string; availableQuantity: number }[] = [];

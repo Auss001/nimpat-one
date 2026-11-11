@@ -42,6 +42,8 @@ const OPEN_HOUR = 9;
 const CLOSE_HOUR = 19;
 const LAGOS_OFFSET_MIN = 60;
 const SLOT_STEP_MIN = 30;
+/** Treatments customers see: confirmed ones, or any with a price and a photo (owner, 11 November 2026). Never development samples. */
+const SHOWN_TREATMENT: Prisma.SpaTreatmentWhereInput[] = [{ verification: RecordVerification.VERIFIED }, { verification: { not: RecordVerification.DEV_SAMPLE }, priceMinor: { gt: 0 }, imageUrl: { not: null } }];
 const ACTIVE: BookingStatus[] = [BookingStatus.REQUESTED, BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS];
 
 class CreateTreatmentDto {
@@ -109,12 +111,12 @@ export class SpaService implements OnModuleInit, PayableHandler {
   }
 
   treatments() {
-    return this.prisma.spaTreatment.findMany({ where: { isActive: true, verification: RecordVerification.VERIFIED }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
+    return this.prisma.spaTreatment.findMany({ where: { isActive: true, OR: SHOWN_TREATMENT }, orderBy: [{ category: 'asc' }, { name: 'asc' }] });
   }
 
   async treatment(slug: string) {
     const t = await this.prisma.spaTreatment.findFirst({
-      where: { slug, isActive: true, verification: RecordVerification.VERIFIED },
+      where: { slug, isActive: true, OR: SHOWN_TREATMENT },
       include: { practitioners: { where: { practitioner: { isActive: true } }, include: { practitioner: { select: { id: true, displayName: true, bio: true } } } } },
     });
     if (!t) throw new NotFoundException('Treatment not found');
@@ -139,7 +141,8 @@ export class SpaService implements OnModuleInit, PayableHandler {
       if (t < now + 30 * 60_000) continue;
       const end = t + treatment.durationMinutes * 60_000;
       const free = practitioners.filter((p) => !busy.some((b) => b.practitionerId === p.id && b.startsAt.getTime() < end && b.endsAt.getTime() > t));
-      if (free.length) slots.push({ startsAt: new Date(t).toISOString(), endsAt: new Date(end).toISOString(), practitionerIds: free.map((p) => p.id) });
+      // Every time in opening hours can be requested; staff accept it and arrange the therapist (owner, 11 November 2026).
+      slots.push({ startsAt: new Date(t).toISOString(), endsAt: new Date(end).toISOString(), practitionerIds: free.map((p) => p.id) });
     }
     return { treatmentId, date: dateStr, timezone: 'Africa/Lagos', durationMinutes: treatment.durationMinutes, slots };
   }
@@ -155,7 +158,6 @@ export class SpaService implements OnModuleInit, PayableHandler {
 
     await this.expireHolds();
     const candidates = await this.capablePractitioners(treatment.id, dto.practitionerId);
-    if (!candidates.length) throw new ConflictException('No therapist offers this treatment');
     if (dto.atHome && !treatment.homeService) throw new BadRequestException('This treatment is only offered at the spa');
     const homeAddress = dto.atHome ? await homeAddressFor(this.prisma, user.id, dto.addressId) : undefined;
     const homeFeeMinor = dto.atHome ? (treatment.homeFeeMinor ?? 0n) : 0n;
@@ -163,21 +165,21 @@ export class SpaService implements OnModuleInit, PayableHandler {
     const division = await this.divisions.byCode(DivisionCode.SPA_WELLNESS);
     const policy = await this.policies.get(treatment.divisionId, PaymentPurpose.SPA_APPOINTMENT);
     const depositRequiredMinor = this.policies.depositFor(policy, priceMinor, treatment.depositMinor);
-    const needsDeposit = depositRequiredMinor > 0n && policy.confirmationRule !== 'STAFF_APPROVAL';
 
-    // Try each capable therapist; the DB exclusion constraint arbitrates races.
-    for (const p of candidates) {
+    // A booking is a request: staff accept it and let the customer know, so nothing waits on a payment deadline.
+    // A free therapist is assigned when one is set up; otherwise staff assign one when they accept.
+    for (const p of [...candidates, null]) {
       try {
         const appt = await withUniqueRetry(() =>
           this.prisma.spaAppointment.create({
             data: {
               appointmentNumber: businessNumber(division.code),
               treatmentId: treatment.id,
-              practitionerId: p.id,
+              practitionerId: p?.id ?? null,
               userId: user.id,
               startsAt,
               endsAt,
-              status: needsDeposit ? BookingStatus.PENDING : BookingStatus.REQUESTED,
+              status: BookingStatus.REQUESTED,
               priceMinor,
               depositMinor: treatment.depositMinor,
               depositRequiredMinor,
@@ -189,7 +191,7 @@ export class SpaService implements OnModuleInit, PayableHandler {
           }),
         );
         await this.audit.record({ actorId: user.id, action: 'spa_appointment.create', entityType: 'spa_appointment', entityId: appt.id, divisionId: division.id });
-        return { ...appt, payBy: needsDeposit ? addMinutes(appt.createdAt, this.config.get('SPA_HOLD_TTL_MINUTES')) : null };
+        return { ...appt, payBy: null };
       } catch (e) {
         if (!isExclusionViolation(e)) throw e;
       }
@@ -392,7 +394,7 @@ export class SpaService implements OnModuleInit, PayableHandler {
   }
 
   private async activeTreatment(id: string) {
-    const t = await this.prisma.spaTreatment.findFirst({ where: { id, isActive: true, verification: RecordVerification.VERIFIED } });
+    const t = await this.prisma.spaTreatment.findFirst({ where: { id, isActive: true, OR: SHOWN_TREATMENT } });
     if (!t) throw new NotFoundException('Treatment not found');
     return t;
   }

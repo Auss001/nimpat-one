@@ -30,6 +30,7 @@ import { PaymentSummary } from '../payments/payment-ledger.service';
 import { PaymentPolicyService } from '../payments/payment-policy.service';
 import { purchaseBlock } from '../catalog/purchase-rules';
 import { snapshotAddress } from '../../common/utils/address';
+import { shownProductIds } from '../catalog/shown';
 
 export interface CheckoutInput {
   division: string;
@@ -131,13 +132,11 @@ export class OrdersService implements OnModuleInit, PayableHandler {
     });
     if (!cart || cart.items.length === 0) throw new BadRequestException('Your cart is empty');
 
+    const shown = await shownProductIds(this.prisma, cart.items.map((i) => i.variant.productId));
     for (const item of cart.items) {
       const v = item.variant;
-      if (!v.isActive || v.product.status !== ProductStatus.ACTIVE || v.product.divisionId !== division.id) {
+      if (!v.isActive || !shown.has(v.productId) || v.product.divisionId !== division.id) {
         throw new ConflictException(`${v.product.name} (${v.name}) is no longer available`);
-      }
-      if (v.product.verification !== RecordVerification.VERIFIED) {
-        throw new ConflictException(`${v.product.name} is awaiting confirmation by Nimpat and cannot be sold yet`);
       }
       const blocked = purchaseBlock(v.product, v);
       if (blocked) throw new ConflictException(`${v.product.name}: ${blocked}`);

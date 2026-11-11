@@ -67,8 +67,9 @@ export function TreatmentPage() {
   const book = async () => {
     setBusy(true);
     try {
-      const a = await post('/spa/appointments', { treatmentId: t.id, startsAt: slot.startsAt, ...(note.trim() ? { customerNote: note.trim() } : {}), ...(atHome ? { atHome: true, addressId } : {}) }, idempotency());
-      navigate(`/pay/SPA_APPOINTMENT/${a.id}`);
+      await post('/spa/appointments', { treatmentId: t.id, startsAt: slot.startsAt, ...(note.trim() ? { customerNote: note.trim() } : {}), ...(atHome ? { atHome: true, addressId } : {}) }, idempotency());
+      toast(`Request sent for ${t.name}. The spa will confirm your time with you.`);
+      navigate('/bookings?tab=spa');
     } catch (e) {
       toast((e as Error).message, 'error');
       void slots.reload();
@@ -96,7 +97,7 @@ export function TreatmentPage() {
             <h2>Choose a time</h2>
             <Field label="Date"><input type="date" min={lagosDate()} value={date} onChange={(e) => setDate(e.target.value)} /></Field>
             {slots.loading && <Loader label="Finding times" />}
-            {!slots.loading && (slots.data?.length ?? 0) === 0 && <><Note>No times are open online for this date. Try another day, or call us and we will fit you in.</Note><CallLink /></>}
+            {!slots.loading && (slots.data?.length ?? 0) === 0 && <Note>The spa is closed for the rest of this day. Please choose another date.</Note>}
             <div className="slots">
               {(slots.data ?? []).map((s: any) => (
                 <button key={s.startsAt} className={slot?.startsAt === s.startsAt ? 'on' : ''} onClick={() => setSlot(s)}>
@@ -107,7 +108,8 @@ export function TreatmentPage() {
             {slot && (
               <>
                 <Field label="Anything we should know? (optional)"><textarea rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
-                <button className="btn primary full" disabled={busy || (atHome && !addressId)} onClick={() => details.ask(() => void book())}>{busy ? 'Booking…' : 'Book and pay'}</button>
+                <button className="btn primary full" disabled={busy || (atHome && !addressId)} onClick={() => details.ask(() => void book())}>{busy ? 'Sending…' : 'Send booking request'}</button>
+                <small className="muted-text">The spa confirms your time with you. You can pay online from your bookings, or at the spa.</small>
                 {details.sheet}
               </>
             )}

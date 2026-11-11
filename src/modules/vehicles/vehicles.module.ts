@@ -38,6 +38,9 @@ import { PaymentSummary } from '../payments/payment-ledger.service';
 
 // ----------------------------------------------------------------------------- DTOs
 
+/** Cars customers see: confirmed ones, or any with a price (photos are required separately). Never development samples. */
+const SHOWN_CAR: Prisma.VehicleWhereInput[] = [{ verification: RecordVerification.VERIFIED }, { verification: { not: RecordVerification.DEV_SAMPLE }, priceMinor: { not: null } }];
+
 class VehicleQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional() @IsOptional() @IsString() make?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() model?: string;
@@ -118,7 +121,8 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
   async list(q: VehicleQueryDto, status: VehicleStatus | { in: VehicleStatus[] } = { in: [VehicleStatus.AVAILABLE, VehicleStatus.RESERVED] }, includeUnverified = false) {
     const where: Prisma.VehicleWhereInput = {
       status,
-      verification: includeUnverified ? undefined : RecordVerification.VERIFIED,
+      // Confirmed cars, or any car with a price and photos (owner, 11 November 2026).
+      OR: includeUnverified ? undefined : SHOWN_CAR,
       // Customers only see cars with photos; staff lists (includeUnverified) show every car.
       images: includeUnverified ? undefined : { some: {} },
       make: q.make ? { equals: q.make, mode: 'insensitive' } : undefined,
@@ -136,7 +140,7 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
 
   async get(slug: string) {
     const v = await this.prisma.vehicle.findFirst({
-      where: { slug, status: { in: [VehicleStatus.AVAILABLE, VehicleStatus.RESERVED] }, verification: RecordVerification.VERIFIED, images: { some: {} } },
+      where: { slug, status: { in: [VehicleStatus.AVAILABLE, VehicleStatus.RESERVED] }, OR: SHOWN_CAR, images: { some: {} } },
       include: { images: { orderBy: { sortOrder: 'asc' } } },
     });
     if (!v) throw new NotFoundException('Vehicle not found');
@@ -145,8 +149,8 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
   }
 
   async createInquiry(user: AuthUser, vehicleId: string, dto: CreateInquiryDto) {
-    const v = await this.prisma.vehicle.findUnique({ where: { id: vehicleId } });
-    if (!v || (v.status !== VehicleStatus.AVAILABLE && v.status !== VehicleStatus.RESERVED) || v.verification !== RecordVerification.VERIFIED) throw new NotFoundException('Vehicle not found');
+    const v = await this.prisma.vehicle.findFirst({ where: { id: vehicleId, images: { some: {} }, OR: SHOWN_CAR } });
+    if (!v || (v.status !== VehicleStatus.AVAILABLE && v.status !== VehicleStatus.RESERVED)) throw new NotFoundException('Vehicle not found');
     if (dto.type === InquiryType.DEPOSIT_HOLD && (v.status !== VehicleStatus.AVAILABLE || !v.depositMinor)) {
       throw new BadRequestException('A deposit hold is not available for this vehicle');
     }
