@@ -76,7 +76,7 @@ Areas the list did not name (Mabushi, Kado, Maitama, Life Camp, Kubwa, Karu, Nya
 
 **Anything with a price and a photo shows to customers and can be bought or booked.** Staff no longer have to confirm it first. This applies to shop products, cars, spa treatments and services.
 
-- Items staff have confirmed still show as before, photo or not.
+- Items staff have confirmed still show as before, photo or not, except Supplies (office, safety and cleaning items): those only show once they have a photo (owner, 12 November 2026).
 - Archived products, switched-off items and development samples never show.
 - Pharmacy items show, but customers can't buy them until the pharmacist approves them.
 - New items from a price list arrive as drafts with no photo, so they stay hidden until a photo is added.
