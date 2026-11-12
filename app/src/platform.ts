@@ -1,13 +1,13 @@
 import { Capacitor } from '@capacitor/core';
 
 /**
- * The iPhone app launches without the pharmacy and laboratory (owner, 12 November 2026). Apple expects pharmacy and
- * healthcare apps to come from a company developer account, and Nimpat One is on a personal one for now. The website
- * and the Android app keep the pharmacy. Bringing it back to iPhone means a new version that Apple reviews, once the
- * app is published from a company (organization) account.
+ * The phone apps launch without the pharmacy and laboratory (owner, 12 November 2026). Apple and Google only accept
+ * pharmacy and healthcare apps from a company (organization) developer account, and Nimpat One is on personal ones
+ * for now: Google refused the first Android test release for this on 12 November 2026. The website keeps the
+ * pharmacy. Bringing it back to the phones means new app versions, published from organization accounts.
  */
 export const PHARMACY_SLUG = 'pharmacy-laboratory';
-export const HIDE_PHARMACY = Capacitor.getPlatform() === 'ios';
+export const HIDE_PHARMACY = Capacitor.isNativePlatform();
 
 /** False for a pharmacy product, link or section when the pharmacy is hidden. */
 export const pharmacyAllowed = (divisionSlug?: string | null) => !(HIDE_PHARMACY && divisionSlug === PHARMACY_SLUG);
