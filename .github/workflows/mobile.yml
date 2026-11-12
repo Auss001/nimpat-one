@@ -3,7 +3,8 @@
 #            bundle (.aab) ready for Google Play.
 #   iPhone:  always checks that the app builds. With the App Store Connect secrets set (they are, since 8 Nov 2026), it signs the app
 #            (automatic signing needs at least one registered iPhone, and an Admin App Store Connect key for cloud signing)
-#            and sends it to TestFlight.
+#            and sends it to TestFlight. With the saved certificate secrets set (IOS_DIST_CERT_…, made once with
+#            app/ios/scripts/make-cert.sh on the owner's computer), it signs with that one certificate on every build.
 # Run it from GitHub: Actions → "Phone apps" → Run workflow (or "Re-run all jobs" on a run). It also runs when the customer app changes on main.
 name: Phone apps
 
@@ -116,6 +117,11 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       ASC_KEY: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
       TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      # The saved distribution certificate (made once with app/ios/scripts/make-cert.sh). When set,
+      # every build signs with it. When not set, Xcode asks Apple for new certificates on each build, and Apple's
+      # limit is reached after a few builds.
+      DIST_P12: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+      DIST_P12_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -178,10 +184,52 @@ jobs:
             echo "::error title=$2::$(grep -m1 -E 'error:|No profiles|No Accounts|Authentication' "$1" | cut -c1-500)"
             exit 1
           }
+          stop() { echo "::error title=iPhone signing::$1"; exit 1; }
+          ARCHIVE_ARGS=(CURRENT_PROJECT_VERSION=${{ github.run_number }} MARKETING_VERSION=1.0)
+          P12_B64="$(printf '%s' "$DIST_P12" | tr -d '[:space:]')"
+          if [ -n "$P12_B64" ]; then
+            echo "Signing with the saved distribution certificate."
+            P12_PASS="$(printf '%s' "$DIST_P12_PASSWORD" | tr -d '[:space:]')"
+            echo "::add-mask::$P12_PASS"
+            P12="$RUNNER_TEMP/dist.p12"
+            printf '%s' "$P12_B64" | base64 -d > "$P12" 2>/dev/null && [ -s "$P12" ] \
+              || stop "IOS_DIST_CERT_P12_BASE64 is not a valid certificate. Copy the long line under its name in secrets.txt again, all of it."
+            SERIAL="$(openssl pkcs12 -in "$P12" -passin "pass:$P12_PASS" -nokeys 2>/dev/null | openssl x509 -noout -serial 2>/dev/null | cut -d= -f2)"
+            [ -n "$SERIAL" ] || stop "IOS_DIST_CERT_PASSWORD does not open the certificate. Copy the value under its name in secrets.txt again."
+            # A keychain just for this build holds the certificate.
+            KC="$RUNNER_TEMP/signing.keychain-db"
+            KC_PASS="$(openssl rand -hex 16)"
+            security create-keychain -p "$KC_PASS" "$KC"
+            security set-keychain-settings -lut 21600 "$KC"
+            security unlock-keychain -p "$KC_PASS" "$KC"
+            security import "$P12" -k "$KC" -P "$P12_PASS" -T /usr/bin/codesign -T /usr/bin/security > /dev/null 2>&1 \
+              || stop "The certificate could not be added to the build Mac's keychain."
+            security set-key-partition-list -S apple-tool:,apple: -s -k "$KC_PASS" "$KC" > /dev/null 2>&1
+            security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+            rm -f "$P12"
+            # Find (or make once) the App Store profile that goes with this certificate, and install it.
+            PROFILES="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
+            if ! ASC_KEY_ID="$KEY_ID" ASC_ISSUER_ID="$ISSUER" ASC_KEY_PATH="$KEY_PATH" \
+                 node ../scripts/asc.mjs profile "$SERIAL" com.nimpatgroup.nimpatone "$PROFILES" > "$RUNNER_TEMP/profile.log" 2>&1; then
+              cat "$RUNNER_TEMP/profile.log"
+              stop "$(head -1 "$RUNNER_TEMP/profile.log" | cut -c1-400)"
+            fi
+            cat "$RUNNER_TEMP/profile.log"
+            mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+            cp "$PROFILES"/*.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/"
+            PROFILE_NAME="$(grep '^NAME=' "$RUNNER_TEMP/profile.log" | cut -d= -f2-)"
+            ruby ../scripts/manual-signing.rb "$TEAM" "$PROFILE_NAME"
+            # A store build uses Apple's production notification service.
+            /usr/libexec/PlistBuddy -c "Set :aps-environment production" App/App.entitlements
+            EXPORT_SIGNING="<key>signingStyle</key><string>manual</string><key>signingCertificate</key><string>Apple Distribution</string><key>provisioningProfiles</key><dict><key>com.nimpatgroup.nimpatone</key><string>$PROFILE_NAME</string></dict>"
+          else
+            echo "::warning title=iPhone signing::No saved certificate (IOS_DIST_CERT_P12_BASE64), so Apple is asked for new ones. Run app/ios/scripts/make-cert.sh once on your computer to stop builds failing at Apple's certificate limit."
+            ARCHIVE_ARGS+=(DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic "${AUTH[@]}")
+            EXPORT_SIGNING="<key>signingStyle</key><string>automatic</string>"
+          fi
           echo "Archiving (signing as team $TEAM)…"
           xcodebuild -project App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/App.xcarchive" DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} MARKETING_VERSION=1.0 "${AUTH[@]}" archive > "$RUNNER_TEMP/archive.log" 2>&1 \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" "${ARCHIVE_ARGS[@]}" archive > "$RUNNER_TEMP/archive.log" 2>&1 \
             || fail "$RUNNER_TEMP/archive.log" "iPhone archive"
           tail -3 "$RUNNER_TEMP/archive.log"
           cat > "$RUNNER_TEMP/export.plist" <<PLIST
@@ -191,7 +239,7 @@ jobs:
             <key>method</key><string>app-store-connect</string>
             <key>destination</key><string>upload</string>
             <key>teamID</key><string>$TEAM</string>
-            <key>signingStyle</key><string>automatic</string>
+            $EXPORT_SIGNING
           </dict></plist>
           PLIST
           echo "Uploading to App Store Connect (TestFlight)…"
