@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { CalendarCheck, Check, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, ShoppingBasket, Stethoscope, Store, Truck } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
-import { pharmacyAllowed } from '../platform';
+import { HIDE_PHARMACY, pharmacyAllowed } from '../platform';
 
 const DIVISION_TITLE: Record<string, { title: string; sub: string }> = {
   'water-drinks-wines': { title: 'Water & Drinks', sub: 'Water, soft drinks, juices, wines and spirits.' },
@@ -346,7 +346,7 @@ export function SearchPage() {
   return (
     <>
       <PageTitle title="Search" back={false} />
-      <div className="search-box"><SearchIcon size={17} aria-hidden="true" /><input autoFocus aria-label="Search Nimpat One" placeholder="Water, medicine, apartments, cars, spa…" value={text} onChange={(e) => setText(e.target.value)} /></div>
+      <div className="search-box"><SearchIcon size={17} aria-hidden="true" /><input autoFocus aria-label="Search Nimpat One" placeholder={HIDE_PHARMACY ? 'Water, drinks, apartments, cars, spa…' : 'Water, medicine, apartments, cars, spa…'} value={text} onChange={(e) => setText(e.target.value)} /></div>
       {results.loading && initial && <Loader label="Searching" />}
       {!initial && recent.length > 0 && (
         <section>
