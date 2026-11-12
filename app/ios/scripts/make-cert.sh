@@ -19,9 +19,11 @@ if [ $# -ne 3 ] || [ ! -f "$3" ]; then
   echo "Use: bash app/ios/scripts/make-cert.sh <Key ID> <Issuer ID> <path to AuthKey_XXXX.p8>"
   exit 1
 fi
-HERE="$(cd "$(dirname "$0")" && pwd)"
-OUT="$HOME/Desktop/nimpat-iphone-certificate"
-WORK="$(mktemp -d)"
+# On Windows (Git Bash), node and openssl cannot read /c/... style paths, so turn them into C:/... form.
+winpath() { if command -v cygpath > /dev/null 2>&1; then cygpath -m "$1"; else printf "%s" "$1"; fi; }
+HERE="$(winpath "$(cd "$(dirname "$0")" && pwd)")"
+OUT="$(winpath "$HOME/Desktop/nimpat-iphone-certificate")"
+WORK="$(winpath "$(mktemp -d)")"
 trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$OUT"
 export MSYS_NO_PATHCONV=1
