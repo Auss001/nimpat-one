@@ -33,18 +33,13 @@ describe('unpublished prices', () => {
     await h.http.patch(`${API}/admin/catalog/variants/${p.variants[0].id}`).set(admin).send({ unitPriceMinor: 0 }).expect(400);
   });
 
-  it('shows an unpriced product to customers, and cannot be bought', async () => {
+  it('keeps an unpriced product off the customer pages, and it cannot be bought', async () => {
     const p = await newProduct('water-drinks-wines');
     await h.http.patch(`${API}/admin/catalog/products/${p.id}`).set(admin).send({ listedAvailability: 'IN_STOCK', purchaseEnabled: false }).expect(200);
     await confirm(p.id).expect(200);
-    const res = await h.http.get(`${API}/catalog/products/${p.slug}`).expect(200);
-    expect(res.body.pricePublished).toBe(false);
-    expect(res.body.priceFromMinor).toBeNull();
-    expect(res.body.variants[0].unitPriceMinor).toBeNull();
-    expect(res.body.inStock).toBe(true);
-    expect(res.body.variants[0].purchasable).toBe(false);
-    expect(res.body.imageStatus).toBe('IMAGE_PENDING');
-    await addToCart(p.variants[0].id).expect(409);
+    // Customers only see what they can buy now (owner, 13 November 2026).
+    await h.http.get(`${API}/catalog/products/${p.slug}`).expect(404);
+    await addToCart(p.variants[0].id).expect((r: { status: number }) => expect([404, 409]).toContain(r.status));
   });
 
   it('stops checkout if a price is withdrawn after the item is in the cart', async () => {
@@ -120,10 +115,9 @@ describe('pharmacy approval', () => {
     await review(p.id, { prescriptionStatus: status, approved: true, purchaseEnabled: true }, pharmacist.auth).expect(200);
     await confirm(p.id, pharmacist.auth).expect(200);
     await h.stock(p.variants[0].sku, 5);
-    const res = await h.http.get(`${API}/catalog/products/${p.slug}`).expect(200);
-    expect(res.body.variants[0].purchasable).toBe(false);
-    expect(res.body.variants[0].purchaseNote).toContain('pharmacist');
-    await addToCart(p.variants[0].id).expect(409);
+    // It cannot be bought, so customers do not see it at all.
+    await h.http.get(`${API}/catalog/products/${p.slug}`).expect(404);
+    await addToCart(p.variants[0].id).expect((r: { status: number }) => expect([404, 409]).toContain(r.status));
   });
 
   it('takes a product off the customer API when approval is withdrawn', async () => {

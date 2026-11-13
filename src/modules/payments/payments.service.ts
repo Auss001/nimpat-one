@@ -126,7 +126,7 @@ export class PaymentsService {
   // Paystack initialisation
   // ---------------------------------------------------------------------------
 
-  async initialize(user: AuthUser, purpose: PaymentPurpose, payableId: string, idempotencyKey?: string, amountOption: AmountOption = 'BALANCE'): Promise<InitializeResult> {
+  async initialize(user: AuthUser, purpose: PaymentPurpose, payableId: string, idempotencyKey?: string, amountOption: AmountOption = 'BALANCE', callbackUrl?: string): Promise<InitializeResult> {
     this.assertVerifiedEmail(user);
     if (idempotencyKey) {
       const prior = await this.prisma.payment.findUnique({ where: { userId_idempotencyKey: { userId: user.id, idempotencyKey } } });
@@ -185,7 +185,7 @@ export class PaymentsService {
         amount: Number(amount),
         reference: payment.reference,
         currency: ctx.currency,
-        callback_url: this.config.get('PAYSTACK_CALLBACK_URL'),
+        callback_url: callbackUrl ?? this.config.get('PAYSTACK_CALLBACK_URL'),
         metadata: {
           payment_id: payment.id,
           purpose,

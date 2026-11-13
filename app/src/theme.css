@@ -742,3 +742,12 @@ a.reward { text-decoration: none; }
   .lightbox-nav.prev { left: 24px; }
   .lightbox-nav.next { right: 24px; }
 }
+
+/* Signed out / account deleted: a clear confirmation at the top of the Account screen. */
+.signed-out { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 18px; background: var(--mint); color: #124c30; margin-bottom: 14px; animation: signed-out-in .35s ease-out; }
+.signed-out-icon { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: #fff; }
+.signed-out div { display: grid; gap: 2px; min-width: 0; }
+.signed-out b { font-size: 16px; }
+.signed-out span:not(.signed-out-icon) { font-size: 13.5px; line-height: 1.45; }
+@keyframes signed-out-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .signed-out { animation: none; } }

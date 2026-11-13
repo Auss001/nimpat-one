@@ -76,6 +76,9 @@ describe('bulk product actions', () => {
     const res = await bulk([a.id, b.id], 'PHARMACY_APPROVE', pharmacist.auth, { prescriptionStatus: 'NOT_REQUIRED' }).expect(200);
     expect(res.body.updated).toBe(2);
     await bulk([a.id, b.id], 'PUBLISH', pharmacist.auth).expect(200);
+    // Customers only see what they can buy now: approved, then allowed for sale.
+    await h.http.get(`${API}/catalog/products/${a.slug}`).expect(404);
+    await bulk([a.id, b.id], 'ALLOW_PURCHASE', pharmacist.auth).expect(200);
     await h.http.get(`${API}/catalog/products/${a.slug}`).expect(200);
   });
 
@@ -132,7 +135,7 @@ describe('account deletion', () => {
     await h.http.post(`${API}/auth/register`).send({ email: c.email, password: PASSWORD, firstName: 'New', lastName: 'Person' }).expect(201);
   });
 
-  it('cancels unpaid orders itself, waits only for paid work under way, and is not for staff', async () => {
+  it('cancels unpaid orders itself, keeps paid work for the team without blocking, and is not for staff', async () => {
     const p = await product();
     await bulk([p.id], 'PUBLISH').expect(200);
     await h.stock(p.variants[0].sku, 10);
@@ -145,15 +148,14 @@ describe('account deletion', () => {
     const unpaid = await order(a);
     await h.http.delete(`${API}/me`).set(a.auth).send({ password: PASSWORD }).expect(200);
     expect((await h.prisma.order.findUniqueOrThrow({ where: { id: unpaid.id } })).status).toBe('CANCELLED');
-    // A paid order still being prepared waits for the team, and the message names it.
+    // A paid order still being prepared does not block deletion: it stays as it is for the team, and is named.
     const c = await h.customer();
     const paid = await order(c);
     await h.prisma.order.update({ where: { id: paid.id }, data: { status: 'PROCESSING', amountPaidMinor: 100n } });
-    const blocked = await h.http.delete(`${API}/me`).set(c.auth).send({ password: PASSWORD }).expect(409);
-    expect(blocked.body.message).toContain(paid.orderNumber);
-    // Once delivered, it no longer stands in the way.
-    await h.prisma.order.update({ where: { id: paid.id }, data: { status: 'DELIVERED' } });
-    await h.http.delete(`${API}/me`).set(c.auth).send({ password: PASSWORD }).expect(200);
+    const done = await h.http.delete(`${API}/me`).set(c.auth).send({ password: PASSWORD }).expect(200);
+    expect(done.body.keptForTeam).toContain(paid.orderNumber);
+    expect((await h.prisma.order.findUniqueOrThrow({ where: { id: paid.id } })).status).toBe('PROCESSING');
+    await h.http.get(`${API}/auth/me`).set(c.auth).expect(401);
     const staff = await h.staff('DEPARTMENT_STAFF', DRINKS);
     await h.http.delete(`${API}/me`).set(staff.auth).send({ password: 'staff-pass-12345' }).expect(400);
   });

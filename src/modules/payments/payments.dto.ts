@@ -23,6 +23,8 @@ export class PayableRefDto {
 export class InitializePaymentDto extends PayableRefDto {
   @ApiPropertyOptional({ enum: AMOUNT_OPTIONS, default: 'BALANCE', description: 'BALANCE = everything still owed; DEPOSIT = only the required deposit' })
   @IsOptional() @IsIn(AMOUNT_OPTIONS) amountOption?: (typeof AMOUNT_OPTIONS)[number];
+  @ApiPropertyOptional({ enum: ['web', 'app'], default: 'web', description: 'app = the phone apps: after paying, Paystack shows a plain "back to the app" page instead of the website' })
+  @IsOptional() @IsIn(['web', 'app']) returnTo?: 'web' | 'app';
 }
 
 export class PayableQueryDto {

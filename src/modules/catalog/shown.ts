@@ -1,4 +1,4 @@
-import { Prisma, ProductStatus, RecordVerification } from '@prisma/client';
+import { PrescriptionStatus, Prisma, ProductAvailability, ProductStatus, RecordVerification } from '@prisma/client';
 import { PrismaService, Tx } from '../../prisma/prisma.service';
 
 /**
@@ -10,9 +10,26 @@ import { PrismaService, Tx } from '../../prisma/prisma.service';
  */
 export const PHOTO_REQUIRED_DIVISIONS = ['retail-general-supplies'];
 
+/**
+ * Customers only see what they can buy right now (owner, 13 November 2026). Anything marked out of stock, switched off
+ * for sale, without a published price, or (in the pharmacy) waiting for the pharmacist or needing a prescription,
+ * leaves the customer pages by itself, and comes back as soon as it can be bought again. Staff still see everything.
+ */
+export const BUYABLE_NOW: Prisma.ProductWhereInput = {
+  purchaseEnabled: true,
+  OR: [{ listedAvailability: null }, { listedAvailability: { not: ProductAvailability.OUT_OF_STOCK } }],
+  variants: { some: { isActive: true, unitPriceMinor: { gt: 0 } } },
+  AND: [{
+    OR: [
+      { prescriptionStatus: null },
+      { prescriptionStatus: PrescriptionStatus.NOT_REQUIRED, pharmacistApprovedAt: { not: null } },
+    ],
+  }],
+};
+
 export const SHOWN_PRODUCT: Prisma.ProductWhereInput = {
   status: { not: ProductStatus.ARCHIVED },
-  AND: [{ OR: [{ images: { some: {} } }, { division: { slug: { notIn: PHOTO_REQUIRED_DIVISIONS } } }] }],
+  AND: [{ OR: [{ images: { some: {} } }, { division: { slug: { notIn: PHOTO_REQUIRED_DIVISIONS } } }] }, BUYABLE_NOW],
   OR: [
     { status: ProductStatus.ACTIVE, verification: RecordVerification.VERIFIED },
     {

@@ -93,8 +93,25 @@ export class PaymentsController {
     summary: 'Start a Paystack (test mode) checkout — card, Paystack bank transfer or USSD',
     description: 'The amount is computed on the server (balance or deposit). Redirect to authorizationUrl or use accessCode with Paystack Popup.',
   })
-  initialize(@CurrentUser() user: AuthUser, @Body() dto: InitializePaymentDto, @IdempotencyKey() key?: string) {
-    return this.payments.initialize(user, dto.purpose, dto.payableId, key, dto.amountOption);
+  initialize(@CurrentUser() user: AuthUser, @Body() dto: InitializePaymentDto, @Req() req: Request, @IdempotencyKey() key?: string) {
+    const callbackUrl = dto.returnTo === 'app' ? `${req.protocol}://${req.get('host')}/api/v1/payments/return` : undefined;
+    return this.payments.initialize(user, dto.purpose, dto.payableId, key, dto.amountOption, callbackUrl);
+  }
+
+  /**
+   * Where Paystack sends someone paying inside the phone app. It is deliberately not the website: a short page that
+   * says the payment is done, while the app closes the payment window itself and shows the result.
+   */
+  @Public()
+  @Get('return')
+  @ApiExcludeEndpoint()
+  paymentReturn(@Res() res: Response) {
+    res.setHeader('Cache-Control', 'no-store');
+    res.type('html').send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nimpat One</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;background:#eef3ee;color:#14281d;text-align:center}
+main{padding:32px 24px;max-width:340px}.tick{width:64px;height:64px;border-radius:50%;background:#0b6b3a;color:#fff;display:grid;place-items:center;margin:0 auto 18px;font-size:34px}
+h1{font-size:21px;margin:0 0 8px}p{margin:0;color:#4b6155;line-height:1.5;font-size:15px}</style></head>
+<body><main><div class="tick">&#10003;</div><h1>Payment finished</h1><p>Taking you back to Nimpat One&hellip;<br>If nothing happens, tap <b>Done</b> or <b>Close</b> at the top.</p></main></body></html>`);
   }
 
   @Authenticated()

@@ -170,6 +170,8 @@ export class CatalogService {
     this.validateVariants(variants ?? []);
     // Anything new in the pharmacy starts unapproved and cannot be bought.
     const data = d.code === DivisionCode.PHARMACY ? { ...fields, prescriptionStatus: PrescriptionStatus.NOT_REVIEWED, purchaseEnabled: false } : fields;
+    // New items count as in stock unless staff say otherwise, so nothing new shows as sold out (owner, 13 November 2026).
+    if (data.listedAvailability === undefined) (data as { listedAvailability?: ProductAvailability | null }).listedAvailability = ProductAvailability.IN_STOCK;
 
     const product = await this.prisma.$transaction(async (tx) => {
       const created = await tx.product.create({

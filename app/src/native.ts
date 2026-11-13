@@ -20,25 +20,59 @@ export function startNativeApp(navigate: (to: string) => void) {
     if (canGoBack && window.location.pathname !== '/') window.history.back();
     else void App.exitApp();
   });
-  // A payment finished in the phone's browser: check it as soon as the customer is back.
-  void Browser.addListener('browserFinished', () => {
-    const reference = pendingPayment;
-    pendingPayment = null;
-    if (reference) navigate(`/payments/callback?reference=${encodeURIComponent(reference)}`);
-  });
+  appNavigate = navigate;
+  // The customer closed the payment window themselves: show the result in the app.
+  void Browser.addListener('browserFinished', () => finishPayment());
 }
 
 let pendingPayment: string | null = null;
+let appNavigate: ((to: string) => void) | null = null;
+let watcher: ReturnType<typeof setInterval> | null = null;
 
-/** Opens Paystack: in the app, in the phone's own browser sheet; on the web, in this tab. */
+/** Leaves the payment window (if open) and shows the payment result inside the app. */
+function finishPayment() {
+  if (watcher) clearInterval(watcher);
+  watcher = null;
+  const reference = pendingPayment;
+  pendingPayment = null;
+  if (reference && appNavigate) appNavigate(`/payments/callback?reference=${encodeURIComponent(reference)}`);
+}
+
+/**
+ * Opens Paystack: in the app, in a payment window over the app; on the web, in this tab. In the app, the payment is
+ * checked every few seconds while the window is open, and as soon as Paystack confirms it the window closes by itself
+ * and the app shows the result, so the customer never lands on the website.
+ */
 export async function openPayment(url: string, reference: string) {
   if (!isNativeApp) {
     window.location.assign(url);
     return;
   }
   pendingPayment = reference;
-  await Browser.open({ url, presentationStyle: 'popover' });
+  await Browser.open({ url, presentationStyle: 'fullscreen', toolbarColor: '#0b6b3a' });
+  if (watcher) clearInterval(watcher);
+  const started = Date.now();
+  watcher = setInterval(async () => {
+    if (!pendingPayment || Date.now() - started > 20 * 60_000) {
+      if (watcher) clearInterval(watcher);
+      watcher = null;
+      return;
+    }
+    try {
+      const { post } = await import('./api');
+      const r = await post<{ status?: string }>(`/payments/verify/${encodeURIComponent(reference)}`);
+      if (r?.status === 'SUCCESS' || r?.status === 'FAILED') {
+        await Browser.close().catch(() => undefined);
+        finishPayment();
+      }
+    } catch {
+      /* Not confirmed yet, or offline for a moment: keep waiting. */
+    }
+  }, 3000);
 }
+
+/** In the app, Paystack returns to a plain page instead of the website. */
+export const paymentReturn = isNativeApp ? 'app' : 'web';
 
 // ---------------------------------------------------------------- notifications on the phone
 

@@ -81,6 +81,8 @@ Areas the list did not name (Mabushi, Kado, Maitama, Life Camp, Kubwa, Karu, Nya
 - Pharmacy items show, but customers can't buy them until the pharmacist approves them.
 - New items from a price list arrive as drafts with no photo, so they stay hidden until a photo is added.
 
+**Customers only see what they can buy right now** (owner, 13 November 2026). An item marked **out of stock**, blocked from sale, without a price, or (pharmacy) waiting for the pharmacist or needing a prescription, disappears from the customer pages by itself and comes back as soon as it can be bought again. New items start as in stock. Staff still see everything in the dashboard.
+
 ## Bookings are requests that staff accept
 
 - **Spa:** customers can pick any time within opening hours (9:00 to 19:00) on any day. Therapist schedules don't limit it. The booking arrives in the dashboard under **Bookings → Spa** as a request; staff accept it, assign a therapist and let the customer know. Customers can pay online from their bookings, or at the spa. Unpaid spa requests are never cancelled automatically.

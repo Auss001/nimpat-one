@@ -144,9 +144,22 @@ function GuestUpgrade({ onDone }: { onDone: () => void }) {
 
 /** The Account tab before signing in: shopping needs no account; membership and signing in are options. */
 function AccountOptions() {
+  const done = (useLocation().state as { done?: string; kept?: string[] } | null) ?? {};
   return (
     <>
       <PageTitle title="Account" back={false} />
+      {done.done === 'signedOut' && (
+        <div className="signed-out" role="status">
+          <span className="signed-out-icon"><Check size={22} aria-hidden="true" /></span>
+          <div><b>You're signed out</b><span>Sign in again any time to see your orders, bookings and rewards.</span></div>
+        </div>
+      )}
+      {done.done === 'deleted' && (
+        <div className="signed-out" role="status">
+          <span className="signed-out-icon"><Check size={22} aria-hidden="true" /></span>
+          <div><b>Your account has been deleted</b><span>{done.kept?.length ? `Our team will still finish or refund ${done.kept.join(', ')}.` : 'Your personal details have been removed. Thank you for using Nimpat One.'}</span></div>
+        </div>
+      )}
       <div className="row">
         <Link className="btn primary grow" to="/login?next=/account">Sign in</Link>
         <Link className="btn ghost grow" to="/register?next=/account">Create account</Link>
@@ -465,6 +478,7 @@ export function AccountPage() {
   const addresses = useLoad(() => (session ? get('/me/addresses').then(rows) : Promise.resolve([])), [session?.email]);
   const [form, setForm] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [profile, setProfile] = useState<{ firstName: string; lastName: string } | null>(null);
   if (!session) return <AccountOptions />;
   const m = me.data;
@@ -535,7 +549,16 @@ export function AccountPage() {
         <CallLink />
       </section>
       {m?.isGuest && <p className="muted-text">Add a password above before signing out, so you can come back to these orders.</p>}
-      <button className="btn ghost full" onClick={async () => { await logout(); await refresh(); navigate('/'); }}><LogOut size={16} aria-hidden="true" /> Sign out</button>
+      <button className="btn ghost full" onClick={() => setSigningOut(true)}><LogOut size={16} aria-hidden="true" /> Sign out</button>
+      {signingOut && (
+        <Sheet title="Sign out of Nimpat One?" onClose={() => setSigningOut(false)}>
+          <p>Your basket, orders and bookings stay saved for when you sign in again.</p>
+          <div className="row">
+            <button className="btn ghost" onClick={() => setSigningOut(false)}>Stay signed in</button>
+            <button className="btn primary grow" onClick={async () => { await logout(); await refresh(); toast("You're signed out"); navigate('/account', { replace: true, state: { done: 'signedOut' } }); }}><LogOut size={16} aria-hidden="true" /> Sign out</button>
+          </div>
+        </Sheet>
+      )}
       <button className="text-link danger" onClick={() => setDeleting(true)}>Delete my account</button>
       {deleting && <DeleteAccount guest={!!m?.isGuest} onClose={() => setDeleting(false)} />}
     </>
@@ -552,10 +575,10 @@ function DeleteAccount({ onClose, guest }: { onClose: () => void; guest: boolean
     setBusy(true);
     setError(null);
     try {
-      await del('/me', guest ? {} : { password });
+      const res = await del<{ keptForTeam?: string[] }>('/me', guest ? {} : { password });
       endSession();
       await refresh();
-      navigate('/', { replace: true });
+      navigate('/account', { replace: true, state: { done: 'deleted', kept: res?.keptForTeam ?? [] } });
     } catch (e) {
       setError((e as Error).message);
       setBusy(false);
@@ -563,7 +586,7 @@ function DeleteAccount({ onClose, guest }: { onClose: () => void; guest: boolean
   };
   return (
     <Sheet title="Delete your account?" onClose={onClose}>
-      <p>This signs you out everywhere and removes your name, email, phone and addresses. Past order and payment records stay, without those details. This cannot be undone. Unpaid orders and bookings are cancelled for you; anything already paid and still under way has to be finished by our team first.</p>
+      <p>This signs you out everywhere and removes your name, email, phone and addresses. Past order and payment records stay, without those details. This cannot be undone. Unpaid orders and bookings are cancelled for you. Anything already paid and still under way will be finished or refunded by our team.</p>
       {error && <Note tone="error">{error}</Note>}
       {!guest && <Field label="Enter your password to confirm"><PasswordInput autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>}
       <div className="row">

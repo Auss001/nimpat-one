@@ -34,8 +34,9 @@ export class UsersService {
     // A guest has no password; holding their own session is the proof.
     if (!user.isGuest && !(password && (await verifyPassword(password, user.passwordHash)))) throw new BadRequestException('The password is not correct');
 
-    // Unpaid orders and bookings are simply let go. Only something paid and still under way needs the team first,
-    // and the customer is told exactly which ones. A delivered order counts as finished.
+    // Deleting an account is never blocked (owner, 13 November 2026). Unpaid orders and bookings are let go. Anything
+    // paid and still under way stays with the team, who finish or refund it using the details saved on it (the delivery
+    // snapshot); the customer is told so, and the audit entry lists those numbers for staff.
     const finished = [OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.EXPIRED, OrderStatus.DELIVERED];
     const live = [BookingStatus.REQUESTED, BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS];
     const waiting: BookingStatus[] = [BookingStatus.REQUESTED, BookingStatus.PENDING];
@@ -48,29 +49,23 @@ export class UsersService {
     const unpaidOrder = (o: (typeof orders)[number]) => o.status === OrderStatus.PENDING && o.amountPaidMinor === 0n;
     const unpaidStay = (r: (typeof stays)[number]) => r.status === ReservationStatus.HOLD && r.amountPaidMinor === 0n;
     const unpaidBooking = (b: { status: BookingStatus; amountPaidMinor: bigint }) => waiting.includes(b.status) && b.amountPaidMinor === 0n;
-    const underWay = [
+    const keptForTeam = [
       ...orders.filter((o) => !unpaidOrder(o)).map((o) => o.orderNumber),
       ...stays.filter((r) => !unpaidStay(r)).map((r) => r.reservationNumber),
       ...services.filter((b) => !unpaidBooking(b)).map((b) => b.bookingNumber),
       ...spa.filter((a) => !unpaidBooking(a)).map((a) => a.appointmentNumber),
     ];
-    const tellUs = (numbers: string[]) => new ConflictException(
-      `${numbers.join(', ')} ${numbers.length === 1 ? 'is' : 'are'} paid or already under way, so our team needs to finish or refund ${numbers.length === 1 ? 'it' : 'them'} first. Please call 0818 833 6209 or email nimpatinternational@gmail.com, then delete your account.`,
-    );
-    if (underWay.length) throw tellUs(underWay);
-    const stuck: string[] = [];
     const letGo = async (number: string, cancel: () => Promise<unknown>) => {
       try {
         await cancel();
       } catch {
-        stuck.push(number); // e.g. a transfer receipt is waiting to be checked
+        keptForTeam.push(number); // e.g. a transfer receipt is waiting to be checked: staff decide
       }
     };
-    for (const o of orders) await letGo(o.orderNumber, () => this.orders.cancelByCustomer(actor, o.id));
-    for (const r of stays) await letGo(r.reservationNumber, () => this.apartments.cancelByCustomer(actor, r.id, 'Account deleted'));
-    for (const b of services) await letGo(b.bookingNumber, () => this.services.cancelMine(actor, b.id));
-    for (const a of spa) await letGo(a.appointmentNumber, () => this.spa.cancelMine(actor, a.id));
-    if (stuck.length) throw tellUs(stuck);
+    for (const o of orders.filter(unpaidOrder)) await letGo(o.orderNumber, () => this.orders.cancelByCustomer(actor, o.id));
+    for (const r of stays.filter(unpaidStay)) await letGo(r.reservationNumber, () => this.apartments.cancelByCustomer(actor, r.id, 'Account deleted'));
+    for (const b of services.filter(unpaidBooking)) await letGo(b.bookingNumber, () => this.services.cancelMine(actor, b.id));
+    for (const a of spa.filter(unpaidBooking)) await letGo(a.appointmentNumber, () => this.spa.cancelMine(actor, a.id));
 
     const passwordHash = await hashPassword(generateToken(32));
     await this.prisma.$transaction(async (tx) => {
@@ -85,10 +80,10 @@ export class UsersService {
         where: { id: user.id },
         data: { email: `deleted-${user.id}@deleted.invalid`, phone: null, contactEmail: null, contactPhone: null, passwordHash, status: UserStatus.DEACTIVATED },
       });
-      await this.audit.record({ actorId: user.id, action: 'user.delete_account', entityType: 'user', entityId: user.id }, tx);
+      await this.audit.record({ actorId: user.id, action: 'user.delete_account', entityType: 'user', entityId: user.id, changes: keptForTeam.length ? { keptForTeam } : undefined }, tx);
     });
     this.access.invalidate(user.id);
-    return { ok: true };
+    return { ok: true, keptForTeam };
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
