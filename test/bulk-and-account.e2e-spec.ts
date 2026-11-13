@@ -132,14 +132,28 @@ describe('account deletion', () => {
     await h.http.post(`${API}/auth/register`).send({ email: c.email, password: PASSWORD, firstName: 'New', lastName: 'Person' }).expect(201);
   });
 
-  it('waits for open orders to finish, and is not for staff', async () => {
-    const c = await h.customer();
+  it('cancels unpaid orders itself, waits only for paid work under way, and is not for staff', async () => {
     const p = await product();
     await bulk([p.id], 'PUBLISH').expect(200);
-    await h.stock(p.variants[0].sku, 5);
-    await h.http.post(`${API}/carts/items`).set(c.auth).send({ variantId: p.variants[0].id, quantity: 1 }).expect((r: { status: number }) => expect(r.status).toBeLessThan(300));
-    await h.http.post(`${API}/orders`).set(c.auth).send({ division: DRINKS, fulfilmentType: 'PICKUP' }).expect(201);
-    await h.http.delete(`${API}/me`).set(c.auth).send({ password: PASSWORD }).expect(409);
+    await h.stock(p.variants[0].sku, 10);
+    const order = async (c: { auth: object }) => {
+      await h.http.post(`${API}/carts/items`).set(c.auth).send({ variantId: p.variants[0].id, quantity: 1 }).expect((r: { status: number }) => expect(r.status).toBeLessThan(300));
+      return (await h.http.post(`${API}/orders`).set(c.auth).send({ division: DRINKS, fulfilmentType: 'PICKUP' }).expect(201)).body;
+    };
+    // An unpaid order is let go, and the account is deleted.
+    const a = await h.customer();
+    const unpaid = await order(a);
+    await h.http.delete(`${API}/me`).set(a.auth).send({ password: PASSWORD }).expect(200);
+    expect((await h.prisma.order.findUniqueOrThrow({ where: { id: unpaid.id } })).status).toBe('CANCELLED');
+    // A paid order still being prepared waits for the team, and the message names it.
+    const c = await h.customer();
+    const paid = await order(c);
+    await h.prisma.order.update({ where: { id: paid.id }, data: { status: 'PROCESSING', amountPaidMinor: 100n } });
+    const blocked = await h.http.delete(`${API}/me`).set(c.auth).send({ password: PASSWORD }).expect(409);
+    expect(blocked.body.message).toContain(paid.orderNumber);
+    // Once delivered, it no longer stands in the way.
+    await h.prisma.order.update({ where: { id: paid.id }, data: { status: 'DELIVERED' } });
+    await h.http.delete(`${API}/me`).set(c.auth).send({ password: PASSWORD }).expect(200);
     const staff = await h.staff('DEPARTMENT_STAFF', DRINKS);
     await h.http.delete(`${API}/me`).set(staff.auth).send({ password: 'staff-pass-12345' }).expect(400);
   });

@@ -375,5 +375,5 @@ export class AdminServicesController {
   }
 }
 
-@Module({ providers: [ServicesService], controllers: [ServicesController, AdminServicesController] })
+@Module({ providers: [ServicesService], controllers: [ServicesController, AdminServicesController], exports: [ServicesService] })
 export class ServicesModule {}

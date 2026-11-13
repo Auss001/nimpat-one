@@ -4,7 +4,11 @@ import { generateToken, hashPassword, verifyPassword } from '../../common/utils/
 import { PrismaService } from '../../prisma/prisma.service';
 import { AccessService } from '../access/access.service';
 import { AuthUser } from '../access/auth-user';
+import { ApartmentsService } from '../apartments/apartments.service';
 import { AuditService } from '../audit/audit.service';
+import { OrdersService } from '../orders/orders.service';
+import { ServicesService } from '../services/services.module';
+import { SpaService } from '../spa/spa.module';
 import { CreateAddressDto, UpdateAddressDto, UpdateProfileDto } from './users.dto';
 
 @Injectable()
@@ -13,6 +17,10 @@ export class UsersService {
     private readonly prisma: PrismaService,
     private readonly access: AccessService,
     private readonly audit: AuditService,
+    private readonly orders: OrdersService,
+    private readonly apartments: ApartmentsService,
+    private readonly spa: SpaService,
+    private readonly services: ServicesService,
   ) {}
 
   /**
@@ -26,17 +34,43 @@ export class UsersService {
     // A guest has no password; holding their own session is the proof.
     if (!user.isGuest && !(password && (await verifyPassword(password, user.passwordHash)))) throw new BadRequestException('The password is not correct');
 
-    const closed = [OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.EXPIRED];
-    const liveBookings = [BookingStatus.REQUESTED, BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS];
+    // Unpaid orders and bookings are simply let go. Only something paid and still under way needs the team first,
+    // and the customer is told exactly which ones. A delivered order counts as finished.
+    const finished = [OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.EXPIRED, OrderStatus.DELIVERED];
+    const live = [BookingStatus.REQUESTED, BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS];
+    const waiting: BookingStatus[] = [BookingStatus.REQUESTED, BookingStatus.PENDING];
     const [orders, stays, services, spa] = await Promise.all([
-      this.prisma.order.count({ where: { userId: user.id, status: { notIn: closed } } }),
-      this.prisma.reservation.count({ where: { userId: user.id, status: { in: [ReservationStatus.HOLD, ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN] } } }),
-      this.prisma.serviceBooking.count({ where: { userId: user.id, status: { in: liveBookings } } }),
-      this.prisma.spaAppointment.count({ where: { userId: user.id, status: { in: liveBookings } } }),
+      this.prisma.order.findMany({ where: { userId: user.id, status: { notIn: finished } }, select: { id: true, orderNumber: true, status: true, amountPaidMinor: true } }),
+      this.prisma.reservation.findMany({ where: { userId: user.id, groupLeadId: null, status: { in: [ReservationStatus.HOLD, ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN] } }, select: { id: true, reservationNumber: true, status: true, amountPaidMinor: true } }),
+      this.prisma.serviceBooking.findMany({ where: { userId: user.id, status: { in: live } }, select: { id: true, bookingNumber: true, status: true, amountPaidMinor: true } }),
+      this.prisma.spaAppointment.findMany({ where: { userId: user.id, status: { in: live } }, select: { id: true, appointmentNumber: true, status: true, amountPaidMinor: true } }),
     ]);
-    if (orders + stays + services + spa > 0) {
-      throw new ConflictException('You have an open order or booking. Please complete or cancel it before deleting your account.');
-    }
+    const unpaidOrder = (o: (typeof orders)[number]) => o.status === OrderStatus.PENDING && o.amountPaidMinor === 0n;
+    const unpaidStay = (r: (typeof stays)[number]) => r.status === ReservationStatus.HOLD && r.amountPaidMinor === 0n;
+    const unpaidBooking = (b: { status: BookingStatus; amountPaidMinor: bigint }) => waiting.includes(b.status) && b.amountPaidMinor === 0n;
+    const underWay = [
+      ...orders.filter((o) => !unpaidOrder(o)).map((o) => o.orderNumber),
+      ...stays.filter((r) => !unpaidStay(r)).map((r) => r.reservationNumber),
+      ...services.filter((b) => !unpaidBooking(b)).map((b) => b.bookingNumber),
+      ...spa.filter((a) => !unpaidBooking(a)).map((a) => a.appointmentNumber),
+    ];
+    const tellUs = (numbers: string[]) => new ConflictException(
+      `${numbers.join(', ')} ${numbers.length === 1 ? 'is' : 'are'} paid or already under way, so our team needs to finish or refund ${numbers.length === 1 ? 'it' : 'them'} first. Please call 0818 833 6209 or email nimpatinternational@gmail.com, then delete your account.`,
+    );
+    if (underWay.length) throw tellUs(underWay);
+    const stuck: string[] = [];
+    const letGo = async (number: string, cancel: () => Promise<unknown>) => {
+      try {
+        await cancel();
+      } catch {
+        stuck.push(number); // e.g. a transfer receipt is waiting to be checked
+      }
+    };
+    for (const o of orders) await letGo(o.orderNumber, () => this.orders.cancelByCustomer(actor, o.id));
+    for (const r of stays) await letGo(r.reservationNumber, () => this.apartments.cancelByCustomer(actor, r.id, 'Account deleted'));
+    for (const b of services) await letGo(b.bookingNumber, () => this.services.cancelMine(actor, b.id));
+    for (const a of spa) await letGo(a.appointmentNumber, () => this.spa.cancelMine(actor, a.id));
+    if (stuck.length) throw tellUs(stuck);
 
     const passwordHash = await hashPassword(generateToken(32));
     await this.prisma.$transaction(async (tx) => {

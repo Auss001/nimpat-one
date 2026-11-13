@@ -563,7 +563,7 @@ function DeleteAccount({ onClose, guest }: { onClose: () => void; guest: boolean
   };
   return (
     <Sheet title="Delete your account?" onClose={onClose}>
-      <p>This signs you out everywhere and removes your name, email, phone and addresses. Past order and payment records stay, without those details. This cannot be undone. Any open order or booking must be finished or cancelled first.</p>
+      <p>This signs you out everywhere and removes your name, email, phone and addresses. Past order and payment records stay, without those details. This cannot be undone. Unpaid orders and bookings are cancelled for you; anything already paid and still under way has to be finished by our team first.</p>
       {error && <Note tone="error">{error}</Note>}
       {!guest && <Field label="Enter your password to confirm"><PasswordInput autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></Field>}
       <div className="row">
@@ -595,7 +595,7 @@ export function BookingsPage() {
       <div className="chips" role="tablist">
         {TABS.map((t) => <button key={t.key} role="tab" aria-selected={tab === t.key} className={tab === t.key ? 'on' : ''} onClick={() => setParams({ tab: t.key }, { replace: true })}>{t.label}</button>)}
       </div>
-      {tab === 'orders' && <History path="/orders" cancel={(o) => `/orders/${o.id}/cancel`} canCancel={(o) => ['PENDING', 'ACCEPTED'].includes(o.status)} purpose="ORDER" empty="No orders yet." render={(o) => ({
+      {tab === 'orders' && <History path="/orders" cancel={(o) => `/orders/${o.id}/cancel`} canCancel={(o) => o.status === 'PENDING' && Number(o.amountPaidMinor ?? 0) === 0} purpose="ORDER" empty="No orders yet." render={(o) => ({
         title: o.orderNumber, sub: `${o.items?.length ?? 0} ${o.items?.length === 1 ? 'item' : 'items'}${o.division?.name ? ` · ${o.division.name}` : ''} · ${shortDate(o.createdAt)}`, amount: o.totalMinor, owing: o.outstandingMinor, details: o.items?.map((i: any) => `${i.quantity} × ${i.productName}`).join(', '),
       })} />}
       {tab === 'stays' && <History path="/apartments/reservations" cancel={(r) => `/apartments/reservations/${r.id}/cancel`} canCancel={(r) => ['HOLD', 'CONFIRMED'].includes(r.status)} purpose="APARTMENT_RESERVATION" empty="No apartment bookings yet." render={(r) => ({

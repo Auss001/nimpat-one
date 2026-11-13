@@ -50,7 +50,7 @@ const PRIVACY: Section[] = [
   ],
   [
     'Deleting your account',
-    'You can delete your account in the app under Account, once any open orders or bookings are finished or cancelled. This signs you out and removes your name, email, phone number, addresses, favourites and basket. Past order and payment records stay, without those details, because we need them for our accounts and legal duties. Step-by-step help, including how to ask us to delete it, is at app.nimpatgroup.com/delete-account.',
+    'You can delete your account in the app under Account. Unpaid orders and bookings are cancelled for you; anything already paid and still under way is finished or refunded by our team first. This signs you out and removes your name, email, phone number, addresses, favourites and basket. Past order and payment records stay, without those details, because we need them for our accounts and legal duties. Step-by-step help, including how to ask us to delete it, is at app.nimpatgroup.com/delete-account.',
   ],
   [
     'Your rights',
@@ -139,7 +139,7 @@ const DELETE_ACCOUNT: Section[] = [
     '2. Tap Account at the bottom of the screen.',
     '3. Scroll down and tap Delete my account.',
     '4. Confirm. If you set a password, enter it to confirm it is you.',
-    'Any open order or booking must be finished or cancelled first. Deletion happens straight away.',
+    'Unpaid orders and bookings are cancelled for you. If something is already paid and still under way, the app names it, and our team finishes or refunds it first. Deletion then happens straight away.',
   ],
   [
     'Or ask us',
