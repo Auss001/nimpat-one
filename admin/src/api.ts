@@ -112,6 +112,21 @@ export async function openProtectedFile(path: string) {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+/** Downloads a protected file (e.g. a spreadsheet export) to the computer under the given name. */
+export async function downloadFile(path: string, filename: string) {
+  const s = getSession();
+  const res = await fetch(`${BASE}${path}`, { headers: s ? { Authorization: `Bearer ${s.accessToken}` } : {} });
+  if (!res.ok) throw new ApiError(res.status, 'Could not download the file');
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
 export const get = <T = any>(p: string) => api<T>(p);
 export const put = <T = any>(p: string, body: unknown) => api<T>(p, { method: 'PUT', body });
 export const post = <T = any>(p: string, body?: unknown) => api<T>(p, { method: 'POST', body: body ?? {} });

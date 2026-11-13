@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { api, contactEmail, contactPhone, get, patch } from '../api';
+import { useEffect, useState } from 'react';
+import { BulkBar, PageCheck, RowCheck, useSelection } from '../components/BulkTools';
 import { Field, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useConfirm, useLoad } from '../components/ui';
 import { formatNaira } from '../money';
 
@@ -27,7 +28,7 @@ const NEXT: Record<string, { to: string; label: string; danger?: boolean }[]> = 
   DELIVERED: [{ to: 'COMPLETED', label: 'Complete' }],
 };
 
-type Filter = '' | 'ACCEPTED' | 'PROCESSING' | 'READY' | 'PENDING' | 'DELIVERED';
+type Filter = '' | 'ACCEPTED' | 'PROCESSING' | 'READY' | 'PENDING' | 'DELIVERED' | 'CANCELLED' | 'EXPIRED';
 
 export function OrdersPage() {
   const [status, setStatus] = useState<Filter>('');
@@ -37,6 +38,8 @@ export function OrdersPage() {
     [status, division],
   );
   const [open, setOpen] = useState<string | null>(null);
+  const sel = useSelection();
+  useEffect(() => sel.clear(), [status, division]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -46,18 +49,34 @@ export function OrdersPage() {
         <Tabs<Filter>
           value={status}
           onChange={setStatus}
-          options={[{ value: '', label: 'All' }, { value: 'ACCEPTED', label: 'To prepare' }, { value: 'PROCESSING', label: 'Processing' }, { value: 'READY', label: 'Ready' }, { value: 'PENDING', label: 'Pending' }, { value: 'DELIVERED', label: 'Delivered' }]}
+          options={[{ value: '', label: 'All' }, { value: 'ACCEPTED', label: 'To prepare' }, { value: 'PROCESSING', label: 'Processing' }, { value: 'READY', label: 'Ready' }, { value: 'PENDING', label: 'Pending' }, { value: 'DELIVERED', label: 'Delivered' }, { value: 'CANCELLED', label: 'Cancelled' }, { value: 'EXPIRED', label: 'Expired' }]}
         />
       </div>
+      {orders.data && (
+        <BulkBar
+          sel={sel}
+          pageIds={orders.data.data.map((o) => o.id)}
+          total={orders.data.meta.total}
+          noun={['order', 'orders']}
+          exportPath="/admin/orders/export"
+          exportName={`nimpat-orders-${new Date().toISOString().slice(0, 10)}.csv`}
+          deletePath="/admin/orders/bulk-delete"
+          filter={{ division, status: status || undefined }}
+          deleteNote="Only unpaid orders are deleted (waiting for payment, cancelled or expired, with no money received or being checked). Any reserved stock goes back first. Paid or under-way orders are kept and listed after."
+          canDelete
+          onDone={() => void orders.reload()}
+        />
+      )}
       <Loading error={orders.error} loading={orders.loading && !orders.data} />
       {orders.data && (
         <div className="card table-wrap">
           <table>
-            <thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th className="num">Items</th><th>Fulfilment</th><th className="num">Total</th><th className="num">Outstanding</th><th>Status</th><th>Payment</th><th></th></tr></thead>
+            <thead><tr><th style={{ width: 34 }}><PageCheck sel={sel} pageIds={orders.data.data.map((o) => o.id)} label="Select all orders on this page" /></th><th>Order</th><th>Customer</th><th>Placed</th><th className="num">Items</th><th>Fulfilment</th><th className="num">Total</th><th className="num">Outstanding</th><th>Status</th><th>Payment</th><th></th></tr></thead>
             <tbody>
-              {orders.data.data.length === 0 && <tr><td colSpan={10} className="empty">No orders yet.</td></tr>}
+              {orders.data.data.length === 0 && <tr><td colSpan={11} className="empty">No orders yet.</td></tr>}
               {orders.data.data.map((o) => (
                 <tr key={o.id}>
+                  <td><RowCheck sel={sel} id={o.id} label={`Select order ${o.orderNumber}`} /></td>
                   <td className="mono">{o.orderNumber}</td>
                   <td>{contactEmail(o.user)}<div className="muted small">{contactPhone(o.user)}</div></td>
                   <td className="small">{new Date(o.createdAt).toLocaleString('en-NG')}</td>

@@ -67,6 +67,17 @@ export class UsersService {
     for (const b of services.filter(unpaidBooking)) await letGo(b.bookingNumber, () => this.services.cancelMine(actor, b.id));
     for (const a of spa.filter(unpaidBooking)) await letGo(a.appointmentNumber, () => this.spa.cancelMine(actor, a.id));
 
+    await this.erase(user.id, user.id, keptForTeam);
+    return { ok: true, keptForTeam };
+  }
+
+  /**
+   * Erases a customer's personal details and stops sign-in. Orders, bookings and payments stay as financial records,
+   * with no name attached. Used by the customer themselves and by an administrator deleting customers in bulk.
+   */
+  async erase(userId: string, actorId: string, keptForTeam: string[] = []) {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    if (user.type !== UserType.CUSTOMER) throw new BadRequestException('Staff accounts are closed by an administrator');
     const passwordHash = await hashPassword(generateToken(32));
     await this.prisma.$transaction(async (tx) => {
       await tx.cartItem.deleteMany({ where: { cart: { userId: user.id } } });
@@ -80,10 +91,9 @@ export class UsersService {
         where: { id: user.id },
         data: { email: `deleted-${user.id}@deleted.invalid`, phone: null, contactEmail: null, contactPhone: null, passwordHash, status: UserStatus.DEACTIVATED },
       });
-      await this.audit.record({ actorId: user.id, action: 'user.delete_account', entityType: 'user', entityId: user.id, changes: keptForTeam.length ? { keptForTeam } : undefined }, tx);
+      await this.audit.record({ actorId, action: actorId === user.id ? 'user.delete_account' : 'customer.delete', entityType: 'user', entityId: user.id, changes: keptForTeam.length ? { keptForTeam } : undefined }, tx);
     });
     this.access.invalidate(user.id);
-    return { ok: true, keptForTeam };
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {

@@ -1,4 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { Response } from 'express';
+import { naira, sendCsv } from '../../common/utils/csv';
 import {
   FulfilmentType,
   OrderStatus,
@@ -66,6 +68,8 @@ const ADMIN_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
 
 /** Options that accept the order straight away (money collected later, then verified). */
 const COLLECT_LATER: PaymentOption[] = [PaymentOption.PAY_ON_DELIVERY, PaymentOption.PAY_AT_LOCATION];
+
+export type AdminOrderFilter = { status?: OrderStatus; division?: string; q?: string; paymentStatus?: PayableState; paymentOption?: PaymentOption };
 
 @Injectable()
 export class OrdersService implements OnModuleInit, PayableHandler {
@@ -239,7 +243,7 @@ export class OrdersService implements OnModuleInit, PayableHandler {
   }
 
   async listForCustomer(user: AuthUser, q: PaginationQueryDto & { status?: OrderStatus; division?: string }) {
-    const where: Prisma.OrderWhereInput = { userId: user.id, status: q.status };
+    const where: Prisma.OrderWhereInput = { userId: user.id, status: q.status, archivedAt: null };
     if (q.division) where.divisionId = (await this.divisions.resolve(q.division)).id;
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.order.findMany({
@@ -313,8 +317,9 @@ export class OrdersService implements OnModuleInit, PayableHandler {
   // Admin
   // ---------------------------------------------------------------------------
 
-  async adminList(user: AuthUser, q: PaginationQueryDto & { status?: OrderStatus; division?: string; q?: string; paymentStatus?: PayableState; paymentOption?: PaymentOption }) {
-    const where: Prisma.OrderWhereInput = { status: q.status, paymentStatus: q.paymentStatus, paymentOption: q.paymentOption };
+  /** The orders a member of staff may see, narrowed by the list's filters. */
+  async adminWhere(user: AuthUser, q: AdminOrderFilter): Promise<Prisma.OrderWhereInput> {
+    const where: Prisma.OrderWhereInput = { status: q.status, paymentStatus: q.paymentStatus, paymentOption: q.paymentOption, archivedAt: null };
     const allowed = user.divisionFilter(P.ordersRead);
     if (q.division) {
       const d = await this.divisions.resolve(q.division);
@@ -324,6 +329,11 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       where.divisionId = { in: allowed };
     }
     if (q.q) where.OR = [{ orderNumber: { contains: q.q.toUpperCase() } }, { user: { email: { contains: q.q.toLowerCase() } } }];
+    return where;
+  }
+
+  async adminList(user: AuthUser, q: PaginationQueryDto & AdminOrderFilter) {
+    const where = await this.adminWhere(user, q);
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.order.findMany({
         where,
@@ -334,6 +344,71 @@ export class OrdersService implements OnModuleInit, PayableHandler {
       this.prisma.order.count({ where }),
     ]);
     return paginate(rows.map(withOutstanding), total, q);
+  }
+
+  /** Every order matching the list's filters, as a spreadsheet (one row per order). */
+  async adminExportCsv(user: AuthUser, q: AdminOrderFilter, res: Response) {
+    const rows = await this.prisma.order.findMany({
+      where: await this.adminWhere(user, q),
+      orderBy: { createdAt: 'desc' },
+      take: 20000,
+      include: {
+        division: { select: { name: true } },
+        items: { select: { quantity: true, productName: true } },
+        user: { select: { email: true, isGuest: true, contactEmail: true, contactPhone: true, phone: true, customerProfile: { select: { firstName: true, lastName: true } } } },
+      },
+    });
+    sendCsv(res, 'nimpat-orders-' + new Date().toISOString().slice(0, 10) + '.csv',
+      ['Order', 'Date', 'Business', 'Status', 'Payment', 'Customer', 'Email', 'Phone', 'Delivery or pickup', 'Items', 'Total (NGN)', 'Paid (NGN)'],
+      rows.map((o) => [
+        o.orderNumber, o.createdAt, o.division?.name, o.status, o.paymentStatus,
+        [o.user?.customerProfile?.firstName, o.user?.customerProfile?.lastName].filter(Boolean).join(' '),
+        o.user?.contactEmail ?? (o.user?.isGuest ? '' : o.user?.email), o.user?.contactPhone ?? o.user?.phone,
+        o.fulfilmentType, o.items.map((i) => i.quantity + ' x ' + i.productName).join('; '), naira(o.totalMinor), naira(o.amountPaidMinor),
+      ]));
+  }
+
+  /**
+   * Deletes orders nobody paid for (waiting for payment, cancelled or expired, with no money received or being checked).
+   * Their reserved stock goes back first. Anything paid, being delivered or with a transfer receipt is never deleted:
+   * it is a financial record, and is listed as skipped with the reason.
+   */
+  async adminBulkDelete(user: AuthUser, dto: { ids?: string[]; allMatching?: boolean; filter?: AdminOrderFilter }) {
+    let ids = dto.ids ?? [];
+    if (dto.allMatching) ids = (await this.prisma.order.findMany({ where: await this.adminWhere(user, dto.filter ?? {}), select: { id: true }, take: 1000 })).map((o) => o.id);
+    if (!ids.length) throw new BadRequestException('Pick at least one order');
+    const orders = await this.prisma.order.findMany({
+      where: { id: { in: ids } },
+      include: { items: true, payments: { select: { id: true, status: true, _count: { select: { refunds: true, proofs: true } } } }, _count: { select: { stockMovements: true } } },
+    });
+    const deletable: OrderStatus[] = [OrderStatus.PENDING, OrderStatus.CANCELLED, OrderStatus.EXPIRED];
+    const moneyStates: PaymentStatus[] = [PaymentStatus.SUCCESS, PaymentStatus.AWAITING_VERIFICATION, PaymentStatus.REVERSED];
+    let deleted = 0;
+    const skipped: { orderNumber: string; reason: string }[] = [];
+    for (const o of orders) {
+      if (!user.can(P.ordersManage, o.divisionId)) { skipped.push({ orderNumber: o.orderNumber, reason: 'Not your business' }); continue; }
+      if (!deletable.includes(o.status)) { skipped.push({ orderNumber: o.orderNumber, reason: 'It is already under way (' + o.status.toLowerCase().replace(/_/g, ' ') + ')' }); continue; }
+      if (o.amountPaidMinor > 0n || o.payments.some((p) => moneyStates.includes(p.status) || p._count.refunds > 0 || p._count.proofs > 0)) {
+        skipped.push({ orderNumber: o.orderNumber, reason: 'Money was paid or is being checked, so it is kept as a financial record' });
+        continue;
+      }
+      await this.prisma.$transaction(async (tx) => {
+        if (o.status === OrderStatus.PENDING && o.stockLocationId) {
+          await this.inventory.release(tx, o.stockLocationId, o.items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })), o.id);
+        }
+        // Stock history is append-only, so an order that ever touched stock is cancelled and archived (gone from every
+        // list) rather than removed; one that never did is removed outright.
+        if (o._count.stockMovements > 0 || o.status === OrderStatus.PENDING && o.stockLocationId) {
+          await tx.order.update({ where: { id: o.id }, data: { status: o.status === OrderStatus.PENDING ? OrderStatus.CANCELLED : o.status, archivedAt: new Date() } });
+        } else {
+          await tx.payment.deleteMany({ where: { orderId: o.id } });
+          await tx.order.delete({ where: { id: o.id } });
+        }
+        await this.audit.record({ actorId: user.id, action: 'order.delete', entityType: 'order', entityId: o.id, divisionId: o.divisionId, changes: { orderNumber: o.orderNumber, status: o.status } }, tx);
+      });
+      deleted++;
+    }
+    return { deleted, skipped, notFound: ids.length - orders.length };
   }
 
   async adminGet(user: AuthUser, id: string) {

@@ -1,7 +1,9 @@
-import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query, Res } from '@nestjs/common';
+import { Type } from 'class-transformer';
+import { Response } from 'express';
 import { ApiHeader, ApiOperation, ApiProperty, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
 import { FulfilmentType, OrderStatus, PayableState, PaymentOption } from '@prisma/client';
-import { IsEnum, IsInt, IsOptional, IsString, IsUUID, Length, Min } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, IsUUID, Length, Min, ValidateNested } from 'class-validator';
 import { Authenticated, CurrentUser, RequirePermissions } from '../../common/decorators/auth.decorators';
 import { IdempotencyKey } from '../../common/decorators/idempotency-key.decorator';
 import { PaginationQueryDto } from '../../common/dto/pagination.dto';
@@ -40,6 +42,20 @@ class AdminOrderQueryDto extends OrderQueryDto {
   @ApiPropertyOptional({ enum: PayableState }) @IsOptional() @IsEnum(PayableState) paymentStatus?: PayableState;
   @ApiPropertyOptional({ enum: PaymentOption }) @IsOptional() @IsEnum(PaymentOption) paymentOption?: PaymentOption;
   @ApiPropertyOptional({ description: 'Order number or customer email' }) @IsOptional() @IsString() q?: string;
+}
+
+class OrderFilterDto {
+  @ApiPropertyOptional({ enum: OrderStatus }) @IsOptional() @IsEnum(OrderStatus) status?: OrderStatus;
+  @ApiPropertyOptional() @IsOptional() @IsString() division?: string;
+  @ApiPropertyOptional({ enum: PayableState }) @IsOptional() @IsEnum(PayableState) paymentStatus?: PayableState;
+  @ApiPropertyOptional({ enum: PaymentOption }) @IsOptional() @IsEnum(PaymentOption) paymentOption?: PaymentOption;
+  @ApiPropertyOptional() @IsOptional() @IsString() q?: string;
+}
+
+class BulkOrdersDto {
+  @ApiPropertyOptional({ type: [String] }) @IsOptional() @IsArray() @ArrayMaxSize(1000) @IsUUID('all', { each: true }) ids?: string[];
+  @ApiPropertyOptional({ description: 'Or: every order matching this filter (up to 1,000)' }) @IsOptional() @IsBoolean() allMatching?: boolean;
+  @ApiPropertyOptional({ type: OrderFilterDto }) @IsOptional() @ValidateNested() @Type(() => OrderFilterDto) filter?: OrderFilterDto;
 }
 
 class UpdateOrderStatusDto {
@@ -102,6 +118,21 @@ export class AdminOrdersController {
   @ApiOperation({ summary: 'Orders for divisions you can access' })
   list(@CurrentUser() user: AuthUser, @Query() q: AdminOrderQueryDto) {
     return this.orders.adminList(user, q);
+  }
+
+  @Get('export')
+  @RequirePermissions(P.ordersRead)
+  @ApiOperation({ summary: 'Download the orders matching the filters as a spreadsheet (.csv)' })
+  export(@CurrentUser() user: AuthUser, @Query() q: OrderFilterDto, @Res() res: Response) {
+    return this.orders.adminExportCsv(user, q, res);
+  }
+
+  @Post('bulk-delete')
+  @HttpCode(200)
+  @RequirePermissions(P.ordersManage)
+  @ApiOperation({ summary: 'Delete many unpaid orders. Paid or under-way orders are skipped and kept.' })
+  bulkDelete(@CurrentUser() user: AuthUser, @Body() dto: BulkOrdersDto) {
+    return this.orders.adminBulkDelete(user, dto);
   }
 
   @Get(':id')

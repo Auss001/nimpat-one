@@ -135,7 +135,6 @@ export function HomePage() {
               <div className="card-photo"><Photo src={spaImage(t)} alt={t.name} /></div>
               <div className="card-body">
                 <strong>{t.name}</strong>
-                <small>{t.durationMinutes} minutes</small>
                 <span className="price">{formatNaira(t.priceMinor)}</span>
               </div>
             </Link>

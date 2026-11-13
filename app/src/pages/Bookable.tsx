@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Clock, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { formatNaira, get, idempotency, post, rows } from '../api';
 import { useDetailsFirst, WhereChooser } from './Account';
 import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, PhotoGallery, Sheet, spaImage, useLoad, useToast } from '../ui';
@@ -38,7 +38,7 @@ export function SpaPage() {
             <div className="card-photo"><Photo src={spaImage(t)} alt={t.name} /></div>
             <div className="card-body">
               <strong>{t.name}</strong>
-              <small><Clock size={13} aria-hidden="true" /> {t.durationMinutes} minutes{t.homeService ? ' · at home too' : ''}</small>
+              {t.homeService && <small>At home too</small>}
               <span className={t.priceMinor === null ? 'price muted' : 'price'}>{t.priceMinor === null ? 'Contact for price' : formatNaira(t.priceMinor)}</span>
             </div>
           </Link>
@@ -85,7 +85,7 @@ export function TreatmentPage() {
         <PhotoGallery photos={spaImage(t) ? [{ url: spaImage(t)! }] : []} alt={t.name} />
         <div className="detail-side">
           <p className="big-price">{t.priceMinor === null ? 'Contact for price' : formatNaira(t.priceMinor)}</p>
-          <p className="muted-text"><Clock size={14} aria-hidden="true" /> {t.durationMinutes} minutes{t.depositMinor > 0 ? `. Deposit ${formatNaira(t.depositMinor)}.` : ''}</p>
+          {t.depositMinor > 0 && <p className="muted-text">Deposit {formatNaira(t.depositMinor)}.</p>}
           {t.description && <p>{t.description}</p>}
           {t.homeService && <p className="muted-text"><MapPin size={14} aria-hidden="true" /> Also available at your home{t.homeFeeMinor ? ` for ${formatNaira(t.homeFeeMinor)} more` : ''}.</p>}
           <section className="panel">
@@ -171,7 +171,6 @@ export function ServicesPage() {
                 {!category && s.category && <span>{s.category}</span>}
                 {s.serviceMode === 'AT_HOME' && <span>We come to you</span>}
                 {s.serviceMode === 'EITHER' && <span>At home or with us</span>}
-                {s.durationMinutes && <span>{s.durationMinutes} min</span>}
               </div>
             </div>
             <button className="btn primary" onClick={() => setPicked(s)}>Book</button>
