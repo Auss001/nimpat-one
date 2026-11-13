@@ -164,7 +164,7 @@ The domain is verified in Google Search Console (the existing `google-site-verif
 Once the certificates are active, release with the public addresses:
 
 ```bash
-PUBLIC_DOMAIN=nimpatgroup.com PROJECT=gen-lang-client-0983782546 ./deploy/cloud-run.sh release
+PROJECT=gen-lang-client-0983782546 ./deploy/cloud-run.sh release   # nimpatgroup.com is the default; PUBLIC_DOMAIN=none for run.app
 ```
 
 That sets the links in emails, the Paystack return address and the dashboard's link to the app to the new addresses, and lets

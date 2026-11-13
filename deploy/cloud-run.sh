@@ -22,8 +22,10 @@ RUN_API_URL="https://nimpat-one-api-$NUMBER.$REGION.run.app"
 RUN_APP_URL="https://nimpat-one-app-$NUMBER.$REGION.run.app"
 RUN_ADMIN_URL="https://nimpat-one-admin-$NUMBER.$REGION.run.app"
 # Public addresses customers and emails use. With PUBLIC_DOMAIN=nimpatgroup.com they become app., admin. and api.
-# subdomains; only set it once their DNS and HTTPS certificates work.
-PUBLIC_DOMAIN="${PUBLIC_DOMAIN:-}"
+# subdomains (their DNS and HTTPS certificates have worked since 7 Nov 2026).
+# Defaults to nimpatgroup.com so every release keeps the proper addresses; PUBLIC_DOMAIN=none uses the run.app ones.
+PUBLIC_DOMAIN="${PUBLIC_DOMAIN:-nimpatgroup.com}"
+[ "$PUBLIC_DOMAIN" = none ] && PUBLIC_DOMAIN=""
 if [ -n "$PUBLIC_DOMAIN" ]; then
   APP_URL="https://app.$PUBLIC_DOMAIN" ADMIN_URL="https://admin.$PUBLIC_DOMAIN" API_URL="https://api.$PUBLIC_DOMAIN"
 else
