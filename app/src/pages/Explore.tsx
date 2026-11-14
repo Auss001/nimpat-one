@@ -57,7 +57,9 @@ async function loadEverything(): Promise<Item[]> {
     get('/services').catch(() => []),
   ]);
   const shop = (kind: Kind) => (p: any): Item => ({ key: `p-${p.id}`, kind, priceMinor: num(p.priceFromMinor), product: p });
-  return [
+  // This page is a shop window: only things with a real photo (owner, 14 November 2026). They still show in their own sections.
+  const pictured = (i: Item) => (i.product ? i.product.images?.length > 0 : !!i.image);
+  const all: Item[] = [
     ...rows(drinks).map(shop('drinks')),
     ...rows(pharmacy).map(shop('pharmacy')),
     ...rows(supplies).map(shop('supplies')),
@@ -79,6 +81,7 @@ async function loadEverything(): Promise<Item[]> {
       priceMinor: o.pricingType === 'QUOTE_REQUIRED' ? null : num(o.basePriceMinor), priceNote: o.pricingType === 'STARTING_FROM' ? 'from' : undefined,
     })),
   ];
+  return all.filter(pictured);
 }
 
 /** Shuffles each kind, then deals them out in turn (in a shuffled kind order), so neighbours are different things. */
