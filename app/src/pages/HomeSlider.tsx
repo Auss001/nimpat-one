@@ -6,7 +6,7 @@ import { useLoad } from '../ui';
 
 interface Slide {
   id: string;
-  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS' | 'VENIDA' | 'CARS' | 'SPA' | 'WINES';
+  kind: 'PICTURE' | 'PRODUCT' | 'APARTMENTS';
   title: string | null;
   subtitle: string | null;
   buttonText: string | null;
@@ -30,21 +30,11 @@ function Go({ text, className = '' }: { text: string; className?: string }) {
 }
 
 /** Promos and featured items, managed under Home promos in the dashboard. Prices are always live. */
-export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[] }) {
+export function HomeSlider({ stays }: { stays: any[] }) {
   const loaded = useLoad(() => get<Slide[]>('/home-slides'), []);
   const stay = stays.find((s) => s.image);
-  // One wines card stands in for the single-wine product slide (owner, 11 November 2026).
-  const winesSlide: Slide = { id: 'wines', kind: 'WINES', title: 'Exotic Wines', subtitle: 'Delivered to your doorstep', buttonText: 'Shop wines', imageUrl: '/wines-card.webp', linkTo: '/shop/water-drinks-wines?category=wines-sparkling-ports', tone: 'wine' };
-  const managed = (loaded.data ?? []).map((s) => (s.kind === 'PRODUCT' && s.product?.slug === 'chamdor-red-grape-sparkling' ? winesSlide : s));
-  // Our own water, Venida, always has a blue card, second in line.
-  const venidaSlide: Slide | null = venida.length
-    ? { id: 'venida', kind: 'VENIDA', title: 'Venida Water', subtitle: 'Our own brand', buttonText: 'Shop Venida', imageUrl: '/venida-slide.webp', linkTo: '/shop/water-drinks-wines?q=Venida', tone: 'blue' }
-    : null;
-  // Nimpat Automobiles always has its own picture card, after Venida.
-  const carsSlide: Slide = { id: 'cars', kind: 'CARS', title: 'Nimpat Automobiles', subtitle: 'Drive in style', buttonText: 'Explore Cars', imageUrl: '/cars-slide.webp', linkTo: '/cars', tone: 'dark' };
-  const spaSlide: Slide = { id: 'spa', kind: 'SPA', title: 'Beauty, Spa & Saloon', subtitle: 'Relax. Renew. Glow.', buttonText: 'Book a Session', imageUrl: '/spa-card.webp', linkTo: '/spa', tone: 'pink' };
-  const own = [venidaSlide, carsSlide, spaSlide].filter((x): x is Slide => !!x);
-  const slides = [...managed.slice(0, 1), ...own, ...managed.slice(1)];
+  // Every card comes from Home promos in the dashboard, in its order there (owner, 14 November 2026).
+  const slides = loaded.data ?? [];
   const count = slides.length;
 
   const track = useRef<HTMLDivElement>(null);
@@ -99,34 +89,6 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
       <span className="slider-glows" aria-hidden="true"><span className="slider-glow one" /><span className="slider-glow two" /></span>
       <div className="slider-track" ref={track} onScroll={onScroll}>
         {slides.map((s) => {
-          if (s.kind === 'WINES') {
-            return (
-              <Link key={s.id} to={s.linkTo!} className="slide flyer wines-slide" aria-label="Exotic wines: reds, whites, rosé, champagne and ports from around the world, delivered to your doorstep. Shop wines">
-                <img src="/wines-card.webp" alt="" loading="lazy" />
-              </Link>
-            );
-          }
-          if (s.kind === 'SPA') {
-            return (
-              <Link key={s.id} to={s.linkTo!} className="slide flyer spa-slide" aria-label="Beauty, Spa and Saloon: relax, renew, glow. Book a session">
-                <img src="/spa-card.webp" alt="" loading="lazy" />
-              </Link>
-            );
-          }
-          if (s.kind === 'CARS') {
-            return (
-              <Link key={s.id} to="/cars" className="slide flyer cars-slide" aria-label="Nimpat Automobiles: drive in style. Explore cars">
-                <img src="/cars-slide.webp" alt="" loading="lazy" />
-              </Link>
-            );
-          }
-          if (s.kind === 'VENIDA') {
-            return (
-              <Link key={s.id} to={s.linkTo!} className="slide flyer venida-slide" aria-label="Venida Water: table water, alkaline, sachet and dispenser jars. Shop Venida">
-                <img src="/venida-slide.webp" alt="" loading="lazy" />
-              </Link>
-            );
-          }
           if (s.kind === 'PRODUCT' && s.product) {
             const p = s.product;
             const label = [s.subtitle, p.isAgeRestricted ? '18+' : null].filter(Boolean).join(' · ');
@@ -145,7 +107,7 @@ export function HomeSlider({ stays, venida = [] }: { stays: any[]; venida?: any[
           if (s.kind === 'APARTMENTS') {
             return (
               <Link key={s.id} to="/apartments" className="slide flyer apartments-slide" aria-label={`Luxury Apartments: stay beautifully, feel at home.${stay ? ` From ${formatNaira(stay.unit.nightlyRateMinor)} a night.` : ''} Explore stays`}>
-                <img src="/apartments-card.webp" alt="" loading="lazy" />
+                <img src={s.imageUrl ?? stay?.image ?? ''} alt="" loading="lazy" />
               </Link>
             );
           }

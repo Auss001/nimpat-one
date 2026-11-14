@@ -32,15 +32,14 @@ const SHORT_NAME: Record<string, string> = {
 export function HomePage() {
   const home = useLoad(async () => {
     const none = { data: [] as any[] };
-    const [drinks, pharmacy, stays, cars, spa, venida] = await Promise.all([
+    const [drinks, pharmacy, stays, cars, spa] = await Promise.all([
       get('/catalog/products?division=water-drinks-wines&pageSize=100').catch(() => none),
       HIDE_PHARMACY ? Promise.resolve(none) : get('/catalog/products?division=pharmacy-laboratory&pageSize=12').catch(() => none),
       loadStays().catch(() => [] as any[]),
       get('/vehicles?pageSize=10').catch(() => none),
       get('/spa/treatments?pageSize=10').catch(() => none),
-      get('/catalog/products?division=water-drinks-wines&q=Venida&pageSize=12').catch(() => none),
     ]);
-    return { venida: rows(venida).filter((p: any) => /venida/i.test(`${p.brand ?? ''} ${p.name}`)), drinks: rows(drinks), pharmacy: rows(pharmacy), stays, cars: rows(cars), spa: rows(spa).slice(0, 10) };
+    return { drinks: rows(drinks), pharmacy: rows(pharmacy), stays, cars: rows(cars), spa: rows(spa).slice(0, 10) };
   });
   const d = home.data;
   const empty = d && !d.drinks.length && !d.pharmacy.length && !d.stays.length && !d.cars.length && !d.spa.length;
@@ -77,7 +76,7 @@ export function HomePage() {
         ))}
       </ScrollRow>
 
-      <HomeSlider stays={d?.stays ?? []} venida={d?.venida ?? []} />
+      <HomeSlider stays={d?.stays ?? []} />
 
       {home.loading && !d && <Skeletons />}
       {empty && <div className="getting-ready"><h2>Coming soon</h2></div>}
