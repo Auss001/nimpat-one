@@ -181,7 +181,7 @@ release() {
 
   echo "== backing up and updating the database ($DB)"
   backup "before release $tag"
-  local sqlflag="--clear-cloudsql-instances" addsql="--clear-cloudsql-instances"
+  local sqlflag="--set-cloudsql-instances=" addsql="--clear-cloudsql-instances"
   if [ "$DB" = cloudsql ]; then sqlflag="--set-cloudsql-instances=$PROJECT:$REGION:$SQL_INSTANCE"; addsql="--add-cloudsql-instances=$PROJECT:$REGION:$SQL_INSTANCE"; fi
   gcloud secrets add-iam-policy-binding "$DB_SECRET" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
   gcloud run jobs deploy nimpat-one-migrate --image="$REPO/api:$tag" --region="$REGION" --service-account="$SA" \
