@@ -6,6 +6,7 @@ import { startNativeApp, startPush } from './native';
 import { hideSplash } from './splash';
 import { CartProvider, FavoritesProvider, ToastProvider, useCart, useSession } from './ui';
 import { HomePage } from './pages/Home';
+import { ExplorePage } from './pages/Explore';
 import { DeleteAccountPage, PrivacyPage, TermsPage } from './pages/Legal';
 import { FavoritesPage } from './pages/Favorites';
 import { PharmacyPage, ProductPage, SearchPage, ShopPage } from './pages/Shop';
@@ -91,6 +92,7 @@ createRoot(document.getElementById('root')!).render(
             <Route element={<Shell />}>
               <Route index element={<HomePage />} />
               <Route path="search" element={<SearchPage />} />
+              <Route path="explore" element={<ExplorePage />} />
               <Route path="shop/:division" element={<ShopPage />} />
               <Route path="pharmacy" element={HIDE_PHARMACY ? <Navigate to="/" replace /> : <PharmacyPage />} />
               <Route path="product/:slug" element={<ProductPage />} />

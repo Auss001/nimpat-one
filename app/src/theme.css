@@ -751,3 +751,9 @@ a.reward { text-decoration: none; }
 .signed-out span:not(.signed-out-icon) { font-size: 13.5px; line-height: 1.45; }
 @keyframes signed-out-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .signed-out { animation: none; } }
+
+/* Everything at Nimpat: the count and the sort sit on one line under the chips. */
+.explore-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0; }
+.explore-sort select { min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); font-size: 13px; font-weight: 600; }
+.explore-more { margin-top: 14px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
