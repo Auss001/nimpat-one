@@ -3,15 +3,24 @@
 #   PROJECT=my-project ./deploy/cloud-run.sh setup      first time: database, buckets, secrets, loads local data
 #   PROJECT=my-project ./deploy/cloud-run.sh release    build and deploy the API, customer app and dashboard
 #   PROJECT=my-project ./deploy/cloud-run.sh sql FILE   back up, then apply a data change such as deploy/data/*.sql
+#   PROJECT=my-project ./deploy/cloud-run.sh backup     copy the whole database to the backups bucket now
+#
+# Database (owner, 14 November 2026): during testing the database runs on Neon's free plan (PostgreSQL, Frankfurt),
+# so Google Cloud stays inside its free allowance. Its address is the Secret Manager secret
+# nimpat-one-neon-database-url (the DIRECT address, without "-pooler"). DB=cloudsql switches every command back to the
+# old Cloud SQL instance. A daily copy of the whole database goes to the backups bucket (kept 30 days).
 # Secrets are created in Secret Manager and never printed or written to disk.
 set -euo pipefail
 # Git Bash on Windows: leave these arguments alone; everything else needs its normal path handling.
-export MSYS2_ARG_CONV_EXCL="--add-volume-mount=;--set-env-vars=;--startup-probe=;--schedule=;--uri=;--add-cloudsql-instances=;--set-cloudsql-instances=;--command="
+export MSYS2_ARG_CONV_EXCL="--args=;--add-volume-mount=;--set-env-vars=;--startup-probe=;--schedule=;--uri=;--add-cloudsql-instances=;--set-cloudsql-instances=;--command="
 
 : "${PROJECT:?Set PROJECT}"
 REGION="${REGION:-europe-west1}"
 SQL_INSTANCE=nimpat-one-pg
 SQL_TIER="${SQL_TIER:-db-f1-micro}"
+DB="${DB:-neon}"
+case "$DB" in neon) DB_SECRET=nimpat-one-neon-database-url ;; cloudsql) DB_SECRET=nimpat-one-database-url ;; *) echo "DB must be neon or cloudsql"; exit 1 ;; esac
+BACKUPS="nimpat-one-backups-$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
 NUMBER=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
 REPO="$REGION-docker.pkg.dev/$PROJECT/nimpat-one"
 SA="nimpat-one-api@$PROJECT.iam.gserviceaccount.com"
@@ -100,9 +109,22 @@ load_data() {
   echo "data loaded; temporary copy deleted"
 }
 
+# psql against Neon in a throwaway container; the address comes from Secret Manager and is never printed.
+neon_psql() { # extra psql arguments; a mounted folder is available at /d
+  local dir="${NEON_DIR:-$PWD}"
+  MSYS_NO_PATHCONV=1 docker run --rm -i -e DB="$(gcloud secrets versions access latest --secret="$DB_SECRET" | tr -d '\r\n')" -v "$(cd "$dir" && pwd -W 2>/dev/null || pwd):/d" postgres:18 sh -c 'psql "$DB" "$@"' psql "$@"
+}
+
 run_sql() { # file: a data change such as a price list, applied after a backup
   local file="${1:?Give the SQL file}" tmp="nimpat-one-import-$NUMBER"
   [ -f "$file" ] || { echo "No such file: $file"; exit 1; }
+  if [ "$DB" = neon ]; then
+    backup "before $(basename "$file")"
+    echo "== applying $(basename "$file")"
+    NEON_DIR="$(dirname "$file")" neon_psql -v ON_ERROR_STOP=1 --single-transaction -q -f "/d/$(basename "$file")"
+    echo "applied"
+    return
+  fi
   echo "== backing up the database"
   gcloud sql backups create --instance="$SQL_INSTANCE" --description="before $(basename "$file")" --quiet
   echo "== applying $(basename "$file")"
@@ -118,12 +140,34 @@ run_sql() { # file: a data change such as a price list, applied after a backup
 report() { # query: a read-only SELECT; prints the result as CSV (nothing changes, so no backup)
   local query="${1:?Give a SELECT query}" tmp="nimpat-one-report-$NUMBER"
   case "$(printf '%s' "$query" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//')" in select*|with*) ;; *) echo "Only SELECT queries"; exit 1 ;; esac
+  if [ "$DB" = neon ]; then neon_psql -c "SET default_transaction_read_only = on" -c "\copy ($query) TO STDOUT WITH CSV HEADER"; return; fi
   gcloud storage buckets describe "gs://$tmp" >/dev/null 2>&1 || gcloud storage buckets create "gs://$tmp" --location="$REGION" --uniform-bucket-level-access --public-access-prevention >/dev/null
   local sql_sa; sql_sa=$(gcloud sql instances describe "$SQL_INSTANCE" --format='value(serviceAccountEmailAddress)')
   gcloud storage buckets add-iam-policy-binding "gs://$tmp" --member="serviceAccount:$sql_sa" --role=roles/storage.objectAdmin >/dev/null
   gcloud sql export csv "$SQL_INSTANCE" "gs://$tmp/report.csv" --database=nimpat_one --query="$query" --quiet >/dev/null 2>&1
   gcloud storage cat "gs://$tmp/report.csv"
   gcloud storage rm --recursive "gs://$tmp" >/dev/null 2>&1
+}
+
+# The backup job: pg_dump of the whole database into gs://$BACKUPS (deleted after 30 days). Free at this size.
+backup_job() {
+  gcloud storage buckets describe "gs://$BACKUPS" >/dev/null 2>&1 || gcloud storage buckets create "gs://$BACKUPS" --location="$REGION" --uniform-bucket-level-access --public-access-prevention >/dev/null
+  printf '{"rule":[{"action":{"type":"Delete"},"condition":{"age":30}}]}' > "${TMPDIR:-/tmp}/nimpat-lifecycle.json"
+  gcloud storage buckets update "gs://$BACKUPS" --lifecycle-file="${TMPDIR:-/tmp}/nimpat-lifecycle.json" >/dev/null
+  rm -f "${TMPDIR:-/tmp}/nimpat-lifecycle.json"
+  gcloud storage buckets add-iam-policy-binding "gs://$BACKUPS" --member="serviceAccount:$SA" --role=roles/storage.objectAdmin --condition=None >/dev/null
+  gcloud secrets add-iam-policy-binding "$DB_SECRET" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
+  gcloud run jobs deploy nimpat-one-backup --image=docker.io/library/postgres:18 --region="$REGION" --service-account="$SA" \
+    --set-secrets=DATABASE_URL="$DB_SECRET":latest --add-volume=name=backups,type=cloud-storage,bucket="$BACKUPS" --add-volume-mount=volume=backups,mount-path=/backups \
+    --command=sh --args=-c,'f=/backups/$(date -u +%Y-%m-%d-%H%M).sql.gz; pg_dump --no-owner --no-privileges "$DATABASE_URL" | gzip > "$f.part" && mv "$f.part" "$f" && ls -l "$f"' \
+    --memory=512Mi --max-retries=1 --task-timeout=600 --quiet >/dev/null
+}
+
+backup() { # description: copies the whole database now, and waits
+  echo "== backing up the database ($1)"
+  if [ "$DB" = cloudsql ]; then gcloud sql backups create --instance="$SQL_INSTANCE" --description="$1" --quiet; return; fi
+  backup_job
+  gcloud run jobs execute nimpat-one-backup --region="$REGION" --wait --quiet >/dev/null && echo "backup saved in gs://$BACKUPS"
 }
 
 release() {
@@ -135,10 +179,13 @@ release() {
   docker build -f deploy/web.Dockerfile --build-arg APP_DIR=admin --build-arg VITE_APP_URL="$APP_URL" -t "$REPO/admin:$tag" .
   docker push -q "$REPO/api:$tag"; docker push -q "$REPO/app:$tag"; docker push -q "$REPO/admin:$tag"
 
-  echo "== backing up and updating the database"
-  gcloud sql backups create --instance="$SQL_INSTANCE" --description="before release $tag" --quiet
+  echo "== backing up and updating the database ($DB)"
+  backup "before release $tag"
+  local sqlflag="--clear-cloudsql-instances" addsql="--clear-cloudsql-instances"
+  if [ "$DB" = cloudsql ]; then sqlflag="--set-cloudsql-instances=$PROJECT:$REGION:$SQL_INSTANCE"; addsql="--add-cloudsql-instances=$PROJECT:$REGION:$SQL_INSTANCE"; fi
+  gcloud secrets add-iam-policy-binding "$DB_SECRET" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
   gcloud run jobs deploy nimpat-one-migrate --image="$REPO/api:$tag" --region="$REGION" --service-account="$SA" \
-    --set-cloudsql-instances="$PROJECT:$REGION:$SQL_INSTANCE" --set-secrets=DATABASE_URL=nimpat-one-database-url:latest \
+    "$sqlflag" --set-secrets=DATABASE_URL="$DB_SECRET":latest \
     --command=./node_modules/.bin/prisma --args=migrate,deploy --memory=1Gi --max-retries=0 --task-timeout=300 --execute-now --wait --quiet
 
   # Email goes out through Resend once its key is in Secret Manager; until then it is only logged.
@@ -162,11 +209,11 @@ release() {
 
   echo "== deploying the API"
   gcloud run deploy nimpat-one-api --image="$REPO/api:$tag" --region="$REGION" --service-account="$SA" --allow-unauthenticated \
-    --add-cloudsql-instances="$PROJECT:$REGION:$SQL_INSTANCE" --execution-environment=gen2 --memory=1Gi --cpu=1 --min-instances=0 --max-instances=5 --concurrency=40 --timeout=60 --cpu-boost \
+    "$addsql" --execution-environment=gen2 --memory=1Gi --cpu=1 --min-instances=0 --max-instances=5 --concurrency=40 --timeout=60 --cpu-boost \
     --add-volume=name=photos,type=cloud-storage,bucket="$PHOTOS" --add-volume-mount=volume=photos,mount-path=/data/photos \
     --add-volume=name=proofs,type=cloud-storage,bucket="$PROOFS" --add-volume-mount=volume=proofs,mount-path=/data/proofs \
     --set-env-vars="^|^NODE_ENV=production|TRUST_PROXY=true|JOBS_INPROCESS=false|PAYSTACK_MODE=$pay_mode|$mail|REQUIRE_VERIFIED_EMAIL_FOR_PAYMENT=false|PHOTO_STORAGE_DIR=/data/photos|PROOF_STORAGE_DIR=/data/proofs|APP_PUBLIC_URL=$APP_URL|ADMIN_PUBLIC_URL=$ADMIN_URL|PAYSTACK_CALLBACK_URL=$APP_URL/payments/callback|CORS_ORIGINS=$CORS_LIST|FCM_PROJECT_ID=$PROJECT" \
-    --set-secrets="DATABASE_URL=nimpat-one-database-url:latest,JWT_ACCESS_SECRET=nimpat-one-jwt-secret:latest,JOBS_TOKEN=nimpat-one-jobs-token:latest,PAYSTACK_SECRET_KEY=$pay_secret:latest$mail_secret" \
+    --set-secrets="DATABASE_URL=$DB_SECRET:latest,JWT_ACCESS_SECRET=nimpat-one-jwt-secret:latest,JOBS_TOKEN=nimpat-one-jobs-token:latest,PAYSTACK_SECRET_KEY=$pay_secret:latest$mail_secret" \
     --startup-probe=httpGet.path=/health/ready,httpGet.port=8080,initialDelaySeconds=5,timeoutSeconds=5,periodSeconds=10,failureThreshold=12 --quiet
 
   echo "== deploying the customer app and dashboard"
@@ -185,9 +232,24 @@ release() {
       gcloud scheduler jobs update http "$1" --location="$REGION" --schedule="$2" --uri="$RUN_API_URL$3" --http-method=POST --update-headers="X-Job-Token=$token" --quiet >/dev/null
     fi
   }
-  job nimpat-one-expire '*/5 * * * *' /api/v1/internal/jobs/expire
-  job nimpat-one-reconcile '*/15 * * * *' /api/v1/internal/jobs/reconcile-payments
+  if [ "$DB" = neon ]; then
+    job nimpat-one-expire '*/30 * * * *' /api/v1/internal/jobs/expire
+    job nimpat-one-reconcile '15,45 * * * *' /api/v1/internal/jobs/reconcile-payments
+  else
+    job nimpat-one-expire '*/5 * * * *' /api/v1/internal/jobs/expire
+    job nimpat-one-reconcile '*/15 * * * *' /api/v1/internal/jobs/reconcile-payments
+  fi
   unset token
+  # The daily copy of the whole database (03:00 Lagos time).
+  if [ "$DB" = neon ]; then
+    local runner="https://run.googleapis.com/v2/projects/$PROJECT/locations/$REGION/jobs/nimpat-one-backup:run"
+    gcloud run jobs add-iam-policy-binding nimpat-one-backup --region="$REGION" --member="serviceAccount:$SA" --role=roles/run.invoker --quiet >/dev/null
+    if gcloud scheduler jobs describe nimpat-one-backup --location="$REGION" >/dev/null 2>&1; then
+      gcloud scheduler jobs update http nimpat-one-backup --location="$REGION" --schedule='0 2 * * *' --uri="$runner" --http-method=POST --oauth-service-account-email="$SA" --quiet >/dev/null
+    else
+      gcloud scheduler jobs create http nimpat-one-backup --location="$REGION" --schedule='0 2 * * *' --uri="$runner" --http-method=POST --oauth-service-account-email="$SA" --quiet >/dev/null
+    fi
+  fi
 
   echo "customer app: $APP_URL"
   echo "dashboard:    $ADMIN_URL"
@@ -199,5 +261,6 @@ case "${1:-}" in
   release) release ;;
   sql) run_sql "${2:-}" ;;
   report) report "${2:-}" ;;
+  backup) backup "on request" ;;
   *) echo "Usage: PROJECT=... $0 setup|release|sql FILE|report \"SELECT ...\""; exit 1 ;;
 esac
