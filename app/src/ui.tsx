@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Eye, EyeOff, Heart, Phone, X } from 'lucide-react';
 import { del, get, getSession, PHONE, PHONE_LABEL, post, rows, SHOP_DIVISIONS } from './api';
-import { SPA_PHOTOS } from './spa-photos';
 
 // ---------------------------------------------------------------- data loading
 
@@ -297,12 +296,9 @@ export const forgetSearches = () => {
 // ---------------------------------------------------------------- small parts
 
 /** A product or place photo. When there is none, it says so rather than showing something similar. */
-/** A spa treatment's photo, or its category's picture until it has one of its own. */
-export function spaImage(t: { imageUrl?: string | null; category?: string | null; slug?: string | null }) {
-  if (t.imageUrl) return t.imageUrl;
-  if (t.slug && SPA_PHOTOS.has(t.slug)) return `/spa/t/${t.slug}.webp`;
-  const slug = (t.category ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return slug ? `/spa/${slug}.webp` : null;
+/** A spa treatment's photo: always the one stored in the dashboard, so staff see and change what customers see. */
+export function spaImage(t: { imageUrl?: string | null }) {
+  return t.imageUrl ?? null;
 }
 
 /** Colours for name tiles, by product category. */

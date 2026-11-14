@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { get, patch, post } from '../api';
 import { BulkPhotoUpload, PhotoManager, type PhotoTarget } from '../components/PhotoManager';
-import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, useAction, useLoad } from '../components/ui';
+import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, useAction, useLoad, InAppPill, type InApp } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
 type VStatus = 'DRAFT' | 'AVAILABLE' | 'RESERVED' | 'SOLD' | 'ARCHIVED';
 interface Vehicle {
+  /** Whether customers can see it right now, worked out by the server with the app's own rules. */
+  inApp?: InApp;
   id: string;
   slug: string;
   make: string;
@@ -62,7 +64,7 @@ export function VehiclesPage() {
                   <td className="num">{v.mileageKm !== null ? `${v.mileageKm.toLocaleString()} km` : '—'}</td>
                   <td className="num"><InlinePrice minor={v.priceMinor} onSave={(k) => savePrice(v, k)} /></td>
                   <td className="num">{v.depositMinor ? formatNaira(v.depositMinor) : <span className="muted">None</span>}</td>
-                  <td><StatusPill status={v.status} /></td>
+                  <td><InAppPill inApp={v.inApp} /><div style={{ marginTop: 4 }}><StatusPill status={v.status} /></div></td>
                   <td><div className="row-actions"><button className="btn sm" onClick={() => setEditing(v)}>Edit</button><button className="btn sm" onClick={() => setPhotos({ owner: 'vehicle', id: v.id })}>Photos</button></div></td>
                 </tr>
               ))}

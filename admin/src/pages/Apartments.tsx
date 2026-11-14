@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import { get, patch, post } from '../api';
 import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
-import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
+import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useLoad, InAppPill, type InApp } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
 type Listing = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
@@ -15,6 +15,8 @@ const READINESS: Record<Readiness, { label: string; tone: 'green' | 'amber' | 'r
 };
 const READINESS_KEYS = Object.keys(READINESS) as Readiness[];
 interface Room {
+  /** Whether customers can see it right now, worked out by the server with the app's own rules. */
+  inApp?: InApp;
   id: string;
   slot: number;
   name: string;
@@ -28,6 +30,8 @@ interface Room {
   readinessNote: string | null;
 }
 interface Unit {
+  /** Whether customers can see it right now, worked out by the server with the app's own rules. */
+  inApp?: InApp;
   id: string;
   code: string;
   name: string;
@@ -159,7 +163,7 @@ export function ApartmentsPage() {
                         <td className="num"><InlinePrice minor={u.nightlyRateMinor} onSave={(k) => saveRate(u, k)} /></td>
                         <td className="num">{formatNaira(u.cautionDepositMinor)}</td>
                         <td><Pill tone={READINESS[u.readiness].tone}>{READINESS[u.readiness].label}</Pill>{u.readinessNote && <div className="muted small">{u.readinessNote}</div>}</td>
-                        <td><StatusPill status={u.status} /></td>
+                        <td><InAppPill inApp={u.inApp} /><div style={{ marginTop: 4 }}><StatusPill status={u.status} /></div></td>
                         <td>
                           <div className="row-actions">
                             <button className="btn sm" onClick={() => setEditUnit({ property: p, unit: u })}>Edit</button>
@@ -181,7 +185,7 @@ export function ApartmentsPage() {
                           <td className="num"><InlinePrice minor={r.nightlyRateMinor} onSave={(k) => saveRoomRate(r, k)} /></td>
                           <td className="num">{formatNaira(r.cautionDepositMinor)}</td>
                           <td><Pill tone={READINESS[r.readiness].tone}>{READINESS[r.readiness].label}</Pill>{r.readinessNote && <div className="muted small">{r.readinessNote}</div>}</td>
-                          <td><StatusPill status={r.status} /></td>
+                          <td><InAppPill inApp={r.inApp} /><div style={{ marginTop: 4 }}><StatusPill status={r.status} /></div></td>
                           <td><div className="row-actions"><button className="btn sm" onClick={() => setEditRoom({ unit: u, room: r })}>Edit</button></div></td>
                         </tr>
                       ))}

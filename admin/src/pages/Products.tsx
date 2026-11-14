@@ -6,7 +6,7 @@ import { get, getAll, patch, post } from '../api';
 import { BulkPhotoUpload, PhotoManager } from '../components/PhotoManager';
 import { PriceListUpload } from '../components/PriceListUpload';
 import { DetailsUpload } from '../components/DetailsUpload';
-import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useConfirm, useLoad } from '../components/ui';
+import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useConfirm, useLoad, InAppPill, type InApp } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
 interface Variant {
@@ -21,6 +21,8 @@ interface Variant {
   recordedStockAt: string | null;
 }
 interface Product {
+  /** Whether customers can see it right now, worked out by the server with the app's own rules. */
+  inApp?: InApp;
   id: string;
   name: string;
   slug: string;
@@ -316,7 +318,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
                     <td className="num">{v ? <StockCell product={p} variant={v} /> : '—'}</td>
                     {i === 0 && (
                       <>
-                        <td rowSpan={Math.max(1, p.variants.length)}><StatusPill status={p.status} />{p.verification !== 'VERIFIED' && <div style={{ marginTop: 4 }}><Pill tone="amber">{p.verification === 'DEV_SAMPLE' ? 'sample' : 'unconfirmed'}</Pill></div>}{p.prescriptionStatus && <div style={{ marginTop: 4 }}><Pill tone={p.pharmacistApprovedAt ? 'green' : 'amber'}>{p.pharmacistApprovedAt ? 'Pharmacist approved' : 'Awaiting pharmacist'}</Pill><div className="muted small">{PRESCRIPTION[p.prescriptionStatus]}</div></div>}</td>
+                        <td rowSpan={Math.max(1, p.variants.length)}><div style={{ marginBottom: 4 }}><InAppPill inApp={p.inApp} /></div><StatusPill status={p.status} />{p.verification !== 'VERIFIED' && <div style={{ marginTop: 4 }}><Pill tone="amber">{p.verification === 'DEV_SAMPLE' ? 'sample' : 'unconfirmed'}</Pill></div>}{p.prescriptionStatus && <div style={{ marginTop: 4 }}><Pill tone={p.pharmacistApprovedAt ? 'green' : 'amber'}>{p.pharmacistApprovedAt ? 'Pharmacist approved' : 'Awaiting pharmacist'}</Pill><div className="muted small">{PRESCRIPTION[p.prescriptionStatus]}</div></div>}</td>
                         <td rowSpan={Math.max(1, p.variants.length)}>
                           <div className="row-actions">
                             <button className="btn sm" onClick={() => setEditing(p)}>Edit</button>

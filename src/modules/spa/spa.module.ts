@@ -36,6 +36,7 @@ import { NotifyInput } from '../notifications/notifications.service';
 import { PayableContext, PayableHandler, PayableRegistry } from '../payments/payable.registry';
 import { PaymentSummary } from '../payments/payment-ledger.service';
 import { PaymentPolicyService } from '../payments/payment-policy.service';
+import { markInApp } from '../../common/in-app';
 
 // Opening hours in Africa/Lagos (UTC+1, no daylight saving).
 const OPEN_HOUR = 9;
@@ -285,9 +286,18 @@ export class SpaService implements OnModuleInit, PayableHandler {
   async adminTreatments(user: AuthUser) {
     const d = await this.divisions.byCode(DivisionCode.SPA_WELLNESS);
     user.assertCan(P.listingsManage, d.id);
-    return this.prisma.spaTreatment.findMany({
+    const rows = await this.prisma.spaTreatment.findMany({
       orderBy: [{ category: 'asc' }, { name: 'asc' }],
       include: { _count: { select: { practitioners: true } } },
+    });
+    // "In the app": the customers' own treatment query, run on these treatments.
+    const shown = new Set((await this.prisma.spaTreatment.findMany({ where: { isActive: true, OR: SHOWN_TREATMENT }, select: { id: true } })).map((t) => t.id));
+    return markInApp(rows, shown, (t) => {
+      if (!t.isActive) return 'Removed from the menu';
+      if (t.verification === RecordVerification.DEV_SAMPLE) return 'Development sample';
+      if (!(t.priceMinor > 0n)) return 'No price';
+      if (!t.imageUrl) return 'No photo';
+      return 'Not confirmed';
     });
   }
 

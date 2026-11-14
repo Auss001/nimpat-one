@@ -35,6 +35,7 @@ import { DivisionsService } from '../divisions/divisions.service';
 import { NotifyInput } from '../notifications/notifications.service';
 import { PayableContext, PayableHandler, PayableRegistry } from '../payments/payable.registry';
 import { PaymentSummary } from '../payments/payment-ledger.service';
+import { markInApp } from '../../common/in-app';
 
 // ----------------------------------------------------------------------------- DTOs
 
@@ -173,7 +174,21 @@ export class VehiclesService implements OnModuleInit, PayableHandler {
   async adminList(user: AuthUser, q: AdminVehicleQueryDto) {
     const d = await this.divisions.byCode(DivisionCode.AUTOMOBILES);
     user.assertCan(P.listingsManage, d.id);
-    return this.list(q, q.status ?? { in: Object.values(VehicleStatus) }, true);
+    const page = await this.list(q, q.status ?? { in: Object.values(VehicleStatus) }, true);
+    // "In the app": the customers' own car query, run on these cars.
+    const forSale: VehicleStatus[] = [VehicleStatus.AVAILABLE, VehicleStatus.RESERVED];
+    const ids = page.data.map((v) => v.id);
+    const shown = new Set((await this.prisma.vehicle.findMany({ where: { id: { in: ids }, status: { in: forSale }, OR: SHOWN_CAR, images: { some: {} } }, select: { id: true } })).map((v) => v.id));
+    return {
+      ...page,
+      data: markInApp(page.data, shown, (v) => {
+        if (!forSale.includes(v.status)) return v.status === VehicleStatus.SOLD ? 'Sold' : 'Not for sale';
+        if (v.verification === RecordVerification.DEV_SAMPLE) return 'Development sample';
+        if (!v.images?.length) return 'No photo';
+        if (v.priceMinor === null) return 'No price';
+        return 'Not confirmed';
+      }),
+    };
   }
 
   async create(user: AuthUser, dto: CreateVehicleDto) {

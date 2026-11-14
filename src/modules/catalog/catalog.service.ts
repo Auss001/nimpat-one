@@ -21,7 +21,8 @@ import {
   VariantInputDto,
 } from './catalog.dto';
 import { purchaseBlock } from './purchase-rules';
-import { SHOWN_PRODUCT } from './shown';
+import { PHOTO_REQUIRED_DIVISIONS, SHOWN_PRODUCT } from './shown';
+import { markInApp } from '../../common/in-app';
 
 const productInclude = {
   category: { select: { id: true, name: true, slug: true } },
@@ -123,7 +124,31 @@ export class CatalogService {
       }),
       this.prisma.product.count({ where }),
     ]);
-    return paginate(await this.withAvailability(rows), total, q);
+    return paginate(await this.withInApp(await this.withAvailability(rows)), total, q);
+  }
+
+  /** "In the app": the customers' own product query, run on these rows, plus the reason when one is hidden. */
+  private async withInApp<T extends { id: string } & Prisma.ProductGetPayload<{ include: typeof productInclude & { variants: true } }>>(rows: T[]) {
+    const hidden = new Set(await this.hiddenOutOfStock());
+    const ids = rows.map((r) => r.id).filter((id) => !hidden.has(id));
+    const shown = ids.length
+      ? new Set((await this.prisma.product.findMany({ where: { id: { in: ids }, AND: [PRICED_IF_PHARMACY, SHOWN_PRODUCT] }, select: { id: true } })).map((r) => r.id))
+      : new Set<string>();
+    return markInApp(rows, shown, (p) => {
+      const priced = p.variants.some((v) => v.isActive && v.unitPriceMinor !== null && v.unitPriceMinor > 0n);
+      if (p.status === 'ARCHIVED') return 'Archived';
+      if (p.verification === 'DEV_SAMPLE') return 'Development sample';
+      if (!p.purchaseEnabled) return 'Switched off for sale';
+      if (p.listedAvailability === 'OUT_OF_STOCK') return 'Marked out of stock';
+      if (hidden.has(p.id)) return 'Out of stock (this shop hides those)';
+      if (!priced) return 'No price';
+      if (!p.images.length && PHOTO_REQUIRED_DIVISIONS.includes(p.division.slug)) return 'No photo';
+      if (p.prescriptionStatus && p.prescriptionStatus !== 'NOT_REQUIRED') return 'Needs a prescription';
+      if (p.prescriptionStatus === 'NOT_REQUIRED' && !p.pharmacistApprovedAt) return 'Waiting for the pharmacist';
+      if (!p.images.length && p.verification !== 'VERIFIED') return 'No photo';
+      if (p.status !== 'ACTIVE' && p.verification === 'VERIFIED') return 'Not published';
+      return 'Not confirmed';
+    });
   }
 
   async adminGetProduct(user: AuthUser, id: string) {

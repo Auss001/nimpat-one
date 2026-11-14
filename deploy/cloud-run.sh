@@ -115,6 +115,17 @@ run_sql() { # file: a data change such as a price list, applied after a backup
   echo "applied; temporary copy deleted"
 }
 
+report() { # query: a read-only SELECT; prints the result as CSV (nothing changes, so no backup)
+  local query="${1:?Give a SELECT query}" tmp="nimpat-one-report-$NUMBER"
+  case "$(printf '%s' "$query" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//')" in select*|with*) ;; *) echo "Only SELECT queries"; exit 1 ;; esac
+  gcloud storage buckets describe "gs://$tmp" >/dev/null 2>&1 || gcloud storage buckets create "gs://$tmp" --location="$REGION" --uniform-bucket-level-access --public-access-prevention >/dev/null
+  local sql_sa; sql_sa=$(gcloud sql instances describe "$SQL_INSTANCE" --format='value(serviceAccountEmailAddress)')
+  gcloud storage buckets add-iam-policy-binding "gs://$tmp" --member="serviceAccount:$sql_sa" --role=roles/storage.objectAdmin >/dev/null
+  gcloud sql export csv "$SQL_INSTANCE" "gs://$tmp/report.csv" --database=nimpat_one --query="$query" --quiet >/dev/null 2>&1
+  gcloud storage cat "gs://$tmp/report.csv"
+  gcloud storage rm --recursive "gs://$tmp" >/dev/null 2>&1
+}
+
 release() {
   local tag; tag=$(git rev-parse --short HEAD)-$(date +%H%M%S)
   gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet >/dev/null 2>&1
@@ -187,5 +198,6 @@ case "${1:-}" in
   setup) setup; load_data ;;
   release) release ;;
   sql) run_sql "${2:-}" ;;
-  *) echo "Usage: PROJECT=... $0 setup|release|sql FILE"; exit 1 ;;
+  report) report "${2:-}" ;;
+  *) echo "Usage: PROJECT=... $0 setup|release|sql FILE|report \"SELECT ...\""; exit 1 ;;
 esac

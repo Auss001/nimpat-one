@@ -171,6 +171,18 @@ export function Tabs<T extends string>({ value, options, onChange }: { value: T;
   );
 }
 
+/** Whether customers can see an item in the app right now; worked out on the server with the app's own rules. */
+export interface InApp {
+  live: boolean;
+  why: string | null;
+}
+
+/** "In the app" when customers can see it, otherwise "Hidden" and the reason, so the dashboard never claims more than the app shows. */
+export function InAppPill({ inApp }: { inApp?: InApp }) {
+  if (!inApp) return null;
+  return inApp.live ? <Pill tone="green">In the app</Pill> : <span title="Customers cannot see this right now"><Pill tone="amber">Hidden: {inApp.why}</Pill></span>;
+}
+
 export function Pill({ tone, children }: { tone?: 'green' | 'amber' | 'red' | 'blue' | 'orange'; children: ReactNode }) {
   return <span className={`pill ${tone ?? ''}`}>{children}</span>;
 }

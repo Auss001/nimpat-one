@@ -33,6 +33,7 @@ import { NotificationsService, NotifyInput } from '../notifications/notification
 import { PayableContext, PayableHandler, PayableRegistry } from '../payments/payable.registry';
 import { PaymentSummary } from '../payments/payment-ledger.service';
 import { PaymentPolicyService } from '../payments/payment-policy.service';
+import { markInApp } from '../../common/in-app';
 
 /** Services customers see: confirmed ones, or any with a price and a photo (owner, 11 November 2026). Never development samples. */
 const SHOWN_SERVICE: Prisma.ServiceOfferingWhereInput[] = [{ verification: RecordVerification.VERIFIED }, { verification: { not: RecordVerification.DEV_SAMPLE }, basePriceMinor: { not: null }, imageUrl: { not: null } }];
@@ -120,10 +121,19 @@ export class ServicesService implements OnModuleInit, PayableHandler {
       const allowed = user.divisionFilter(P.listingsManage);
       if (allowed) where.divisionId = { in: allowed };
     }
-    return this.prisma.serviceOffering.findMany({
+    const rows = await this.prisma.serviceOffering.findMany({
       where,
       orderBy: [{ division: { sortOrder: 'asc' } }, { name: 'asc' }],
       include: { division: { select: { code: true, name: true, slug: true } } },
+    });
+    // "In the app": the customers' own services query, run on these services.
+    const shown = new Set((await this.prisma.serviceOffering.findMany({ where: { id: { in: rows.map((r) => r.id) }, isActive: true, OR: SHOWN_SERVICE }, select: { id: true } })).map((o) => o.id));
+    return markInApp(rows, shown, (o) => {
+      if (!o.isActive) return 'Removed';
+      if (o.verification === RecordVerification.DEV_SAMPLE) return 'Development sample';
+      if (o.basePriceMinor === null) return 'No price';
+      if (!o.imageUrl) return 'No photo';
+      return 'Not confirmed';
     });
   }
 

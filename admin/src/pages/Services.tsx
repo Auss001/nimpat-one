@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { get, patch, post } from '../api';
 import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
-import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Pill, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
+import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, Tabs, useAction, useLoad, InAppPill, type InApp } from '../components/ui';
 import { formatNaira } from '../money';
 
 type Mode = 'AT_VENUE' | 'AT_HOME' | 'EITHER';
 interface Offering {
+  /** Whether customers can see it right now, worked out by the server with the app's own rules. */
+  inApp?: InApp;
   id: string;
   code: string;
   name: string;
@@ -20,6 +22,7 @@ interface Offering {
   durationMinutes: number | null;
   isActive: boolean;
   verification: string;
+  imageUrl: string | null;
   division: { code: string; name: string; slug: string };
 }
 
@@ -83,10 +86,11 @@ export function ServicesPage() {
               {groups.map(([group, list]) => [
                 <tr className="group-row" key={`g-${group}`}><td colSpan={7}>{group} · {list.length}</td></tr>,
                 ...list.map((o) => {
-                  const live = o.isActive && o.verification === 'VERIFIED';
+                  const live = !!o.inApp?.live;
+                  const confirmed = o.verification === 'VERIFIED';
                   return (
                     <tr key={o.id}>
-                      <td><strong>{o.name}</strong>{o.description && <div className="muted small" style={{ maxWidth: 480 }}>{o.description}</div>}</td>
+                      <td><div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>{o.imageUrl ? <img className="thumb" src={o.imageUrl} alt="" title="The photo customers see" /> : <div className="thumb" title="No photo" />}<div><strong>{o.name}</strong>{o.description && <div className="muted small" style={{ maxWidth: 480 }}>{o.description}</div>}</div></div></td>
                       <td className="small">{MODE[o.serviceMode]}</td>
                       <td className="small">{PRICING[o.pricingType]}</td>
                       <td className="num">
@@ -96,11 +100,11 @@ export function ServicesPage() {
                       </td>
                       <td className="num">{o.serviceMode === 'AT_VENUE' ? <span className="muted">—</span> : o.homeFeeMinor ? formatNaira(o.homeFeeMinor) : 'Free'}</td>
                       <td>
-                        {!o.isActive ? <StatusPill status="INACTIVE" /> : live ? <Pill tone="green">live</Pill> : <Pill tone="amber">not confirmed</Pill>}
+                        <InAppPill inApp={o.inApp} />
                       </td>
                       <td><div className="row-actions">
-                        {o.isActive && !live && <button className="btn sm primary" onClick={() => void publish(o, true)}>Confirm &amp; show</button>}
-                        {live && <button className="btn sm" onClick={() => void publish(o, false)}>Hide</button>}
+                        {o.isActive && !confirmed && <button className="btn sm primary" onClick={() => void publish(o, true)}>Confirm</button>}
+                        {live && confirmed && <button className="btn sm" onClick={() => void publish(o, false)}>Hide</button>}
                         <button className="btn sm" onClick={() => setEditing(o)}>Edit</button>
                         <button className="btn sm" onClick={() => setPhotos({ owner: 'service', id: o.id })}>Photo</button>
                         <button className={`btn sm ${o.isActive ? 'danger' : ''}`} onClick={() => void update(o, { isActive: !o.isActive }, o.isActive ? `${o.name} removed` : `${o.name} restored`)}>

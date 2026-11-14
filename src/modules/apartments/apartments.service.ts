@@ -363,7 +363,31 @@ export class ApartmentsService implements OnModuleInit, PayableHandler {
   async adminListProperties(user: AuthUser) {
     const division = await this.divisions.byCode(DivisionCode.LUXURY_APARTMENTS);
     user.assertCan(P.listingsManage, division.id);
-    return this.prisma.property.findMany({ orderBy: { name: 'asc' }, include: { units: { orderBy: { code: 'asc' }, include: { rooms: { orderBy: { slot: 'asc' } } } }, images: true } });
+    const properties = await this.prisma.property.findMany({ orderBy: { name: 'asc' }, include: { units: { orderBy: { code: 'asc' }, include: { rooms: { orderBy: { slot: 'asc' } } } }, images: true } });
+    // "In the app": the same rules customers' lists use (SELLABLE_UNIT, SELLABLE_ROOM), shown beside each flat and room.
+    const notReady = (r: UnitReadiness) => `Not ready (${r.toLowerCase().replace('_', ' ')})`;
+    const off = (s: ListingStatus) => (s === ListingStatus.DRAFT ? 'Draft' : s === ListingStatus.ARCHIVED ? 'Archived' : 'Switched off');
+    return properties.map((p) => ({
+      ...p,
+      units: p.units.map((u) => {
+        const unitWhy = p.status !== ListingStatus.ACTIVE ? `Building ${off(p.status).toLowerCase()}`
+          : u.status !== ListingStatus.ACTIVE ? off(u.status)
+          : u.verification !== RecordVerification.VERIFIED ? 'Not confirmed'
+          : u.readiness !== UnitReadiness.READY ? notReady(u.readiness)
+          : null;
+        return {
+          ...u,
+          inApp: { live: !unitWhy, why: unitWhy },
+          rooms: u.rooms.map((r) => {
+            const roomWhy = unitWhy ? 'Flat hidden'
+              : r.status !== ListingStatus.ACTIVE ? off(r.status)
+              : r.readiness !== UnitReadiness.READY ? notReady(r.readiness)
+              : null;
+            return { ...r, inApp: { live: !roomWhy, why: roomWhy } };
+          }),
+        };
+      }),
+    }));
   }
 
   async createProperty(user: AuthUser, dto: CreatePropertyDto) {

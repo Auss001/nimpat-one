@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { get, patch, post } from '../api';
 import { PhotoManager, type PhotoTarget } from '../components/PhotoManager';
-import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useLoad } from '../components/ui';
+import { Field, InlinePrice, Loading, Modal, MoneyInput, PageHead, StatusPill, Tabs, useAction, useLoad, InAppPill, type InApp } from '../components/ui';
 import { formatNaira, slugify } from '../money';
 
 interface Treatment {
+  /** Whether customers can see it right now, worked out by the server with the app's own rules. */
+  inApp?: InApp;
   id: string;
   name: string;
   slug: string;
@@ -16,6 +18,7 @@ interface Treatment {
   homeService: boolean;
   homeFeeMinor: number | null;
   isActive: boolean;
+  imageUrl: string | null;
   _count: { practitioners: number };
 }
 interface Therapist {
@@ -88,14 +91,14 @@ function Menu({ treatments }: { treatments: ReturnType<typeof useLoad<Treatment[
         <div className="card table-wrap">
           <table>
             <thead>
-              <tr><th>Treatment</th><th className="num">Duration</th><th className="num">Price</th><th className="num">Online deposit</th><th>At home</th><th className="num">Therapists</th><th>Status</th><th></th></tr>
+              <tr><th>Treatment</th><th className="num">Duration</th><th className="num">Price</th><th className="num">Online deposit</th><th>At home</th><th className="num">Therapists</th><th>In the app</th><th></th></tr>
             </thead>
             <tbody>
               {groups.map(([cat, list]) => [
                 <tr className="group-row" key={`g-${cat}`}><td colSpan={8}>{cat} · {list.length}</td></tr>,
                 ...list.map((t) => (
                   <tr key={t.id}>
-                    <td><strong>{t.name}</strong></td>
+                    <td><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>{t.imageUrl ? <img className="thumb" src={t.imageUrl} alt="" title="The photo customers see" /> : <div className="thumb" title="No photo" />}<strong>{t.name}</strong></div></td>
                     <td className="num">{t.durationMinutes} min</td>
                     <td className="num"><InlinePrice minor={t.priceMinor} onSave={(k) => update(t, { priceMinor: k }, `${t.name}: ${formatNaira(k)}`)} /></td>
                     <td className="num">{t.depositMinor ? formatNaira(t.depositMinor) : <span className="muted">Pay at spa</span>}</td>
@@ -106,7 +109,7 @@ function Menu({ treatments }: { treatments: ReturnType<typeof useLoad<Treatment[
                       </label>
                     </td>
                     <td className="num">{t._count.practitioners || <span className="muted">0</span>}</td>
-                    <td><StatusPill status={t.isActive ? 'ACTIVE' : 'INACTIVE'} /></td>
+                    <td><InAppPill inApp={t.inApp} /></td>
                     <td>
                       <div className="row-actions">
                         <button className="btn sm" onClick={() => setEditing(t)}>Edit</button>
