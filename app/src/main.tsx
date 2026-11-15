@@ -17,6 +17,7 @@ import { ServicesPage, SpaPage, TreatmentPage } from './pages/Bookable';
 import { AccountPage, RoyaltyPage, BookingsPage, ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage } from './pages/Account';
 import { HelpPage, WhatsAppButton } from './pages/Help';
 import { TrackOrderPage } from './pages/Track';
+import { OrderPlacedPage } from './pages/Confirmed';
 import { formatNaira } from './api';
 import './theme.css';
 import { HIDE_PHARMACY } from './platform';
@@ -110,6 +111,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="payments/callback" element={<PaymentCallbackPage />} />
               <Route path="bookings" element={<BookingsPage />} />
               <Route path="orders/:id" element={<TrackOrderPage />} />
+              <Route path="orders/:id/placed" element={<OrderPlacedPage />} />
               <Route path="help" element={<HelpPage />} />
               <Route path="account" element={<AccountPage />} />
               <Route path="royalty" element={<RoyaltyPage />} />

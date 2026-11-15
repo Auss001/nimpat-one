@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Banknote, Building, Check, Clock, CreditCard, MapPin, Minus, Pencil, Plus, Store, Trash2, Truck, Upload } from 'lucide-react';
 import { api, del, formatNaira, get, getSession, idempotency, patch, post, rows } from '../api';
 import { openPayment, paymentReturn } from '../native';
+import { PaymentSuccess } from './Confirmed';
 import { AddressForm, addressLine, DetailsForm, VerifyEmailNote } from './Account';
 import { CallLink, Empty, Field, Loader, Note, PageTitle, Photo, Sheet, Status, dateTime, useCart, useLoad, useToast } from '../ui';
 
@@ -174,12 +175,11 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
         expectedTotalMinor: quote.data.totalMinor,
         ...(note.trim() ? { customerNote: note.trim() } : {}),
       }, key.current);
-      await refresh();
+      // Move on first, then empty the basket behind the scenes. Emptying it first redraws this page as
+      // "Your basket is empty" and the customer never sees what happened to their order.
       if (option === 'PAYSTACK' || option === 'BANK_TRANSFER') navigate(`/pay/ORDER/${order.id}?method=${option}`);
-      else {
-        toast(`Order ${order.orderNumber} placed`);
-        navigate('/bookings?tab=orders');
-      }
+      else navigate(`/orders/${order.id}/placed`);
+      void refresh();
     } catch (e) {
       toast((e as Error).message, 'error');
       key.current = idempotency();
@@ -496,6 +496,7 @@ export function PaymentCallbackPage() {
   const status = result.data?.status;
   if (result.loading) return <Loader label="Checking your payment" />;
   const ok = status === 'SUCCESS';
+  if (ok) return <PaymentSuccess payment={result.data} />;
   return (
     <>
       <PageTitle title={ok ? 'Payment received' : 'Payment not complete'} back={false} />

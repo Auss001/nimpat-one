@@ -757,3 +757,38 @@ a.reward { text-decoration: none; }
 .explore-sort select { min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); font-size: 13px; font-weight: 600; }
 .explore-more { margin-top: 14px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Order confirmed / payment received: a tick that draws itself, a small burst of Nimpat colours, then the details. */
+.yay-card { position: relative; display: grid; justify-items: center; text-align: center; gap: 10px; padding: 30px 20px 26px; margin-bottom: 14px; border-radius: var(--radius); background: radial-gradient(120% 90% at 50% 0%, #ffffff 0%, var(--mint) 70%); box-shadow: var(--shadow); overflow: hidden; animation: yay-in .45s cubic-bezier(.2, .8, .2, 1) both; }
+.yay-card h1 { margin: 4px 0 0; font-size: clamp(24px, 6vw, 30px); letter-spacing: -0.02em; color: var(--forest); }
+.yay-sub { margin: 0; max-width: 36ch; color: var(--ink-2); line-height: 1.5; }
+.yay-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 20px; background: #fff; box-shadow: var(--shadow-small); font-weight: 700; font-size: 13.5px; color: var(--forest); }
+.yay { position: relative; width: 108px; height: 108px; display: grid; place-items: center; }
+.yay-tick { width: 92px; height: 92px; position: relative; z-index: 1; }
+.yay-tick circle { fill: var(--green); stroke: var(--green); stroke-width: 4; transform-origin: center; animation: yay-pop .5s cubic-bezier(.2, 1.4, .4, 1) both; }
+.yay-tick path { fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; animation: yay-draw .45s .35s ease-out forwards; }
+.yay i { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px; border-radius: 3px; background: var(--c); opacity: 0; transform: rotate(var(--a)) translateY(0); animation: yay-burst .9s calc(.45s + var(--d)) cubic-bezier(.15, .7, .3, 1) both; }
+.yay i:nth-child(even) { border-radius: 50%; width: 7px; height: 7px; margin: -3.5px; }
+.yay-steps { display: flex; flex-direction: row; align-items: center; gap: 8px; padding: 16px 14px; }
+.yay-steps .step { display: grid; justify-items: center; gap: 6px; min-width: 0; flex: none; width: 76px; text-align: center; }
+.yay-steps .step span { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); color: var(--ink-2); box-shadow: var(--shadow-in); }
+.yay-steps .step b { font-size: 12.5px; color: var(--ink-2); font-weight: 700; }
+.yay-steps .step.done span { background: var(--green); color: #fff; box-shadow: none; }
+.yay-steps .step.done b { color: var(--forest); }
+.yay-steps .step.now span { background: var(--amber); color: var(--forest); box-shadow: 0 0 0 0 rgb(242 169 0 / 55%); animation: yay-pulse 1.8s 1s ease-out infinite; }
+.yay-steps .step.now b { color: var(--forest); }
+.yay-steps .bar { flex: 1; height: 4px; border-radius: 2px; background: var(--line); margin-bottom: 22px; }
+.yay-steps .bar.done { background: linear-gradient(90deg, var(--green), var(--amber)); }
+.yay-where { display: flex; gap: 6px; align-items: flex-start; margin: 10px 0 0; }
+.yay-where svg { flex: none; margin-top: 3px; }
+.yay-actions { display: grid; gap: 10px; margin: 6px 0 20px; }
+@keyframes yay-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes yay-pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes yay-draw { to { stroke-dashoffset: 0; } }
+@keyframes yay-burst { 0% { opacity: 0; transform: rotate(var(--a)) translateY(0) scale(.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-66px) scale(1); } }
+@keyframes yay-pulse { 0% { box-shadow: 0 0 0 0 rgb(242 169 0 / 55%); } 70% { box-shadow: 0 0 0 12px rgb(242 169 0 / 0%); } 100% { box-shadow: 0 0 0 0 rgb(242 169 0 / 0%); } }
+@media (prefers-reduced-motion: reduce) {
+  .yay-card, .yay-tick circle, .yay-steps .step.now span { animation: none; }
+  .yay-tick path { animation: none; stroke-dashoffset: 0; }
+  .yay i { display: none; }
+}
