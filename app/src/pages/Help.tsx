@@ -16,7 +16,8 @@ export function whatsappLink(text = 'Hello Nimpat, I need assistance.') {
 export function WhatsAppButton({ raised }: { raised: boolean }) {
   return (
     <a className={`wa-float ${raised ? 'raised' : ''}`} href={whatsappLink()} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp">
-      <MessageCircle size={26} aria-hidden="true" />
+      <span className="wa-bubble" aria-hidden="true">How can we help?</span>
+      <span className="wa-icon"><MessageCircle size={26} aria-hidden="true" /></span>
     </a>
   );
 }

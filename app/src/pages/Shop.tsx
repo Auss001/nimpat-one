@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { CalendarCheck, Check, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, ShoppingBasket, Stethoscope, Store, Truck } from 'lucide-react';
+import { CalendarCheck, Check, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, ShoppingBasket, Stethoscope, Truck } from 'lucide-react';
 import { formatNaira, get, getSession, post, rows } from '../api';
 import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
 import { HIDE_PHARMACY, pharmacyAllowed } from '../platform';
@@ -174,9 +174,6 @@ export function ShopPage() {
   );
 }
 
-/** Stores that add Nigerian VAT on top of their prices (the server works out the amount). */
-const VAT_DIVISIONS = new Set(['water-drinks-wines']);
-
 /** What delivery costs, before the customer reaches checkout. */
 function DeliveryHint({ division }: { division?: string }) {
   const zones = useLoad(() => (division ? get(`/delivery/zones?division=${division}`).then(rows).catch(() => [] as any[]) : Promise.resolve([] as any[])), [division]);
@@ -189,8 +186,6 @@ function DeliveryHint({ division }: { division?: string }) {
   return (
     <div className="delivery-hint">
       <span><Truck size={15} aria-hidden="true" /> Delivery {where}</span>
-      <span><Store size={15} aria-hidden="true" /> Pick up free</span>
-      <small>{VAT_DIVISIONS.has(division ?? '') ? 'Prices exclude 7.5% VAT, which is added at checkout.' : 'No extra tax is added at checkout. The total you see is what you pay.'}</small>
     </div>
   );
 }

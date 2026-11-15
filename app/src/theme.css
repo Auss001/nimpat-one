@@ -652,7 +652,29 @@ a.reward { text-decoration: none; }
 .card .nt-brand { font-size: max(14px, 11cqw); }
 
 /* WhatsApp: a round button above the tab bar, lifted when the basket bar shows. */
-.wa-float { position: fixed; z-index: 19; right: 16px; bottom: calc(var(--tabs) + 22px + env(safe-area-inset-bottom)); width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: #25d366; color: #fff; box-shadow: 0 10px 24px rgb(18 140 70 / 38%); transition: bottom .2s; }
+.wa-float { position: fixed; z-index: 19; right: 16px; bottom: calc(var(--tabs) + 22px + env(safe-area-inset-bottom)); width: 54px; height: 54px; border-radius: 50%; color: #fff; text-decoration: none; transition: bottom .2s; }
+/* Every 24 seconds it hops, shines and sends out a ring, then says "How can we help?" for about 4 seconds. Quiet in between. */
+.wa-icon { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: #25d366; box-shadow: 0 10px 24px rgb(18 140 70 / 38%); animation: wa-hop 24s ease-in-out 3s infinite both; }
+.wa-icon::after { content: ''; position: absolute; inset: -20%; background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 55%) 50%, transparent 65%); animation: wa-shine 24s ease-in-out 3s infinite both; pointer-events: none; }
+.wa-float::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #25d366; opacity: 0; animation: wa-ring 24s ease-out 3s infinite both; pointer-events: none; }
+.wa-bubble { position: absolute; right: calc(100% + 12px); top: 50%; padding: 8px 12px; border-radius: 14px 14px 4px 14px; background: #fff; color: var(--forest, #0c3b28); font-size: 13.5px; font-weight: 700; white-space: nowrap; box-shadow: 0 6px 20px rgb(20 50 35 / 18%); opacity: 0; transform: translate(8px, -50%) scale(.92); transform-origin: right center; pointer-events: none; animation: wa-bubble 24s ease-out 3s infinite both; }
+@keyframes wa-hop {
+  0% { transform: none; }
+  1.5% { transform: translateY(-7px) scale(1.08) rotate(-10deg); }
+  3% { transform: translateY(0) scale(.95) rotate(8deg); }
+  4.5% { transform: translateY(-3px) scale(1.03) rotate(-4deg); }
+  6% { transform: none; }
+  10% { transform: translateY(-3px); }
+  14%, 100% { transform: none; }
+}
+@keyframes wa-shine { 0%, 2% { transform: translateX(-110%); } 7%, 100% { transform: translateX(110%); } }
+@keyframes wa-ring { 0% { opacity: .7; transform: scale(1); } 8%, 100% { opacity: 0; transform: scale(1.7); } }
+@keyframes wa-bubble {
+  0%, 5% { opacity: 0; transform: translate(8px, -50%) scale(.92); }
+  7%, 21% { opacity: 1; transform: translate(0, -50%) scale(1); }
+  24%, 100% { opacity: 0; transform: translate(8px, -50%) scale(.92); }
+}
+@media (prefers-reduced-motion: reduce) { .wa-icon, .wa-icon::after, .wa-float::before, .wa-bubble { animation: none; } }
 .wa-float.raised { bottom: calc(var(--tabs) + 82px + env(safe-area-inset-bottom)); }
 .wa-float:active { transform: scale(.95); }
 @media (min-width: 900px) { .wa-float { bottom: 24px; right: 24px; } .wa-float.raised { bottom: 88px; } }
