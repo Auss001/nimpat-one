@@ -155,7 +155,9 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
   const ready = !needsAddress || !!addressId;
   const quote = useLoad(() => (ready ? get(`/carts/${division}/quote?${query}`) : Promise.resolve(null)), [division, query, ready, version]);
   const options = useLoad(() => (ready ? get(`/orders/checkout-options?division=${division}&${query}`) : Promise.resolve(null)), [division, query, ready, version]);
-  const all: any[] = options.data?.options ?? [];
+  // Only the ways to pay that fit the choice above: pay in store is for pickup, pay on delivery is for delivery.
+  const fits = (o: any) => !(fulfilment === 'DELIVERY' && o.option === 'PAY_AT_LOCATION') && !(fulfilment === 'PICKUP' && o.option === 'PAY_ON_DELIVERY');
+  const all: any[] = (options.data?.options ?? []).filter(fits);
   const available = all.filter((o) => o.available);
   useEffect(() => {
     if (available.length && !available.some((o) => o.option === option)) setOption(available[0].option);
