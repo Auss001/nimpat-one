@@ -792,3 +792,17 @@ a.reward { text-decoration: none; }
   .yay-tick path { animation: none; stroke-dashoffset: 0; }
   .yay i { display: none; }
 }
+
+/* Payment page: one big amount to pay, a small status pill, and how long the order is held. */
+.pay-sum { gap: 6px; padding: 18px 18px 16px; }
+.pay-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pay-label { font-size: 13px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--ink-2); }
+.pay-head .status { align-self: center; }
+.pay-amount { font-size: clamp(30px, 8vw, 38px); line-height: 1.1; letter-spacing: -0.02em; color: var(--forest); font-variant-numeric: tabular-nums; }
+.pay-note { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.pay-break { display: grid; gap: 8px; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.pay-timer { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 0; padding: 10px 12px; border-radius: 14px; background: var(--mint); color: #124c30; font-size: 13.5px; line-height: 1.45; }
+.pay-timer svg { flex: none; margin-top: 2px; }
+.pay-timer b { font-variant-numeric: tabular-nums; }
+.pay-timer small { color: var(--ink-2); font-size: 12.5px; white-space: nowrap; }
+.pay-timer.urgent { background: #fdf0c5; color: #6b4e00; }

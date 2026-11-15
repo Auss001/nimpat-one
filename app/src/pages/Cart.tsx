@@ -321,14 +321,7 @@ export function PayPage() {
   return (
     <>
       <PageTitle title="Payment" sub={o.label} />
-      <section className="panel">
-        <div className="sum"><span>Total</span><span>{formatNaira(o.totalDueMinor)}</span></div>
-        {o.paidMinor > 0 && <div className="sum"><span>Paid</span><span>{formatNaira(o.paidMinor)}</span></div>}
-        {o.awaitingVerificationMinor > 0 && <div className="sum"><span>Being checked by finance</span><span>{formatNaira(o.awaitingVerificationMinor)}</span></div>}
-        <div className="sum total"><span>Still to pay</span><b>{formatNaira(o.outstandingMinor)}</b></div>
-        {o.payBy && <p className="muted-text"><Clock size={14} aria-hidden="true" /> Please pay by {dateTime(o.payBy)}</p>}
-        <Status value={o.paymentStatus} />
-      </section>
+      <PaySummary o={o} />
       {o.delivery && <DeliverTo orderId={id} delivery={o.delivery} onChanged={() => void options.reload()} />}
       {o.closedReason && <Note tone="warn">{o.closedReason}</Note>}
       {needsVerify && <VerifyEmailNote />}
@@ -362,6 +355,61 @@ export function PayPage() {
         <CallLink />
       </section>
     </>
+  );
+}
+
+/** Time left until a moment, ticking every second; null once it has passed or when there is none. */
+function useTimeLeft(until?: string | null) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!until) return;
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [until]);
+  if (!until) return null;
+  const ms = new Date(until).getTime() - now;
+  return ms > 0 ? ms : null;
+}
+
+const clock = (ms: number) => {
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return h > 0 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(sec).padStart(2, '0')}`;
+};
+
+/**
+ * What is owed, at a glance: one big amount to pay, a small status pill, what it covers, and how long the order is held.
+ * The full breakdown (total, paid, being checked) appears only once some money has come in.
+ */
+function PaySummary({ o }: { o: any }) {
+  const left = useTimeLeft(o.payBy);
+  const part = o.paidMinor > 0 || o.awaitingVerificationMinor > 0;
+  const delivery = Number(o.delivery?.feeMinor ?? 0);
+  const urgent = left !== null && left < 15 * 60_000;
+  return (
+    <section className="panel pay-sum">
+      <div className="pay-head">
+        <span className="pay-label">{part ? 'Still to pay' : 'Amount to pay'}</span>
+        <Status value={o.paymentStatus} />
+      </div>
+      <b className="pay-amount">{formatNaira(o.outstandingMinor)}</b>
+      {!part && delivery > 0 && <p className="pay-note">Includes {formatNaira(delivery)} delivery</p>}
+      {part && (
+        <div className="pay-break">
+          <div className="sum"><span>Total</span><span>{formatNaira(o.totalDueMinor)}</span></div>
+          {o.paidMinor > 0 && <div className="sum"><span>Paid</span><span>{formatNaira(o.paidMinor)}</span></div>}
+          {o.awaitingVerificationMinor > 0 && <div className="sum"><span>Being checked by finance</span><span>{formatNaira(o.awaitingVerificationMinor)}</span></div>}
+        </div>
+      )}
+      {o.payBy && (
+        <p className={`pay-timer ${urgent ? 'urgent' : ''}`}>
+          <Clock size={15} aria-hidden="true" />
+          {left !== null
+            ? <span>Pay within <b>{clock(left)}</b> to keep your order <small>(by {dateTime(o.payBy)})</small></span>
+            : <span>The time to pay was {dateTime(o.payBy)}</span>}
+        </p>
+      )}
+    </section>
   );
 }
 
