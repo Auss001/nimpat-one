@@ -178,8 +178,9 @@ export interface InApp {
 }
 
 /** "In the app" when customers can see it, otherwise "Hidden" and the reason, so the dashboard never claims more than the app shows. */
-export function InAppPill({ inApp }: { inApp?: InApp }) {
+export function InAppPill({ inApp, websiteOnly }: { inApp?: InApp; websiteOnly?: boolean }) {
   if (!inApp) return null;
+  if (inApp.live && websiteOnly) return <span title="Customers can buy it on the website. The iPhone and Android apps do not show the pharmacy."><Pill tone="green">On the website</Pill></span>;
   return inApp.live ? <Pill tone="green">In the app</Pill> : <span title="Customers cannot see this right now"><Pill tone="amber">Hidden: {inApp.why}</Pill></span>;
 }
 

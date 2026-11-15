@@ -37,6 +37,20 @@ describe('creating an account', () => {
 });
 
 describe('bulk product actions', () => {
+  it('approves and shows checked pharmacy items in one step, and skips what is not ready', async () => {
+    const [ready, noPhoto, rx] = [await product(PHARMACY), await product(PHARMACY), await product(PHARMACY)];
+    for (const p of [ready, rx]) await h.prisma.productImage.create({ data: { productId: p.id, url: '/media/test.webp' } });
+    await h.prisma.product.update({ where: { id: rx.id }, data: { prescriptionStatus: 'REQUIRED' } });
+    await h.http.get(`${API}/catalog/products/${ready.slug}`).expect(404);
+    const res = await bulk([ready.id, noPhoto.id, rx.id], 'APPROVE_AND_SHOW').expect(200);
+    expect(res.body.updated).toBe(1);
+    expect(res.body.skipped.map((x: { id: string; reason: string }) => [x.id, x.reason])).toEqual(expect.arrayContaining([[noPhoto.id, 'No photo yet'], [rx.id, 'Needs a prescription, so it cannot be sold online']]));
+    // Customers can now see and buy it.
+    const shown = await h.http.get(`${API}/catalog/products/${ready.slug}`).expect(200);
+    expect(shown.body.variants[0].purchasable).toBe(true);
+    expect((await h.prisma.product.findUniqueOrThrow({ where: { id: rx.id } })).prescriptionStatus).toBe('REQUIRED');
+  });
+
   it('shows many products to customers with one action', async () => {
     const [a, b] = [await product(), await product()];
     const res = await bulk([a.id, b.id], 'PUBLISH').expect(200);

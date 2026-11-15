@@ -75,9 +75,12 @@ const SORTS: { value: SortKey; label: string }[] = [
   { value: 'stock', label: 'Sort: most in stock first' },
   { value: 'newest', label: 'Sort: newest first' },
 ];
-type ShowKey = 'all' | 'priced' | 'unpriced' | 'photo' | 'no-photo' | 'in-stock' | 'out-of-stock' | 'needs-approval';
+type ShowKey = 'all' | 'ready' | 'live' | 'hidden' | 'priced' | 'unpriced' | 'photo' | 'no-photo' | 'in-stock' | 'out-of-stock' | 'needs-approval';
 const SHOWS: { value: ShowKey; label: string; pharmacyOnly?: boolean }[] = [
   { value: 'all', label: 'Show: everything' },
+  { value: 'ready', label: 'Show: ready to approve (photo + price)' },
+  { value: 'live', label: 'Show: customers can see' },
+  { value: 'hidden', label: 'Show: hidden from customers' },
   { value: 'priced', label: 'Show: with a price' },
   { value: 'unpriced', label: 'Show: no price yet' },
   { value: 'photo', label: 'Show: with a photo' },
@@ -94,8 +97,15 @@ const lowestPrice = (p: Product) => {
 /** Same rule as the In stock column: a listed status wins, otherwise the live count. */
 const stockOf = (p: Product) =>
   p.listedAvailability === 'OUT_OF_STOCK' ? 0 : p.listedAvailability === 'IN_STOCK' ? Infinity : p.variants.reduce((n, v) => n + Math.max(0, v.availableQuantity), 0);
+/** Has everything customers need (photo and price) but is not showing yet: one click from going live. */
+const readyToApprove = (p: Product) =>
+  !p.inApp?.live && p.status !== 'ARCHIVED' && p.images.length > 0 && lowestPrice(p) !== null && p.listedAvailability !== 'OUT_OF_STOCK' &&
+  (p.prescriptionStatus === null || p.prescriptionStatus === 'NOT_REVIEWED' || p.prescriptionStatus === 'NOT_REQUIRED');
 const shows = (p: Product, show: ShowKey) => {
   switch (show) {
+    case 'ready': return readyToApprove(p);
+    case 'live': return !!p.inApp?.live;
+    case 'hidden': return !p.inApp?.live;
     case 'priced': return lowestPrice(p) !== null;
     case 'unpriced': return lowestPrice(p) === null;
     case 'photo': return p.images.length > 0;
@@ -156,6 +166,9 @@ export function ProductsPage({ division, title }: { division: string; title: str
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkReview, setBulkReview] = useState(false);
   const [bulkResult, setBulkResult] = useState<BulkResult | null>(null);
+  const [view, setView] = useState<'list' | 'photos'>('list');
+  const [approving, setApproving] = useState(false);
+  const pharmacy = division === 'pharmacy-laboratory';
   const { can } = useAccess();
   const canApprove = can({ any: ['pharmacy:approve'], division });
   const { run } = useAction();
@@ -217,6 +230,8 @@ export function ProductsPage({ division, title }: { division: string; title: str
       await products.reload();
     });
   const confirmBulk = (message: string, action: string, label: string) => ask(message, () => void runBulk(action), label);
+  const readyCount = (products.data ?? []).filter(readyToApprove).length;
+  const canShow = can({ any: ['records:verify'], division }) && (!pharmacy || canApprove);
   const count = selected.size;
   const items = `${count} product${count === 1 ? '' : 's'}`;
 
@@ -256,11 +271,22 @@ export function ProductsPage({ division, title }: { division: string; title: str
         <select style={{ width: 'auto' }} value={sort} onChange={(e) => setSort(e.target.value as SortKey)} aria-label="Sort">
           {SORTS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
+        <Tabs<'list' | 'photos'> value={view} onChange={setView} options={[{ value: 'list', label: 'List' }, { value: 'photos', label: 'Photos' }]} />
         <span className="muted small">{rows.length} products</span>
+        {readyCount > 0 && show !== 'ready' && (
+          <button className="btn sm ready-chip" onClick={() => { setShow('ready'); setView('photos'); }}>{readyCount} ready to approve</button>
+        )}
       </div>
+      {show === 'ready' && rows.length > 0 && canShow && (
+        <div className="ready-bar">
+          <span><strong>{rows.length}</strong> {rows.length === 1 ? 'item has' : 'items have'} a photo and a price but customers cannot see {rows.length === 1 ? 'it' : 'them'} yet. Check the pictures, untick anything wrong, then approve.</span>
+          <button className="btn sm" onClick={toggleAll}>{allOn ? 'Untick all' : 'Tick all'}</button>
+        </div>
+      )}
       {count > 0 && (
         <div className="bulk-bar" role="region" aria-label="Actions for selected products">
           <strong>{count} selected</strong>
+          {canShow && <button className="btn sm approve-btn" onClick={() => setApproving(true)}>✓ Approve &amp; show {pharmacy ? 'on the website' : 'to customers'}</button>}
           <button className="btn sm primary" onClick={() => confirmBulk(`Show ${items} to customers? Each will be confirmed and put on sale. They can only be bought once they also have a price and stock.`, 'PUBLISH', 'Show to customers')}>Show to customers</button>
           <button className="btn sm" onClick={() => void runBulk('UNPUBLISH')}>Hide from customers</button>
           <button className="btn sm" onClick={() => void runBulk('ALLOW_PURCHASE')}>Allow purchase</button>
@@ -276,7 +302,33 @@ export function ProductsPage({ division, title }: { division: string; title: str
         </div>
       )}
       <Loading error={products.error} loading={products.loading && !products.data} />
-      {products.data && (
+      {products.data && view === 'photos' && (
+        <div className="photo-grid">
+          {rows.length === 0 && <div className="card empty" style={{ gridColumn: '1 / -1', padding: 24 }}>No products here.</div>}
+          {rows.map((p) => {
+            const price = lowestPrice(p);
+            return (
+              <article key={p.id} className={`photo-card${selected.has(p.id) ? ' on' : ''}`}>
+                <label className="photo-pick" aria-label={`Select ${p.name}`}><input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} /></label>
+                <button className="photo-frame" title="Open photos" onClick={() => setPhotosFor(p.id)}>
+                  {p.images[0] ? <img src={p.images[0].url} alt={p.name} loading="lazy" /> : <span className="photo-missing">No photo yet</span>}
+                  {p.images.length > 1 && <span className="photo-count">{p.images.length} photos</span>}
+                </button>
+                <div className="photo-info">
+                  <strong title={p.name}>{p.name}</strong>
+                  <span className="photo-price">{price === null ? <span className="muted">No price</span> : formatNaira(price)}</span>
+                  <InAppPill inApp={p.inApp} websiteOnly={pharmacy} />
+                </div>
+                <div className="photo-actions">
+                  <button className="btn sm" onClick={() => setEditing(p)}>Edit</button>
+                  <button className="btn sm" onClick={() => setPhotosFor(p.id)}>Photos</button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+      {products.data && view === 'list' && (
         <div className="card table-wrap">
           <table>
             <thead>
@@ -318,7 +370,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
                     <td className="num">{v ? <StockCell product={p} variant={v} /> : '—'}</td>
                     {i === 0 && (
                       <>
-                        <td rowSpan={Math.max(1, p.variants.length)}><div style={{ marginBottom: 4 }}><InAppPill inApp={p.inApp} /></div><StatusPill status={p.status} />{p.verification !== 'VERIFIED' && <div style={{ marginTop: 4 }}><Pill tone="amber">{p.verification === 'DEV_SAMPLE' ? 'sample' : 'unconfirmed'}</Pill></div>}{p.prescriptionStatus && <div style={{ marginTop: 4 }}><Pill tone={p.pharmacistApprovedAt ? 'green' : 'amber'}>{p.pharmacistApprovedAt ? 'Pharmacist approved' : 'Awaiting pharmacist'}</Pill><div className="muted small">{PRESCRIPTION[p.prescriptionStatus]}</div></div>}</td>
+                        <td rowSpan={Math.max(1, p.variants.length)}><div style={{ marginBottom: 4 }}><InAppPill inApp={p.inApp} websiteOnly={pharmacy} /></div><StatusPill status={p.status} />{p.verification !== 'VERIFIED' && <div style={{ marginTop: 4 }}><Pill tone="amber">{p.verification === 'DEV_SAMPLE' ? 'sample' : 'unconfirmed'}</Pill></div>}{p.prescriptionStatus && <div style={{ marginTop: 4 }}><Pill tone={p.pharmacistApprovedAt ? 'green' : 'amber'}>{p.pharmacistApprovedAt ? 'Pharmacist approved' : 'Awaiting pharmacist'}</Pill><div className="muted small">{PRESCRIPTION[p.prescriptionStatus]}</div></div>}</td>
                         <td rowSpan={Math.max(1, p.variants.length)}>
                           <div className="row-actions">
                             <button className="btn sm" onClick={() => setEditing(p)}>Edit</button>
@@ -343,6 +395,7 @@ export function ProductsPage({ division, title }: { division: string; title: str
       {dialog}
       {bulkReview && <BulkPharmacyReview count={count} onClose={() => setBulkReview(false)} onApprove={(status) => { setBulkReview(false); void runBulk('PHARMACY_APPROVE', status); }} />}
       {bulkResult && <BulkResultDialog result={bulkResult} onClose={() => setBulkResult(null)} />}
+      {approving && <ApproveAndShow count={count} pharmacy={pharmacy} onClose={() => setApproving(false)} onApprove={() => { setApproving(false); void runBulk('APPROVE_AND_SHOW'); }} />}
       {reviewing && <PharmacyReview product={reviewing} onClose={() => setReviewing(null)} onSaved={() => { setReviewing(null); void products.reload(); }} />}
       {photosFor && <PhotoManager owner="product" id={photosFor} onClose={() => setPhotosFor(null)} onChanged={() => void products.reload()} />}
       {bulk && <BulkPhotoUpload onClose={() => setBulk(false)} onChanged={() => void products.reload()} />}
@@ -382,6 +435,24 @@ function BulkResultDialog({ result, onClose }: { result: BulkResult; onClose: ()
           </ul>
         </>
       )}
+    </Modal>
+  );
+}
+
+/** One click from checked to live. The check box is the person's own confirmation that they looked at each item. */
+function ApproveAndShow({ count, pharmacy, onClose, onApprove }: { count: number; pharmacy: boolean; onClose: () => void; onApprove: () => void }) {
+  const [checked, setChecked] = useState(false);
+  const items = `${count} product${count === 1 ? '' : 's'}`;
+  return (
+    <Modal title={`Approve and show ${items}`} onClose={onClose} footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" disabled={!checked} onClick={onApprove}>Approve &amp; show {items}</button></>}>
+      <p style={{ marginTop: 0 }}>Each one will be {pharmacy ? <>approved as <strong>no prescription needed</strong>, allowed for sale, confirmed and put on the website</> : <>confirmed, allowed for sale and shown to customers</>}, in one step.</p>
+      <ul className="small" style={{ paddingLeft: 18 }}>
+        <li>Anything without a photo or a price is skipped and listed afterwards.</li>
+        {pharmacy && <li>Items already marked as needing a prescription stay as they are; they cannot be sold online.</li>}
+        {pharmacy && <li>The iPhone and Android apps do not show the pharmacy; these appear on the website.</li>}
+        <li>You can take any of them down again with "Hide from customers".</li>
+      </ul>
+      <label className="check"><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} /> I have checked the photo, name and price of every selected product{pharmacy ? ', and none of them needs a prescription' : ''}</label>
     </Modal>
   );
 }

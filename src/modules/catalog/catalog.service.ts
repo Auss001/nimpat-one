@@ -273,7 +273,7 @@ export class CatalogService {
    */
   async bulk(user: AuthUser, dto: BulkProductsDto) {
     const ids = [...new Set(dto.ids)];
-    const products = await this.prisma.product.findMany({ where: { id: { in: ids } }, include: { variants: { where: { isActive: true }, select: { id: true } } } });
+    const products = await this.prisma.product.findMany({ where: { id: { in: ids } }, include: { variants: { where: { isActive: true }, select: { id: true, unitPriceMinor: true } }, _count: { select: { images: true } } } });
     if (dto.action === 'PHARMACY_APPROVE' && (!dto.prescriptionStatus || dto.prescriptionStatus === PrescriptionStatus.NOT_REVIEWED)) {
       throw new BadRequestException('Choose the prescription status before approving');
     }
@@ -321,6 +321,23 @@ export class CatalogService {
         case 'USE_LIVE_COUNT':
           data = { listedAvailability: null };
           break;
+        case 'APPROVE_AND_SHOW': {
+          // Everything a checked item needs to reach customers, in one step (owner, 15 November 2026).
+          if (!user.can(P.recordsVerify, p.divisionId)) { skip('You cannot confirm records in this division'); continue; }
+          if (isPharmacy && !isPharmacist) { skip('Only a pharmacist can approve this'); continue; }
+          if (p.status === ProductStatus.ARCHIVED) { skip('It is archived; restore it first'); continue; }
+          if (!p.variants.some((v) => v.unitPriceMinor !== null && v.unitPriceMinor > 0n)) { skip('No price yet'); continue; }
+          if (!p._count.images) { skip('No photo yet'); continue; }
+          if (p.listedAvailability === ProductAvailability.OUT_OF_STOCK) { skip('Marked out of stock'); continue; }
+          // A pharmacist's earlier "needs a prescription" decision is never overruled here.
+          if (p.prescriptionStatus === PrescriptionStatus.REQUIRED || p.prescriptionStatus === PrescriptionStatus.RESTRICTED) { skip('Needs a prescription, so it cannot be sold online'); continue; }
+          const now = new Date();
+          data = {
+            status: ProductStatus.ACTIVE, purchaseEnabled: true, verification: RecordVerification.VERIFIED, verifiedAt: now, verifiedById: user.id,
+            ...(isPharmacy ? { prescriptionStatus: PrescriptionStatus.NOT_REQUIRED, pharmacistApprovedAt: p.pharmacistApprovedAt ?? now, pharmacistApprovedById: p.pharmacistApprovedById ?? user.id } : {}),
+          };
+          break;
+        }
         case 'PHARMACY_APPROVE':
           if (!isPharmacy) { skip('It is not a pharmacy product'); continue; }
           if (!isPharmacist) { skip('Only a pharmacist can approve this'); continue; }
