@@ -163,6 +163,7 @@ export function DeleteAccountPage() {
 export function LegalLinks() {
   return (
     <p className="legal-links">
+      <a href="https://nimpatgroup.com" target="_blank" rel="noopener">Nimpat Group</a>
       <Link to="/privacy">Privacy Policy</Link>
       <Link to="/terms">Terms of Use</Link>
     </p>
