@@ -119,6 +119,24 @@ const OPTION_INFO: Record<string, { label: string; text: string; icon: any }> = 
   PAY_AT_LOCATION: { label: 'Pay in store', text: 'Pay when you collect', icon: Store },
 };
 
+/**
+ * One plain sentence on why delivery costs what it does for this address and basket, e.g.
+ * "Delivery to Gwarinpa is ₦7,000 for the whole order. Orders of 10 or more items pay ₦10,000 there."
+ */
+function deliveryWhy(q: any, address?: any): string {
+  const d = q.delivery;
+  const place = address?.city?.trim() || String(d.zoneName ?? '').replace(/^[^:]*:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '') || 'your address';
+  const fee = Number(q.deliveryFeeMinor);
+  const items = Number(q.itemCount ?? 0);
+  const freeAbove = d.freeAboveMinor !== null && d.freeAboveMinor !== undefined ? Number(d.freeAboveMinor) : null;
+  if (fee === 0) return freeAbove !== null && Number(q.subtotalMinor) >= freeAbove && Number(d.standardFeeMinor) > 0 ? `Free delivery, because your order is over ${formatNaira(freeAbove)}.` : `Delivery to ${place} is free.`;
+  const bulk = d.bulkFeeMinor && d.bulkFromQty ? { fee: Number(d.bulkFeeMinor), from: Number(d.bulkFromQty) } : null;
+  const said = bulk && items >= bulk.from
+    ? `Delivery to ${place} is ${formatNaira(fee)} because your order has ${items} items. Orders under ${bulk.from} items pay ${formatNaira(d.standardFeeMinor)} there.`
+    : `Delivery to ${place} is ${formatNaira(fee)} for the whole order.${bulk ? ` Orders of ${bulk.from} or more items pay ${formatNaira(bulk.fee)} there.` : ''}`;
+  return `${said}${freeAbove !== null ? ` Free on orders over ${formatNaira(freeAbove)}.` : ''} Picking up from our shop is free.`;
+}
+
 /** Delivery, payment and total. It sits on the basket, so everything is on one page. */
 function CheckoutForm({ division, version }: { division: string; version?: unknown }) {
   const navigate = useNavigate();
@@ -248,6 +266,7 @@ function CheckoutForm({ division, version }: { division: string; version?: unkno
           <>
             <div className="sum"><span>Items</span><span>{formatNaira(q.subtotalMinor)}</span></div>
             {needsAddress && <div className="sum"><span>Delivery</span><span>{q.deliveryFeeMinor === null || q.deliveryFeeMinor === undefined ? 'To be confirmed' : Number(q.deliveryFeeMinor) === 0 ? 'Free' : formatNaira(q.deliveryFeeMinor)}</span></div>}
+            {needsAddress && q.delivery && <small className="delivery-why">{deliveryWhy(q, addresses.data?.find((a: any) => a.id === addressId))}</small>}
             {Number(q.taxMinor) > 0 && <div className="sum"><span>VAT ({Number(q.vatRateBps) / 100}%)</span><span>{formatNaira(q.taxMinor)}</span></div>}
             {!needsAddress && <div className="sum"><span>Delivery</span><span>Free (pick up)</span></div>}
             <div className="sum total"><span>Total</span><b>{formatNaira(q.totalMinor)}</b></div>
@@ -344,6 +363,7 @@ export function PayPage() {
             <span><b>Pay online</b><small>{o.methods.paystack.note}</small></span>
           </button>
         )}
+        {o.methods.paystack.available && o.methods.paystack.testMode && <TestModeNote />}
         {o.methods.bankTransfer.available && (
           <button className="pay-option" disabled={busy} onClick={bank}>
             <Building size={20} aria-hidden="true" />
@@ -357,6 +377,20 @@ export function PayPage() {
         <CallLink />
       </section>
     </>
+  );
+}
+
+/**
+ * While Paystack is in test mode it turns down every real card, whatever the brand, and accepts only its own
+ * test details. Once live payments start, Visa, Mastercard and Verve cards, bank transfer and USSD all work.
+ */
+function TestModeNote() {
+  return (
+    <Note tone="warn">
+      <b>Test mode: no real money is taken.</b> Real bank cards (Visa, Mastercard or Verve) are turned down until live payments start.
+      To try a payment, choose <b>Card</b> and use Paystack's test card <code>4084 0840 8408 4081</code>, any future expiry date and CVV <code>408</code>,
+      or choose <b>Bank transfer</b> on the Paystack page and follow its test steps.
+    </Note>
   );
 }
 
@@ -425,8 +459,9 @@ function DeliverTo({ orderId, delivery, onChanged }: { orderId: string; delivery
   const choose = async (addressId: string) => {
     setBusy(true);
     try {
-      await patch(`/orders/${orderId}/address`, { addressId });
-      toast('Address changed. The delivery fee has been updated.');
+      const order = await patch(`/orders/${orderId}/address`, { addressId });
+      const fee = Number(order?.deliveryFeeMinor ?? 0);
+      toast(`Address changed. Delivery there ${fee === 0 ? 'is free' : `costs ${formatNaira(fee)}`}, so you now pay ${formatNaira(order?.outstandingMinor ?? order?.totalMinor ?? 0)}.`);
       setOpen(false);
       onChanged();
     } catch (e) {

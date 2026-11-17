@@ -69,6 +69,21 @@ const ADMIN_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
 /** Options that accept the order straight away (money collected later, then verified). */
 const COLLECT_LATER: PaymentOption[] = [PaymentOption.PAY_ON_DELIVERY, PaymentOption.PAY_AT_LOCATION];
 
+/**
+ * Why the customer cannot cancel this order in the app, in words they understand, or null when they can.
+ * They can cancel while nothing is paid and the team has not started: waiting for online payment, or a
+ * pay-on-delivery / pay-in-store order that is accepted but not yet being prepared or sent out.
+ */
+export function customerCancelBlock(o: { status: OrderStatus; amountPaidMinor: bigint; paymentStatus: PayableState; paymentOption: PaymentOption; delivery?: { status: string } | null }): string | null {
+  if (o.paymentStatus === PayableState.REFUNDED) return 'This order was refunded, so there is nothing to cancel.';
+  if (o.amountPaidMinor > 0n) return 'This order is already paid, so it cannot be cancelled in the app. Please call or WhatsApp us and we will cancel it and refund you.';
+  if (o.status === OrderStatus.PENDING) return null;
+  if (o.status === OrderStatus.ACCEPTED && COLLECT_LATER.includes(o.paymentOption) && (!o.delivery || o.delivery.status === 'PENDING')) return null;
+  if (o.status === OrderStatus.CANCELLED || o.status === OrderStatus.EXPIRED) return 'This order is already closed.';
+  if (o.status === OrderStatus.DELIVERED || o.status === OrderStatus.COMPLETED) return 'This order has already been delivered or collected.';
+  return 'Our team has already started on this order, so it cannot be cancelled in the app. Please call or WhatsApp us straight away.';
+}
+
 export type AdminOrderFilter = { status?: OrderStatus; division?: string; q?: string; paymentStatus?: PayableState; paymentOption?: PaymentOption };
 
 @Injectable()
@@ -177,7 +192,10 @@ export class OrdersService implements OnModuleInit, PayableHandler {
     const taxMinor = vatOn(division.code, subtotalMinor);
     const totalMinor = subtotalMinor + taxMinor + deliveryFeeMinor;
     if (input.expectedTotalMinor !== undefined && BigInt(input.expectedTotalMinor) !== totalMinor) {
-      throw new ConflictException({ statusCode: 409, error: 'Conflict', message: 'Prices or delivery charges have changed. Please review your cart.', totalMinor });
+      // Say exactly what the total is made of now, so the customer understands why it moved.
+      const parts = [`items ${formatNgn(subtotalMinor)}`, ...(taxMinor > 0n ? [`VAT ${formatNgn(taxMinor)}`] : []), ...(input.fulfilmentType === FulfilmentType.DELIVERY ? [deliveryFeeMinor === 0n ? 'free delivery' : `delivery ${formatNgn(deliveryFeeMinor)}`] : [])];
+      const message = `Your total has changed from ${formatNgn(BigInt(input.expectedTotalMinor))} to ${formatNgn(totalMinor)} (${parts.join(' + ')}). Please check it and tap Place order again.`;
+      throw new ConflictException({ statusCode: 409, error: 'Conflict', message, totalMinor });
     }
 
     // Payment option must be allowed for this division, area and order value.
@@ -301,15 +319,39 @@ export class OrdersService implements OnModuleInit, PayableHandler {
     return this.getForCustomer(user, id);
   }
 
+  /**
+   * A customer cancels an order nobody has paid for and the team has not started: one waiting for online payment,
+   * or a pay-on-delivery / pay-in-store order that is not yet being prepared. Paid orders go through the team,
+   * who cancel and refund them. An order that already closed (cancelled or expired) is simply returned.
+   */
   async cancelByCustomer(user: AuthUser, id: string) {
-    const order = await this.prisma.order.findFirst({ where: { id, userId: user.id } });
+    const order = await this.prisma.order.findFirst({ where: { id, userId: user.id }, include: { items: true, delivery: { select: { status: true } } } });
     if (!order) throw new NotFoundException('Order not found');
-    if (order.status !== OrderStatus.PENDING || order.amountPaidMinor > 0n) {
-      throw new BadRequestException('Only unpaid pending orders can be cancelled here. Contact support for other orders.');
+    if (order.status === OrderStatus.CANCELLED || order.status === OrderStatus.EXPIRED) return this.getForCustomer(user, id);
+    const why = customerCancelBlock(order);
+    if (why) throw new BadRequestException(why);
+    const checking = await this.prisma.payment.count({ where: { orderId: id, status: { in: [PaymentStatus.AWAITING_VERIFICATION, PaymentStatus.SUCCESS] } } });
+    if (checking) throw new BadRequestException('A payment for this order is being checked, so it cannot be cancelled in the app. Please call or WhatsApp us and we will sort it out.');
+
+    const done = order.status === OrderStatus.PENDING
+      ? await this.releaseUnpaid(order.id, OrderStatus.CANCELLED, user.id, 'Cancelled by customer')
+      : await this.prisma.$transaction(async (tx) => {
+        // Pay on delivery or in store: the goods were set aside when the order was accepted, so they go back on the shelf.
+        const res = await tx.order.updateMany({ where: { id, status: OrderStatus.ACCEPTED, amountPaidMinor: 0n }, data: { status: OrderStatus.CANCELLED, cancelledAt: new Date() } });
+        if (res.count !== 1) return false;
+        if (order.stockLocationId) await this.inventory.restock(tx, order.stockLocationId, order.items, order.id, user.id, 'Unpaid order cancelled by the customer');
+        await tx.delivery.updateMany({ where: { orderId: id }, data: { status: 'CANCELLED' } });
+        await tx.orderStatusHistory.create({ data: { orderId: id, fromStatus: order.status, toStatus: OrderStatus.CANCELLED, actorId: user.id, note: 'Cancelled by customer' } });
+        await tx.payment.updateMany({ where: { orderId: id, status: { in: ['INITIALIZED', 'PENDING'] } }, data: { status: 'ABANDONED' } });
+        await this.audit.record({ actorId: user.id, action: 'order.cancelled_by_customer', entityType: 'order', entityId: id, divisionId: order.divisionId, changes: { from: order.status } }, tx);
+        return true;
+      });
+    if (!done) {
+      // Something changed at the same moment (paid, expired or picked up by the team): say what it is now.
+      const now = await this.prisma.order.findUniqueOrThrow({ where: { id }, include: { items: true, delivery: { select: { status: true } } } });
+      if (now.status === OrderStatus.CANCELLED || now.status === OrderStatus.EXPIRED) return this.getForCustomer(user, id);
+      throw new BadRequestException(customerCancelBlock(now) ?? 'This order changed while you were cancelling it. Please refresh and try again.');
     }
-    const awaiting = await this.prisma.payment.count({ where: { orderId: id, status: PaymentStatus.AWAITING_VERIFICATION } });
-    if (awaiting) throw new BadRequestException('A payment for this order is awaiting verification. Please contact support.');
-    await this.releaseUnpaid(order.id, OrderStatus.CANCELLED, user.id, 'Cancelled by customer');
     return this.getForCustomer(user, id);
   }
 

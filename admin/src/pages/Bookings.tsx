@@ -13,6 +13,7 @@ interface Booking {
   bookingNumber: string;
   status: string;
   scheduledStart: string | null;
+  scheduledEnd?: string | null;
   priceMinor: number | null;
   customerNote: string | null;
   details: Record<string, unknown> | null;
@@ -137,7 +138,7 @@ function ServiceBookings({ tab }: { tab: Tab }) {
                     {b.details && <div className="muted small">{Object.entries(b.details).map(([k, v]) => `${k}: ${String(v)}`).join(' · ')}</div>}
                   </td>
                   <td>{contactEmail(b.user)}<div className="muted small">{contactPhone(b.user)}</div></td>
-                  <td className="small">{when(b.scheduledStart)}</td>
+                  <td className="small">{when(b.scheduledStart)}{b.scheduledStart && b.scheduledEnd && <div className="muted">until {when(b.scheduledEnd)}</div>}</td>
                   <td className="num">{b.priceMinor !== null ? formatNaira(b.priceMinor) : <span className="muted">To be quoted</span>}</td>
                   <td><StatusPill status={b.status} /></td>
                   <td>

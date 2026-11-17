@@ -417,8 +417,10 @@ export function AddressForm({ address, onSaved, onCancel }: { address?: any; onS
     else setF((x) => ({ ...x, city: known(x.city) ? '' : x.city }));
   };
   const rings = [...new Set((areas.data ?? []).map((a) => a.ring))];
-  const fee = (a: { feeMinor: number | null; bulkFeeMinor: number | null }) =>
-    a.feeMinor === null ? '' : Number(a.feeMinor) === 0 ? ' · free delivery' : a.bulkFeeMinor ? ` · ${formatNaira(a.feeMinor)}–${formatNaira(a.bulkFeeMinor)}` : ` · ${formatNaira(a.feeMinor)}`;
+  // "Gwarinpa · delivery ₦7,000 (₦10,000 for 10+ items)": the fee in words, never an unexplained range.
+  const fee = (a: { feeMinor: number | null; bulkFeeMinor: number | null; bulkFromQty?: number | null }) =>
+    a.feeMinor === null ? '' : Number(a.feeMinor) === 0 ? ' · free delivery'
+      : ` · delivery ${formatNaira(a.feeMinor)}${a.bulkFeeMinor ? ` (${formatNaira(a.bulkFeeMinor)} for ${a.bulkFromQty ?? 10}+ items)` : ''}`;
   const ready = f.recipientName.trim() && f.phone.trim() && f.line1.trim() && f.city.trim() && area;
 
   const submit = async () => {
@@ -434,7 +436,7 @@ export function AddressForm({ address, onSaved, onCancel }: { address?: any; onS
   };
   return (
     <div className="address-form">
-      <Field label="Area">
+      <Field label="Area" hint="We deliver from our shop in Wuye. Each area shows its delivery fee.">
         <select value={area} onChange={(e) => chooseArea(e.target.value)}>
           <option value="" disabled>Choose your area in Abuja</option>
           {rings.map((r) => (
@@ -618,7 +620,7 @@ export function BookingsPage() {
       <div className="chips" role="tablist">
         {TABS.map((t) => <button key={t.key} role="tab" aria-selected={tab === t.key} className={tab === t.key ? 'on' : ''} onClick={() => setParams({ tab: t.key }, { replace: true })}>{t.label}</button>)}
       </div>
-      {tab === 'orders' && <History path="/orders" cancel={(o) => `/orders/${o.id}/cancel`} canCancel={(o) => o.status === 'PENDING' && Number(o.amountPaidMinor ?? 0) === 0} purpose="ORDER" empty="No orders yet." render={(o) => ({
+      {tab === 'orders' && <History path="/orders" cancel={(o) => `/orders/${o.id}/cancel`} canCancel={orderCancellable} purpose="ORDER" empty="No orders yet." render={(o) => ({
         title: o.orderNumber, sub: `${o.items?.length ?? 0} ${o.items?.length === 1 ? 'item' : 'items'}${o.division?.name ? ` · ${o.division.name}` : ''} · ${shortDate(o.createdAt)}`, amount: o.totalMinor, owing: o.outstandingMinor, details: o.items?.map((i: any) => `${i.quantity} × ${i.productName}`).join(', '),
       })} />}
       {tab === 'stays' && <History path="/apartments/reservations" cancel={(r) => `/apartments/reservations/${r.id}/cancel`} canCancel={(r) => ['HOLD', 'CONFIRMED'].includes(r.status)} purpose="APARTMENT_RESERVATION" empty="No apartment bookings yet." render={(r) => ({
@@ -628,7 +630,7 @@ export function BookingsPage() {
         title: a.treatment?.name ?? a.appointmentNumber, sub: dateTime(a.startsAt), amount: a.priceMinor, owing: Number(a.priceMinor) - Number(a.amountPaidMinor), details: a.practitioner?.displayName,
       })} />}
       {tab === 'services' && <History path="/services/bookings" cancel={(b) => `/services/bookings/${b.id}/cancel`} canCancel={(b) => ['REQUESTED', 'PENDING', 'CONFIRMED'].includes(b.status)} purpose="SERVICE_BOOKING" empty="No service bookings yet." render={(b) => ({
-        title: b.offering?.name ?? b.bookingNumber, sub: b.scheduledStart ? dateTime(b.scheduledStart) : 'We will confirm the time', amount: b.priceMinor, owing: b.priceMinor === null ? 0 : Number(b.priceMinor) - Number(b.amountPaidMinor), details: b.bookingNumber, payable: b.status === 'PENDING' || b.status === 'CONFIRMED',
+        title: b.offering?.name ?? b.bookingNumber, sub: b.scheduledStart ? `${dateTime(b.scheduledStart)}${b.details?.['Hire for'] ? ` · for ${b.details['Hire for']}` : ''}` : 'We will confirm the time', amount: b.priceMinor, owing: b.priceMinor === null ? 0 : Number(b.priceMinor) - Number(b.amountPaidMinor), details: b.bookingNumber, payable: b.status === 'PENDING' || b.status === 'CONFIRMED',
       })} />}
       {tab === 'cars' && <History path="/vehicles/inquiries/mine" empty="No car enquiries yet." render={(i) => ({
         title: i.vehicle ? `${i.vehicle.year} ${i.vehicle.make} ${i.vehicle.model}` : 'Car enquiry', sub: `${INQUIRY_LABEL[i.type] ?? 'Enquiry'} · ${shortDate(i.createdAt)}`,
@@ -636,6 +638,17 @@ export function BookingsPage() {
     </>
   );
 }
+
+/**
+ * The same rule as the server: an order can be cancelled in the app while nothing is paid and the team has not
+ * started on it. That is an order waiting for online payment, or a pay-on-delivery / pay-in-store order not yet
+ * being prepared or sent out.
+ */
+const orderCancellable = (o: any) =>
+  Number(o.amountPaidMinor ?? 0) === 0 && o.paymentStatus !== 'REFUNDED' &&
+  (o.status === 'PENDING' || (o.status === 'ACCEPTED' && ['PAY_ON_DELIVERY', 'PAY_AT_LOCATION'].includes(o.paymentOption) && (!o.delivery || o.delivery.status === 'PENDING')));
+/** A paid order the team has not delivered yet: the customer asks us to cancel and refund it. */
+const askToCancel = (o: any) => Number(o.amountPaidMinor ?? 0) > 0 && ['ACCEPTED', 'PROCESSING', 'READY'].includes(o.status) && o.paymentStatus !== 'REFUNDED';
 
 /** Rooms booked together show as one booking with one total. */
 const stayGroup = (r: any) => [r, ...(r.companions ?? []).filter((c: any) => c.status !== 'CANCELLED')];
@@ -691,20 +704,26 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
   const toast = useToast();
   const navigate = useNavigate();
   const [cancelling, setCancelling] = useState<any>(null);
+  const [asking, setAsking] = useState<any>(null);
   const [reason, setReason] = useState('');
-  useEffect(() => setCancelling(null), [path]);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { setCancelling(null); setAsking(null); }, [path]);
   if (list.loading && !list.data) return <Loader />;
   if (list.error) return <Note tone="error">{list.error}</Note>;
   if (!list.data?.length) return <Empty title={empty} action={<Link className="btn primary" to="/">Explore Nimpat One</Link>} />;
   const doCancel = async () => {
+    setBusy(true);
     try {
-      await post(cancel!(cancelling), reason.trim() ? { reason: reason.trim() } : {});
-      toast('Cancelled');
+      const after = await post(cancel!(cancelling), reason.trim() ? { reason: reason.trim() } : {});
+      toast(path !== '/orders' ? 'Cancelled' : after?.status === 'EXPIRED' ? 'This order had already closed because it was not paid in time. Nothing was charged.' : 'Order cancelled. Nothing was charged.');
+    } catch (e) {
+      toast((e as Error).message, 'error');
+    } finally {
+      // Either way, show the order as it really is now.
+      setBusy(false);
       setCancelling(null);
       setReason('');
       await list.reload();
-    } catch (e) {
-      toast((e as Error).message, 'error');
     }
   };
   return (
@@ -732,6 +751,7 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
                 {isOrder && <Link className={`btn ${payable ? 'ghost' : 'primary'}`} to={`/orders/${row.id}`}><Truck size={15} aria-hidden="true" /> Track</Link>}
                 {isOrder && row.items?.length > 0 && <OrderAgain order={row} />}
                 {cancellable && <button className="text-link danger" onClick={() => setCancelling(row)}>Cancel</button>}
+                {isOrder && !cancellable && askToCancel(row) && <button className="text-link" onClick={() => setAsking(row)}>Need to cancel?</button>}
               </div>
             )}
             {row.paymentStatus === 'PAID' && <small className="paid"><Check size={13} aria-hidden="true" /> Paid in full</small>}
@@ -741,7 +761,14 @@ function History({ path, cancel, canCancel, purpose, empty, render }: { path: st
       {cancelling && (
         <Sheet title="Cancel this?" onClose={() => setCancelling(null)}>
           <Field label="Why are you cancelling? (optional)"><input value={reason} onChange={(e) => setReason(e.target.value)} /></Field>
-          <div className="row"><button className="btn ghost" onClick={() => setCancelling(null)}>Keep it</button><button className="btn danger grow" onClick={doCancel}>Yes, cancel</button></div>
+          <div className="row"><button className="btn ghost" onClick={() => setCancelling(null)}>Keep it</button><button className="btn danger grow" disabled={busy} onClick={doCancel}>{busy ? 'Cancelling…' : 'Yes, cancel'}</button></div>
+        </Sheet>
+      )}
+      {asking && (
+        <Sheet title="Cancel a paid order" onClose={() => setAsking(null)}>
+          <p>Order <b>{asking.orderNumber}</b> is already paid, so our team cancels it for you and refunds the money to the card or account you paid with.</p>
+          <p className="muted-text">Please call us as soon as you can, before it is sent out, and give the order number.</p>
+          <CallLink />
         </Sheet>
       )}
     </div>

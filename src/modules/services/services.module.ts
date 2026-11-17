@@ -58,6 +58,7 @@ class UpdateOfferingDto extends PartialType(CreateOfferingDto) {}
 class CreateBookingDto {
   @ApiProperty() @IsString() offeringId: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() scheduledStart?: string;
+  @ApiPropertyOptional({ description: 'When it ends, e.g. when a hired car comes back (needs scheduledStart)' }) @IsOptional() @IsDateString() scheduledEnd?: string;
   @ApiPropertyOptional({ description: 'Service-specific details, e.g. vehicle make/model/plate' }) @IsOptional() @IsObject() details?: Record<string, unknown>;
   @ApiPropertyOptional() @IsOptional() @IsString() @Length(1, 1000) customerNote?: string;
   @ApiPropertyOptional({ description: 'Come to the customer (only for services offered at home)' }) @IsOptional() @IsBoolean() atHome?: boolean;
@@ -76,6 +77,9 @@ class BookingQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional() @IsOptional() @IsString() division?: string;
   @ApiPropertyOptional({ enum: BookingStatus }) @IsOptional() @IsEnum(BookingStatus) status?: BookingStatus;
 }
+
+/** The longest booking a customer can make in the app (for example a car hire). */
+const MAX_BOOKING_DAYS = 90;
 
 const big = (n: number | undefined) => (n !== undefined ? BigInt(n) : undefined);
 
@@ -151,7 +155,14 @@ export class ServicesService implements OnModuleInit, PayableHandler {
     const offering = await this.prisma.serviceOffering.findFirst({ where: { id: dto.offeringId, isActive: true, OR: SHOWN_SERVICE } });
     if (!offering) throw new NotFoundException('Service not found');
     const start = dto.scheduledStart ? new Date(dto.scheduledStart) : undefined;
-    if (start && start < new Date()) throw new BadRequestException('scheduledStart must be in the future');
+    if (start && start < new Date()) throw new BadRequestException('Please choose a start time in the future');
+    // A hire runs from start to end (car hire: pick-up to return). Otherwise the service lasts its usual length.
+    const end = dto.scheduledEnd ? new Date(dto.scheduledEnd) : start && offering.durationMinutes ? new Date(start.getTime() + offering.durationMinutes * 60_000) : undefined;
+    if (dto.scheduledEnd) {
+      if (!start) throw new BadRequestException('Please choose when it starts as well as when it ends');
+      if (end! <= start) throw new BadRequestException('The return time must be after the pick-up time');
+      if (end!.getTime() - start.getTime() > MAX_BOOKING_DAYS * 86_400_000) throw new BadRequestException(`Bookings in the app can last up to ${MAX_BOOKING_DAYS} days. For longer, please call us.`);
+    }
     // Where it happens: a home-only service always comes to the customer; "either" follows their choice.
     const atHome = offering.serviceMode === ServiceMode.AT_HOME || (offering.serviceMode === ServiceMode.EITHER && dto.atHome === true);
     if (dto.atHome && offering.serviceMode === ServiceMode.AT_VENUE) throw new BadRequestException('This service is only offered at our location');
@@ -168,7 +179,7 @@ export class ServicesService implements OnModuleInit, PayableHandler {
           divisionId: offering.divisionId,
           userId: user.id,
           scheduledStart: start,
-          scheduledEnd: start && offering.durationMinutes ? new Date(start.getTime() + offering.durationMinutes * 60_000) : undefined,
+          scheduledEnd: end,
           priceMinor: fixedPrice,
           depositRequiredMinor: fixedPrice ? this.policies.depositFor(servicePolicy, fixedPrice, offering.depositMinor) : 0n,
           atHome,

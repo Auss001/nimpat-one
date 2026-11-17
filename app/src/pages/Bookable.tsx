@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { MapPin } from 'lucide-react';
+import { MapPin, Minus, Plus } from 'lucide-react';
 import { formatNaira, get, idempotency, post, rows } from '../api';
 import { useDetailsFirst, WhereChooser } from './Account';
 import { CallLink, Empty, FavButton, Field, lagosDate, Loader, Note, PageTitle, Photo, PhotoGallery, Sheet, spaImage, useLoad, useToast } from '../ui';
@@ -182,6 +182,46 @@ export function ServicesPage() {
   );
 }
 
+/** Car hire is booked for a length of time: from pick-up until the car comes back. */
+const isHire = (s: any) => /car hire/i.test(`${s.category ?? ''} ${s.name ?? ''}`);
+/** Now, as a date-time picker value on this device (so past times cannot be picked). */
+const nowLocal = () => {
+  const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000);
+  return d.toISOString().slice(0, 16);
+};
+
+type HireUnit = 'hours' | 'days' | 'weeks';
+const HIRE_UNITS: { unit: HireUnit; label: string; hours: number; max: number }[] = [
+  { unit: 'hours', label: 'Hours', hours: 1, max: 24 },
+  { unit: 'days', label: 'Days', hours: 24, max: 90 },
+  { unit: 'weeks', label: 'Weeks', hours: 168, max: 12 },
+];
+const hireWords = (n: number, unit: HireUnit) => `${n} ${n === 1 ? unit.slice(0, -1) : unit}`;
+/** "Sat 21 Nov, 10:00", in the same time as the picker the customer used. */
+const longWhen = (d: Date) => d.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+/** How long the car is needed: a number and hours, days or weeks, with the return time worked out. */
+function HireLength({ start, length, unit, setLength, setUnit }: { start: string; length: number; unit: HireUnit; setLength: (n: number) => void; setUnit: (u: HireUnit) => void }) {
+  const u = HIRE_UNITS.find((x) => x.unit === unit)!;
+  const back = start ? new Date(new Date(start).getTime() + length * u.hours * 3_600_000) : null;
+  return (
+    <div className="hire-length">
+      <span className="buy-label">How long do you need it?</span>
+      <div className="hire-row">
+        <div className="qty">
+          <button type="button" aria-label="Shorter" disabled={length <= 1} onClick={() => setLength(length - 1)}><Minus size={16} /></button>
+          <span aria-live="polite">{length}</span>
+          <button type="button" aria-label="Longer" disabled={length >= u.max} onClick={() => setLength(length + 1)}><Plus size={16} /></button>
+        </div>
+        <div className="segmented" role="group" aria-label="Hours, days or weeks">
+          {HIRE_UNITS.map((x) => <button key={x.unit} type="button" className={unit === x.unit ? 'on' : ''} onClick={() => { setUnit(x.unit); setLength(Math.min(length, x.max)); }}>{x.label}</button>)}
+        </div>
+      </div>
+      <p className="hire-back">{back ? <>Return by <b>{longWhen(back)}</b> · {hireWords(length, unit)}</> : <>Choose the pick-up date and time to see when the car is due back.</>}</p>
+    </div>
+  );
+}
+
 function ServiceSheet({ service, onClose }: { service: any; onClose: () => void }) {
   const navigate = useNavigate();
   const toast = useToast();
@@ -190,14 +230,20 @@ function ServiceSheet({ service, onClose }: { service: any; onClose: () => void 
   const [atHome, setAtHome] = useState(service.serviceMode === 'AT_HOME');
   const [addressId, setAddressId] = useState('');
   const [busy, setBusy] = useState(false);
+  const hire = isHire(service);
+  const [length, setLength] = useState(1);
+  const [unit, setUnit] = useState<HireUnit>(/wedding|event/i.test(service.name ?? '') ? 'hours' : 'days');
   const details = useDetailsFirst();
   const home = service.serviceMode === 'AT_HOME' || (service.serviceMode === 'EITHER' && atHome);
   const send = async () => {
     setBusy(true);
     try {
+      const start = when ? new Date(when) : null;
+      const hours = length * HIRE_UNITS.find((x) => x.unit === unit)!.hours;
       await post('/services/bookings', {
         offeringId: service.id,
-        ...(when ? { scheduledStart: new Date(when).toISOString() } : {}),
+        ...(start ? { scheduledStart: start.toISOString() } : {}),
+        ...(hire && start ? { scheduledEnd: new Date(start.getTime() + hours * 3_600_000).toISOString(), details: { 'Hire for': hireWords(length, unit) } } : {}),
         ...(note.trim() ? { customerNote: note.trim() } : {}),
         ...(home ? { atHome: true, addressId } : {}),
       }, idempotency());
@@ -212,9 +258,16 @@ function ServiceSheet({ service, onClose }: { service: any; onClose: () => void 
   return (
     <Sheet title={service.name} onClose={onClose}>
       <WhereChooser mode={service.serviceMode ?? 'AT_VENUE'} feeMinor={service.homeFeeMinor} venue="At our place" atHome={atHome} setAtHome={setAtHome} addressId={addressId} setAddressId={setAddressId} />
-      <Field label="Preferred date and time (optional)"><input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} /></Field>
-      <Field label="Tell us what you need (optional)"><textarea rows={3} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
-      <button className="btn primary full" disabled={busy || (home && !addressId)} onClick={() => details.ask(() => void send())}>{busy ? 'Sending…' : 'Send request'}</button>
+      {hire ? (
+        <>
+          <Field label="Pick-up date and time"><input type="datetime-local" min={nowLocal()} value={when} onChange={(e) => setWhen(e.target.value)} /></Field>
+          <HireLength start={when} length={length} unit={unit} setLength={setLength} setUnit={setUnit} />
+        </>
+      ) : (
+        <Field label="Preferred date and time (optional)"><input type="datetime-local" min={nowLocal()} value={when} onChange={(e) => setWhen(e.target.value)} /></Field>
+      )}
+      <Field label={hire ? 'Anything else? (optional)' : 'Tell us what you need (optional)'}><textarea rows={3} maxLength={1000} placeholder={hire ? 'e.g. the car you would like, pick-up place, trip destination' : undefined} value={note} onChange={(e) => setNote(e.target.value)} /></Field>
+      <button className="btn primary full" disabled={busy || (home && !addressId) || (hire && !when)} onClick={() => details.ask(() => void send())}>{busy ? 'Sending…' : 'Send request'}</button>
       {details.sheet}
       <small className="muted-text">Our team confirms the time and any price before you pay.</small>
     </Sheet>

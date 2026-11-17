@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { CalendarCheck, Check, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, ShoppingBasket, Stethoscope, Truck } from 'lucide-react';
-import { formatNaira, get, getSession, post, rows } from '../api';
+import { CalendarCheck, Check, ChevronRight, FlaskConical, Minus, Plus, Search as SearchIcon, ShieldCheck, ShoppingBasket, Stethoscope, Trash2, Truck } from 'lucide-react';
+import { del, formatNaira, get, getSession, patch, post, rows } from '../api';
 import { CallLink, Empty, FavButton, forgetSearches, Loader, Note, PageTitle, Photo, recentSearches, rememberSearch, rememberViewed, Sheet, Skeletons, useCart, useLoad, useToast } from '../ui';
 import { HIDE_PHARMACY, pharmacyAllowed } from '../platform';
 
@@ -20,9 +20,9 @@ function ageConfirmed() {
   }
 }
 
-/** Adds to the basket, with an 18+ confirmation for alcohol. No sign-in needed. */
+/** Adds to the basket, with an 18+ confirmation for alcohol. No sign-in needed. Also changes how many are in it. */
 function useAddToBasket() {
-  const { refresh, addLocal } = useCart();
+  const { refresh, addLocal, setLocalQty } = useCart();
   const toast = useToast();
   const [askAge, setAskAge] = useState<null | (() => void)>(null);
   const [busy, setBusy] = useState(false);
@@ -54,6 +54,25 @@ function useAddToBasket() {
     }
     go();
   };
+  /** Sets how many of this size are in the basket; 0 takes it out. */
+  const setQty = async (variantId: string, quantity: number, name: string) => {
+    if (!getSession()) {
+      setLocalQty(variantId, quantity);
+      if (quantity <= 0) toast(`${name} removed from your basket`);
+      return;
+    }
+    setBusy(true);
+    try {
+      if (quantity <= 0) await del(`/carts/items/${variantId}`);
+      else await patch(`/carts/items/${variantId}`, { quantity });
+      await refresh();
+      if (quantity <= 0) toast(`${name} removed from your basket`);
+    } catch (e) {
+      toast((e as Error).message, 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
   const dialog = askAge ? (
     <Sheet title="Are you 18 or older?" onClose={() => setAskAge(null)}>
       <p>This product contains alcohol and is only sold to adults aged 18 and over. You may be asked for ID on delivery.</p>
@@ -63,7 +82,7 @@ function useAddToBasket() {
       </div>
     </Sheet>
   ) : null;
-  return { request, dialog, busy };
+  return { request, setQty, dialog, busy };
 }
 
 function priceLabel(p: any) {
@@ -72,12 +91,18 @@ function priceLabel(p: any) {
   return <span className="price">{many ? 'From ' : ''}{formatNaira(p.priceFromMinor)}</span>;
 }
 
+/**
+ * A product in a list. The round + adds one; once it is in the basket, the + becomes a "− 2 in basket +"
+ * stepper so the customer can change how many without leaving the list.
+ */
 export function ProductCard({ product: p }: { product: any }) {
-  const { request, dialog, busy } = useAddToBasket();
+  const { request, setQty, dialog, busy } = useAddToBasket();
   const { inBasket } = useCart();
   const variant = p.variants?.find((v: any) => v.purchasable);
   const single = p.variants?.length === 1;
   const had = single ? inBasket(variant?.id) : 0;
+  const min = Math.max(1, Number(variant?.minOrderQty ?? 1));
+  const max = variant?.maxOrderQty ? Number(variant.maxOrderQty) : null;
   return (
     <article className="card">
       <Link to={`/product/${p.slug}`} className="card-link" aria-label={p.name}>
@@ -87,12 +112,19 @@ export function ProductCard({ product: p }: { product: any }) {
           <small>{p.variants?.[0]?.name !== 'As listed' ? p.variants?.[0]?.name : p.category?.name}</small>
           {priceLabel(p)}
           {!p.inStock && <small className="out">Out of stock</small>}
-          {had > 0 && <small className="in-basket"><Check size={13} aria-hidden="true" /> {had} in basket</small>}
+          {had > 0 && !(variant && single) && <small className="in-basket"><Check size={13} aria-hidden="true" /> {had} in basket</small>}
         </div>
       </Link>
       <FavButton kind="PRODUCT" slug={p.slug} />
       {p.isAgeRestricted && <span className="tag">18+</span>}
-      {variant && single && <button className="add" aria-label={`Add ${p.name} to basket`} disabled={busy} onClick={() => request(p, variant.id)}><Plus size={20} /></button>}
+      {variant && single && had > 0 && (
+        <div className="card-qty" role="group" aria-label={`${p.name}: ${had} in basket`}>
+          <button type="button" aria-label={had - 1 < min ? `Remove ${p.name}` : `One fewer ${p.name}`} disabled={busy} onClick={() => void setQty(variant.id, had - 1 < min ? 0 : had - 1, p.name)}>{had - 1 < min ? <Trash2 size={15} /> : <Minus size={16} />}</button>
+          <span aria-live="polite"><b>{had}</b> in basket</span>
+          <button type="button" className="more" aria-label={`One more ${p.name}`} disabled={busy || (max !== null && had >= max)} onClick={() => void setQty(variant.id, had + 1, p.name)}><Plus size={16} /></button>
+        </div>
+      )}
+      {variant && single && had === 0 && <button className="add" aria-label={`Add ${p.name} to basket`} disabled={busy} onClick={() => request(p, variant.id, min)}><Plus size={20} /></button>}
       {dialog}
     </article>
   );
@@ -174,18 +206,45 @@ export function ShopPage() {
   );
 }
 
-/** What delivery costs, before the customer reaches checkout. */
+/** "Gwarinpa, Asokoro, Guzape" from a zone named "Abuja: Gwarinpa, Asokoro, Guzape (₦7,000, larger orders ₦10,000)". */
+const zonePlaces = (z: any) => (z.cities?.length ? String(z.name).replace(/^[^:]*:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '') : `Anywhere else in ${z.state === 'FCT' || /abuja/i.test(z.name) ? 'Abuja' : z.state}`);
+
+/**
+ * What delivery costs, before the customer reaches checkout: the cheapest and dearest areas in one line,
+ * and every area's fee one tap away. The exact fee for their address is always shown before they pay.
+ */
 function DeliveryHint({ division }: { division?: string }) {
+  const [open, setOpen] = useState(false);
   const zones = useLoad(() => (division ? get(`/delivery/zones?division=${division}`).then(rows).catch(() => [] as any[]) : Promise.resolve([] as any[])), [division]);
-  const z = (zones.data ?? []).filter((x: any) => x.isActive);
+  const z = (zones.data ?? []).filter((x: any) => x.isActive).sort((a: any, b: any) => Number(a.feeMinor) - Number(b.feeMinor) || (a.cities?.length ? 0 : 1) - (b.cities?.length ? 0 : 1));
   if (!z.length) return null;
   const fees = z.map((x: any) => Number(x.feeMinor));
   const low = Math.min(...fees);
-  const high = Math.max(...fees);
-  const where = z.length === 1 ? `${formatNaira(low)} in ${z[0].name}` : low === 0 ? `free in Wuye and Utako, up to ${formatNaira(high)} across Abuja` : `from ${formatNaira(low)}`;
+  const high = Math.max(...fees, ...z.map((x: any) => Number(x.bulkFeeMinor ?? 0)));
+  const free = z.filter((x: any) => Number(x.feeMinor) === 0 && x.cities?.length).map(zonePlaces);
+  const paid = fees.filter((f: number) => f > 0);
+  const line = z.length === 1
+    ? `Delivery: ${low === 0 ? 'free' : formatNaira(low)}`
+    : free.length
+      ? `Free delivery to ${free.join(', ')}. Other areas ${formatNaira(Math.min(...paid))} to ${formatNaira(high)}.`
+      : `Delivery ${formatNaira(low)} to ${formatNaira(high)}, depending on your area.`;
   return (
     <div className="delivery-hint">
-      <span><Truck size={15} aria-hidden="true" /> Delivery {where}</span>
+      <span><Truck size={15} aria-hidden="true" /> {line}</span>
+      <small>The exact fee for your address is shown before you pay. Picking up from our shop is free. {z.length > 1 && <button type="button" className="text-link" onClick={() => setOpen(true)}>See fees by area</button>}</small>
+      {open && (
+        <Sheet title="Delivery fees by area" onClose={() => setOpen(false)}>
+          <ul className="fee-list">
+            {z.map((x: any) => (
+              <li key={x.id}>
+                <span>{zonePlaces(x)}{x.bulkFeeMinor && x.bulkFromQty ? <small>{formatNaira(x.bulkFeeMinor)} for orders of {x.bulkFromQty} or more items</small> : null}{x.freeAboveMinor ? <small>Free on orders over {formatNaira(x.freeAboveMinor)}</small> : null}</span>
+                <b>{Number(x.feeMinor) === 0 ? 'Free' : formatNaira(x.feeMinor)}</b>
+              </li>
+            ))}
+          </ul>
+          <Note>One fee per order, whatever you buy. You see the fee for your address before you pay.</Note>
+        </Sheet>
+      )}
     </div>
   );
 }

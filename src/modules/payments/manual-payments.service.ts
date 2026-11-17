@@ -106,7 +106,8 @@ export class ManualPaymentsService {
       confirmationRule: policy.confirmationRule,
       payBy: ctx.payBy ?? null,
       methods: {
-        paystack: { available: open && policy.allowPaystack, channels: ['card', 'bank_transfer', 'ussd'], note: process.env.PAYSTACK_MODE === 'live' ? 'Card, bank transfer or USSD through Paystack' : 'Paystack checkout (test mode)' },
+        // In test mode Paystack takes only its own test cards, so the app explains that real cards wait for live payments.
+        paystack: { available: open && policy.allowPaystack, channels: ['card', 'bank_transfer', 'ussd'], testMode: process.env.PAYSTACK_MODE !== 'live', note: process.env.PAYSTACK_MODE === 'live' ? 'Visa, Mastercard or Verve card, bank transfer or USSD, through Paystack' : 'Paystack checkout (test mode)' },
         bankTransfer: { available: open && policy.allowBankTransfer && !!account, windowHours: policy.bankTransferWindowHours, note: account ? 'Account details are shown after you choose this option' : 'No receiving account configured' },
         payOnDelivery: { available: purpose === PaymentPurpose.ORDER && policy.allowPayOnDelivery, note: 'Chosen at checkout; staff collect on delivery' },
         payAtLocation: { available: policy.allowPayAtLocation && locations.length > 0 && !isDelivery, locations },

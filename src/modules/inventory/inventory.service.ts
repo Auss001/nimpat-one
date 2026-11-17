@@ -126,7 +126,7 @@ export class InventoryService {
   }
 
   /** Puts sold units back on hand (a paid order was cancelled before dispatch). */
-  async restock(tx: Tx, locationId: string, all: StockLine[], orderId: string, actorId?: string): Promise<void> {
+  async restock(tx: Tx, locationId: string, all: StockLine[], orderId: string, actorId?: string, reason = 'Order cancelled after payment'): Promise<void> {
     const lines = await this.movedLines(tx, orderId, all, StockMovementType.SALE);
     if (!lines.length) return;
     for (const line of lines) {
@@ -137,7 +137,7 @@ export class InventoryService {
          WHERE "variant_id" = ${line.variantId}::uuid AND "location_id" = ${locationId}::uuid`;
     }
     await tx.stockMovement.createMany({
-      data: lines.map((l) => ({ variantId: l.variantId, locationId, type: StockMovementType.RETURN, quantity: l.quantity, orderId, actorId, reason: 'Order cancelled after payment' })),
+      data: lines.map((l) => ({ variantId: l.variantId, locationId, type: StockMovementType.RETURN, quantity: l.quantity, orderId, actorId, reason })),
     });
   }
 
