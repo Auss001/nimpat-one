@@ -29,6 +29,7 @@ const FAQ: { q: string; a: string }[] = ([
   { q: 'Is VAT included in the prices?', a: 'Water, drinks and wines prices are shown before VAT. 7.5% VAT is added at checkout, on its own line, so you see the full total before you pay.' },
   { q: 'How do I track my order?', a: 'Open Orders at the bottom of the screen and tap your order. You will see each step, from placed to delivered, and we notify you when it moves.' },
   { q: 'Can I change my delivery address?', a: 'Yes, before the order is paid or sent out: open the order and choose Change. After that, please call or WhatsApp us.' },
+  { q: 'Can I cancel an order?', a: 'Yes, while it is not paid and we have not started preparing it: open Orders and tap Cancel. If you have already paid, call or WhatsApp us with the order number and we will cancel it and refund you.' },
   { q: 'Why can I not buy some medicines?', a: 'Our pharmacist checks every medicine before it can be sold online. Prescription medicines need a pharmacist review, so you can book a pharmacist from the Pharmacy page instead.' },
   { q: 'Why am I asked my age for some drinks?', a: 'Alcohol is only sold to adults aged 18 and over. You may be asked for ID on delivery.' },
   { q: 'What are Royalty points?', a: 'Members earn points on payments for orders and bookings. Points are added once a payment is confirmed. See Royalty Member for the current rates.' },

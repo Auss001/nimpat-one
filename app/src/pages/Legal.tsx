@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { PageTitle } from '../ui';
 
-const UPDATED = '7 November 2026';
+const UPDATED = '17 November 2026';
 const EMAIL = 'nimpatinternational@gmail.com';
 const PHONE_TEXT = '+234 818 833 6209';
 const ADDRESS = 'Crownet Plaza, Wuye, Abuja, Nigeria';
@@ -32,12 +32,12 @@ const PRIVACY: Section[] = [
   [
     'Who we share it with',
     'Nimpat staff who need it for your order or booking, including across the Nimpat businesses you use.',
-    'Paystack, to process online payments. Google Cloud, which hosts the app and stores its data. An email provider, to send account and order messages. Delivery staff or partners, who receive what they need to reach you.',
+    'Paystack, to process online payments. Google Cloud, which runs the app and keeps uploaded photos and receipts. Neon, which hosts the app’s database. Google Firebase, to send notifications to your phone if you allow them. An email provider, to send account and order messages. Delivery staff or partners, who receive what they need to reach you.',
     'Authorities or advisers, where the law requires it or where it is needed to protect legal rights.',
   ],
   [
     'Storage outside Nigeria',
-    'The app and its database are hosted on Google Cloud in Belgium, so your information is stored outside Nigeria. Service providers may also handle it in other countries. We rely on the safeguards that Nigerian data protection law requires for these transfers.',
+    'The app runs on Google Cloud in Belgium, and its database is hosted by Neon in Frankfurt, Germany, so your information is stored outside Nigeria. Service providers may also handle it in other countries. We rely on the safeguards that Nigerian data protection law requires for these transfers.',
   ],
   [
     'Browser storage and cookies',
@@ -73,6 +73,7 @@ const TERMS: Section[] = [
   [
     'Orders',
     'An order is confirmed when it has been accepted and the payment arrangement applies. Unpaid orders can expire after the time shown. Each Nimpat store checks out separately.',
+    'You can cancel an order in the app while it is unpaid and we have not started preparing it. To cancel a paid order, contact us before it is sent out, and we will refund what you paid.',
     'Please give a correct address and a reachable phone number, and check your delivery when it arrives. Tell us promptly if anything is missing, damaged or wrong.',
   ],
   [

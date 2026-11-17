@@ -6,7 +6,7 @@ import { AccessService } from '../access/access.service';
 import { AuthUser } from '../access/auth-user';
 import { ApartmentsService } from '../apartments/apartments.service';
 import { AuditService } from '../audit/audit.service';
-import { OrdersService } from '../orders/orders.service';
+import { customerCancelBlock, OrdersService } from '../orders/orders.service';
 import { ServicesService } from '../services/services.module';
 import { SpaService } from '../spa/spa.module';
 import { CreateAddressDto, UpdateAddressDto, UpdateProfileDto } from './users.dto';
@@ -41,12 +41,13 @@ export class UsersService {
     const live = [BookingStatus.REQUESTED, BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS];
     const waiting: BookingStatus[] = [BookingStatus.REQUESTED, BookingStatus.PENDING];
     const [orders, stays, services, spa] = await Promise.all([
-      this.prisma.order.findMany({ where: { userId: user.id, status: { notIn: finished } }, select: { id: true, orderNumber: true, status: true, amountPaidMinor: true } }),
+      this.prisma.order.findMany({ where: { userId: user.id, status: { notIn: finished } }, select: { id: true, orderNumber: true, status: true, amountPaidMinor: true, paymentStatus: true, paymentOption: true, delivery: { select: { status: true } } } }),
       this.prisma.reservation.findMany({ where: { userId: user.id, groupLeadId: null, status: { in: [ReservationStatus.HOLD, ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN] } }, select: { id: true, reservationNumber: true, status: true, amountPaidMinor: true } }),
       this.prisma.serviceBooking.findMany({ where: { userId: user.id, status: { in: live } }, select: { id: true, bookingNumber: true, status: true, amountPaidMinor: true } }),
       this.prisma.spaAppointment.findMany({ where: { userId: user.id, status: { in: live } }, select: { id: true, appointmentNumber: true, status: true, amountPaidMinor: true } }),
     ]);
-    const unpaidOrder = (o: (typeof orders)[number]) => o.status === OrderStatus.PENDING && o.amountPaidMinor === 0n;
+    // The same rule as the customer's own Cancel button: unpaid and not yet started (including pay on delivery).
+    const unpaidOrder = (o: (typeof orders)[number]) => customerCancelBlock(o) === null;
     const unpaidStay = (r: (typeof stays)[number]) => r.status === ReservationStatus.HOLD && r.amountPaidMinor === 0n;
     const unpaidBooking = (b: { status: BookingStatus; amountPaidMinor: bigint }) => waiting.includes(b.status) && b.amountPaidMinor === 0n;
     const keptForTeam = [

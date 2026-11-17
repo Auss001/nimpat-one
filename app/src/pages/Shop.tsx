@@ -409,7 +409,7 @@ export function SearchPage() {
         </section>
       )}
       <section>
-        {!initial && <div className="chips wrap">{['Water', 'Champagne', 'Whisky', 'Paracetamol', 'Toyota', 'Massage', 'Mabushi'].map((s) => <button key={s} onClick={() => setText(s)}>{s}</button>)}</div>}
+        {!initial && <div className="chips wrap">{['Water', 'Champagne', 'Whisky', ...(HIDE_PHARMACY ? [] : ['Paracetamol']), 'Toyota', 'Massage', 'Mabushi'].map((s) => <button key={s} onClick={() => setText(s)}>{s}</button>)}</div>}
       </section>
       {nothing && <Empty title={`Nothing found for "${initial}"`}>Try another word.</Empty>}
       {sections.length > 0 && <div className="chips wrap section-hits" aria-label="Go to">{sections.map((x) => <Link key={x.to} to={x.to} className="chip-link">{x.label} <ChevronRight size={15} aria-hidden="true" /></Link>)}</div>}
