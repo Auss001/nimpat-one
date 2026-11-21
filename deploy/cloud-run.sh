@@ -5,10 +5,13 @@
 #   PROJECT=my-project ./deploy/cloud-run.sh sql FILE   back up, then apply a data change such as deploy/data/*.sql
 #   PROJECT=my-project ./deploy/cloud-run.sh backup     copy the whole database to the backups bucket now
 #
-# Database (owner, 14 November 2026): during testing the database runs on Neon's free plan (PostgreSQL, Frankfurt),
-# so Google Cloud stays inside its free allowance. Its address is the Secret Manager secret
-# nimpat-one-neon-database-url (the DIRECT address, without "-pooler"). DB=cloudsql switches every command back to the
-# old Cloud SQL instance. A daily copy of the whole database goes to the backups bucket (kept 30 days).
+# Database: Cloud SQL (nimpat-one-pg, PostgreSQL 17, Belgium). From 14 to 21 November 2026 it ran on Neon's free plan
+# to save credits; on 21 November the owner moved it back (deploy/db-move.sh copied and checked every row).
+# DB=neon points every command at Neon again (secret nimpat-one-neon-database-url, the DIRECT address without
+# "-pooler"), only for a planned move back: copy the rows across with deploy/db-move.sh first.
+# Backups (owner, 21 November 2026: cheapest plan, weekly): one copy of the whole database every Sunday 02:00 UTC
+# into the backups bucket (kept 30 days), plus one before every data change and before any release that changes the
+# tables (prisma/). Cloud SQL's own daily backups are switched off.
 # Secrets are created in Secret Manager and never printed or written to disk.
 set -euo pipefail
 # Git Bash on Windows: leave these arguments alone; everything else needs its normal path handling.
@@ -18,7 +21,7 @@ export MSYS2_ARG_CONV_EXCL="--args=;--add-volume-mount=;--set-env-vars=;--startu
 REGION="${REGION:-europe-west1}"
 SQL_INSTANCE=nimpat-one-pg
 SQL_TIER="${SQL_TIER:-db-f1-micro}"
-DB="${DB:-neon}"
+DB="${DB:-cloudsql}"
 case "$DB" in neon) DB_SECRET=nimpat-one-neon-database-url ;; cloudsql) DB_SECRET=nimpat-one-database-url ;; *) echo "DB must be neon or cloudsql"; exit 1 ;; esac
 BACKUPS="nimpat-one-backups-$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
 NUMBER=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
@@ -73,7 +76,7 @@ setup() {
   done
 
   echo "== database (this takes several minutes the first time)"
-  gcloud sql instances describe "$SQL_INSTANCE" >/dev/null 2>&1 || gcloud sql instances create "$SQL_INSTANCE" --database-version=POSTGRES_17 --edition=ENTERPRISE --tier="$SQL_TIER" --region="$REGION" --storage-size=10GB --storage-auto-increase --backup-start-time=02:00 --deletion-protection
+  gcloud sql instances describe "$SQL_INSTANCE" >/dev/null 2>&1 || gcloud sql instances create "$SQL_INSTANCE" --database-version=POSTGRES_17 --edition=ENTERPRISE --tier="$SQL_TIER" --region="$REGION" --storage-size=10GB --storage-auto-increase --no-backup --deletion-protection
   gcloud sql databases describe nimpat_one --instance="$SQL_INSTANCE" >/dev/null 2>&1 || gcloud sql databases create nimpat_one --instance="$SQL_INSTANCE"
 
   echo "== secrets"
@@ -125,8 +128,7 @@ run_sql() { # file: a data change such as a price list, applied after a backup
     echo "applied"
     return
   fi
-  echo "== backing up the database"
-  gcloud sql backups create --instance="$SQL_INSTANCE" --description="before $(basename "$file")" --quiet
+  backup "before $(basename "$file")"
   echo "== applying $(basename "$file")"
   gcloud storage buckets describe "gs://$tmp" >/dev/null 2>&1 || gcloud storage buckets create "gs://$tmp" --location="$REGION" --uniform-bucket-level-access --public-access-prevention
   local sql_sa; sql_sa=$(gcloud sql instances describe "$SQL_INSTANCE" --format='value(serviceAccountEmailAddress)')
@@ -149,7 +151,8 @@ report() { # query: a read-only SELECT; prints the result as CSV (nothing change
   gcloud storage rm --recursive "gs://$tmp" >/dev/null 2>&1
 }
 
-# The backup job: pg_dump of the whole database into gs://$BACKUPS (deleted after 30 days). Free at this size.
+# The backup job: pg_dump of the whole database into gs://$BACKUPS (deleted after 30 days). About half a MB
+# compressed, so storage costs a fraction of a cent; the job itself fits Cloud Run's free allowance.
 backup_job() {
   gcloud storage buckets describe "gs://$BACKUPS" >/dev/null 2>&1 || gcloud storage buckets create "gs://$BACKUPS" --location="$REGION" --uniform-bucket-level-access --public-access-prevention >/dev/null
   printf '{"rule":[{"action":{"type":"Delete"},"condition":{"age":30}}]}' > "${TMPDIR:-/tmp}/nimpat-lifecycle.json"
@@ -157,15 +160,17 @@ backup_job() {
   rm -f "${TMPDIR:-/tmp}/nimpat-lifecycle.json"
   gcloud storage buckets add-iam-policy-binding "gs://$BACKUPS" --member="serviceAccount:$SA" --role=roles/storage.objectAdmin --condition=None >/dev/null
   gcloud secrets add-iam-policy-binding "$DB_SECRET" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
+  # Cloud SQL is reached through its socket; pg_dump does not accept Prisma's "schema=public", so it is dropped.
+  local sqlflag="--set-cloudsql-instances="
+  [ "$DB" = cloudsql ] && sqlflag="--set-cloudsql-instances=$PROJECT:$REGION:$SQL_INSTANCE"
   gcloud run jobs deploy nimpat-one-backup --image=docker.io/library/postgres:18 --region="$REGION" --service-account="$SA" \
-    --set-secrets=DATABASE_URL="$DB_SECRET":latest --add-volume=name=backups,type=cloud-storage,bucket="$BACKUPS" --add-volume-mount=volume=backups,mount-path=/backups \
-    --command=sh --args=-c,'f=/backups/$(date -u +%Y-%m-%d-%H%M).sql.gz; pg_dump --no-owner --no-privileges "$DATABASE_URL" | gzip > "$f.part" && mv "$f.part" "$f" && ls -l "$f"' \
+    "$sqlflag" --set-secrets=DATABASE_URL="$DB_SECRET":latest --add-volume=name=backups,type=cloud-storage,bucket="$BACKUPS" --add-volume-mount=volume=backups,mount-path=/backups \
+    --command=sh --args=-c,'u=$(printf %s "$DATABASE_URL" | sed "s/[?&]schema=public$//"); f=/backups/$(date -u +%Y-%m-%d-%H%M).sql.gz; pg_dump --no-owner --no-privileges "$u" | gzip > "$f.part" && mv "$f.part" "$f" && ls -l "$f"' \
     --memory=512Mi --max-retries=1 --task-timeout=600 --quiet >/dev/null
 }
 
-backup() { # description: copies the whole database now, and waits
+backup() { # description: copies the whole database into the backups bucket now, and waits
   echo "== backing up the database ($1)"
-  if [ "$DB" = cloudsql ]; then gcloud sql backups create --instance="$SQL_INSTANCE" --description="$1" --quiet; return; fi
   backup_job
   gcloud run jobs execute nimpat-one-backup --region="$REGION" --wait --quiet >/dev/null && echo "backup saved in gs://$BACKUPS"
 }
@@ -180,7 +185,14 @@ release() {
   docker push -q "$REPO/api:$tag"; docker push -q "$REPO/app:$tag"; docker push -q "$REPO/admin:$tag"
 
   echo "== backing up and updating the database ($DB)"
-  backup "before release $tag"
+  # A copy is needed only when the tables change (prisma/, committed or not); otherwise the weekly copy covers it.
+  local live; live=$(gcloud run services describe nimpat-one-api --region="$REGION" --format='value(spec.template.spec.containers[0].image)' 2>/dev/null || true)
+  live=${live##*:}; live=${live%%-*}
+  if [ -n "$live" ] && git cat-file -e "$live^{commit}" 2>/dev/null && git diff --quiet "$live" -- prisma/ && [ -z "$(git status --porcelain -- prisma/)" ]; then
+    echo "no table changes since the live release ($live): no copy needed"
+  else
+    backup "before release $tag"
+  fi
   local sqlflag="--set-cloudsql-instances=" addsql="--clear-cloudsql-instances"
   if [ "$DB" = cloudsql ]; then sqlflag="--set-cloudsql-instances=$PROJECT:$REGION:$SQL_INSTANCE"; addsql="--add-cloudsql-instances=$PROJECT:$REGION:$SQL_INSTANCE"; fi
   gcloud secrets add-iam-policy-binding "$DB_SECRET" --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor --condition=None >/dev/null
@@ -240,15 +252,14 @@ release() {
     job nimpat-one-reconcile '*/15 * * * *' /api/v1/internal/jobs/reconcile-payments
   fi
   unset token
-  # The daily copy of the whole database (03:00 Lagos time).
-  if [ "$DB" = neon ]; then
-    local runner="https://run.googleapis.com/v2/projects/$PROJECT/locations/$REGION/jobs/nimpat-one-backup:run"
-    gcloud run jobs add-iam-policy-binding nimpat-one-backup --region="$REGION" --member="serviceAccount:$SA" --role=roles/run.invoker --quiet >/dev/null
-    if gcloud scheduler jobs describe nimpat-one-backup --location="$REGION" >/dev/null 2>&1; then
-      gcloud scheduler jobs update http nimpat-one-backup --location="$REGION" --schedule='0 2 * * *' --uri="$runner" --http-method=POST --oauth-service-account-email="$SA" --quiet >/dev/null
-    else
-      gcloud scheduler jobs create http nimpat-one-backup --location="$REGION" --schedule='0 2 * * *' --uri="$runner" --http-method=POST --oauth-service-account-email="$SA" --quiet >/dev/null
-    fi
+  # The weekly copy of the whole database (Sunday 03:00 Lagos time), for either database.
+  backup_job
+  local runner="https://run.googleapis.com/v2/projects/$PROJECT/locations/$REGION/jobs/nimpat-one-backup:run"
+  gcloud run jobs add-iam-policy-binding nimpat-one-backup --region="$REGION" --member="serviceAccount:$SA" --role=roles/run.invoker --quiet >/dev/null
+  if gcloud scheduler jobs describe nimpat-one-backup --location="$REGION" >/dev/null 2>&1; then
+    gcloud scheduler jobs update http nimpat-one-backup --location="$REGION" --schedule='0 2 * * 0' --uri="$runner" --http-method=POST --oauth-service-account-email="$SA" --quiet >/dev/null
+  else
+    gcloud scheduler jobs create http nimpat-one-backup --location="$REGION" --schedule='0 2 * * 0' --uri="$runner" --http-method=POST --oauth-service-account-email="$SA" --quiet >/dev/null
   fi
 
   echo "customer app: $APP_URL"
